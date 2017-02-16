@@ -1,4 +1,4 @@
-"""Setup for the pandlines module."""
+"""Setup for the pdpipe package."""
 
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
@@ -14,14 +14,14 @@ with open('README.rst') as f:
 setup(
     author="Shay Palachy",
     author_email="shaypal5@gmail.com",
-    name='pandlines',
+    name='pdpipe',
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
     long_description=README,
-    url='https://github.com/shaypal5/pandlines',
+    url='https://github.com/shaypal5/pdpipe',
     packages=find_packages(),
     install_requires=[
-        'pandas'
+        'pandas>=0.18.0', 'sortedcontainers', 'tqdm'
     ],
     test_suite='nose.collector',
     tests_require=['nose'],

@@ -1,2 +1,2 @@
 include versioneer.py
-include pandlines/_version.py
+include pdpipe/_version.py

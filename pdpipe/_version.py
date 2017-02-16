@@ -42,8 +42,8 @@ def get_config():
     cfg.VCS = "git"
     cfg.style = "pep440"
     cfg.tag_prefix = "v"
-    cfg.parentdir_prefix = "pandlines-"
-    cfg.versionfile_source = "pandlines/_version.py"
+    cfg.parentdir_prefix = "pdpipe-"
+    cfg.versionfile_source = "pdpipe/_version.py"
     cfg.verbose = False
     return cfg
 
