@@ -105,9 +105,9 @@ class PipelineStage(object):
             exmsg = PipelineStage.DEF_EXC_MSG
         if appmsg is None:
             appmsg = PipelineStage.DEF_APPLY_MSG
-        self.exraise = exraise
-        self.exmsg = exmsg
-        self.appmsg = appmsg
+        self._exraise = exraise
+        self._exmsg = exmsg
+        self._appmsg = appmsg
 
     def _prec(self, df):  # pylint: disable=R0201,W0613
         """Returns True if this stage can be applied to the given dataframe."""
@@ -141,13 +141,13 @@ class PipelineStage(object):
             The resulting dataframe.
         """
         if exraise is None:
-            exraise = self.exraise
+            exraise = self._exraise
         if self._prec(df):
             if verbose:
-                print(self.appmsg)
+                print(self._appmsg, flush=True)
             return self._op(df, verbose)
         if exraise:
-            raise FailedPreconditionError(self.exmsg)
+            raise FailedPreconditionError(self._exmsg)
         return df
 
     __call__ = apply
@@ -226,28 +226,32 @@ class Pipeline(PipelineStage):
         if appmsg is None:
             appmsg = self.DEF_APPLY_MSG
         super(Pipeline, self).__init__(exraise=False, appmsg=appmsg)
-        self.stages = stages
+        self._stages = stages
 
     def _prec(self, df):
         return True
 
     def _op(self, df, verbose):
+        pass  # Pipeline overrides apply in a way which makes this moot
+
+    def apply(self, df, exraise=None, verbose=False):
         prev_df = df
-        for stage in self.stages:
-            prev_df = stage(prev_df, verbose)
+        for stage in self._stages:
+            prev_df = stage.apply(df=prev_df, exraise=exraise, verbose=verbose)
         return prev_df
+
 
     def __add__(self, other):
         if isinstance(other, PipelineStage):
-            return Pipeline([*self.stages, other])
+            return Pipeline([*self._stages, other])
         elif isinstance(other, Pipeline):
-            return Pipeline([*self.stages, *other.stages])
+            return Pipeline([*self._stages, *other.stages])
         else:
             return NotImplemented
 
     def __str__(self):
         res = "A pdpipe pipline:\n"
-        res += 'df -> ' + self.stages[0].__str__() + '\n'
-        for stage in self.stages[1:]:
+        res += 'df -> ' + self._stages[0].__str__() + '\n'
+        for stage in self._stages[1:]:
             res += '   -> ' + stage.__str__() + '\n'
         return res
