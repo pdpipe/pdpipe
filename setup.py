@@ -15,7 +15,7 @@ README_RST = ''
 with open('README.rst') as f:
     README_RST = f.read()
 
-TEST_REQUIRES = ['pytest', 'coverage']
+TEST_REQUIRES = ['pytest', 'coverage', 'pytest-cov']
 
 
 setup(
