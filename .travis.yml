@@ -11,12 +11,20 @@ notifications:
 before_install:
   # coverage submission packages
   - pip install codecov
-  # installing scipy with pip is not easy
-  - apt-get install scipy
+  # setup miniconda
+  - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+  - chmod +x miniconda.sh
+  - ./miniconda.sh -b
+  - export PATH=/home/travis/miniconda/bin:$PATH
+  - conda update --yes conda
+  # The next couple lines fix a crash with multiprocessing on Travis and are not specific to using Miniconda
+  - sudo rm -rf /dev/shm
+  - sudo ln -s /run/shm /dev/shm
 install:
   # Coveralls 4.0 doesn't support Python 3.2
   - if [ "$TRAVIS_PYTHON_VERSION" == "3.2" ]; then travis_retry pip install coverage==3.7.1; fi
   - if [ "$TRAVIS_PYTHON_VERSION" != "3.2" ]; then travis_retry pip install coverage; fi
+  - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy scipy
   - python setup.py test
 script: pytest --doctest-modules --cov=pdpipe
 # --ignore-files="tests_perf\.py" -coveralls
