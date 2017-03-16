@@ -1,11 +1,14 @@
 """Basic pdpipe PiplineStages."""
 
+import types
+
 import pandas as pd
 import sortedcontainers as sc
 import sklearn.preprocessing
 import tqdm
 
-from .core import PipelineStage
+from pdpipe.core import PipelineStage
+from pdpipe.util import out_of_place_col_insert
 
 
 def _interpret_columns_param(columns, param_name):
@@ -20,18 +23,24 @@ def _interpret_columns_param(columns, param_name):
                 "strings.".format(param_name))
 
 
+def _list_str(listi):
+    if listi is None:
+        return None
+    if isinstance(listi, (list, tuple)):
+        return ', '.join([str(elem) for elem in listi])
+    return listi
+
+
 class ColDrop(PipelineStage):
     """A pipline stage that drops columns by name.
 
     Parameters
     ----------
-    columns : str or iterable
-        The name, or an iterable of names, of columns to drop.
-    exraise : bool, default True
-        If true, a pdpipe.FailedPreconditionError is raised when this
-        stage is applied to a dataframe for which the precondition does
-        not hold. Otherwise the stage is skipped. Defaults to True.
-
+    columns : str, iterable or callable
+        The name, or an iterable of names, of columns to drop. Alternatively,
+        columns can be assigned a callable returning bool values for
+        pandas.Series objects; if this is the case, every column for which it
+        return True will be dropped.
 
     Example
     -------
@@ -43,26 +52,42 @@ class ColDrop(PipelineStage):
     2    b
     """
 
-    DEF_COLDROP_EXC_MSG = "ColDrop stage failed because not all columns {}"\
-                          " were found in input dataframe."
-    DEF_COLDROP_APPLY_MSG = 'Dropping columns {}...'
+    _DEF_COLDROP_EXC_MSG = ("ColDrop stage failed because not all columns {}"
+                            " were found in input dataframe.")
+    _DEF_COLDROP_APPLY_MSG = 'Dropping columns {}...'
 
-    def __init__(self, columns, exraise=True):
-        self._columns = _interpret_columns_param(columns, 'columns')
-        super(ColDrop, self).__init__(
-            exraise=exraise,
-            exmsg=ColDrop.DEF_COLDROP_EXC_MSG.format(self._columns),
-            appmsg=ColDrop.DEF_COLDROP_APPLY_MSG.format(self._columns)
-        )
+    def _default_desc(self):
+        if isinstance(self._columns, types.FunctionType):
+            return "Drop columns by lambda."
+        return "Drop column{} {}".format(
+            's' if len(self._columns) > 1 else '', self._columns_str)
+
+    def __init__(self, columns, **kwargs):
+        self._columns = columns
+        self._columns_str = _list_str(self._columns)
+        if not callable(columns):
+            self._columns = _interpret_columns_param(columns, 'columns')
+        super_kwargs = {
+            'exmsg': ColDrop._DEF_COLDROP_EXC_MSG.format(self._columns_str),
+            'appmsg': ColDrop._DEF_COLDROP_APPLY_MSG.format(self._columns_str),
+            'desc': self._default_desc()
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
 
     def _prec(self, df):
+        if callable(self._columns):
+            return True
         return set(self._columns).issubset(df.columns)
 
     def _op(self, df, verbose):
+        if callable(self._columns):
+            cols_to_drop = [
+                col for col in df.columns
+                if self._columns(df[col])
+            ]
+            return df.drop(cols_to_drop, axis=1)
         return df.drop(self._columns, axis=1)
-
-    def __str__(self):
-        return "Drop columns {}".format(self._columns)
 
 
 class ValDrop(PipelineStage):
@@ -75,11 +100,6 @@ class ValDrop(PipelineStage):
     columns : str or list-like, defualt None
         The name, or an iterable of names, of columns to check for the given
         values. If set to None, all columns are checked.
-    exraise : bool, default True
-        If true, a pdpipe.FailedPreconditionError is raised when this
-        stage is applied to a dataframe for which the precondition does
-        not hold. Otherwise the stage is skipped. Defaults to True.
-
 
     Example
     -------
@@ -94,24 +114,37 @@ class ValDrop(PipelineStage):
     3  18  11
     """
 
-    DEF_VALDROP_EXC_MSG = "ValDrop stage failed because not all columns {}"\
-                          " were found in input dataframe."
-    DEF_VALDROP_APPLY_MSG = "Dropping values {}..."
+    _DEF_VALDROP_EXC_MSG = ("ValDrop stage failed because not all columns {}"
+                            " were found in input dataframe.")
+    _DEF_VALDROP_APPLY_MSG = "Dropping values {}..."
 
-    def __init__(self, values, columns=None, exraise=True):
+    def _default_desc(self):
+        if self._columns:
+            return "Drop values {} in column{} {}".format(
+                self._values_str, 's' if len(self._columns) > 1 else '',
+                self._columns_str)
+        return "Drop values {}".format(self._values_str)
+
+    def __init__(self, values, columns=None, **kwargs):
         self._values = values
+        self._values_str = _list_str(self._values)
+        self._columns_str = _list_str(columns)
         if columns is None:
             self._columns = None
-            apply_msg = ValDrop.DEF_VALDROP_APPLY_MSG.format(self._values)
+            apply_msg = ValDrop._DEF_VALDROP_APPLY_MSG.format(
+                self._values_str)
         else:
             self._columns = _interpret_columns_param(columns, 'columns')
-            apply_msg = ValDrop.DEF_VALDROP_APPLY_MSG.format(
-                "{} in {}".format(self._values, self._columns))
-        super(ValDrop, self).__init__(
-            exraise=exraise,
-            exmsg=ValDrop.DEF_VALDROP_EXC_MSG.format(self._columns),
-            appmsg=apply_msg
-        )
+            apply_msg = ValDrop._DEF_VALDROP_APPLY_MSG.format(
+                "{} in {}".format(
+                    self._values_str, self._columns_str))
+        super_kwargs = {
+            'exmsg': ValDrop._DEF_VALDROP_EXC_MSG.format(self._columns_str),
+            'appmsg': apply_msg,
+            'desc': self._default_desc()
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
 
     def _prec(self, df):
         return set(self._columns or []).issubset(df.columns)
@@ -125,12 +158,6 @@ class ValDrop(PipelineStage):
             inter_df = inter_df[~inter_df[col].isin(self._values)]
         return inter_df
 
-    def __str__(self):
-        if self._columns:
-            return "Drop values {} in columns {}".format(
-                self._values, self._columns)
-        return "Drop values {}".format(self._values)
-
 
 class ValKeep(PipelineStage):
     """A pipline stage that keeps rows by value.
@@ -142,11 +169,6 @@ class ValKeep(PipelineStage):
     columns : str or list-like, defualt None
         The name, or an iterable of names, of columns to check for the given
         values. If set to None, all columns are checked.
-    exraise : bool, default True
-        If true, a pdpipe.FailedPreconditionError is raised when this
-        stage is applied to a dataframe for which the precondition does
-        not hold. Otherwise the stage is skipped. Defaults to True.
-
 
     Example
     -------
@@ -161,24 +183,37 @@ class ValKeep(PipelineStage):
     2  4  5
     """
 
-    DEF_VALKEEP_EXC_MSG = "ValKeep stage failed because not all columns {}"\
-                          " were found in input dataframe."
-    DEF_VALKEEP_APPLY_MSG = "Keeping values {}..."
+    _DEF_VALKEEP_EXC_MSG = ("ValKeep stage failed because not all columns {}"
+                            " were found in input dataframe.")
+    _DEF_VALKEEP_APPLY_MSG = "Keeping values {}..."
 
-    def __init__(self, values, columns=None, exraise=True):
+    def _default_desc(self):
+        if self._columns:
+            return "Keep values {} in column{} {}".format(
+                self._values_str, 's' if len(self._columns) > 1 else '',
+                self._columns_str)
+        return "Keep values {}".format(self._values_str)
+
+    def __init__(self, values, columns=None, **kwargs):
         self._values = values
+        self._values_str = _list_str(self._values)
+        self._columns_str = _list_str(columns)
         if columns is None:
             self._columns = None
-            apply_msg = ValKeep.DEF_VALKEEP_APPLY_MSG.format(self._values)
+            apply_msg = ValKeep._DEF_VALKEEP_APPLY_MSG.format(
+                self._values_str)
         else:
             self._columns = _interpret_columns_param(columns, 'columns')
-            apply_msg = ValKeep.DEF_VALKEEP_APPLY_MSG.format(
-                "{} in {}".format(self._values, self._columns))
-        super(ValKeep, self).__init__(
-            exraise=exraise,
-            exmsg=ValKeep.DEF_VALKEEP_EXC_MSG.format(self._columns),
-            appmsg=apply_msg
-        )
+            apply_msg = ValKeep._DEF_VALKEEP_APPLY_MSG.format(
+                "{} in {}".format(
+                    self._values_str, self._columns_str))
+        super_kwargs = {
+            'exmsg': ValKeep._DEF_VALKEEP_EXC_MSG.format(self._columns_str),
+            'appmsg': apply_msg,
+            'desc': self._default_desc()
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
 
     def _prec(self, df):
         return set(self._columns or []).issubset(df.columns)
@@ -192,12 +227,6 @@ class ValKeep(PipelineStage):
             inter_df = inter_df[inter_df[col].isin(self._values)]
         return inter_df
 
-    def __str__(self):
-        if self._columns:
-            return "Keep values {} in columns {}".format(
-                self._values, self._columns)
-        return "Keep values {}".format(self._values)
-
 
 class ColRename(PipelineStage):
     """A pipline stage that renames a column or columns.
@@ -206,10 +235,6 @@ class ColRename(PipelineStage):
     ----------
     rename_map : dict
         Maps old column names to new ones.
-    exraise : bool, default True
-        If true, a pdpipe.FailedPreconditionError is raised when this
-        stage is applied to a dataframe for which the precondition does
-        not hold. Otherwise the stage is skipped. Defaults to True.
 
     Example
     -------
@@ -221,19 +246,22 @@ class ColRename(PipelineStage):
     2    5       b
     """
 
-    DEF_COLDRENAME_EXC_MSG = "ColRename stage failed because not all columns "\
-                          "{} were found in input dataframe."
-    DEF_COLDRENAME_APP_MSG = "Renaming columns {}..."
+    _DEF_COLDRENAME_EXC_MSG = ("ColRename stage failed because not all columns"
+                               " {} were found in input dataframe.")
+    _DEF_COLDRENAME_APP_MSG = "Renaming column{} {}..."
 
-    def __init__(self, rename_map, exraise=True):
-        super(ColRename, self).__init__(
-            exraise=exraise,
-            exmsg=ColRename.DEF_COLDRENAME_EXC_MSG.format(
-                list(rename_map.keys())),
-            appmsg=ColRename.DEF_COLDRENAME_APP_MSG.format(
-                list(rename_map.keys()))
-        )
+    def __init__(self, rename_map, **kwargs):
         self._rename_map = rename_map
+        columns_str = _list_str(list(rename_map.keys()))
+        suffix = 's' if len(rename_map) > 1 else ''
+        super_kwargs = {
+            'exmsg': ColRename._DEF_COLDRENAME_EXC_MSG.format(columns_str),
+            'appmsg': ColRename._DEF_COLDRENAME_APP_MSG.format(
+                suffix, columns_str),
+            'desc': "Rename column{} with {}".format(suffix, self._rename_map)
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
 
     def _prec(self, df):
         return set(self._rename_map.keys()).issubset(df.columns)
@@ -241,12 +269,12 @@ class ColRename(PipelineStage):
     def _op(self, df, verbose):
         return df.rename(columns=self._rename_map)
 
-    def __str__(self):
-        return "Rename columns {}".format(self._rename_map)
-
 
 class Bin(PipelineStage):
     """A pipline stage that adds a binned version of a column or columns.
+
+    If drop is set to True the new columns retain the names of the source
+    columns; otherwise, the resulting column gain the suffix '_bin'
 
     Parameters
     ----------
@@ -261,43 +289,51 @@ class Bin(PipelineStage):
         [0-5), [5-8) and [5, ∞).
     drop : bool, default True
         If set to True, the source columns are dropped after being binned.
-    exraise : bool, default True
-        If true, a pdpipe.FailedPreconditionError is raised when this
-        stage is applied to a dataframe for which the precondition does
-        not hold. Otherwise the stage is skipped.
 
     Example
     -------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[-3],[4],[5], [9]], [1,2,3, 4], ['speed'])
     >>> pdp.Bin({'speed': [5]}, drop=False).apply(df)
-       speed speed_binned
-    1     -3          < 5
-    2      4          < 5
-    3      5          5 ≤
-    4      9          5 ≤
+       speed speed_bin
+    1     -3        <5
+    2      4        <5
+    3      5        5≤
+    4      9        5≤
     >>> pdp.Bin({'speed': [0,5,8]}, drop=False).apply(df)
-       speed speed_binned
-    1     -3          < 0
-    2      4          0-5
-    3      5          5-8
-    4      9          8 ≤
+       speed speed_bin
+    1     -3        <0
+    2      4       0-5
+    3      5       5-8
+    4      9        8≤
     """
 
-    DEF_BIN_EXC_MSG = "Bin stage failed because not all columns "\
-                          "{} were found in input dataframe."
-    DEF_BIN_APP_MSG = "Binning columns {}..."
+    _DEF_BIN_EXC_MSG = ("Bin stage failed because not all columns "
+                        "{} were found in input dataframe.")
+    _DEF_BIN_APP_MSG = "Binning column{} {}..."
 
-    def __init__(self, bin_map, drop=True, exraise=True):
-        super(Bin, self).__init__(
-            exraise=exraise,
-            exmsg=Bin.DEF_BIN_EXC_MSG.format(
-                list(bin_map.keys())),
-            appmsg=Bin.DEF_BIN_APP_MSG.format(
-                list(bin_map.keys()))
-        )
+    def _default_desc(self):
+        string = ""
+        columns = list(self._bin_map.keys())
+        col1 = columns[0]
+        string += "Bin {} by {},\n".format(col1, self._bin_map[col1])
+        for col in columns:
+            string += "bin {} by {},\n".format(col, self._bin_map[col])
+        string = string[0:-2] + '.'
+        return string
+
+    def __init__(self, bin_map, drop=True, **kwargs):
         self._bin_map = bin_map
         self._drop = drop
+        columns_str = _list_str(list(bin_map.keys()))
+        super_kwargs = {
+            'exmsg': Bin._DEF_BIN_EXC_MSG.format(columns_str),
+            'appmsg': Bin._DEF_BIN_APP_MSG.format(
+                's' if len(bin_map) > 1 else '', columns_str),
+            'desc': self._default_desc()
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
 
     def _prec(self, df):
         return set(self._bin_map.keys()).issubset(df.columns)
@@ -310,36 +346,39 @@ class Bin(PipelineStage):
             if val in sorted_bins:
                 ind = sorted_bins.bisect(val)-1
                 if ind == last_ix:
-                    return '{} ≤'.format(sorted_bins[-1])
+                    return '{}≤'.format(sorted_bins[-1])
                 return '{}-{}'.format(sorted_bins[ind], sorted_bins[ind+1])
             try:
                 ind = sorted_bins.bisect(val)
                 if ind == 0:
-                    return '< {}'.format(sorted_bins[ind])
+                    return '<{}'.format(sorted_bins[ind])
                 return '{}-{}'.format(sorted_bins[ind-1], sorted_bins[ind])
             except IndexError:
-                return '{} ≤'.format(sorted_bins[sorted_bins.bisect(val)-1])
+                return '{}≤'.format(sorted_bins[sorted_bins.bisect(val)-1])
         return _col_binner
 
     def _op(self, df, verbose):
-        assign_map = {}
+        inter_df = df
         colnames = list(self._bin_map.keys())
         if verbose:
             colnames = tqdm.tqdm(colnames)
         for colname in colnames:
-            assign_map[colname+'_binned'] = df[colname].apply(
-                self._get_col_binner(self._bin_map[colname]))
-        inter_df = df.assign(**assign_map)
-        if self._drop:
-            return inter_df.drop(list(self._bin_map.keys()), axis=1)
+            if verbose:
+                colnames.set_description(colname)
+            source_col = df[colname]
+            loc = df.columns.get_loc(colname) + 1
+            new_name = colname + "_bin"
+            if self._drop:
+                inter_df = inter_df.drop(colname, axis=1)
+                new_name = colname
+                loc -= 1
+            inter_df = out_of_place_col_insert(
+                df=inter_df,
+                series=source_col.apply(
+                    self._get_col_binner(self._bin_map[colname])),
+                loc=loc,
+                column_name=new_name)
         return inter_df
-
-    def __str__(self):
-        string = ""
-        for col in self._bin_map:
-            string += "Bin {} by {}, ".format(col, self._bin_map[col])
-        string = string[0:-2] + '.'
-        return string
 
 
 class Binarize(PipelineStage):
@@ -367,28 +406,24 @@ class Binarize(PipelineStage):
         first level.
     drop : bool, default True
         If set to True, the source columns are dropped after being binarized.
-    exraise : bool, default True
-        If true, a pdpipe.FailedPreconditionError is raised when this
-        stage is applied to a dataframe for which the precondition does
-        not hold. Otherwise the stage is skipped.
 
     Example
     -------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([['USA'], ['UK'], ['Greece']], [1,2,3], ['Born'])
     >>> pdp.Binarize().apply(df)
-       Born.UK  Born.USA
-    1      0.0       1.0
-    2      1.0       0.0
-    3      0.0       0.0
+       Born_UK  Born_USA
+    1        0         1
+    2        1         0
+    3        0         0
     """
 
-    DEF_BINAR_EXC_MSG = "Binarize stage failed because not all columns "\
-                          "{} were found in input dataframe."
-    DEF_BINAR_APP_MSG = "Binarizing {}..."
+    _DEF_BINAR_EXC_MSG = ("Binarize stage failed because not all columns "
+                          "{} were found in input dataframe.")
+    _DEF_BINAR_APP_MSG = "Binarizing {}..."
 
     def __init__(self, columns=None, dummy_na=False, exclude_columns=None,
-                 drop_first=True, drop=True, exraise=True):
+                 drop_first=True, drop=True, **kwargs):
         if columns is None:
             self._columns = None
         else:
@@ -401,12 +436,15 @@ class Binarize(PipelineStage):
                 exclude_columns, 'exclude_columns')
         self._drop_first = drop_first
         self._drop = drop
-        super(Binarize, self).__init__(
-            exraise=exraise,
-            exmsg=Binarize.DEF_BINAR_EXC_MSG.format(self._columns),
-            appmsg=Binarize.DEF_BINAR_APP_MSG.format(
-                self._columns or "all columns")
-        )
+        col_str = _list_str(self._columns)
+        super_kwargs = {
+            'exmsg': Binarize._DEF_BINAR_EXC_MSG.format(col_str),
+            'appmsg': Binarize._DEF_BINAR_APP_MSG.format(
+                col_str or "all columns"),
+            'desc': "Binarize {}".format(col_str or "all categorical columns")
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
 
     def _prec(self, df):
         return set(self._columns or []).issubset(df.columns)
@@ -421,18 +459,24 @@ class Binarize(PipelineStage):
         if verbose:
             columns_to_binar = tqdm.tqdm(columns_to_binar)
         for colname in columns_to_binar:
-            dummis = pd.get_dummies(
-                df[colname], drop_first=self._drop_first,
-                dummy_na=self._dummy_na, prefix=colname, prefix_sep='.')
-            for column in dummis:
-                assign_map[column] = dummis[column]
+            if verbose:
+                columns_to_binar.set_description(colname)
+            dummies = pd.get_dummies(
+                df[colname], drop_first=False, dummy_na=self._dummy_na,
+                prefix=colname, prefix_sep='_')
+            nan_col = colname+".nan"
+            if self._drop_first:
+                if nan_col in dummies:
+                    dummies.drop(nan_col, axis=1, inplace=True)
+                else:
+                    dummies.drop(dummies.columns[0], axis=1, inplace=True)
+            for column in dummies:
+                assign_map[column] = dummies[column]
+
         inter_df = df.assign(**assign_map)
         if self._drop:
             return inter_df.drop(columns_to_binar, axis=1)
         return inter_df
-
-    def __str__(self):
-        return "Binarize {}".format(self._columns or "all categorical columns")
 
 
 class MapColVals(PipelineStage):
@@ -440,23 +484,22 @@ class MapColVals(PipelineStage):
 
     Parameters
     ----------
-    column_name : str
-        The name of the column to apply the value map for.
-    value_map : dict
+    columns : str or list-like
+        Column names in the DataFrame to be encoded.
+    value_map : dict, function or pandas.Series
         A dictionary mapping existing values to new ones. Not all existing
         values need to be referenced; missing one will neither be changed nor
-        dropped.
-    result_col_name : str, default None
-        The name of the new column resulting from the mapping operation. If
-        None, behavior depends on the drop parameter: If drop is True, the
-        name of the source column is used; otherwise, the name of the source
-        column is used with the suffix '_map'.
+        dropped. If a function is given, it is applied element-wise to given
+        columns. If a Series is given, values are mapped by its index to its
+        values.
+    result_columns : str or list-like, default None
+        The name of the new columns resulting from the mapping operation. Must
+        be of the same length as columns. If None, behavior depends on the
+        drop parameter: If drop is True, the name of the source column is used;
+        otherwise, the name of the source column is used with the suffix
+        '_map'.
     drop : bool, default True
         If set to True, the source column is dropped after being mapped.
-    exraise : bool, default True
-        If true, a pdpipe.FailedPreconditionError is raised when this
-        stage is applied to a dataframe for which the precondition does
-        not hold. Otherwise the stage is skipped.
 
     Example
     -------
@@ -470,42 +513,56 @@ class MapColVals(PipelineStage):
     US    Silver
     """
 
-    DEF_MAP_COL_VAL_EXC_MSG = "MapColVals stage failed because column "\
-                          "{} was not found in input dataframe."
-    DEF_MAP_COL_VAL_APP_MSG = "Mapping values of column {}..."
+    _DEF_MAP_COLVAL_EXC_MSG = ("MapColVals stage failed because column{} "
+                               "{} were not found in input dataframe.")
+    _DEF_MAP_COLVAL_APP_MSG = "Mapping values of column{} {} with {}..."
 
-    def __init__(self, column_name, value_map, result_col_name=None,
-                 drop=True, exraise=True):
-        self._column_name = column_name
+    def __init__(self, columns, value_map, result_columns=None,
+                 drop=True, **kwargs):
+        self._columns = _interpret_columns_param(columns, 'columns')
         self._value_map = value_map
-        self._result_col_name = result_col_name
-        if result_col_name is None:
+        if result_columns is None:
             if drop:
-                self._result_col_name = self._column_name
+                self._result_columns = self._columns
             else:
-                self._result_col_name = self._column_name + '_map'
+                self._result_columns = [col + '_map' for col in self._columns]
+        else:
+            self._result_columns = _interpret_columns_param(
+                result_columns, 'result_columns')
+            if len(self._result_columns) != len(self._columns):
+                raise ValueError("columns and result_columns parameters must"
+                                 " be string lists of the same length!")
+        col_str = _list_str(self._columns)
+        sfx = 's' if len(self._columns) > 1 else ''
         self._drop = drop
-        super(MapColVals, self).__init__(
-            exraise=exraise,
-            exmsg=MapColVals.DEF_MAP_COL_VAL_EXC_MSG.format(self._column_name),
-            appmsg=MapColVals.DEF_MAP_COL_VAL_APP_MSG.format(self._column_name)
-        )
+        super_kwargs = {
+            'exmsg': MapColVals._DEF_MAP_COLVAL_EXC_MSG.format(sfx, col_str),
+            'appmsg': MapColVals._DEF_MAP_COLVAL_APP_MSG.format(
+                sfx, col_str, self._value_map),
+            'desc': "Map values of column{} {} with {}.".format(
+                sfx, col_str, self._value_map)
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
 
     def _prec(self, df):
-        return self._column_name in df.columns
+        return set(self._columns).issubset(df.columns)
 
     def _op(self, df, verbose):
         inter_df = df
-        source_column = df[self._column_name]
-        if self._drop:
-            inter_df = df.drop(self._column_name, axis=1)
-        inter_df = df.assign(**{
-            self._result_col_name: source_column.replace(self._value_map)
-        })
+        for i, colname in enumerate(self._columns):
+            source_col = df[colname]
+            loc = df.columns.get_loc(colname) + 1
+            new_name = self._result_columns[i]
+            if self._drop:
+                inter_df = inter_df.drop(colname, axis=1)
+                loc -= 1
+            inter_df = out_of_place_col_insert(
+                df=inter_df,
+                series=source_col.map(self._value_map),
+                loc=loc,
+                column_name=new_name)
         return inter_df
-
-    def __str__(self):
-        return "Map values of column {}.".format(self._column_name)
 
 
 class Encode(PipelineStage):
@@ -526,11 +583,9 @@ class Encode(PipelineStage):
         when the columns parameter is not given. If None no column is excluded.
         Ignored if the columns parameter is given.
     drop : bool, default True
-        If set to True, the source columns are dropped after being encoded.
-    exraise : bool, default True
-        If true, a pdpipe.FailedPreconditionError is raised when this
-        stage is applied to a dataframe for which the precondition does
-        not hold. Otherwise the stage is skipped.
+        If set to True, the source columns are dropped after being encoded,
+        and the resulting encoded columns retain the names of the source
+        colunmns. Otherwise, encoded columns gain the suffix '_enc'.
 
     Example
     -------
@@ -539,20 +594,20 @@ class Encode(PipelineStage):
     >>> df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
     >>> encode_stage = pdp.Encode("lbl")
     >>> encode_stage(df)
-         ph  lbl_enc
-    1   3.2        0
-    2   7.2        1
-    3  12.1        1
+         ph  lbl
+    1   3.2    0
+    2   7.2    1
+    3  12.1    1
     >>> encode_stage.encoders["lbl"].inverse_transform([0,1,1])
     array(['acd', 'alk', 'alk'], dtype=object)
     """
 
-    DEF_ENCODE_EXC_MSG = "Encode stage failed because not all columns "\
-                          "{} were found in input dataframe."
-    DEF_ENCODE_APP_MSG = "Encoding {}..."
+    _DEF_ENCODE_EXC_MSG = ("Encode stage failed because not all columns "
+                           "{} were found in input dataframe.")
+    _DEF_ENCODE_APP_MSG = "Encoding {}..."
 
     def __init__(self, columns=None, exclude_columns=None, drop=True,
-                 exraise=True):
+                 **kwargs):
         if columns is None:
             self._columns = None
         else:
@@ -564,11 +619,14 @@ class Encode(PipelineStage):
                 exclude_columns, 'exclude_columns')
         self._drop = drop
         self.encoders = {}
-        super(Encode, self).__init__(
-            exraise=exraise,
-            exmsg=Encode.DEF_ENCODE_EXC_MSG.format(self._columns),
-            appmsg=Encode.DEF_ENCODE_APP_MSG.format(self._columns)
-        )
+        col_str = _list_str(self._columns)
+        super_kwargs = {
+            'exmsg': Encode._DEF_ENCODE_EXC_MSG.format(col_str),
+            'appmsg': Encode._DEF_ENCODE_APP_MSG.format(col_str),
+            'desc': "Encode {}".format(col_str or "all categorical columns")
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
 
     def _prec(self, df):
         return set(self._columns or []).issubset(df.columns)
@@ -579,18 +637,105 @@ class Encode(PipelineStage):
             columns_to_encode = list(set(df.select_dtypes(
                 include=['object', 'category']).columns).difference(
                     self._exclude_columns))
-        assign_map = {}
         if verbose:
             columns_to_encode = tqdm.tqdm(columns_to_encode)
+        inter_df = df
         for colname in columns_to_encode:
             lbl_enc = sklearn.preprocessing.LabelEncoder()
-            assign_map[colname+'_enc'] = lbl_enc.fit_transform(
-                df[colname])
+            source_col = df[colname]
+            loc = df.columns.get_loc(colname) + 1
+            new_name = colname + "_enc"
+            if self._drop:
+                inter_df = inter_df.drop(colname, axis=1)
+                new_name = colname
+                loc -= 1
+            inter_df = out_of_place_col_insert(
+                df=inter_df,
+                series=lbl_enc.fit_transform(source_col),
+                loc=loc,
+                column_name=new_name)
             self.encoders[colname] = lbl_enc
-        inter_df = df.assign(**assign_map)
-        if self._drop:
-            return inter_df.drop(columns_to_encode, axis=1)
         return inter_df
 
-    def __str__(self):
-        return "Encode {}".format(self._columns or "all categorical columns")
+
+class ColByFunc(PipelineStage):
+    """A pipline stage generating a column by applying a function to each row.
+
+    Parameters
+    ----------
+    func : function
+        The function to be applied to each row of the processed DataFrame.
+    result_columns : str or list-like
+        The name of the new columns resulting from the function application.
+        A name must be provided for each new column created, in their
+        respective order.
+    follow_column : str, default None,
+        Resulting columns will be inserted after this column. If None, new
+        columns are inserted at the end of the processed DataFrame.
+    func_desc : str, default None
+        A function description of the given function; e.g. 'normalizing revenue
+        by company size'. A default description is used if None is given.
+    prec : function, default None
+        A function taking a DataFrame, returning True if it this stage is
+        applicable to the given DataFrame. If None is given, a function always
+        returning True is used.
+
+
+    Example
+    -------
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
+    >>> df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
+    >>> encode_stage = pdp.Encode("lbl")
+    >>> encode_stage(df)
+         ph  lbl
+    1   3.2    0
+    2   7.2    1
+    3  12.1    1
+    >>> encode_stage.encoders["lbl"].inverse_transform([0,1,1])
+    array(['acd', 'alk', 'alk'], dtype=object)
+    """
+
+    _DEF_COLBYFUNC_EXC_MSG = "Generating a column with a function {} failed."
+    _DEF_COLBYFUNC_APP_MSG = "Generating a column with a function {}..."
+
+    def __init__(self, func, result_columns, follow_column=None,
+                 func_desc=None, prec=None, **kwargs):
+        if func_desc is None:
+            func_desc = ""
+        if prec is None:
+            prec = lambda df: True
+        self._func = func
+        self._result_columns = _interpret_columns_param(
+            result_columns, 'result_columns')
+        self._follow_column = follow_column
+        self._func_desc = func_desc
+        self._prec_func = prec
+        super_kwargs = {
+            'exmsg': Encode._DEF_COLBYFUNC_EXC_MSG.format(func_desc),
+            'appmsg': Encode._DEF_COLBYFUNC_APP_MSG.format(func_desc),
+            'desc': "Generating a column with a function {}.".format(
+                self._func_desc)
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        return self._prec_func(df)
+
+    def _op(self, df, verbose):
+        new_cols = df.apply(self._func, axis=1)
+        if isinstance(new_cols, pd.Series):
+            loc = len(df.columns)
+            if self._follow_column:
+                loc = df.columns.get_loc(self._follow_column) + 1
+            return out_of_place_col_insert(
+                df=df,
+                series=new_cols,
+                loc=loc,
+                column_name=self._result_columns[0])
+        assign_map = {
+            colname : new_cols[new_cols.columns[i]]
+            for i, colname in enumerate(self._result_columns)
+        }
+        return df.assign(**assign_map)

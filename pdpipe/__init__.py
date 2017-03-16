@@ -1,27 +1,38 @@
-"""The base package of the pdpipe library."""
+"""Easy pipelines for pandas."""
 # flake8: noqa  # prevents 'imported but unused' erros
+# pylint: disable=C0413
 
-# ignore IPython's ShimWarning, if IPython is installed
-try:
-    import warnings
-    from IPython.utils.shimmodule import ShimWarning
-    warnings.simplefilter("ignore", ShimWarning)
-except ImportError:
-    pass
-
-
-
+import sys
 from . import core
 from . import basic_stages
-import sys
-core.__load_stage_attributes__(sys.modules[__name__])
-del core
-del basic_stages
-del sys
+core.__load_stage_attributes__()
 
-from .core import *
-from .basic_stages import *
+from .core import (
+    PipelineStage,
+    AdHocStage,
+    Pipeline
+)
+from .basic_stages import (
+    ColDrop,
+    ValDrop,
+    ValKeep,
+    ColRename,
+    Bin,
+    Binarize,
+    MapColVals,
+    Encode,
+    ColByFunc
+)
 
 from ._version import get_versions
 __version__ = get_versions()['version']
-del get_versions
+
+for name in ['_version', 'get_versions', 'core', 'basic_stages', 'sys']:
+    try:
+        globals().pop(name)
+    except KeyError:
+        pass
+try:
+    del name  # pylint: disable=W0631
+except NameError:
+    pass
