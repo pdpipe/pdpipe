@@ -31,7 +31,7 @@ install:
   - if [ "$TRAVIS_PYTHON_VERSION" != "3.2" ]; then travis_retry pip install coverage; fi
   # - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy scipy scikit-learn
   - pip install ".[test]"
-script: pytest --doctest-modules --cov=pdpipe
+script: pytest --cov=pdpipe
 # --ignore-files="tests_perf\.py" -coveralls
 # submit coverage
 after_success:
