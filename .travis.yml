@@ -11,20 +11,22 @@ notifications:
 before_install:
   # coverage submission packages
   - pip install codecov
-  # setup miniconda
-  - wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-  - chmod +x miniconda.sh
-  - ./miniconda.sh -b
-  - export PATH=/home/travis/miniconda3/bin:$PATH
-  - conda update --yes conda
-  # The next couple lines fix a crash with multiprocessing on Travis and are not specific to using Miniconda
-  - sudo rm -rf /dev/shm
-  - sudo ln -s /run/shm /dev/shm
+  - pip install --upgrade pip setuptools wheel
+  - pip install --only-binary=numpy,scipy numpy scipy
+  # # setup miniconda
+  # - wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+  # - chmod +x miniconda.sh
+  # - ./miniconda.sh -b
+  # - export PATH=/home/travis/miniconda3/bin:$PATH
+  # - conda update --yes conda
+  # # The next couple lines fix a crash with multiprocessing on Travis and are not specific to using Miniconda
+  # - sudo rm -rf /dev/shm
+  # - sudo ln -s /run/shm /dev/shm
 install:
   # Coveralls 4.0 doesn't support Python 3.2
   - if [ "$TRAVIS_PYTHON_VERSION" == "3.2" ]; then travis_retry pip install coverage==3.7.1; fi
   - if [ "$TRAVIS_PYTHON_VERSION" != "3.2" ]; then travis_retry pip install coverage; fi
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy scipy scikit-learn
+  # - conda install --yes python=$TRAVIS_PYTHON_VERSION numpy scipy scikit-learn
   - python setup.py test
 script: pytest --doctest-modules --cov=pdpipe
 # --ignore-files="tests_perf\.py" -coveralls
