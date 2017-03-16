@@ -12,7 +12,9 @@ before_install:
   # coverage submission packages
   - pip install codecov
   - pip install --upgrade pip setuptools wheel
-  - pip install --only-binary=numpy,scipy numpy scipy
+  - pip install --only-binary=numpy numpy
+  - pip install --only-binary=scipy scipy
+  - pip install --only-binary=scikit-learn scikit-learn
   # # setup miniconda
   # - wget http://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
   # - chmod +x miniconda.sh
