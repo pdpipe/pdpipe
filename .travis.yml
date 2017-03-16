@@ -17,9 +17,8 @@ before_install:
   - pip install --only-binary=pandas pandas
   - pip install --only-binary=scikit-learn scikit-learn
 install:
-  - python setup.py test
-  # - pip install ".[test]"
-script: pytest --cov=pdpipe
+  - pip install ".[test]"
+script: py.test --cov=pdpipe
 after_success:
   - codecov
 deploy:
