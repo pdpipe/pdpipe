@@ -31,7 +31,7 @@ setup(
     packages=['pdpipe'],
     install_requires=[
         'pandas>=0.18.0', 'scikit-learn', 'sortedcontainers', 'tqdm',
-        'scipy' #for sklearn
+        'numpy', 'scipy' #for sklearn
     ],
     extras_require={
         'test': TEST_REQUIRES
