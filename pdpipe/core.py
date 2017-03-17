@@ -33,14 +33,12 @@ def __load_stage_attribute__(class_obj):
         # self is always a PipelineStage
         return self + class_obj(*args, **kwds)
     _append_stage_func.__doc__ = __get_append_stage_attr_doc(class_obj)
-    _append_stage_func.__name__ = class_obj.__name__.lower()
+    _append_stage_func.__name__ = class_obj.__name__#.lower()
     _append_stage_func.__signature__ = inspect.signature(class_obj.__init__)
-    setattr(PipelineStage, class_obj.__name__.lower(),
-            _append_stage_func)
+    setattr(PipelineStage, class_obj.__name__, _append_stage_func)
 
     unbound_method = types.MethodType(_append_stage_func, class_obj)
-    setattr(class_obj, class_obj.__name__.lower(),
-            unbound_method)
+    setattr(class_obj, class_obj.__name__, unbound_method)
 
 
 def __load_stage_attributes_from_module__(module_name):
