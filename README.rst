@@ -52,7 +52,6 @@ assigning ``exraise`` with a bool in a constructor call:
 
 .. code-block:: python
 
-  import pdpipde as pdp
   drop_name = pdp.ColDrop("Name", exraise=False)
 
 Creating piplines
@@ -62,7 +61,6 @@ Pipelines can be created by supplying a list of pipeline stages:
 
 .. code-block:: python
 
-  import pdpipde as pdp
   pipeline = pdp.Pipeline([pdp.ColDrop("Name"), pdp.Binarize("Label")])
 
 Alternatively, you can add pipeline stages together:
