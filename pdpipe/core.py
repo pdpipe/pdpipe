@@ -53,13 +53,6 @@ def __load_stage_attributes_from_module__(module_name):
                 __load_stage_attribute__(class_obj)
 
 
-__STAGES_SUBMODULES = ['pdpipe.core', 'pdpipe.basic_stages']
-
-def __load_stage_attributes__():
-    for module_name in __STAGES_SUBMODULES:
-        __load_stage_attributes_from_module__(module_name)
-
-
 # === basic classes ===
 
 class FailedPreconditionError(Exception):

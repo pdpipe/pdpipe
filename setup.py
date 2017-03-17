@@ -30,9 +30,10 @@ setup(
     license="MIT",
     packages=['pdpipe'],
     install_requires=[
-        'pandas>=0.18.0', 'scikit-learn', 'sortedcontainers', 'tqdm',
+        'pandas>=0.18.0', 'sortedcontainers', 'tqdm',
     ],
     extras_require={
+        'sklearn': ['scikit-learn'],
         'test': TEST_REQUIRES
     },
     setup_requires=TEST_REQUIRES,
@@ -44,7 +45,6 @@ setup(
         'Development Status :: 4 - Beta',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Topic :: Software Development :: Libraries',

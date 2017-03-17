@@ -4,31 +4,15 @@ import types
 
 import pandas as pd
 import sortedcontainers as sc
-import sklearn.preprocessing
 import tqdm
 
 from pdpipe.core import PipelineStage
 from pdpipe.util import out_of_place_col_insert
 
-
-def _interpret_columns_param(columns, param_name):
-    if isinstance(columns, str):
-        return [columns]
-    elif hasattr(columns, '__iter__'):
-        if all(isinstance(arg, str) for arg in columns):
-            return columns
-        else:
-            raise ValueError(
-                "When {} is an iterable all its members should be "
-                "strings.".format(param_name))
-
-
-def _list_str(listi):
-    if listi is None:
-        return None
-    if isinstance(listi, (list, tuple)):
-        return ', '.join([str(elem) for elem in listi])
-    return listi
+from pdpipe.shared import (
+    _interpret_columns_param,
+    _list_str
+)
 
 
 class ColDrop(PipelineStage):
@@ -464,7 +448,7 @@ class Binarize(PipelineStage):
             dummies = pd.get_dummies(
                 df[colname], drop_first=False, dummy_na=self._dummy_na,
                 prefix=colname, prefix_sep='_')
-            nan_col = colname+".nan"
+            nan_col = colname+"_nan"
             if self._drop_first:
                 if nan_col in dummies:
                     dummies.drop(nan_col, axis=1, inplace=True)
@@ -565,111 +549,19 @@ class MapColVals(PipelineStage):
         return inter_df
 
 
-class Encode(PipelineStage):
-    """A pipline stage that encodes categorical columns to integer values.
-
-    The encoder for each column is saved in the attribute 'encoders', which
-    is a dict mapping each encoded column name to the
-    sklearn.preprocessing.LabelEncoder object used to encode it.
-
-    Parameters
-    ----------
-    columns : str or list-like, default None
-        Column names in the DataFrame to be encoded. If columns is None then
-        all the columns with object or category dtype will be encoded, except
-        those given in the exclude_columns parameter.
-    exclude_columns : str or list-like, default None
-        Name or names of categorical columns to be excluded from encoding
-        when the columns parameter is not given. If None no column is excluded.
-        Ignored if the columns parameter is given.
-    drop : bool, default True
-        If set to True, the source columns are dropped after being encoded,
-        and the resulting encoded columns retain the names of the source
-        colunmns. Otherwise, encoded columns gain the suffix '_enc'.
-
-    Example
-    -------
-    >>> import pandas as pd; import pdpipe as pdp;
-    >>> data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
-    >>> df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
-    >>> encode_stage = pdp.Encode("lbl")
-    >>> encode_stage(df)
-         ph  lbl
-    1   3.2    0
-    2   7.2    1
-    3  12.1    1
-    >>> encode_stage.encoders["lbl"].inverse_transform([0,1,1])
-    array(['acd', 'alk', 'alk'], dtype=object)
-    """
-
-    _DEF_ENCODE_EXC_MSG = ("Encode stage failed because not all columns "
-                           "{} were found in input dataframe.")
-    _DEF_ENCODE_APP_MSG = "Encoding {}..."
-
-    def __init__(self, columns=None, exclude_columns=None, drop=True,
-                 **kwargs):
-        if columns is None:
-            self._columns = None
-        else:
-            self._columns = _interpret_columns_param(columns, 'columns')
-        if exclude_columns is None:
-            self._exclude_columns = []
-        else:
-            self._exclude_columns = _interpret_columns_param(
-                exclude_columns, 'exclude_columns')
-        self._drop = drop
-        self.encoders = {}
-        col_str = _list_str(self._columns)
-        super_kwargs = {
-            'exmsg': Encode._DEF_ENCODE_EXC_MSG.format(col_str),
-            'appmsg': Encode._DEF_ENCODE_APP_MSG.format(col_str),
-            'desc': "Encode {}".format(col_str or "all categorical columns")
-        }
-        super_kwargs.update(**kwargs)
-        super().__init__(**super_kwargs)
-
-    def _prec(self, df):
-        return set(self._columns or []).issubset(df.columns)
-
-    def _op(self, df, verbose):
-        columns_to_encode = self._columns
-        if self._columns is None:
-            columns_to_encode = list(set(df.select_dtypes(
-                include=['object', 'category']).columns).difference(
-                    self._exclude_columns))
-        if verbose:
-            columns_to_encode = tqdm.tqdm(columns_to_encode)
-        inter_df = df
-        for colname in columns_to_encode:
-            lbl_enc = sklearn.preprocessing.LabelEncoder()
-            source_col = df[colname]
-            loc = df.columns.get_loc(colname) + 1
-            new_name = colname + "_enc"
-            if self._drop:
-                inter_df = inter_df.drop(colname, axis=1)
-                new_name = colname
-                loc -= 1
-            inter_df = out_of_place_col_insert(
-                df=inter_df,
-                series=lbl_enc.fit_transform(source_col),
-                loc=loc,
-                column_name=new_name)
-            self.encoders[colname] = lbl_enc
-        return inter_df
-
-
 class ColByFunc(PipelineStage):
-    """A pipline stage generating a column by applying a function to each row.
+    """A pipline stage generating columns by applying a function to each row.
 
     Parameters
     ----------
     func : function
         The function to be applied to each row of the processed DataFrame.
-    result_columns : str or list-like
-        The name of the new columns resulting from the function application.
-        A name must be provided for each new column created, in their
-        respective order.
-    follow_column : str, default None,
+    colname : str, default None
+        The name of the new column resulting from the function application. If
+        None, 'new_col' is used. Ignored if a DataFrame is generated by the
+        function (i.e. each row generates a Series rather than a value), in
+        which case the name of each column in the resulting DataFrame is used.
+    follow_column : str, default None
         Resulting columns will be inserted after this column. If None, new
         columns are inserted at the end of the processed DataFrame.
     func_desc : str, default None
@@ -698,22 +590,24 @@ class ColByFunc(PipelineStage):
 
     _DEF_COLBYFUNC_EXC_MSG = "Generating a column with a function {} failed."
     _DEF_COLBYFUNC_APP_MSG = "Generating a column with a function {}..."
+    _DEF_COLNAME = 'new_col'
 
-    def __init__(self, func, result_columns, follow_column=None,
+    def __init__(self, func, colname=None, follow_column=None,
                  func_desc=None, prec=None, **kwargs):
+        if colname is None:
+            colname = ColByFunc._DEF_COLNAME
         if func_desc is None:
             func_desc = ""
         if prec is None:
             prec = lambda df: True
         self._func = func
-        self._result_columns = _interpret_columns_param(
-            result_columns, 'result_columns')
+        self._colname = colname
         self._follow_column = follow_column
         self._func_desc = func_desc
         self._prec_func = prec
         super_kwargs = {
-            'exmsg': Encode._DEF_COLBYFUNC_EXC_MSG.format(func_desc),
-            'appmsg': Encode._DEF_COLBYFUNC_APP_MSG.format(func_desc),
+            'exmsg': ColByFunc._DEF_COLBYFUNC_EXC_MSG.format(func_desc),
+            'appmsg': ColByFunc._DEF_COLBYFUNC_APP_MSG.format(func_desc),
             'desc': "Generating a column with a function {}.".format(
                 self._func_desc)
         }
@@ -733,9 +627,23 @@ class ColByFunc(PipelineStage):
                 df=df,
                 series=new_cols,
                 loc=loc,
-                column_name=self._result_columns[0])
-        assign_map = {
-            colname : new_cols[new_cols.columns[i]]
-            for i, colname in enumerate(self._result_columns)
-        }
-        return df.assign(**assign_map)
+                column_name=self._colname)
+        elif isinstance(new_cols, pd.DataFrame):
+            if self._follow_column:
+                inter_df = df
+                loc = df.columns.get_loc(self._follow_column) + 1
+                for colname in new_cols.columns:
+                    inter_df = out_of_place_col_insert(
+                        df=inter_df,
+                        series=new_cols[colname],
+                        loc=loc,
+                        column_name=colname)
+                    loc += 1
+                return inter_df
+            assign_map = {
+                colname : new_cols[colname] for colname in new_cols.columns
+            }
+            return df.assign(**assign_map)
+        raise TypeError(  # pragma: no cover
+            "Unexpected type generated by applying a function to a DataFrame."
+            " Only Series and DataFrame are allowed.")

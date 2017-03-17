@@ -1,5 +1,7 @@
 """Testing basic pipline stages."""
 
+import datetime
+
 import pandas as pd
 import pytest
 
@@ -37,11 +39,18 @@ def test_coldrop_multi_col():
     assert 'char' in res_df.columns
 
 
-def test_coldrop_bad_args():
+def test_coldrop_bad_args_in_list():
     """Testing the ColDrop pipline stage."""
     df = _test_df()
     with pytest.raises(ValueError):
         stage = ColDrop(['num1', df])
+        assert not isinstance(stage, ColDrop)
+
+
+def test_coldrop_bad_arg_not_str_or_list():
+    """Testing the ColDrop pipline stage."""
+    with pytest.raises(ValueError):
+        stage = ColDrop(datetime.datetime.now())
         assert not isinstance(stage, ColDrop)
 
 
