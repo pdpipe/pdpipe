@@ -2,7 +2,7 @@ pdpipe
 #########
 |PyPI-Status| |PyPI-Versions| |Build-Status| |Codecov| |LICENCE|
 
-Easy pipelines for pandas.
+Easy pipelines for pandas DataFrames.
 
 .. code-block:: python
 
