@@ -36,7 +36,7 @@ Some stages require ``scikit-learn``; they will simply not be loaded if ``scikit
 Use
 ===
 
-Creating pipline stages
+Creating Pipline Stages
 -----------------------
 
 Create stages with the following syntax:
@@ -54,7 +54,7 @@ assigning ``exraise`` with a bool in a constructor call:
 
   drop_name = pdp.ColDrop("Name", exraise=False)
 
-Creating piplines
+Creating Piplines
 -----------------
 
 Pipelines can be created by supplying a list of pipeline stages:
@@ -83,10 +83,10 @@ Pipline stages can also be chained to other stages to create pipelines:
 
   pipeline = pdp.ColDrop("Name").Binarize("Label").ValDrop([-1], "Children")
 
-Applying pipelines stages
+Applying Pipelines Stages
 -------------------------
 
-You can apply a pipeline stage ot a DataFrame using its ``apply`` method:
+You can apply a pipeline stage to a DataFrame using its ``apply`` method:
 
 .. code-block:: python
 
@@ -96,7 +96,7 @@ Pipeline stages are also callables, making the following syntax equivalent:
 
 .. code-block:: python
 
-  drop_name = pdp.ColDrop("Name", exraise=False)
+  drop_name = pdp.ColDrop("Name")
   res_df = drop_name(df)
 
 The initialized exception behaviour of a pipeline stage can be overriden on a per-application basis:
@@ -107,7 +107,7 @@ The initialized exception behaviour of a pipeline stage can be overriden on a pe
   res_df = drop_name(df, exraise=True)
 
 
-Applying pipelines
+Applying Pipelines
 ------------------
 
 Pipelines are pipeline stages themselves, and can be applied to DataFrame using the same syntax, applying each of the stages making them up, in order:
