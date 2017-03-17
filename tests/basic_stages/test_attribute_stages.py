@@ -19,7 +19,7 @@ def _some_df():
 
 def test_attribute_stage():
     """Testing attribute pipline stages."""
-    pipeline = pdp.ColDrop('name').bin({'speed': [5]}, drop=True)
+    pipeline = pdp.ColDrop('name').Bin({'speed': [5]}, drop=True)
     assert isinstance(pipeline, Pipeline)
     assert isinstance(pipeline[0], ColDrop)
     assert isinstance(pipeline[1], Bin)
