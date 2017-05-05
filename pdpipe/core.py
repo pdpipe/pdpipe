@@ -122,7 +122,7 @@ class PipelineStage(abc.ABC):
             determined by the exraise constructor parameter.
         verbose : bool, default False
             If True an explaination message is printed after the precondition
-            is checker but before the application of the pipeline stage.
+            is checked but before the application of the pipeline stage.
             Defaults to False.
 
         Returns
