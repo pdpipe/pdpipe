@@ -11,7 +11,7 @@ Easy pipelines for pandas DataFrames.
           index=['Dana', 'Jack', 'Nick'],
           columns=['Medals', 'Height', 'Born']
       )
-  >>> pipeline = pdp.Coldrop('Medals').Binarize('Born')
+  >>> pipeline = pdp.ColDrop('Medals').Binarize('Born')
   >>> pipline(df)
               Height  Born_UK  Born_USA
       Dana     165        0         1
