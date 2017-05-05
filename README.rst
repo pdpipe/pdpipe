@@ -113,6 +113,19 @@ Additionaly, to have an explaination message print after the precondition is che
 
   res_df = drop_name(df, verbose=True)
 
+
+Extending PipelineStage
+~~~~~~~~~~~~~~~~~~~~~~~
+
+To use other stages than the built-in ones (see `Types of Pipeline Stages`_) you can extend the ``PipelineStage`` class. The constructor must pass the ``PipelineStage`` constructor the ``exmsg``, ``appmsg`` and ``desc`` keyword arguments to set the exception message, application message and description for the pipeline stage, respectively. Additionally, the ``_prec`` and ``_op`` abstract methods must be implemented to define the precondition and the effect of the new pipeline stage, respectively.
+
+
+Ad-Hoc Pipeline Stages
+~~~~~~~~~~~~~~~~~~~~~~
+
+To create a custom pipeline stage without creating a proper new class, you can instantiate the ``AdHocStage`` class which takes a function in its ``op`` contructor parameter to define the stage's operation, and the optional ``prec`` paramter to define a precondition (an alway-true function is the default).
+
+
 Pipelines
 ---------
 
@@ -197,6 +210,7 @@ Types of Pipeline Stages
 Basic Stages
 ------------
 
+* AdHocStage - Define custom pipeline stages on the fly.
 * ColDrop - Drop columns by name.
 * ValDrop - Drop rows by by their value in specific or all columns.
 * ValKeep - Keep rows by by their value in specific or all columns.
