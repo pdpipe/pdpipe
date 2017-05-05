@@ -55,7 +55,7 @@ Design Decisions
 * **Opinionated operations:** Help novices avoid mistake by default appliance of good practices; e.g., binarizing (creating dummy variables) a colum will drop one of the resulting columns by default, to avoid `the dummy variable trap`_ (perfect `multicollinearity`_).
 * **Machine learning-oriented:** The target use case is transforming tabular data into a vectorized dataset on which a machine learning model will be trained; e.g., column transformations will drop the source columns to avoid strong linear dependence.
 
-.. _`the dummy variable trap`: http://www.algosome.com/articles/dummy-variable-trap-regression.html 
+.. _`the dummy variable trap`: http://www.algosome.com/articles/dummy-variable-trap-regression.html
 .. _`multicollinearity`: https://en.wikipedia.org/wiki/Multicollinearity
 
 
@@ -130,14 +130,14 @@ Pipelines
 ---------
 
 Creating Pipelines
-~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~
 
 Pipelines can be created by supplying a list of pipeline stages:
 
 .. code-block:: python
 
   pipeline = pdp.Pipeline([pdp.ColDrop("Name"), pdp.Binarize("Label")])
-  
+
 
 Pipeline Arithmetics
 ~~~~~~~~~~~~~~~~~~~~
@@ -155,7 +155,7 @@ Or even by adding pipelines together or pipelines to pipeline stages:
   pipeline = pdp.ColDrop("Name") + pdp.Binarize("Label")
   pipeline += pdp.ApplyToRows("Job", {"Part": True, "Full":True, "No": False})
   pipeline += pdp.Pipeline([pdp.ColRename({"Job": "Employed"})])
-  
+
 
 Pipeline Chaining
 ~~~~~~~~~~~~~~~~~
@@ -165,8 +165,8 @@ Pipline stages can also be chained to other stages to create pipelines:
 .. code-block:: python
 
   pipeline = pdp.ColDrop("Name").Binarize("Label").ValDrop([-1], "Children")
-  
- 
+
+
 Pipeline Slicing
 ~~~~~~~~~~~~~~~~
 
