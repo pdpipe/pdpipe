@@ -129,7 +129,7 @@ To create a custom pipeline stage without creating a proper new class, you can i
 Pipelines
 ---------
 
-Creating Piplines
+Creating Pipelines
 ~~~~~~~~~~~~~~~~~
 
 Pipelines can be created by supplying a list of pipeline stages:
