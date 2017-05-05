@@ -31,7 +31,33 @@ Install ``pdpipe`` with:
 
   pip install pdpipe
 
-Some stages require ``scikit-learn``; they will simply not be loaded if ``scikit-learn`` is not found on the system, and ``pdpipe`` will issue a warning.
+Some stages require ``scikit-learn``; they will simply not be loaded if ``scikit-learn`` is not found on the system, and ``pdpipe`` will issue a warning. To use them you must also `install scikit-learn`_.
+
+.. _`install scikit-learn`: http://scikit-learn.org/stable/install.html
+
+
+Features
+========
+
+* Pure Python.
+* Compatible with Python 3.5+.
+* A simple interface.
+* Informative prints on pipeline application processes and errors.
+* Chainning pipeline stages constructor calls for easy, one-liners pipelines.
+* Pipeline arithmetics.
+
+
+Design Decisions
+----------------
+
+* **Data science-oriented naming** (rather than statistics).
+* **A functional approach:** Pipelines never change input DataFrames. Nothing is in place.
+* **Opinionated operations:** Help novices avoid mistake by default appliance of good practices; e.g., binarizing (creating dummy variables) a colum will drop one of the resulting columns to avoid `the dummy variable trap`_ (perfect `multicollinearity`_).
+* **Machine learning-oriented:** The target use case is transforming tabular data into a vectorized dataset on which a machine learning model will be trained; e.g., column transformations will drop the source columns to avoid strong linear dependence.
+
+.. _`the dummy variable trap`: http://www.algosome.com/articles/dummy-variable-trap-regression.html 
+.. _`multicollinearity`: https://en.wikipedia.org/wiki/Multicollinearity
+
 
 Use
 ===
