@@ -4,7 +4,7 @@ import math
 
 import pandas as pd
 
-from pdpipe.basic_stages import Bin
+from pdpipe.col_generation import Bin
 
 
 def test_col_binner():

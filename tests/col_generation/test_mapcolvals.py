@@ -3,7 +3,7 @@
 import pandas as pd
 import pytest
 
-from pdpipe.basic_stages import MapColVals
+from pdpipe.col_generation import MapColVals
 
 
 def _test_df():

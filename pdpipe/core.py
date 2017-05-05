@@ -250,3 +250,10 @@ class Pipeline(PipelineStage, collections.abc.Sequence):
             res += '[{:>2}]  '.format(i+1) + "\n      ".join(
                 textwrap.wrap(stage.__str__())) + '\n'
         return res
+
+    # def drop(self, index):
+    #     """Returns this pipline with the stage of the given index removed.
+
+    #     Arguments
+    #     ---------
+    #     index

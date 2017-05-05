@@ -21,13 +21,19 @@ from .basic_stages import (
     ColDrop,
     ValDrop,
     ValKeep,
-    ColRename,
+    ColRename
+)
+core.__load_stage_attributes_from_module__('pdpipe.basic_stages')
+
+from . import col_generation
+from .col_generation import (
     Bin,
     Binarize,
     MapColVals,
-    ColByFunc
+    ApplyToRows,
+    ApplyByCols
 )
-core.__load_stage_attributes_from_module__('pdpipe.basic_stages')
+core.__load_stage_attributes_from_module__('pdpipe.col_generation')
 
 try:
     from . import sklearn_stages

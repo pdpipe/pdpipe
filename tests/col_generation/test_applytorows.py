@@ -1,8 +1,8 @@
-"""Testing ColByFunc pipline stages."""
+"""Testing ApplyToRows pipline stages."""
 
 import pandas as pd
 
-from pdpipe.basic_stages import ColByFunc
+from pdpipe.col_generation import ApplyToRows
 
 
 def _some_df():
@@ -17,10 +17,10 @@ def _total_rev(row):
     return row['years'] * row['avg_revenue']
 
 
-def test_colbyfunc():
-    """Testing ColByFunc pipline stages."""
+def test_applytorows():
+    """Testing ApplyToRows pipline stages."""
     df = _some_df()
-    cbf_stage = ColByFunc(_total_rev, 'total_revenue')
+    cbf_stage = ApplyToRows(_total_rev, 'total_revenue')
     res_df = cbf_stage(df)
     assert res_df.columns.get_loc('total_revenue') == 2
     assert res_df['total_revenue'][1] == 3 * 2143
@@ -28,10 +28,10 @@ def test_colbyfunc():
     assert res_df['total_revenue'][3] == 7 * 1255
 
 
-def test_colbyfunc_with_follow_column():
-    """Testing ColByFunc pipline stages."""
+def test_applytorows_with_follow_column():
+    """Testing ApplyToRows pipline stages."""
     df = _some_df()
-    cbf_stage = ColByFunc(_total_rev, 'total_revenue', follow_column='years')
+    cbf_stage = ApplyToRows(_total_rev, 'total_revenue', follow_column='years')
     res_df = cbf_stage(df)
     assert res_df.columns.get_loc('total_revenue') == 1
     assert res_df['total_revenue'][1] == 3 * 2143
@@ -52,10 +52,10 @@ def _sum_and_diff(row):
         {'sum': row['num1'] + row['num2'], 'diff': row['num1'] - row['num2']})
 
 
-def test_colbyfunc_with_df_generation():
-    """Testing ColByFunc pipline stages."""
+def test_applytorows_with_df_generation():
+    """Testing ApplyToRows pipline stages."""
     df = _num_df()
-    cbf_stage = ColByFunc(_sum_and_diff)
+    cbf_stage = ApplyToRows(_sum_and_diff)
     res_df = cbf_stage(df)
     assert 'sum' in res_df.columns
     assert 'diff' in res_df.columns
@@ -65,10 +65,10 @@ def test_colbyfunc_with_df_generation():
     assert res_df['diff'][2] == -2
 
 
-def test_colbyfunc_with_df_generation_and_optionals():
-    """Testing ColByFunc pipline stages."""
+def test_applytorows_with_df_generation_and_optionals():
+    """Testing ApplyToRows pipline stages."""
     df = _num_df()
-    cbf_stage = ColByFunc(
+    cbf_stage = ApplyToRows(
         func=_sum_and_diff,
         func_desc="calculates sum and diff of num1 and num2",
         prec=lambda df: 'num1' in df.columns and 'num2' in df.columns
@@ -82,10 +82,10 @@ def test_colbyfunc_with_df_generation_and_optionals():
     assert res_df['diff'][2] == -2
 
 
-def test_colbyfunc_with_df_generation_follow():
-    """Testing ColByFunc pipline stages."""
+def test_applytorows_with_df_generation_follow():
+    """Testing ApplyToRows pipline stages."""
     df = _num_df()
-    cbf_stage = ColByFunc(_sum_and_diff, follow_column='num1')
+    cbf_stage = ApplyToRows(_sum_and_diff, follow_column='num1')
     res_df = cbf_stage(df)
     assert res_df.columns.get_loc('sum') == 2
     assert res_df.columns.get_loc('diff') == 1

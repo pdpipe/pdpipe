@@ -4,10 +4,8 @@ import pandas as pd
 
 import pdpipe as pdp
 from pdpipe.core import Pipeline
-from pdpipe.basic_stages import (
-    ColDrop,
-    Bin
-)
+from pdpipe.basic_stages import ColDrop
+from pdpipe.col_generation import Bin
 
 
 def _some_df():

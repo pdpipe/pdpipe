@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from pdpipe.basic_stages import Binarize
+from pdpipe.col_generation import Binarize
 
 
 def _one_categ_df():
