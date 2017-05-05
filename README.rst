@@ -62,8 +62,11 @@ Design Decisions
 Use
 ===
 
+Pipelines
+---------
+
 Creating Pipline Stages
------------------------
+~~~~~~~~~~~~~~~~~~~~~~~
 
 You can create stages with the following syntax:
 
@@ -72,9 +75,9 @@ You can create stages with the following syntax:
   import pdpipde as pdp
   drop_name = pdp.ColDrop("Name")
 
-By default, pipeline stages raise an exception if a DataFrame not meeting
-their precondition is piped through. This behaviour can be set per-stage by
-assigning ``exraise`` with a bool in a constructor call:
+
+All pipeline stages have a predefined precondition function that returns True for dataframes to which the stage can be applied. By default, pipeline stages raise an exception if a DataFrame not meeting
+their precondition is piped through. This behaviour can be set per-stage by assigning ``exraise`` with a bool in the constructor call. If ``exraise`` is set to ``False`` the input DataFrame is instead returned without change:
 
 .. code-block:: python
 
@@ -82,7 +85,7 @@ assigning ``exraise`` with a bool in a constructor call:
 
 
 Applying Pipelines Stages
--------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can apply a pipeline stage to a DataFrame using its ``apply`` method:
 
@@ -104,9 +107,17 @@ The initialized exception behaviour of a pipeline stage can be overriden on a pe
   drop_name = pdp.ColDrop("Name", exraise=False)
   res_df = drop_name(df, exraise=True)
 
+Additionaly, to have an explaination message print after the precondition is checked but before the application of the pipeline stage, pass ``verbose=True``:
+
+.. code-block:: python
+
+  res_df = drop_name(df, verbose=True)
+
+Pipelines
+---------
 
 Creating Piplines
------------------
+~~~~~~~~~~~~~~~~~
 
 Pipelines can be created by supplying a list of pipeline stages:
 
@@ -129,7 +140,7 @@ Or even by adding pipelines together or pipelines to pipeline stages:
 .. code-block:: python
 
   pipeline = pdp.ColDrop("Name") + pdp.Binarize("Label")
-  pipeline += pdp.MapColVals("Job", {"Part": True, "Full":True, "No": False})
+  pipeline += pdp.ApplyToRows("Job", {"Part": True, "Full":True, "No": False})
   pipeline += pdp.Pipeline([pdp.ColRename({"Job": "Employed"})])
   
 
@@ -142,9 +153,20 @@ Pipline stages can also be chained to other stages to create pipelines:
 
   pipeline = pdp.ColDrop("Name").Binarize("Label").ValDrop([-1], "Children")
   
+ 
+Pipeline Slicing
+~~~~~~~~~~~~~~~~
+
+Pipelines are Python Sequence objects, and as such can be sliced using Python's slicing notation, just like lists:
+
+.. code-block:: python
+
+  pipeline = pdp.ColDrop("Name").Binarize("Label").ValDrop([-1], "Children").ApplyByCols("height", math.ceil)
+  result_df = pipeline[1:2](df)
+
 
 Applying Pipelines
-------------------
+~~~~~~~~~~~~~~~~~~
 
 Pipelines are pipeline stages themselves, and can be applied to a DataFrame using the same syntax, applying each of the stages making them up, in order:
 
@@ -159,13 +181,18 @@ Assigning the ``exraise`` paramter to a pipeline apply call with a bool sets or 
 .. code-block:: python
 
   pipeline = pdp.ColDrop("Name") + pdp.Binarize("Label")
-  res_df = pipeline.apply(df, exraise=True)
+  res_df = pipeline.apply(df, exraise=False)
 
 
-Pipeline Stages
-===============
+Additionally, passing ``verbose=True`` to a pipeline apply call will apply all pipeline stages verbosely:
+
+.. code-block:: python
+
+  res_df = pipeline.apply(df, verbose=True)
 
 
+Types of Pipeline Stages
+========================
 
 Basic Stages
 ------------
