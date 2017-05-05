@@ -31,7 +31,7 @@ Install ``pdpipe`` with:
 
   pip install pdpipe
 
-Some stages require ``scikit-learn``; they will simply not be loaded if ``scikit-learn`` is not found on the system, and ``pdpipe`` will issue a warning. To use them you must also `install scikit-learn`_.
+Some pipeline stages require ``scikit-learn``; they will simply not be loaded if ``scikit-learn`` is not found on the system, and ``pdpipe`` will issue a warning. To use them you must also `install scikit-learn`_.
 
 .. _`install scikit-learn`: http://scikit-learn.org/stable/install.html
 
@@ -42,7 +42,7 @@ Features
 * Pure Python.
 * Compatible with Python 3.5+.
 * A simple interface.
-* Informative prints on pipeline application processes and errors.
+* Informative prints and errros on pipeline application.
 * Chainning pipeline stages constructor calls for easy, one-liners pipelines.
 * Pipeline arithmetics.
 
@@ -51,8 +51,8 @@ Design Decisions
 ----------------
 
 * **Data science-oriented naming** (rather than statistics).
-* **A functional approach:** Pipelines never change input DataFrames. Nothing is in place.
-* **Opinionated operations:** Help novices avoid mistake by default appliance of good practices; e.g., binarizing (creating dummy variables) a colum will drop one of the resulting columns to avoid `the dummy variable trap`_ (perfect `multicollinearity`_).
+* **A functional approach:** Pipelines never change input DataFrames. Nothing is done "in place".
+* **Opinionated operations:** Help novices avoid mistake by default appliance of good practices; e.g., binarizing (creating dummy variables) a colum will drop one of the resulting columns by default, to avoid `the dummy variable trap`_ (perfect `multicollinearity`_).
 * **Machine learning-oriented:** The target use case is transforming tabular data into a vectorized dataset on which a machine learning model will be trained; e.g., column transformations will drop the source columns to avoid strong linear dependence.
 
 .. _`the dummy variable trap`: http://www.algosome.com/articles/dummy-variable-trap-regression.html 
@@ -65,7 +65,7 @@ Use
 Creating Pipline Stages
 -----------------------
 
-Create stages with the following syntax:
+You can create stages with the following syntax:
 
 .. code-block:: python
 
@@ -80,34 +80,6 @@ assigning ``exraise`` with a bool in a constructor call:
 
   drop_name = pdp.ColDrop("Name", exraise=False)
 
-Creating Piplines
------------------
-
-Pipelines can be created by supplying a list of pipeline stages:
-
-.. code-block:: python
-
-  pipeline = pdp.Pipeline([pdp.ColDrop("Name"), pdp.Binarize("Label")])
-
-Alternatively, you can add pipeline stages together:
-
-.. code-block:: python
-
-  pipeline = pdp.ColDrop("Name") + pdp.Binarize("Label")
-
-Or even by adding pipelines together or pipelines to pipeline stages:
-
-.. code-block:: python
-
-  pipeline = pdp.ColDrop("Name") + pdp.Binarize("Label")
-  pipeline += pdp.MapColVals("Job", {"Part": True, "Full":True, "No": False})
-  pipeline += pdp.Pipeline([pdp.ColRename({"Job": "Employed"})])
-
-Pipline stages can also be chained to other stages to create pipelines:
-
-.. code-block:: python
-
-  pipeline = pdp.ColDrop("Name").Binarize("Label").ValDrop([-1], "Children")
 
 Applying Pipelines Stages
 -------------------------
@@ -133,10 +105,48 @@ The initialized exception behaviour of a pipeline stage can be overriden on a pe
   res_df = drop_name(df, exraise=True)
 
 
+Creating Piplines
+-----------------
+
+Pipelines can be created by supplying a list of pipeline stages:
+
+.. code-block:: python
+
+  pipeline = pdp.Pipeline([pdp.ColDrop("Name"), pdp.Binarize("Label")])
+  
+
+Pipeline Arithmetics
+~~~~~~~~~~~~~~~~~~~~
+
+Alternatively, you can add pipeline stages together:
+
+.. code-block:: python
+
+  pipeline = pdp.ColDrop("Name") + pdp.Binarize("Label")
+
+Or even by adding pipelines together or pipelines to pipeline stages:
+
+.. code-block:: python
+
+  pipeline = pdp.ColDrop("Name") + pdp.Binarize("Label")
+  pipeline += pdp.MapColVals("Job", {"Part": True, "Full":True, "No": False})
+  pipeline += pdp.Pipeline([pdp.ColRename({"Job": "Employed"})])
+  
+
+Pipeline Chaining
+~~~~~~~~~~~~~~~~~
+
+Pipline stages can also be chained to other stages to create pipelines:
+
+.. code-block:: python
+
+  pipeline = pdp.ColDrop("Name").Binarize("Label").ValDrop([-1], "Children")
+  
+
 Applying Pipelines
 ------------------
 
-Pipelines are pipeline stages themselves, and can be applied to DataFrame using the same syntax, applying each of the stages making them up, in order:
+Pipelines are pipeline stages themselves, and can be applied to a DataFrame using the same syntax, applying each of the stages making them up, in order:
 
 .. code-block:: python
 
@@ -144,7 +154,7 @@ Pipelines are pipeline stages themselves, and can be applied to DataFrame using 
   res_df = pipeline(df)
 
 
-Assigning the ``exraise`` paramter to a pipeline apply call with a bool set or unsets exception raising on failed preconditions for all contained stages:
+Assigning the ``exraise`` paramter to a pipeline apply call with a bool sets or unsets exception raising on failed preconditions for all contained stages:
 
 .. code-block:: python
 
@@ -155,6 +165,8 @@ Assigning the ``exraise`` paramter to a pipeline apply call with a bool set or u
 Pipeline Stages
 ===============
 
+
+
 Basic Stages
 ------------
 
@@ -162,14 +174,61 @@ Basic Stages
 * ValDrop - Drop rows by by their value in specific or all columns.
 * ValKeep - Keep rows by by their value in specific or all columns.
 * ColRename - Rename columns.
+
+Column Generation
+-----------------
+
 * Bin - Convert a continous valued column to categoric data using binning.
 * Binarize - Convert a categorical column to the several binary columns corresponding to it.
-* MapColVals - Convert column values using a mapping.
+* ApplyToRows - Generate columns by applying a function to each row.
+* ApplyByCols - Generate columns by applying an element-wise function to columns.
 
 Scikit-learn-dependent Stages
 -----------------------------
 
 * Encode - Encode a categorical column to corresponding number values.
+
+
+Contributing
+============
+
+Package author and current maintainer is Shay Palachy (shay.palachy@gmail.com); You are more than welcome to approach him for help. Contributions are very welcomed, especially since this package is very much in its infancy and many other pipeline stages can be added.
+
+Installing for development
+--------------------------
+
+Clone:
+
+.. code-block:: bash
+
+  git clone git@github.com:shaypal5/pdpipe.git
+
+
+Install in development mode with test dependencies:
+
+.. code-block:: bash
+
+  cd pdpipe
+  pip install -e ".[test]"
+
+
+Running the tests
+-----------------
+
+To run the tests, use:
+
+.. code-block:: bash
+
+  python -m pytest --cov=pdpipe
+
+
+Adding documentation
+--------------------
+
+This project is documented using the `numpy docstring conventions`_, which were chosen as they are perhaps the most widely-spread conventions that are both supported by common tools such as Sphinx and result in human-readable docstrings (in my personal opinion, of course). When documenting code you add to this project, please follow `these conventions`_.
+
+.. _`numpy docstring conventions`: https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
+.. _`these conventions`: https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
 
 
 Credits
