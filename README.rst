@@ -62,8 +62,8 @@ Design Decisions
 Use
 ===
 
-Pipelines
----------
+Pipeline Stages
+---------------
 
 Creating Pipline Stages
 ~~~~~~~~~~~~~~~~~~~~~~~
