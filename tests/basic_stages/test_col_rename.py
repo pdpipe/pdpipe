@@ -1,4 +1,4 @@
-"""Testing ColRename pipline stages."""
+"""Testing ColRename pipeline stages."""
 
 import pandas as pd
 
@@ -6,7 +6,7 @@ from pdpipe.basic_stages import ColRename
 
 
 def test_valdrop_with_columns():
-    """Testing the ColDrop pipline stage."""
+    """Testing the ColDrop pipeline stage."""
     df = pd.DataFrame(
         data=[[8, 'a', 4], [5, 'b', 92]],
         index=[1, 2],
