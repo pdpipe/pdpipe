@@ -1,4 +1,4 @@
-"""Testing basic pipline stages."""
+"""Testing basic pipeline stages."""
 
 import pandas as pd
 
@@ -16,7 +16,7 @@ def _test_df():
 
 
 def test_adhoc_stage():
-    """Testing adhoc stages."""
+    """Testing ad hoc stages."""
     test_stage = AdHocStage(
         op=lambda df: df.drop(['num'], axis=1),
         prec=lambda df: 'num' in df.columns
@@ -28,7 +28,7 @@ def test_adhoc_stage():
 
 
 def test_adhoc_stage_no_prec():
-    """Testing adhoc stages."""
+    """Testing ad hoc stages."""
     test_stage = AdHocStage(
         op=lambda df: df.drop(['num'], axis=1),
         prec=None
