@@ -12,7 +12,7 @@ Easy pipelines for pandas DataFrames.
           columns=['Medals', 'Height', 'Born']
       )
   >>> pipeline = pdp.ColDrop('Medals').Binarize('Born')
-  >>> pipline(df)
+  >>> pipeline(df)
               Height  Born_UK  Born_USA
       Dana     165        0         1
       Jack     180        1         0
@@ -42,8 +42,8 @@ Features
 * Pure Python.
 * Compatible with Python 3.5+.
 * A simple interface.
-* Informative prints and errros on pipeline application.
-* Chainning pipeline stages constructor calls for easy, one-liners pipelines.
+* Informative prints and errors on pipeline application.
+* Chaining pipeline stages constructor calls for easy, one-liners pipelines.
 * Pipeline arithmetics.
 
 
@@ -52,7 +52,7 @@ Design Decisions
 
 * **Data science-oriented naming** (rather than statistics).
 * **A functional approach:** Pipelines never change input DataFrames. Nothing is done "in place".
-* **Opinionated operations:** Help novices avoid mistake by default appliance of good practices; e.g., binarizing (creating dummy variables) a colum will drop one of the resulting columns by default, to avoid `the dummy variable trap`_ (perfect `multicollinearity`_).
+* **Opinionated operations:** Help novices avoid mistake by default appliance of good practices; e.g., binarizing (creating dummy variables) a column will drop one of the resulting columns by default, to avoid `the dummy variable trap`_ (perfect `multicollinearity`_).
 * **Machine learning-oriented:** The target use case is transforming tabular data into a vectorized dataset on which a machine learning model will be trained; e.g., column transformations will drop the source columns to avoid strong linear dependence.
 
 .. _`the dummy variable trap`: http://www.algosome.com/articles/dummy-variable-trap-regression.html
@@ -65,14 +65,14 @@ Use
 Pipeline Stages
 ---------------
 
-Creating Pipline Stages
-~~~~~~~~~~~~~~~~~~~~~~~
+Creating Pipeline Stages
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can create stages with the following syntax:
 
 .. code-block:: python
 
-  import pdpipde as pdp
+  import pdpipe as pdp
   drop_name = pdp.ColDrop("Name")
 
 
@@ -100,14 +100,14 @@ Pipeline stages are also callables, making the following syntax equivalent:
   drop_name = pdp.ColDrop("Name")
   res_df = drop_name(df)
 
-The initialized exception behaviour of a pipeline stage can be overriden on a per-application basis:
+The initialized exception behaviour of a pipeline stage can be overridden on a per-application basis:
 
 .. code-block:: python
 
   drop_name = pdp.ColDrop("Name", exraise=False)
   res_df = drop_name(df, exraise=True)
 
-Additionaly, to have an explaination message print after the precondition is checked but before the application of the pipeline stage, pass ``verbose=True``:
+Additionally, to have an explanation message print after the precondition is checked but before the application of the pipeline stage, pass ``verbose=True``:
 
 .. code-block:: python
 
@@ -123,7 +123,7 @@ To use other stages than the built-in ones (see `Types of Pipeline Stages`_) you
 Ad-Hoc Pipeline Stages
 ~~~~~~~~~~~~~~~~~~~~~~
 
-To create a custom pipeline stage without creating a proper new class, you can instantiate the ``AdHocStage`` class which takes a function in its ``op`` contructor parameter to define the stage's operation, and the optional ``prec`` paramter to define a precondition (an alway-true function is the default).
+To create a custom pipeline stage without creating a proper new class, you can instantiate the ``AdHocStage`` class which takes a function in its ``op`` constructor parameter to define the stage's operation, and the optional ``prec`` parameter to define a precondition (an always-true function is the default).
 
 
 Pipelines
@@ -160,7 +160,7 @@ Or even by adding pipelines together or pipelines to pipeline stages:
 Pipeline Chaining
 ~~~~~~~~~~~~~~~~~
 
-Pipline stages can also be chained to other stages to create pipelines:
+Pipeline stages can also be chained to other stages to create pipelines:
 
 .. code-block:: python
 
@@ -189,7 +189,7 @@ Pipelines are pipeline stages themselves, and can be applied to a DataFrame usin
   res_df = pipeline(df)
 
 
-Assigning the ``exraise`` paramter to a pipeline apply call with a bool sets or unsets exception raising on failed preconditions for all contained stages:
+Assigning the ``exraise`` parameter to a pipeline apply call with a bool sets or unsets exception raising on failed preconditions for all contained stages:
 
 .. code-block:: python
 
@@ -219,7 +219,7 @@ Basic Stages
 Column Generation
 -----------------
 
-* Bin - Convert a continous valued column to categoric data using binning.
+* Bin - Convert a continuous valued column to categoric data using binning.
 * Binarize - Convert a categorical column to the several binary columns corresponding to it.
 * ApplyToRows - Generate columns by applying a function to each row.
 * ApplyByCols - Generate columns by applying an element-wise function to columns.
