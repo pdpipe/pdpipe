@@ -1,4 +1,4 @@
-"""Testing attribute pipline stages."""
+"""Testing attribute pipeline stages."""
 
 import pandas as pd
 
@@ -16,7 +16,7 @@ def _some_df():
 
 
 def test_attribute_stage():
-    """Testing attribute pipline stages."""
+    """Testing attribute pipeline stages."""
     pipeline = pdp.ColDrop('name').Bin({'speed': [5]}, drop=True)
     assert isinstance(pipeline, Pipeline)
     assert isinstance(pipeline[0], ColDrop)
