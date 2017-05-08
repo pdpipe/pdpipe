@@ -1,4 +1,4 @@
-"""Testing basic pipline stages."""
+"""Testing basic pipeline stages."""
 
 import math
 
