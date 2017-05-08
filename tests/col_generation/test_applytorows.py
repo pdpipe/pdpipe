@@ -1,4 +1,4 @@
-"""Testing ApplyToRows pipline stages."""
+"""Testing ApplyToRows pipeline stages."""
 
 import pandas as pd
 
@@ -18,7 +18,7 @@ def _total_rev(row):
 
 
 def test_applytorows():
-    """Testing ApplyToRows pipline stages."""
+    """Testing ApplyToRows pipeline stages."""
     df = _some_df()
     cbf_stage = ApplyToRows(_total_rev, 'total_revenue')
     res_df = cbf_stage(df)
@@ -29,7 +29,7 @@ def test_applytorows():
 
 
 def test_applytorows_with_follow_column():
-    """Testing ApplyToRows pipline stages."""
+    """Testing ApplyToRows pipeline stages."""
     df = _some_df()
     cbf_stage = ApplyToRows(_total_rev, 'total_revenue', follow_column='years')
     res_df = cbf_stage(df)
@@ -53,7 +53,7 @@ def _sum_and_diff(row):
 
 
 def test_applytorows_with_df_generation():
-    """Testing ApplyToRows pipline stages."""
+    """Testing ApplyToRows pipeline stages."""
     df = _num_df()
     cbf_stage = ApplyToRows(_sum_and_diff)
     res_df = cbf_stage(df)
@@ -66,7 +66,7 @@ def test_applytorows_with_df_generation():
 
 
 def test_applytorows_with_df_generation_and_optionals():
-    """Testing ApplyToRows pipline stages."""
+    """Testing ApplyToRows pipeline stages."""
     df = _num_df()
     cbf_stage = ApplyToRows(
         func=_sum_and_diff,
@@ -83,7 +83,7 @@ def test_applytorows_with_df_generation_and_optionals():
 
 
 def test_applytorows_with_df_generation_follow():
-    """Testing ApplyToRows pipline stages."""
+    """Testing ApplyToRows pipeline stages."""
     df = _num_df()
     cbf_stage = ApplyToRows(_sum_and_diff, follow_column='num1')
     res_df = cbf_stage(df)
