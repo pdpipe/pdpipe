@@ -1,4 +1,4 @@
-"""Testing MapColVals pipline stages."""
+"""Testing MapColVals pipeline stages."""
 
 import pandas as pd
 import pytest
@@ -11,7 +11,7 @@ def _test_df():
 
 
 def test_mapcolvals():
-    """Testing MapColVals pipline stages."""
+    """Testing MapColVals pipeline stages."""
     df = _test_df()
     value_map = {1: 'Gold', 2: 'Silver', 3: 'Bronze'}
     res_df = MapColVals('Medal', value_map).apply(df)
@@ -21,7 +21,7 @@ def test_mapcolvals():
 
 
 def test_mapcolvals_no_drop():
-    """Testing MapColVals pipline stages."""
+    """Testing MapColVals pipeline stages."""
     df = _test_df()
     value_map = {1: 'Gold', 2: 'Silver', 3: 'Bronze'}
     res_df = MapColVals('Medal', value_map, drop=False).apply(df)
@@ -34,7 +34,7 @@ def test_mapcolvals_no_drop():
 
 
 def test_mapcolvals_with_res_name():
-    """Testing MapColVals pipline stages."""
+    """Testing MapColVals pipeline stages."""
     df = _test_df()
     value_map = {1: 'Gold', 2: 'Silver', 3: 'Bronze'}
     res_df = MapColVals('Medal', value_map, result_columns='Metal').apply(df)
@@ -44,7 +44,7 @@ def test_mapcolvals_with_res_name():
 
 
 def test_mapcolvals_with_res_name_no_drop():
-    """Testing MapColVals pipline stages."""
+    """Testing MapColVals pipeline stages."""
     df = _test_df()
     value_map = {1: 'Gold', 2: 'Silver', 3: 'Bronze'}
     map_stage = MapColVals(
@@ -59,7 +59,7 @@ def test_mapcolvals_with_res_name_no_drop():
 
 
 def test_mapcolvals_bad_res_name_len():
-    """Testing MapColVals pipline stages."""
+    """Testing MapColVals pipeline stages."""
     df = _test_df()
     value_map = {1: 'Gold', 2: 'Silver', 3: 'Bronze'}
     with pytest.raises(ValueError):
