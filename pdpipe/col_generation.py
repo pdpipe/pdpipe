@@ -1,4 +1,4 @@
-"""Basic pdpipe PiplineStages."""
+"""Basic pdpipe PipelineStages."""
 
 import types
 
@@ -16,7 +16,7 @@ from pdpipe.shared import (
 
 
 class Bin(PipelineStage):
-    """A pipline stage that adds a binned version of a column or columns.
+    """A pipeline stage that adds a binned version of a column or columns.
 
     If drop is set to True the new columns retain the names of the source
     columns; otherwise, the resulting column gain the suffix '_bin'
@@ -127,7 +127,7 @@ class Bin(PipelineStage):
 
 
 class Binarize(PipelineStage):
-    """A pipline stage that binarizes categorical columns.
+    """A pipeline stage that binarizes categorical columns.
 
     By default only k-1 dummies are created fo k categorical levels, as to
     avoid perfect multicollinearity between the dummy features (also called
@@ -225,7 +225,7 @@ class Binarize(PipelineStage):
 
 
 class MapColVals(PipelineStage):
-    """A pipline stage that replaces the values of a column by a map.
+    """A pipeline stage that replaces the values of a column by a map.
 
     Parameters
     ----------
@@ -311,7 +311,7 @@ class MapColVals(PipelineStage):
 
 
 class ApplyToRows(PipelineStage):
-    """A pipline stage generating columns by applying a function to each row.
+    """A pipeline stage generating columns by applying a function to each row.
 
     Parameters
     ----------
@@ -348,7 +348,7 @@ class ApplyToRows(PipelineStage):
     3      7         1255           8785
     """
 
-    _DEF_APPLYTOROWS_EXC_MSG = "Appplying function {} failed."
+    _DEF_APPLYTOROWS_EXC_MSG = "Applying function {} failed."
     _DEF_APPLYTOROWS_APP_MSG = "Applying function {}..."
     _DEF_COLNAME = 'new_col'
 
@@ -410,7 +410,7 @@ class ApplyToRows(PipelineStage):
 
 
 class ApplyByCols(PipelineStage):
-    """A pipline stage applying an element-wise function to columns.
+    """A pipeline stage applying an element-wise function to columns.
 
     Parameters
     ----------
