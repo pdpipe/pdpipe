@@ -1,4 +1,4 @@
-"""Testing ApplyByCols pipline stages."""
+"""Testing ApplyByCols pipeline stages."""
 
 import math
 
@@ -17,7 +17,7 @@ def ph_df():
 
 
 def test_applybycols():
-    """Testing ApplyByCols pipline stages."""
+    """Testing ApplyByCols pipeline stages."""
     df = ph_df()
     round_ph = ApplyByCols("ph", math.ceil)
     res_df = round_ph(df)
@@ -28,7 +28,7 @@ def test_applybycols():
 
 
 def test_applybycols_func_desc():
-    """Testing ApplyByCols pipline stages."""
+    """Testing ApplyByCols pipeline stages."""
     df = ph_df()
     round_ph = ApplyByCols("ph", math.ceil, func_desc='Round PH values')
     res_df = round_ph(df)
@@ -39,7 +39,7 @@ def test_applybycols_func_desc():
 
 
 def test_applybycols_with_result_columns():
-    """Testing ApplyByCols pipline stages."""
+    """Testing ApplyByCols pipeline stages."""
     df = ph_df()
     round_ph = ApplyByCols("ph", math.ceil, result_columns='round_ph')
     res_df = round_ph(df)
@@ -51,7 +51,7 @@ def test_applybycols_with_result_columns():
 
 
 def test_applybycols_with_drop():
-    """Testing ApplyByCols pipline stages."""
+    """Testing ApplyByCols pipeline stages."""
     df = ph_df()
     round_ph = ApplyByCols("ph", math.ceil, drop=False)
     res_df = round_ph(df)
@@ -65,7 +65,7 @@ def test_applybycols_with_drop():
 
 
 def test_applybycols_with_bad_len_result_columns():
-    """Testing ApplyByCols pipline stages."""
+    """Testing ApplyByCols pipeline stages."""
     df = ph_df()
     with pytest.raises(ValueError):
         round_ph = ApplyByCols("ph", math.ceil, result_columns=['a', 'b'])
@@ -85,7 +85,7 @@ def test_applybycols_with_bad_len_result_columns():
 
 
 # def test_applytorows_with_df_generation():
-#     """Testing ApplyToRows pipline stages."""
+#     """Testing ApplyToRows pipeline stages."""
 #     df = _num_df()
 #     cbf_stage = ApplyToRows(_sum_and_diff)
 #     res_df = cbf_stage(df)
@@ -98,7 +98,7 @@ def test_applybycols_with_bad_len_result_columns():
 
 
 # def test_applytorows_with_df_generation_and_optionals():
-#     """Testing ApplyToRows pipline stages."""
+#     """Testing ApplyToRows pipeline stages."""
 #     df = _num_df()
 #     cbf_stage = ApplyToRows(
 #         func=_sum_and_diff,
@@ -115,7 +115,7 @@ def test_applybycols_with_bad_len_result_columns():
 
 
 # def test_applytorows_with_df_generation_follow():
-#     """Testing ApplyToRows pipline stages."""
+#     """Testing ApplyToRows pipeline stages."""
 #     df = _num_df()
 #     cbf_stage = ApplyToRows(_sum_and_diff, follow_column='num1')
 #     res_df = cbf_stage(df)
