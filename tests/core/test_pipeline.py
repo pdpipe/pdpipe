@@ -1,4 +1,4 @@
-"""Testing basic pipline stages."""
+"""Testing basic pipeline stages."""
 
 import pandas as pd
 import pytest
@@ -58,7 +58,7 @@ def test_pipeline_stage_addition():
     assert 'char' in res_df.columns
 
 
-def test_pipline_to_pipeline_stage_addition():
+def test_pipeline_to_pipeline_stage_addition():
     """Testing something."""
     drop_num1 = SilentDropStage('num1')
     drop_num2 = SilentDropStage('num2')
@@ -73,7 +73,7 @@ def test_pipline_to_pipeline_stage_addition():
     assert 'char' in res_df.columns
 
 
-def test_pipline_stage_to_pipeline_addition():
+def test_pipeline_stage_to_pipeline_addition():
     """Testing something."""
     drop_num1 = SilentDropStage('num1')
     drop_num2 = SilentDropStage('num2')
@@ -88,7 +88,7 @@ def test_pipline_stage_to_pipeline_addition():
     assert 'char' in res_df.columns
 
 
-def test_pipline_to_pipeline_addition():
+def test_pipeline_to_pipeline_addition():
     """Testing something."""
     drop_num1 = SilentDropStage('num1')
     drop_num2 = SilentDropStage('num2')
@@ -105,7 +105,7 @@ def test_pipline_to_pipeline_addition():
     assert 'char' in res_df.columns
 
 
-def test_pipline_to_int_addition():
+def test_pipeline_to_int_addition():
     """Testing something."""
     pipeline = Pipeline([SilentDropStage('num1')])
     with pytest.raises(TypeError):
@@ -113,7 +113,7 @@ def test_pipline_to_int_addition():
         assert not isinstance(res, Pipeline)
 
 
-def test_pipline_index():
+def test_pipeline_index():
     """Testing something."""
     df = _test_df()
     drop_num1 = SilentDropStage('num1')
@@ -129,7 +129,7 @@ def test_pipline_index():
     assert 'char' not in pipeline[2](df).columns
 
 
-def test_pipline_slice():
+def test_pipeline_slice():
     """Testing something."""
     drop_num1 = SilentDropStage('num1')
     drop_num2 = SilentDropStage('num2')
