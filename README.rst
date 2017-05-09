@@ -142,7 +142,7 @@ Pipelines can be created by supplying a list of pipeline stages:
 Pipeline Arithmetics
 ~~~~~~~~~~~~~~~~~~~~
 
-Alternatively, you can add pipeline stages together:
+Alternatively, you can create pipelines by adding pipeline stages together:
 
 .. code-block:: python
 
