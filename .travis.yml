@@ -20,15 +20,15 @@ install:
 script: pytest --cov=pdpipe
 after_success:
   - codecov
-deploy:
-  provider: pypi
-  user: shaypal5
-  password:
-    secure: RaTkue2YoXAkT/byvecFuOYdrJpHchCSMYnV4xqUFhQgT8qbyv7/EL+pm6sQ75Ni/JKAhSBdW8l4faKY9X1vW3yc5E2YHBf/81VJo1+JAbD9vGX0RLZbDzIsEVht+hL2Xxvab5Xh3fI7Pcr+cozKKMZxcOvEEwGo5DENM4CquGLeYyUxQOyhwSVjA+54bucFm+u+BA0QxUSHSyFy0cPKJVi8jNMSK/XAvs+Zk26o/MOU3udSj25FBtTkqPTBphaUNkt2EPGK1ZWkS9uhqs+hrETMWj6n6k49WblXvMDJiUtCIM+36Q+GBH/9UxCWuMOjL+uRFjVwwKQEcend9YMvp4+jRZ1HsLAWjMMhazxgkZ6M7bErHRxyabb7om+5IMptPdIo31gw8S1dKktGyuiSVYqs9X2mGA//SoItoDjIAUI81TQ3s2QLw5SfyEARfAdN+QS2aRaZHc0RPcLb10xNu7d7cy/4I88W+dptNqVABCP26Jlg4xsrRGMnONMSt/kWg1enXfgSXJcyrqqAaZzQUs/5QmVGtU4DBl3C8pUiHs6eGdpcqO3vpYoHveNT0WzoONkqZBvzBOjUWf8oMJzI3LcmCruUtktyd9cnlzM49pndnCyXPIKcpqPSGtR0FS3I/QhP7RBB+5xjP39SIuFsEW6ciakOs+AdMePl8tAq01o=
-  distributions: sdist bdist_wheel
-  on:
-    all_branches: true
-    tags: true
-    repo: shaypal5/pdpipe
-    condition: $TRAVIS_PYTHON_VERSION = "3.5"
-  skip_upload_docs: true
+# deploy:
+#   provider: pypi
+#   user: shaypal5
+#   password:
+#     secure: RaTkue2YoXAkT/byvecFuOYdrJpHchCSMYnV4xqUFhQgT8qbyv7/EL+pm6sQ75Ni/JKAhSBdW8l4faKY9X1vW3yc5E2YHBf/81VJo1+JAbD9vGX0RLZbDzIsEVht+hL2Xxvab5Xh3fI7Pcr+cozKKMZxcOvEEwGo5DENM4CquGLeYyUxQOyhwSVjA+54bucFm+u+BA0QxUSHSyFy0cPKJVi8jNMSK/XAvs+Zk26o/MOU3udSj25FBtTkqPTBphaUNkt2EPGK1ZWkS9uhqs+hrETMWj6n6k49WblXvMDJiUtCIM+36Q+GBH/9UxCWuMOjL+uRFjVwwKQEcend9YMvp4+jRZ1HsLAWjMMhazxgkZ6M7bErHRxyabb7om+5IMptPdIo31gw8S1dKktGyuiSVYqs9X2mGA//SoItoDjIAUI81TQ3s2QLw5SfyEARfAdN+QS2aRaZHc0RPcLb10xNu7d7cy/4I88W+dptNqVABCP26Jlg4xsrRGMnONMSt/kWg1enXfgSXJcyrqqAaZzQUs/5QmVGtU4DBl3C8pUiHs6eGdpcqO3vpYoHveNT0WzoONkqZBvzBOjUWf8oMJzI3LcmCruUtktyd9cnlzM49pndnCyXPIKcpqPSGtR0FS3I/QhP7RBB+5xjP39SIuFsEW6ciakOs+AdMePl8tAq01o=
+#   distributions: sdist bdist_wheel
+#   on:
+#     all_branches: true
+#     tags: true
+#     repo: shaypal5/pdpipe
+#     condition: $TRAVIS_PYTHON_VERSION = "3.5"
+#   skip_upload_docs: true
