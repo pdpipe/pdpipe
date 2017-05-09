@@ -13,7 +13,7 @@ from pdpipe.shared import (
 
 
 class Encode(PipelineStage):
-    """A pipline stage that encodes categorical columns to integer values.
+    """A pipeline stage that encodes categorical columns to integer values.
 
     The encoder for each column is saved in the attribute 'encoders', which
     is a dict mapping each encoded column name to the
@@ -32,7 +32,7 @@ class Encode(PipelineStage):
     drop : bool, default True
         If set to True, the source columns are dropped after being encoded,
         and the resulting encoded columns retain the names of the source
-        colunmns. Otherwise, encoded columns gain the suffix '_enc'.
+        columns. Otherwise, encoded columns gain the suffix '_enc'.
 
     Example
     -------

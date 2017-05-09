@@ -1,4 +1,4 @@
-"""Testing basic pipline stages."""
+"""Testing basic pipeline stages."""
 
 import datetime
 
@@ -17,7 +17,7 @@ def _test_df():
 
 
 def test_coldrop_one_col():
-    """Testing the ColDrop pipline stage."""
+    """Testing the ColDrop pipeline stage."""
     df = _test_df()
     assert 'num1' in df.columns
     stage = ColDrop('num1')
@@ -28,7 +28,7 @@ def test_coldrop_one_col():
 
 
 def test_coldrop_multi_col():
-    """Testing the ColDrop pipline stage."""
+    """Testing the ColDrop pipeline stage."""
     df = _test_df()
     assert 'num1' in df.columns
     assert 'num2' in df.columns
@@ -40,7 +40,7 @@ def test_coldrop_multi_col():
 
 
 def test_coldrop_bad_args_in_list():
-    """Testing the ColDrop pipline stage."""
+    """Testing the ColDrop pipeline stage."""
     df = _test_df()
     with pytest.raises(ValueError):
         stage = ColDrop(['num1', df])
@@ -48,14 +48,14 @@ def test_coldrop_bad_args_in_list():
 
 
 def test_coldrop_bad_arg_not_str_or_list():
-    """Testing the ColDrop pipline stage."""
+    """Testing the ColDrop pipeline stage."""
     with pytest.raises(ValueError):
         stage = ColDrop(datetime.datetime.now())
         assert not isinstance(stage, ColDrop)
 
 
 def test_coldrop_lambda():
-    """Testing the ColDrop pipline stage."""
+    """Testing the ColDrop pipeline stage."""
     df = _test_df()
     assert 'num1' in df.columns
     assert 'num2' in df.columns

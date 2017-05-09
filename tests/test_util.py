@@ -17,7 +17,7 @@ def _test_df():
 
 
 def test_out_of_place_col_insert_all_params():
-    """Testing the ColDrop pipline stage."""
+    """Testing the ColDrop pipeline stage."""
     df = _test_df()
     series = pd.Series(
         data=[10, 20],
@@ -33,7 +33,7 @@ def test_out_of_place_col_insert_all_params():
 
 
 def test_out_of_place_col_insert_no_col_name():
-    """Testing the ColDrop pipline stage."""
+    """Testing the ColDrop pipeline stage."""
     df = _test_df()
     series = pd.Series(
         data=[10, 20],
@@ -48,7 +48,7 @@ def test_out_of_place_col_insert_no_col_name():
 
 
 def test_out_of_place_col_insert_nameless_error():
-    """Testing the ColDrop pipline stage."""
+    """Testing the ColDrop pipeline stage."""
     df = _test_df()
     series = pd.Series(
         data=[10, 20],

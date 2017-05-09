@@ -23,7 +23,7 @@ def __get_append_stage_attr_doc(class_obj):
     else:
         new_first_line = first_line.replace("A", "Creates and adds a", 1)
     new_first_line = new_first_line[0:-1] + (
-        " to this pipline stage.")
+        " to this pipeline stage.")
     return doc.replace(first_line, new_first_line, 1)
 
 
@@ -82,8 +82,8 @@ class PipelineStage(abc.ABC):
     """
 
     _DEF_EXC_MSG = 'Precondition failed!'
-    _DEF_APPLY_MSG = 'Applying a pipline stage...'
-    _DEF_DESCRIPTION = 'A pipline stage.'
+    _DEF_APPLY_MSG = 'Applying a pipeline stage...'
+    _DEF_DESCRIPTION = 'A pipeline stage.'
 
     def __init__(self, exraise=True, exmsg=None, appmsg=None, desc=None):
         if exmsg is None:
@@ -113,7 +113,7 @@ class PipelineStage(abc.ABC):
         Parameters
         ----------
         df : pandas.DataFrame
-            The daraframe to which this pipeline stage will be applied.
+            The dataframe to which this pipeline stage will be applied.
         exraise : bool, default None
             Determines behaviour if the precondition of this stage is not
             fulfilled by the given dataframe: If True,
@@ -121,7 +121,7 @@ class PipelineStage(abc.ABC):
             skipped. If None, the default behaviour of this stage is used, as
             determined by the exraise constructor parameter.
         verbose : bool, default False
-            If True an explaination message is printed after the precondition
+            If True an explanation message is printed after the precondition
             is checked but before the application of the pipeline stage.
             Defaults to False.
 
@@ -166,7 +166,7 @@ class AdHocStage(PipelineStage):
     op : callable
         The operation this stage applies to dataframes.
     prec : callable, default None
-        A callable that returns a boolean value. Represneta a precondition
+        A callable that returns a boolean value. Represent a a precondition
         used to determine whether this stage can be applied to a given
         dataframe. If None is given, set to a function always returning True.
     """
@@ -195,7 +195,7 @@ class Pipeline(PipelineStage, collections.abc.Sequence):
     """
 
     _DEF_EXC_MSG = 'Pipeline precondition failed!'
-    _DEF_APP_MSG = 'Applying a pipline...'
+    _DEF_APP_MSG = 'Applying a pipeline...'
 
     def __init__(self, stages, **kwargs):
         self._stages = stages
@@ -243,7 +243,7 @@ class Pipeline(PipelineStage, collections.abc.Sequence):
             return NotImplemented
 
     def __str__(self):
-        res = "A pdpipe pipline:\n"
+        res = "A pdpipe pipeline:\n"
         res += '[ 0]  ' +  "\n      ".join(
             textwrap.wrap(self._stages[0].__str__())) + '\n'
         for i, stage in enumerate(self._stages[1:]):
@@ -252,7 +252,7 @@ class Pipeline(PipelineStage, collections.abc.Sequence):
         return res
 
     # def drop(self, index):
-    #     """Returns this pipline with the stage of the given index removed.
+    #     """Returns this pipeline with the stage of the given index removed.
 
     #     Arguments
     #     ---------

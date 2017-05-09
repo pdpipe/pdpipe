@@ -1,4 +1,4 @@
-"""Testing Binarize pipline stages."""
+"""Testing Binarize pipeline stages."""
 
 import pandas as pd
 

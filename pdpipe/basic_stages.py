@@ -1,4 +1,4 @@
-"""Basic pdpipe PiplineStages."""
+"""Basic pdpipe PipelineStages."""
 
 import types
 
@@ -16,7 +16,7 @@ from pdpipe.shared import (
 
 
 class ColDrop(PipelineStage):
-    """A pipline stage that drops columns by name.
+    """A pipeline stage that drops columns by name.
 
     Parameters
     ----------
@@ -75,13 +75,13 @@ class ColDrop(PipelineStage):
 
 
 class ValDrop(PipelineStage):
-    """A pipline stage that drops rows by value.
+    """A pipeline stage that drops rows by value.
 
     Parameters
     ----------
     values : list-like
         A list of the values to drop.
-    columns : str or list-like, defualt None
+    columns : str or list-like, default None
         The name, or an iterable of names, of columns to check for the given
         values. If set to None, all columns are checked.
 
@@ -144,13 +144,13 @@ class ValDrop(PipelineStage):
 
 
 class ValKeep(PipelineStage):
-    """A pipline stage that keeps rows by value.
+    """A pipeline stage that keeps rows by value.
 
     Parameters
     ----------
     values : list-like
         A list of the values to keep.
-    columns : str or list-like, defualt None
+    columns : str or list-like, default None
         The name, or an iterable of names, of columns to check for the given
         values. If set to None, all columns are checked.
 
@@ -213,7 +213,7 @@ class ValKeep(PipelineStage):
 
 
 class ColRename(PipelineStage):
-    """A pipline stage that renames a column or columns.
+    """A pipeline stage that renames a column or columns.
 
     Parameters
     ----------
