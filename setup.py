@@ -15,6 +15,9 @@ README_RST = ''
 with open('README.rst') as f:
     README_RST = f.read()
 
+INSTALL_REQUIRES = [
+    'pandas>=0.18.0', 'sortedcontainers', 'tqdm',
+]
 TEST_REQUIRES = ['pytest', 'coverage', 'pytest-cov']
 
 
@@ -29,14 +32,12 @@ setup(
     url='https://github.com/shaypal5/pdpipe',
     license="MIT",
     packages=['pdpipe'],
-    install_requires=[
-        'pandas>=0.18.0', 'sortedcontainers', 'tqdm',
-    ],
+    install_requires=INSTALL_REQUIRES,
     extras_require={
         'sklearn': ['scikit-learn'],
         'test': TEST_REQUIRES
     },
-    setup_requires=TEST_REQUIRES,
+    setup_requires=INSTALL_REQUIRES,
     platforms=['any'],
     keywords='pandas dataframe pipeline data',
     classifiers=[
