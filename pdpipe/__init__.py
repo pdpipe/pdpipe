@@ -2,11 +2,7 @@
 # pylint: disable=C0413
 
 import warnings
-def _custom_formatwarning(msg, category, *kwargs): #pylint: disable=W0613
-    # ignore everything except the message
-    return '{}: {}\n'.format(category.__name__, msg)
 
-warnings.formatwarning = _custom_formatwarning
 
 from . import core
 from .core import (
@@ -21,7 +17,8 @@ from .basic_stages import (
     ColDrop,
     ValDrop,
     ValKeep,
-    ColRename
+    ColRename,
+    DropNa,
 )
 core.__load_stage_attributes_from_module__('pdpipe.basic_stages')
 
@@ -50,7 +47,8 @@ __version__ = get_versions()['version']
 
 for name in [
         'warnings', '_custom_formatwarning', 'core', 'basic_stages',
-        'sklearn_stages', '_version', 'get_versions']:
+        'sklearn_stages', 'col_generation', 'shared', 'util', '_version',
+        'get_versions']:
     try:
         globals().pop(name)
     except KeyError:

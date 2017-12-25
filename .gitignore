@@ -93,3 +93,6 @@ ENV/
 # ctags
 tags
 .vscode
+
+# vim swap files
+*.swp
