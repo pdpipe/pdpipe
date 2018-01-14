@@ -230,7 +230,7 @@ class MapColVals(PipelineStage):
     Parameters
     ----------
     columns : str or list-like
-        Column names in the DataFrame to be encoded.
+        Column names in the DataFrame to be mapped.
     value_map : dict, function or pandas.Series
         A dictionary mapping existing values to new ones. Not all existing
         values need to be referenced; missing one will neither be changed nor

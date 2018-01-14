@@ -207,6 +207,8 @@ Additionally, passing ``verbose=True`` to a pipeline apply call will apply all p
 Types of Pipeline Stages
 ========================
 
+All built-in stages are thoroughly documented, including examples; if you find any documentation lacking please open an issue. A list of briefly described available built-in stages follows:
+
 Basic Stages
 ------------
 
@@ -215,6 +217,8 @@ Basic Stages
 * ValDrop - Drop rows by by their value in specific or all columns.
 * ValKeep - Keep rows by by their value in specific or all columns.
 * ColRename - Rename columns.
+* DropNa - Drop null values. Supports all parameter supported by pandas.dropna function. 
+* FreqDrop - Drop rows by value frequency threshold on a specific column. 
 
 Column Generation
 -----------------

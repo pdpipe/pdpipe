@@ -37,8 +37,8 @@ def __load_stage_attribute__(class_obj):
     _append_stage_func.__signature__ = inspect.signature(class_obj.__init__)
     setattr(PipelineStage, class_obj.__name__, _append_stage_func)
 
-    unbound_method = types.MethodType(_append_stage_func, class_obj)
-    setattr(class_obj, class_obj.__name__, unbound_method)
+    # unbound_method = types.MethodType(_append_stage_func, class_obj)
+    # setattr(class_obj, class_obj.__name__, unbound_method)
 
 
 def __load_stage_attributes_from_module__(module_name):
