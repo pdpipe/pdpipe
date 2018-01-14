@@ -4,6 +4,7 @@ omit =
     tests/*
     pdpipe/_version.py
     pdpipe/__init__.py
+    pdpipe/polyglot_stages.py
 [report]
 show_missing = True
 # Regexes for lines to exclude from consideration

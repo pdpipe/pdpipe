@@ -19,6 +19,7 @@ from .basic_stages import (
     ValKeep,
     ColRename,
     DropNa,
+    FreqDrop,
 )
 core.__load_stage_attributes_from_module__('pdpipe.basic_stages')
 
