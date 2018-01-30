@@ -44,6 +44,10 @@ def test_two_stage_pipeline_stage():
     assert 'char' in res_df.columns
     str(pipeline)
 
+    # test fit_transform
+    df = _test_df()
+    res_df = pipeline.fit_transform(df, verbose=True)
+
 
 def test_pipeline_stage_addition():
     """Testing something."""

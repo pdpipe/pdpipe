@@ -42,6 +42,27 @@ def test_basic_pipeline_stage():
     assert res_df.equals(df)
     res_df = test_stage.apply(df, exraise=False)
     assert res_df.equals(df)
+
+    # fit_transform
+    res_df = test_stage.fit_transform(df)
+    assert res_df.equals(df)
+    res_df = test_stage.fit_transform(df, exraise=False)
+    assert res_df.equals(df)
+    res_df = test_stage.fit_transform(df, exraise=False, verbose=False)
+    assert res_df.equals(df)
+    res_df = test_stage.fit_transform(df, exraise=False, verbose=True)
+    assert res_df.equals(df)
+    res_df = test_stage.fit_transform(df, exraise=True)
+    assert res_df.equals(df)
+    res_df = test_stage.fit_transform(df, exraise=True, verbose=False)
+    assert res_df.equals(df)
+    res_df = test_stage.fit_transform(df, exraise=True, verbose=True)
+    assert res_df.equals(df)
+    res_df = test_stage.fit_transform(df, verbose=False)
+    assert res_df.equals(df)
+    res_df = test_stage.fit_transform(df, verbose=True)
+    assert res_df.equals(df)
+
     assert str(test_stage) == PipelineStage._DEF_DESCRIPTION
     assert repr(test_stage) == PipelineStage._DEF_DESCRIPTION
 
@@ -65,6 +86,10 @@ def test_fail_pipeline_stage():
     df = _test_df()
     with pytest.raises(FailedPreconditionError):
         fail_stage.apply(df, verbose=True)
+    with pytest.raises(FailedPreconditionError):
+        fail_stage.fit_transform(df, verbose=True)
+    res_df = fail_stage.fit_transform(df, exraise=False)
+    assert res_df.equals(df)
 
 
 class SilentDropStage(PipelineStage):

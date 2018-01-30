@@ -7,7 +7,6 @@
 
 import sys
 import inspect
-import types
 import abc
 import collections
 import textwrap
@@ -33,7 +32,7 @@ def __load_stage_attribute__(class_obj):
         # self is always a PipelineStage
         return self + class_obj(*args, **kwds)
     _append_stage_func.__doc__ = __get_append_stage_attr_doc(class_obj)
-    _append_stage_func.__name__ = class_obj.__name__#.lower()
+    _append_stage_func.__name__ = class_obj.__name__  # .lower()
     _append_stage_func.__signature__ = inspect.signature(class_obj.__init__)
     setattr(PipelineStage, class_obj.__name__, _append_stage_func)
 
@@ -96,6 +95,7 @@ class PipelineStage(abc.ABC):
         self._exmsg = exmsg
         self._appmsg = appmsg
         self._desc = desc
+        self.is_fitted = False
 
     @abc.abstractmethod
     def _prec(self, df):  # pylint: disable=R0201,W0613
@@ -134,14 +134,50 @@ class PipelineStage(abc.ABC):
             exraise = self._exraise
         if self._prec(df):
             if verbose:
-                msg = '- '+ '\n  '.join(textwrap.wrap(self._appmsg))
+                msg = '- ' + '\n  '.join(textwrap.wrap(self._appmsg))
                 print(msg, flush=True)
+            if self.is_fitted:
+                return self._transform(df, verbose)
             return self._op(df, verbose)
         if exraise:
             raise FailedPreconditionError(self._exmsg)
         return df
 
     __call__ = apply
+
+    def fit_transform(self, df, exraise=None, verbose=False):
+        """Transform the given dataframe.
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            The dataframe to be transformed.
+        exraise : bool, default None
+            Determines behaviour if the precondition of this stage is not
+            fulfilled by the given dataframe: If True,
+            a pdpipe.FailedPreconditionError is raised. If False, the stage is
+            skipped. If None, the default behaviour of this stage is used, as
+            determined by the exraise constructor parameter.
+        verbose : bool, default False
+            If True an explanation message is printed after the precondition
+            is checked but before the application of the pipeline stage.
+            Defaults to False.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The resulting dataframe.
+        """
+        if exraise is None:
+            exraise = self._exraise
+        if self._prec(df):
+            if verbose:
+                msg = '- ' + '\n  '.join(textwrap.wrap(self._appmsg))
+                print(msg, flush=True)
+            return self._op(df, verbose)
+        if exraise:
+            raise FailedPreconditionError(self._exmsg)
+        return df
 
     def __add__(self, other):
         if isinstance(other, Pipeline):
@@ -173,7 +209,7 @@ class AdHocStage(PipelineStage):
 
     def __init__(self, op, prec=None, **kwargs):
         if prec is None:
-            prec = lambda x: True
+            prec = lambda x: True  # noqa: E731
         self._adhoc_op = op
         self._adhoc_prec = prec
         super().__init__(**kwargs)
@@ -201,7 +237,7 @@ class Pipeline(PipelineStage, collections.abc.Sequence):
         self._stages = stages
         super_kwargs = {
             'exraise': False,
-            'exmsg' : Pipeline._DEF_EXC_MSG,
+            'exmsg': Pipeline._DEF_EXC_MSG,
             'appmsg': Pipeline._DEF_APP_MSG
         }
         super_kwargs.update(**kwargs)
@@ -226,11 +262,16 @@ class Pipeline(PipelineStage, collections.abc.Sequence):
         raise NotImplementedError
 
     def apply(self, df, exraise=None, verbose=False):
-        # pass
-        prev_df = df
+        inter_df = df
         for stage in self._stages:
-            prev_df = stage.apply(prev_df, exraise, verbose)
-        return prev_df
+            inter_df = stage.apply(inter_df, exraise, verbose)
+        return inter_df
+
+    def fit_transform(self, df, exraise=None, verbose=None):
+        inter_df = df
+        for stage in self._stages:
+            inter_df = stage.fit_transform(inter_df, exraise, verbose)
+        return inter_df
 
     __call__ = apply
 
@@ -244,7 +285,7 @@ class Pipeline(PipelineStage, collections.abc.Sequence):
 
     def __str__(self):
         res = "A pdpipe pipeline:\n"
-        res += '[ 0]  ' +  "\n      ".join(
+        res += '[ 0]  ' + "\n      ".join(
             textwrap.wrap(self._stages[0].__str__())) + '\n'
         for i, stage in enumerate(self._stages[1:]):
             res += '[{:>2}]  '.format(i+1) + "\n      ".join(

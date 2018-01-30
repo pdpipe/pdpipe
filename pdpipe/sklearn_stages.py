@@ -79,6 +79,7 @@ class Encode(PipelineStage):
         return set(self._columns or []).issubset(df.columns)
 
     def _op(self, df, verbose):
+        self.encoders = {}
         columns_to_encode = self._columns
         if self._columns is None:
             columns_to_encode = list(set(df.select_dtypes(
@@ -102,4 +103,23 @@ class Encode(PipelineStage):
                 loc=loc,
                 column_name=new_name)
             self.encoders[colname] = lbl_enc
+        self.is_fitted = True
+        return inter_df
+
+    def _transform(self, df, verbose):
+        inter_df = df
+        for colname in self.encoders:
+            lbl_enc = self.encoders[colname]
+            source_col = df[colname]
+            loc = df.columns.get_loc(colname) + 1
+            new_name = colname + "_enc"
+            if self._drop:
+                inter_df = inter_df.drop(colname, axis=1)
+                new_name = colname
+                loc -= 1
+            inter_df = out_of_place_col_insert(
+                df=inter_df,
+                series=lbl_enc.transform(source_col),
+                loc=loc,
+                column_name=new_name)
         return inter_df
