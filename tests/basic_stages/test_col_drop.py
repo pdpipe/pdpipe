@@ -6,6 +6,7 @@ import pandas as pd
 import pytest
 
 from pdpipe.basic_stages import ColDrop
+from pdpipe.core import FailedPreconditionError
 
 
 def _test_df():
@@ -25,6 +26,18 @@ def test_coldrop_one_col():
     assert 'num1' not in res_df.columns
     assert 'num2' in res_df.columns
     assert 'char' in res_df.columns
+
+
+def test_coldrop_missing_col():
+    """Testing the ColDrop pipeline stage."""
+    df = _test_df()
+    assert 'num1' in df.columns
+    stage = ColDrop('num3')
+    with pytest.raises(FailedPreconditionError):
+        res_df = stage.apply(df)
+    stage = ColDrop('num3', errors='ignore')
+    res_df = stage.apply(df)
+    assert res_df.equals(df)
 
 
 def test_coldrop_multi_col():

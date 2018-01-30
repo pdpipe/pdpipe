@@ -22,6 +22,8 @@ class ColDrop(PipelineStage):
         columns can be assigned a callable returning bool values for
         pandas.Series objects; if this is the case, every column for which it
         return True will be dropped.
+    errors : {‘ignore’, ‘raise’}, default ‘raise’
+        If ‘ignore’, suppress error and existing labels are dropped.
 
     Example
     -------
@@ -43,8 +45,9 @@ class ColDrop(PipelineStage):
         return "Drop column{} {}".format(
             's' if len(self._columns) > 1 else '', self._columns_str)
 
-    def __init__(self, columns, **kwargs):
+    def __init__(self, columns, errors=None, **kwargs):
         self._columns = columns
+        self._errors = errors
         self._columns_str = _list_str(self._columns)
         if not callable(columns):
             self._columns = _interpret_columns_param(columns, 'columns')
@@ -59,7 +62,9 @@ class ColDrop(PipelineStage):
     def _prec(self, df):
         if callable(self._columns):
             return True
-        return set(self._columns).issubset(df.columns)
+        if self._errors != 'ignore':
+            return set(self._columns).issubset(df.columns)
+        return True
 
     def _op(self, df, verbose):
         if callable(self._columns):
@@ -67,8 +72,8 @@ class ColDrop(PipelineStage):
                 col for col in df.columns
                 if self._columns(df[col])
             ]
-            return df.drop(cols_to_drop, axis=1)
-        return df.drop(self._columns, axis=1)
+            return df.drop(cols_to_drop, axis=1, errors=self._errors)
+        return df.drop(self._columns, axis=1, errors=self._errors)
 
 
 class ValDrop(PipelineStage):
