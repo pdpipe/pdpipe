@@ -119,7 +119,7 @@ Fittable Pipeline Stages
 
 Some pipeline stages can be fitted, meaning that some transformation parameters are set the first time a dataframe is piped through the stage, while later applications of the stage use these now-set parameters without changing them; the ``Encode`` stage is a good example.
 
-If you want to re-fit an already fitted pipeline stage use the ``fit_transform`` method to re-fit the stage to a new dataframe. Notice that for an unfitted stage ``apply`` and ``fit_transform`` are equivalent, and only later calls to apply will ``transform`` input dataframes without refitting the sgtage.
+If you want to re-fit an already fitted pipeline stage use the ``fit_transform`` method to re-fit the stage to a new dataframe. Notice that for an unfitted stage ``apply`` and ``fit_transform`` are equivalent, and only later calls to apply will ``transform`` input dataframes without refitting the stage.
 
 Finally, ``apply`` and ``fit_transform`` are of course equivalent for non-fittable pipeline stages.
 
@@ -129,7 +129,7 @@ Extending PipelineStage
 
 To use other stages than the built-in ones (see `Types of Pipeline Stages`_) you can extend the ``PipelineStage`` class. The constructor must pass the ``PipelineStage`` constructor the ``exmsg``, ``appmsg`` and ``desc`` keyword arguments to set the exception message, application message and description for the pipeline stage, respectively. Additionally, the ``_prec`` and ``_op`` abstract methods must be implemented to define the precondition and the effect of the new pipeline stage, respectively.
 
-Custom pipeline stages who should by fittable, should implement, additionally to the ``_op`` method, the ``_transform`` method, which should apply the fitted pipeline to an input dataframe, while also setting ``self.is_fitted = True``. The ``_op`` method then acts as the ``fit_tranform`` for the stage.
+Fittable custom pipeline stages should implement, additionally to the ``_op`` method, the ``_transform`` method, which should apply the fitted pipeline to an input dataframe, while also setting ``self.is_fitted = True``. The ``_op`` method then acts as the ``fit_tranform`` for the stage.
 
 
 Ad-Hoc Pipeline Stages
