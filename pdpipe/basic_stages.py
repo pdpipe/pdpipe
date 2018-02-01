@@ -269,9 +269,9 @@ class DropNa(PipelineStage):
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[1,4],[4,None],[1,11]], [1,2,3], ['a','b'])
     >>> pdp.DropNa().apply(df)
-       a   b
-    1  1   4
-    3  1  11
+       a     b
+    1  1   4.0
+    3  1  11.0
     """
 
     _DEF_DROPNA_EXC_MSG = "DropNa stage failed."

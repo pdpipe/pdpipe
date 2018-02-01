@@ -5,7 +5,6 @@ import tqdm
 
 from pdpipe.core import PipelineStage
 from pdpipe.util import out_of_place_col_insert
-
 from pdpipe.shared import (
     _interpret_columns_param,
     _list_str

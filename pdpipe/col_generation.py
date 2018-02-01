@@ -1,7 +1,5 @@
 """Basic pdpipe PipelineStages."""
 
-import types
-
 import pandas as pd
 import sortedcontainers as sc
 import tqdm
@@ -87,6 +85,7 @@ class Bin(PipelineStage):
     def _get_col_binner(bin_list):
         sorted_bins = sc.SortedList(bin_list)
         last_ix = len(sorted_bins) - 1
+
         def _col_binner(val):
             if val in sorted_bins:
                 ind = sorted_bins.bisect(val)-1
@@ -310,6 +309,10 @@ class MapColVals(PipelineStage):
         return inter_df
 
 
+def _always_true(x):
+    return True
+
+
 class ApplyToRows(PipelineStage):
     """A pipeline stage generating columns by applying a function to each row.
 
@@ -340,7 +343,7 @@ class ApplyToRows(PipelineStage):
     >>> data = [[3, 2143], [10, 1321], [7, 1255]]
     >>> df = pd.DataFrame(data, [1,2,3], ['years', 'avg_revenue'])
     >>> total_rev = lambda row: row['years'] * row['avg_revenue']
-    >>> add_total_rev = ApplyToRows(total_rev, 'total_revenue')
+    >>> add_total_rev = pdp.ApplyToRows(total_rev, 'total_revenue')
     >>> add_total_rev(df)
        years  avg_revenue  total_revenue
     1      3         2143           6429
@@ -359,7 +362,7 @@ class ApplyToRows(PipelineStage):
         if func_desc is None:
             func_desc = ""
         if prec is None:
-            prec = lambda df: True
+            prec = _always_true
         self._func = func
         self._colname = colname
         self._follow_column = follow_column
@@ -401,7 +404,7 @@ class ApplyToRows(PipelineStage):
                     loc += 1
                 return inter_df
             assign_map = {
-                colname : new_cols[colname] for colname in new_cols.columns
+                colname: new_cols[colname] for colname in new_cols.columns
             }
             return df.assign(**assign_map)
         raise TypeError(  # pragma: no cover
