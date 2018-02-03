@@ -11,6 +11,7 @@ before_install:
   # required for the pip only-binary fkag
   - pip install --upgrade pip setuptools wheel
   # we don't want to compile sources for the following packages:
+  - pip install --only-binary=nltk nltk
   - pip install --only-binary=numpy numpy
   - pip install --only-binary=scipy scipy
   - pip install --only-binary=pandas pandas

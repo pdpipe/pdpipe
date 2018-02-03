@@ -88,7 +88,7 @@ class UntokenizeWords(MapColVals):
                                " dtype object.")
 
     @staticmethod
-    def __untokenize_list(token_list):
+    def _untokenize_list(token_list):
         return ' '.join(token_list)
 
     def __init__(self, columns, drop=True, **kwargs):
@@ -96,7 +96,7 @@ class UntokenizeWords(MapColVals):
         col_str = _list_str(self._columns)
         super_kwargs = {
             'columns': columns,
-            'value_map': UntokenizeWords.__untokenize_list,
+            'value_map': UntokenizeWords._untokenize_list,
             'drop': drop,
             'exmsg': UntokenizeWords._DEF_UNTOKENIZE_EXC_MSG.format(col_str),
             'appmsg': "Untokenizing {}".format(col_str),
@@ -145,10 +145,8 @@ class RemoveStopwords(MapColVals):
         def __init__(self, stopwords_list):
             self.stopwords_list = stopwords_list
 
-        def _remove_stopwords(self, word_list):
+        def __call__(self, word_list):
             return [w for w in word_list if w not in self.stopwords_list]
-
-        __call__ = _remove_stopwords
 
     @staticmethod
     def __stopwords_by_language(language):
@@ -222,10 +220,8 @@ class SnowballStem(MapColVals):
         def __init__(self, stemmer):
             self.stemmer = stemmer
 
-        def _stem_tokens(self, token_list):
+        def __call__(self, token_list):
             return [self.stemmer.stem(w) for w in token_list]
-
-        __call__ = _stem_tokens
 
     @staticmethod
     def __stemmer_by_name(stemmer_name):
@@ -297,6 +293,7 @@ class DropRareTokens(PipelineStage):
         self._columns = _interpret_columns_param(columns, 'columns')
         self._threshold = threshold
         self._drop = drop
+        self._rare_removers = {}
         col_str = _list_str(self._columns)
         super_kwargs = {
             'exmsg': DropRareTokens._DEF_RARE_EXC_MSG.format(col_str),
@@ -309,16 +306,20 @@ class DropRareTokens(PipelineStage):
     def _prec(self, df):
         return set(self._columns).issubset(df.columns)
 
+    class _RareRemover(object):
+        def __init__(self, rare_words):
+            self.rare_words = rare_words
+
+        def __call__(self, tokens):
+            return [w for w in tokens if w not in self.rare_words]
+
     @staticmethod
     def __get_rare_remover(series, threshold):
         token_list = [item for sublist in series for item in sublist]
         freq_dist = nltk.FreqDist(token_list)
         freq_series = pd.DataFrame.from_dict(freq_dist, orient='index')[0]
         rare_words = freq_series[freq_series <= threshold]
-
-        def _rare_remover(tokens):
-            return [w for w in tokens if w not in rare_words]
-        return _rare_remover
+        return DropRareTokens._RareRemover(rare_words)
 
     def _op(self, df, verbose):
         inter_df = df
@@ -332,6 +333,26 @@ class DropRareTokens(PipelineStage):
                 loc -= 1
             rare_remover = DropRareTokens.__get_rare_remover(
                 source_col, self._threshold)
+            self._rare_removers[colname] = rare_remover
+            inter_df = out_of_place_col_insert(
+                df=inter_df,
+                series=source_col.map(rare_remover),
+                loc=loc,
+                column_name=new_name)
+        self.is_fitted = True
+        return inter_df
+
+    def _transform(self, df, verbose):
+        inter_df = df
+        for colname in self._columns:
+            source_col = df[colname]
+            loc = df.columns.get_loc(colname) + 1
+            new_name = colname + "_norare"
+            if self._drop:
+                inter_df = inter_df.drop(colname, axis=1)
+                new_name = colname
+                loc -= 1
+            rare_remover = self._rare_removers[colname]
             inter_df = out_of_place_col_insert(
                 df=inter_df,
                 series=source_col.map(rare_remover),
