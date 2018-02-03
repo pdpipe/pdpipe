@@ -41,7 +41,18 @@ class TokenizeWords(MapColVals):
                              " dtype object.")
     _DEF_TOKENIZE_APP_MSG = "Tokenizing {}..."
 
+    @staticmethod
+    def __check_punkt():
+        try:
+            nltk.word_tokenize('a a')
+        except LookupError:  # pragma: no cover
+            # try:
+            #     nltk.data.find('corpora/stopwords')
+            # except LookupError:  # pragma: no cover
+            nltk.download('punkt')
+
     def __init__(self, columns, drop=True, **kwargs):
+        self.__check_punkt()
         self._columns = _interpret_columns_param(columns, 'columns')
         col_str = _list_str(self._columns)
         super_kwargs = {
