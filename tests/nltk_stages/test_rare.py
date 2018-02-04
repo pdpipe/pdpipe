@@ -1,5 +1,6 @@
 """Test DropRareTokens stages."""
 
+import pytest
 import pandas as pd
 
 from pdpipe.nltk_stages import DropRareTokens
@@ -21,6 +22,7 @@ def _some_df2():
     )
 
 
+@pytest.fixture(scope="session", autouse=True)
 def test_drop_rare():
     df = _some_df()
     drop_rare_stage = DropRareTokens('chars', 1)
@@ -44,6 +46,7 @@ def test_drop_rare():
     assert res_df2['chars'][2] == ['d', 'd']
 
 
+@pytest.fixture(scope="session", autouse=True)
 def test_drop_rare_w_drop():
     df = _some_df()
     drop_rare_stage = DropRareTokens('chars', 1, drop=False)

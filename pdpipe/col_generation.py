@@ -244,6 +244,8 @@ class MapColVals(PipelineStage):
         '_map'.
     drop : bool, default True
         If set to True, source columns are dropped after being mapped.
+    suffix : str, default '_map'
+        The suffix mapped columns gain if no new column names are given.
 
     Example
     -------
@@ -262,14 +264,18 @@ class MapColVals(PipelineStage):
     _DEF_MAP_COLVAL_APP_MSG = "Mapping values of column{} {} with {}..."
 
     def __init__(self, columns, value_map, result_columns=None,
-                 drop=True, **kwargs):
+                 drop=True, suffix=None, **kwargs):
         self._columns = _interpret_columns_param(columns, 'columns')
         self._value_map = value_map
+        if suffix is None:
+            suffix = '_map'
+        self.suffix = suffix
         if result_columns is None:
             if drop:
                 self._result_columns = self._columns
             else:
-                self._result_columns = [col + '_map' for col in self._columns]
+                self._result_columns = [
+                    col + self.suffix for col in self._columns]
         else:
             self._result_columns = _interpret_columns_param(
                 result_columns, 'result_columns')

@@ -59,6 +59,7 @@ class TokenizeWords(MapColVals):
             'columns': columns,
             'value_map': nltk.word_tokenize,
             'drop': drop,
+            'suffix': '_tok',
             'exmsg': TokenizeWords._DEF_TOKENIZE_EXC_MSG.format(col_str),
             'appmsg': TokenizeWords._DEF_TOKENIZE_APP_MSG.format(col_str),
             'desc': "Tokenize {}".format(col_str),
@@ -88,8 +89,8 @@ class UntokenizeWords(MapColVals):
     >>> import pandas as pd; import pdpipe as pdp;
     >>> data = [[3.2, ['Shake', 'and', 'bake!']]]
     >>> df = pd.DataFrame(data, [1], ['freq', 'content'])
-    >>> tokenize_stage = pdp.UntokenizeWords('content')
-    >>> tokenize_stage(df)
+    >>> untokenize_stage = pdp.UntokenizeWords('content')
+    >>> untokenize_stage(df)
        freq          content
     1   3.2  Shake and bake!
     """
@@ -109,6 +110,7 @@ class UntokenizeWords(MapColVals):
             'columns': columns,
             'value_map': UntokenizeWords._untokenize_list,
             'drop': drop,
+            'suffix': '_untok',
             'exmsg': UntokenizeWords._DEF_UNTOKENIZE_EXC_MSG.format(col_str),
             'appmsg': "Untokenizing {}".format(col_str),
             'desc': "Untokenize {}".format(col_str),
@@ -184,6 +186,7 @@ class RemoveStopwords(MapColVals):
             'columns': columns,
             'value_map': self._stopwords_remover,
             'drop': drop,
+            'suffix': '_nostop',
             'exmsg': RemoveStopwords._DEF_STOPWORDS_EXC_MSG.format(col_str),
             'appmsg': RemoveStopwords._DEF_STOPWORDS_APP_MSG.format(col_str),
             'desc': "Removing stopwords from {}".format(col_str),
@@ -258,6 +261,7 @@ class SnowballStem(MapColVals):
             'columns': columns,
             'value_map': self.list_stemmer,
             'drop': drop,
+            'suffix': '_stem',
             'exmsg': SnowballStem._DEF_STEM_EXC_MSG.format(col_str),
             'appmsg': SnowballStem._DEF_STEM_APP_MSG.format(col_str),
             'desc': "Stem tokens in {}".format(col_str),
