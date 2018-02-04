@@ -5,7 +5,7 @@ import pandas as pd
 import pdpipe as pdp
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.mark.first
 def test_tokenize():
     df = pd.DataFrame([[3.2, "Kick the baby!"]], [1], ['freq', 'content'])
     tokenize_stage = pdp.TokenizeWords('content')
@@ -22,7 +22,7 @@ def test_tokenize():
     assert res_df['content_tok'][1] == ['Kick', 'the', 'baby', '!']
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.mark.first
 def test_untokenize():
     df = pd.DataFrame([[3.2, ['Shake', 'and', 'bake!']]], [1], ['freq', 'txt'])
     untok = pdp.UntokenizeWords('txt')
@@ -39,33 +39,33 @@ def test_untokenize():
     assert res_df['txt_untok'][1] == "Shake and bake!"
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.mark.first
 def test_remove_stopwords():
     df = pd.DataFrame([[3.2, ['kick', 'the', 'baby']]], [1], ['freq', 'txt'])
-    stop = pdp.RemoveStopwords('txt')
+    stop = pdp.RemoveStopwords('english', 'txt')
     res_df = stop(df)
     assert 'txt' in res_df.columns
     assert 'txt_nostop' not in res_df.columns
     assert res_df['txt'][1] == ['kick', 'baby']
 
-    untok = pdp.RemoveStopwords('txt', drop=False)
+    untok = pdp.RemoveStopwords('english', 'txt', drop=False)
     res_df = untok(df)
     assert 'txt' in res_df.columns
     assert 'txt_nostop' in res_df.columns
     assert res_df['txt'][1] == ['kick', 'the', 'baby']
-    assert res_df['txt_untok'][1] == ['kick', 'baby']
+    assert res_df['txt_nostop'][1] == ['kick', 'baby']
 
 
-@pytest.fixture(scope="session", autouse=True)
+@pytest.mark.first
 def test_snowball_stem():
     df = pd.DataFrame([[3.2, ['kicking', 'boats']]], [1], ['freq', 'txt'])
-    stem = pdp.SnowballStem('txt')
+    stem = pdp.SnowballStem('EnglishStemmer', 'txt')
     res_df = stem(df)
     assert 'txt' in res_df.columns
     assert 'txt_stem' not in res_df.columns
     assert res_df['txt'][1] == ['kick', 'boat']
 
-    stem = pdp.RemoveStopwords('txt', drop=False)
+    stem = pdp.SnowballStem('EnglishStemmer', 'txt', drop=False)
     res_df = stem(df)
     assert 'txt' in res_df.columns
     assert 'txt_stem' in res_df.columns
