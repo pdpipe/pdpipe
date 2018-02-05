@@ -48,6 +48,15 @@ def test_two_stage_pipeline_stage():
     df = _test_df()
     res_df = pipeline.fit_transform(df, verbose=True)
 
+    # test get_transformer
+    trs = lambda pipline: pipeline[:1]  # noqa: E731
+    pipeline = Pipeline([drop_num1, drop_num2], transformer_getter=trs)
+    transformer = pipeline.get_transformer()
+    res_df = transformer(df, verbose=True)
+    assert 'num1' not in res_df.columns
+    assert 'num2' in res_df.columns
+    assert 'char' in res_df.columns
+
 
 def test_pipeline_stage_addition():
     """Testing something."""

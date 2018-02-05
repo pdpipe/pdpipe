@@ -228,17 +228,29 @@ class AdHocStage(PipelineStage):
 class Pipeline(PipelineStage, collections.abc.Sequence):
     """A pipeline for processing pandas DataFrame objects.
 
+    transformer_getter is usefull to avoid applying pipeline stages that are
+    aimed to filter out items in a big dataset to create a training set for a
+    machine learning model, for example, but should not be applied on future
+    individual items to be transformed by the fitted pipeline.
+
     Parameters
     ----------
     stages : list
         A list of PipelineStage objects making up this pipeline.
+    transform_getter : callable, optional
+        A callable that can be applied to the fitted pipeline to produce a
+        sub-pipeline of it which should be used to transform dataframes after
+        the pipeline has been fitted. If not given, the fitted pipeline is used
+        entirely.
     """
 
     _DEF_EXC_MSG = 'Pipeline precondition failed!'
     _DEF_APP_MSG = 'Applying a pipeline...'
 
-    def __init__(self, stages, **kwargs):
+    def __init__(self, stages, transformer_getter=None, **kwargs):
         self._stages = stages
+        self._trans_getter = transformer_getter
+        self.is_fitted = False
         super_kwargs = {
             'exraise': False,
             'exmsg': Pipeline._DEF_EXC_MSG,
@@ -295,6 +307,9 @@ class Pipeline(PipelineStage, collections.abc.Sequence):
             res += '[{:>2}]  '.format(i+1) + "\n      ".join(
                 textwrap.wrap(stage.__str__())) + '\n'
         return res
+
+    def get_transformer(self):
+        return self._trans_getter(self)
 
     # def drop(self, index):
     #     """Returns this pipeline with the stage of the given index removed.
