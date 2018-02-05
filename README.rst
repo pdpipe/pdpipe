@@ -248,6 +248,15 @@ Scikit-learn-dependent Stages
 
 * Encode - Encode a categorical column to corresponding number values.
 
+nltk-learn-dependent Stages
+-----------------------------
+
+* TokenizeWords - Tokenize a sentence into words by whitespaces.
+* UntokenizeWords - Joins token lists to whitespace-seperated strings.
+* RemoveStopwords - Remove stopwords from a tokenized list.
+* SnowballStem - Stems words in a list using the Snowball stemmer.
+* DropRareTokens - Drop rare tokens from token lists.
+
 
 Contributing
 ============

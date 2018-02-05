@@ -1,6 +1,6 @@
 """Setup for the pdpipe package."""
 
-#!/usr/bin/env python
+# !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 try:

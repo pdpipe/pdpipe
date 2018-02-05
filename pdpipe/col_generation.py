@@ -1,7 +1,5 @@
 """Basic pdpipe PipelineStages."""
 
-import types
-
 import pandas as pd
 import sortedcontainers as sc
 import tqdm
@@ -87,6 +85,7 @@ class Bin(PipelineStage):
     def _get_col_binner(bin_list):
         sorted_bins = sc.SortedList(bin_list)
         last_ix = len(sorted_bins) - 1
+
         def _col_binner(val):
             if val in sorted_bins:
                 ind = sorted_bins.bisect(val)-1
@@ -167,6 +166,21 @@ class Binarize(PipelineStage):
                           "{} were found in input dataframe.")
     _DEF_BINAR_APP_MSG = "Binarizing {}..."
 
+    class _FittedBinarizer(object):
+        def __init__(self, col_name, dummy_columns):
+            self.col_name = col_name
+            self.dummy_columns = dummy_columns
+
+        def __call__(self, value):
+            this_dummy = '{}_{}'.format(self.col_name, value)
+            return pd.Series(
+                data=[
+                    int(this_dummy == dummy_col)
+                    for dummy_col in self.dummy_columns
+                ],
+                index=self.dummy_columns,
+            )
+
     def __init__(self, columns=None, dummy_na=False, exclude_columns=None,
                  drop_first=True, drop=True, **kwargs):
         if columns is None:
@@ -181,6 +195,8 @@ class Binarize(PipelineStage):
                 exclude_columns, 'exclude_columns')
         self._drop_first = drop_first
         self._drop = drop
+        self._dummy_col_map = {}
+        self._binarizer_map = {}
         col_str = _list_str(self._columns)
         super_kwargs = {
             'exmsg': Binarize._DEF_BINAR_EXC_MSG.format(col_str),
@@ -200,6 +216,7 @@ class Binarize(PipelineStage):
             columns_to_binar = list(set(df.select_dtypes(
                 include=['object', 'category']).columns).difference(
                     self._exclude_columns))
+        self._cols_to_binar = columns_to_binar
         assign_map = {}
         if verbose:
             columns_to_binar = tqdm.tqdm(columns_to_binar)
@@ -215,12 +232,29 @@ class Binarize(PipelineStage):
                     dummies.drop(nan_col, axis=1, inplace=True)
                 else:
                     dummies.drop(dummies.columns[0], axis=1, inplace=True)
+            self._dummy_col_map[colname] = list(dummies.columns)
+            self._binarizer_map[colname] = Binarize._FittedBinarizer(
+                colname, list(dummies.columns))
             for column in dummies:
                 assign_map[column] = dummies[column]
 
         inter_df = df.assign(**assign_map)
+        self.is_fitted = True
         if self._drop:
             return inter_df.drop(columns_to_binar, axis=1)
+        return inter_df
+
+    def _transform(self, df, verbose):
+        assign_map = {}
+        for colname in self._cols_to_binar:
+            col = df[colname]
+            binarizer = self._binarizer_map[colname]
+            res_cols = col.apply(binarizer)
+            for res_col in res_cols:
+                assign_map[res_col] = res_cols[res_col]
+        inter_df = df.assign(**assign_map)
+        if self._drop:
+            return inter_df.drop(self._cols_to_binar, axis=1)
         return inter_df
 
 
@@ -245,6 +279,8 @@ class MapColVals(PipelineStage):
         '_map'.
     drop : bool, default True
         If set to True, source columns are dropped after being mapped.
+    suffix : str, default '_map'
+        The suffix mapped columns gain if no new column names are given.
 
     Example
     -------
@@ -263,14 +299,18 @@ class MapColVals(PipelineStage):
     _DEF_MAP_COLVAL_APP_MSG = "Mapping values of column{} {} with {}..."
 
     def __init__(self, columns, value_map, result_columns=None,
-                 drop=True, **kwargs):
+                 drop=True, suffix=None, **kwargs):
         self._columns = _interpret_columns_param(columns, 'columns')
         self._value_map = value_map
+        if suffix is None:
+            suffix = '_map'
+        self.suffix = suffix
         if result_columns is None:
             if drop:
                 self._result_columns = self._columns
             else:
-                self._result_columns = [col + '_map' for col in self._columns]
+                self._result_columns = [
+                    col + self.suffix for col in self._columns]
         else:
             self._result_columns = _interpret_columns_param(
                 result_columns, 'result_columns')
@@ -310,6 +350,10 @@ class MapColVals(PipelineStage):
         return inter_df
 
 
+def _always_true(x):
+    return True
+
+
 class ApplyToRows(PipelineStage):
     """A pipeline stage generating columns by applying a function to each row.
 
@@ -340,7 +384,7 @@ class ApplyToRows(PipelineStage):
     >>> data = [[3, 2143], [10, 1321], [7, 1255]]
     >>> df = pd.DataFrame(data, [1,2,3], ['years', 'avg_revenue'])
     >>> total_rev = lambda row: row['years'] * row['avg_revenue']
-    >>> add_total_rev = ApplyToRows(total_rev, 'total_revenue')
+    >>> add_total_rev = pdp.ApplyToRows(total_rev, 'total_revenue')
     >>> add_total_rev(df)
        years  avg_revenue  total_revenue
     1      3         2143           6429
@@ -359,7 +403,7 @@ class ApplyToRows(PipelineStage):
         if func_desc is None:
             func_desc = ""
         if prec is None:
-            prec = lambda df: True
+            prec = _always_true
         self._func = func
         self._colname = colname
         self._follow_column = follow_column
@@ -401,7 +445,7 @@ class ApplyToRows(PipelineStage):
                     loc += 1
                 return inter_df
             assign_map = {
-                colname : new_cols[colname] for colname in new_cols.columns
+                colname: new_cols[colname] for colname in new_cols.columns
             }
             return df.assign(**assign_map)
         raise TypeError(  # pragma: no cover

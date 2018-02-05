@@ -2,7 +2,7 @@
 
 >>> import pdpipe as pdp
 >>> pipeline = pdp.ColDrop('Name') + pdp.Bin({'Speed': [0,5]})
->>> pipeline = pdp.ColDrop('Name').bin({'Speed': [0,5]}, drop=True)
+>>> pipeline = pdp.ColDrop('Name').Bin({'Speed': [0,5]}, drop=True)
 """
 
 import sys
@@ -194,6 +194,10 @@ class PipelineStage(abc.ABC):
         return self.__str__()
 
 
+def _always_true(x):
+    return True
+
+
 class AdHocStage(PipelineStage):
     """An ad-hoc stage of a pandas DataFrame-processing pipeline.
 
@@ -209,7 +213,7 @@ class AdHocStage(PipelineStage):
 
     def __init__(self, op, prec=None, **kwargs):
         if prec is None:
-            prec = lambda x: True  # noqa: E731
+            prec = _always_true
         self._adhoc_op = op
         self._adhoc_prec = prec
         super().__init__(**kwargs)
