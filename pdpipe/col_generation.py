@@ -166,6 +166,21 @@ class Binarize(PipelineStage):
                           "{} were found in input dataframe.")
     _DEF_BINAR_APP_MSG = "Binarizing {}..."
 
+    class _FittedBinarizer(object):
+        def __init__(self, col_name, dummy_columns):
+            self.col_name = col_name
+            self.dummy_columns = dummy_columns
+
+        def __call__(self, value):
+            this_dummy = '{}_{}'.format(self.col_name, value)
+            return pd.Series(
+                data=[
+                    int(this_dummy == dummy_col)
+                    for dummy_col in self.dummy_columns
+                ],
+                index=self.dummy_columns,
+            )
+
     def __init__(self, columns=None, dummy_na=False, exclude_columns=None,
                  drop_first=True, drop=True, **kwargs):
         if columns is None:
@@ -180,6 +195,8 @@ class Binarize(PipelineStage):
                 exclude_columns, 'exclude_columns')
         self._drop_first = drop_first
         self._drop = drop
+        self._dummy_col_map = {}
+        self._binarizer_map = {}
         col_str = _list_str(self._columns)
         super_kwargs = {
             'exmsg': Binarize._DEF_BINAR_EXC_MSG.format(col_str),
@@ -199,6 +216,7 @@ class Binarize(PipelineStage):
             columns_to_binar = list(set(df.select_dtypes(
                 include=['object', 'category']).columns).difference(
                     self._exclude_columns))
+        self._cols_to_binar = columns_to_binar
         assign_map = {}
         if verbose:
             columns_to_binar = tqdm.tqdm(columns_to_binar)
@@ -214,12 +232,29 @@ class Binarize(PipelineStage):
                     dummies.drop(nan_col, axis=1, inplace=True)
                 else:
                     dummies.drop(dummies.columns[0], axis=1, inplace=True)
+            self._dummy_col_map[colname] = list(dummies.columns)
+            self._binarizer_map[colname] = Binarize._FittedBinarizer(
+                colname, list(dummies.columns))
             for column in dummies:
                 assign_map[column] = dummies[column]
 
         inter_df = df.assign(**assign_map)
+        self.is_fitted = True
         if self._drop:
             return inter_df.drop(columns_to_binar, axis=1)
+        return inter_df
+
+    def _transform(self, df, verbose):
+        assign_map = {}
+        for colname in self._cols_to_binar:
+            col = df[colname]
+            binarizer = self._binarizer_map[colname]
+            res_cols = col.apply(binarizer)
+            for res_col in res_cols:
+                assign_map[res_col] = res_cols[res_col]
+        inter_df = df.assign(**assign_map)
+        if self._drop:
+            return inter_df.drop(self._cols_to_binar, axis=1)
         return inter_df
 
 
