@@ -309,7 +309,10 @@ class Pipeline(PipelineStage, collections.abc.Sequence):
         return res
 
     def get_transformer(self):
-        return self._trans_getter(self)
+        try:
+            return self._trans_getter(self)
+        except TypeError:
+            return self
 
     # def drop(self, index):
     #     """Returns this pipeline with the stage of the given index removed.
