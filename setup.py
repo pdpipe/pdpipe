@@ -35,6 +35,7 @@ setup(
     install_requires=INSTALL_REQUIRES,
     extras_require={
         'sklearn': ['scikit-learn'],
+        'nltk': ['nltk'],
         'test': TEST_REQUIRES
     },
     setup_requires=INSTALL_REQUIRES,
