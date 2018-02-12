@@ -57,7 +57,7 @@ try:
     core.__load_stage_attributes_from_module__('pdpipe.nltk_stages')
 except ImportError:
     tb = traceback.format_exc()
-    warning.warn(tb)
+    warnings.warn(tb)
     warnings.warn("pdpipe: nltk import failed. nltk-dependent  pipeline "
                   "stages will not be loaded.")
 
