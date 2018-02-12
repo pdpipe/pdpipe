@@ -3,6 +3,7 @@
 # flake8: noqa
 
 import warnings
+import traceback
 
 
 from . import core
@@ -55,6 +56,8 @@ try:
     )
     core.__load_stage_attributes_from_module__('pdpipe.nltk_stages')
 except ImportError:
+    tb = traceback.format_exc()
+    warning.warn(tb)
     warnings.warn("pdpipe: nltk import failed. nltk-dependent  pipeline "
                   "stages will not be loaded.")
 
@@ -63,9 +66,9 @@ from ._version import get_versions
 __version__ = get_versions()['version']
 
 for name in [
-        'warnings', '_custom_formatwarning', 'core', 'basic_stages',
-        'sklearn_stages', 'col_generation', 'shared', 'util', '_version',
-        'get_versions']:
+        'warnings', 'traceback', '_custom_formatwarning', 'core',
+        'basic_stages', 'sklearn_stages', 'col_generation', 'shared', 'util',
+        '_version', 'get_versions']:
     try:
         globals().pop(name)
     except KeyError:
