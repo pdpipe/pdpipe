@@ -266,11 +266,10 @@ class MapColVals(PipelineStage):
     columns : str or list-like
         Column names in the DataFrame to be mapped.
     value_map : dict, function or pandas.Series
-        A dictionary mapping existing values to new ones. Not all existing
-        values need to be referenced; missing one will neither be changed nor
-        dropped. If a function is given, it is applied element-wise to given
-        columns. If a Series is given, values are mapped by its index to its
-        values.
+        A dictionary mapping existing values to new ones. Values not in the
+        dictionary as keys will be converted to NaN. If a function is given, it
+        is applied element-wise to given columns. If a Series is given, values
+        are mapped by its index to its values.
     result_columns : str or list-like, default None
         The name of the new columns resulting from the mapping operation. Must
         be of the same length as columns. If None, behavior depends on the
