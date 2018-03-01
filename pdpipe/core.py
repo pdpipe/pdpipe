@@ -311,7 +311,7 @@ class Pipeline(PipelineStage, collections.abc.Sequence):
     def get_transformer(self):
         try:
             return self._trans_getter(self)
-        except TypeError:
+        except TypeError:  # pragma: no cover
             return self
 
     # def drop(self, index):

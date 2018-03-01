@@ -389,6 +389,15 @@ class ApplyToRows(PipelineStage):
     1      3         2143           6429
     2     10         1321          13210
     3      7         1255           8785
+    >>> def halfer(row):
+    ...     new = {'year/2': row['years']/2, 'rev/2': row['avg_revenue']/2}
+    ...     return pd.Series(new)
+    >>> half_cols = pdp.ApplyToRows(halfer, follow_column='years')
+    >>> half_cols(df)
+       years   rev/2  year/2  avg_revenue
+    1      3  1071.5     1.5         2143
+    2     10   660.5     5.0         1321
+    3      7   627.5     3.5         1255
     """
 
     _DEF_APPLYTOROWS_EXC_MSG = "Applying function {} failed."
