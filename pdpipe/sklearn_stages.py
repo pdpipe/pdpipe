@@ -1,7 +1,9 @@
 """Pipeline stages dependent on the scikit-learn Python library."""
 
+import pandas as pd
 import sklearn.preprocessing
 import tqdm
+from skutil.preprocessing import scaler_by_params
 
 from pdpipe.core import PipelineStage
 from pdpipe.util import out_of_place_col_insert
@@ -122,3 +124,105 @@ class Encode(PipelineStage):
                 loc=loc,
                 column_name=new_name)
         return inter_df
+
+
+class Scale(PipelineStage):
+    """A pipeline stage that scales data.
+
+    Parameters
+    ----------
+    scaler : str
+        The type of scaler to use to scale the data. One of 'StandardScaler',
+        'MinMaxScaler', 'MaxAbsScaler', 'RobustScaler', 'QuantileTransformer'
+        and 'Normalizer'.
+    exclude_columns : str or list-like, default None
+        Name or names of columns to be excluded from scaling. Excluded columns
+        are appended to the end of the resulring dataframe. If set to None, all
+        columns of dtype object are excluded from scaling.
+    **kwargs : extra keyword arguments
+        All valid extra keyword arguments are forwarded to the scaler
+        constructor on scaler creation (e.g. 'n_quantiles' for
+        QuantileTransformer). PipelineStage valid keyword arguments are used
+        to override Scale class defaults.
+
+    Example
+    -------
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> data = [[3.2, 0.3], [7.2, 0.35], [12.1, 0.29]]
+    >>> df = pd.DataFrame(data, [1,2,3], ["ph","gt"])
+    >>> scale_stage = pdp.Scale("StandardScaler")
+    >>> scale_stage(df)
+             ph        gt
+    1 -1.181449 -0.508001
+    2 -0.082427  1.397001
+    3  1.263876 -0.889001
+    """
+
+    _DESC_PREFIX = "Scale data"
+    _DEF_SCALE_EXC_MSG = "Scale stage failed."
+    _DEF_SCALE_APP_MSG = "Scaling data..."
+
+    def __init__(self, scaler, exclude_columns=None, **kwargs):
+        self.scaler = scaler
+        if exclude_columns is None:
+            self._exclude_columns = None
+            desc_suffix = "."
+        else:
+            self._exclude_columns = _interpret_columns_param(
+                exclude_columns, 'exclude_columns')
+            col_str = _list_str(self._exclude_columns)
+            desc_suffix = " except columns {}.".format(col_str)
+        super_kwargs = {
+            'exmsg': Scale._DEF_SCALE_EXC_MSG,
+            'appmsg': Scale._DEF_SCALE_APP_MSG,
+            'desc': Scale._DESC_PREFIX + desc_suffix,
+        }
+        self._kwargs = kwargs
+        valid_super_kwargs = super()._init_kwargs()
+        for key in kwargs:
+            if key in valid_super_kwargs:
+                super_kwargs[key] = kwargs[key]
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        return True
+
+    def _op(self, df, verbose):
+        if self._exclude_columns is None:
+            self._exclude_columns = list(
+                (df.dtypes[df.dtypes == object]).index)
+        self._col_order = list(df.columns)
+        if len(self._exclude_columns) > 0:
+            exclude = df[self._exclude_columns]
+            apply_to = df[[
+                col for col in df.columns if col not in self._exclude_columns]]
+        else:
+            apply_to = df
+        self._scaler = scaler_by_params(self.scaler, **self._kwargs)
+        res = pd.DataFrame(
+            data=self._scaler.fit_transform(apply_to),
+            index=apply_to.index,
+            columns=apply_to.columns,
+        )
+        if len(self._exclude_columns) > 0:
+            res = pd.concat([res, exclude], axis=1)
+            res = res[self._col_order]
+        self.is_fitted = True
+        return res
+
+    def _transform(self, df, verbose):
+        if len(self._exclude_columns) > 0:
+            exclude = df[self._exclude_columns]
+            apply_to = df[[
+                col for col in df.columns if col not in self._exclude_columns]]
+        else:
+            apply_to = df
+        res = pd.DataFrame(
+            data=self._scaler.transform(apply_to),
+            index=apply_to.index,
+            columns=apply_to.columns,
+        )
+        if len(self._exclude_columns) > 0:
+            res = pd.concat([res, exclude], axis=1)
+            res = res[self._col_order]
+        return res

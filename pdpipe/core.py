@@ -83,6 +83,7 @@ class PipelineStage(abc.ABC):
     _DEF_EXC_MSG = 'Precondition failed!'
     _DEF_APPLY_MSG = 'Applying a pipeline stage...'
     _DEF_DESCRIPTION = 'A pipeline stage.'
+    _INIT_KWARGS = ['exraise', 'exmsg', 'appmsg', 'desc']
 
     def __init__(self, exraise=True, exmsg=None, appmsg=None, desc=None):
         if exmsg is None:
@@ -96,6 +97,10 @@ class PipelineStage(abc.ABC):
         self._appmsg = appmsg
         self._desc = desc
         self.is_fitted = False
+
+    @classmethod
+    def _init_kwargs(cls):
+        return cls._INIT_KWARGS
 
     @abc.abstractmethod
     def _prec(self, df):  # pylint: disable=R0201,W0613

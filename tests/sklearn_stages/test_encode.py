@@ -37,7 +37,7 @@ def test_encode():
     # see only transform (no fit) when already fitted
     df2 = _some_df2()
     res_df2 = encode_stage(df2)
-    assert 'lbl' in res_df.columns
+    assert 'lbl' in res_df2.columns
     assert res_df2['lbl'][1] == 1
     assert res_df2['lbl'][2] == 0
     assert res_df2['lbl'][3] == 1

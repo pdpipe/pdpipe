@@ -39,6 +39,7 @@ try:
     from . import sklearn_stages
     from .sklearn_stages import (
         Encode,
+        Scale,
     )
     core.__load_stage_attributes_from_module__('pdpipe.sklearn_stages')
 except ImportError:
