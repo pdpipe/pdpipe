@@ -228,7 +228,7 @@ class SnowballStem(MapColVals):
     _DEF_STEM_EXC_MSG = ("SnowballStem stage failed because not all "
                          "columns {} are present in input dataframe and "
                          "are of dtype object.")
-    _DEF_STEM_APP_MSG = "Stemming tokens {}..."
+    _DEF_STEM_APP_MSG = "Stemming tokens in {}..."
 
     class _TokenListStemmer(object):
         def __init__(self, stemmer):

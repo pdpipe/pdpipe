@@ -43,7 +43,7 @@ try:
     )
     core.__load_stage_attributes_from_module__('pdpipe.sklearn_stages')
 except ImportError:
-    warnings.warn("pdpipe: Scikit-learn import failed. Scikit-learn-dependent "
+    warnings.warn("pdpipe: Scikit-learn import failed. Scikit-learn-dependent"
                   " pipeline stages will not be loaded.")
 
 try:
