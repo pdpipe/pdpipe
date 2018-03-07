@@ -5,7 +5,7 @@ import numpy as np
 from numpy.testing import assert_approx_equal
 import pandas as pd
 
-from pdpipe.col_generation import AggByCols
+from pdpipe import AggByCols
 
 
 _LOG32 = 1.163151
