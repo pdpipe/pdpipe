@@ -32,6 +32,7 @@ from .col_generation import (
     MapColVals,
     ApplyToRows,
     ApplyByCols
+    AggByCols,
 )
 core.__load_stage_attributes_from_module__('pdpipe.col_generation')
 
