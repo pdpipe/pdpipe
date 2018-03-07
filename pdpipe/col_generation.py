@@ -549,3 +549,99 @@ class ApplyByCols(PipelineStage):
                 loc=loc,
                 column_name=new_name)
         return inter_df
+
+
+class AggByCols(PipelineStage):
+    """A pipeline stage applying a series-wise function to columns.
+
+    Parameters
+    ----------
+    columns : str or list-like
+        Names of columns on which to apply the given function.
+    func : function
+        The function to be applied to each element of the given columns.
+    result_columns : str or list-like, default None
+        The names of the new columns resulting from the mapping operation. Must
+        be of the same length as columns. If None, behavior depends on the
+        drop parameter: If drop is True, the name of the source column is used;
+        otherwise, the name of the source column is used with a defined suffix.
+    drop : bool, default True
+        If set to True, source columns are dropped after being mapped.
+    func_desc : str, default None
+        A function description of the given function; e.g. 'normalizing revenue
+        by company size'. A default description is used if None is given.
+    suffix : str, optional
+        The suffix to add to resulting columns in case where results_columns
+        is None and drop is set to False. Of not given, defaults to '_agg'.
+
+
+    Example
+    -------
+    >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
+    >>> data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
+    >>> df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
+    >>> log_ph = pdp.ApplyByCols("ph", np.log)
+    >>> log_ph(df)
+             ph  lbl
+    1  1.163151  acd
+    2  1.974081  alk
+    3  2.493205  alk
+    """
+
+    _BASE_STR = "Applying a function {} to column{} {}"
+    _DEF_EXC_MSG_SUFFIX = " failed."
+    _DEF_APP_MSG_SUFFIX = "..."
+    _DEF_DESCRIPTION_SUFFIX = "."
+    _DEF_COLNAME_SUFFIX = '_agg'
+
+    def __init__(self, columns, func, result_columns=None,
+                 drop=True, func_desc=None, suffix=None, **kwargs):
+        if suffix is None:
+            suffix = AggByCols._DEF_COLNAME_SUFFIX
+        self._suffix = suffix
+        self._columns = _interpret_columns_param(columns, 'columns')
+        self._func = func
+        if result_columns is None:
+            if drop:
+                self._result_columns = self._columns
+            else:
+                self._result_columns = [col + suffix for col in self._columns]
+        else:
+            self._result_columns = _interpret_columns_param(
+                result_columns, 'result_columns')
+            if len(self._result_columns) != len(self._columns):
+                raise ValueError("columns and result_columns parameters must"
+                                 " be string lists of the same length!")
+        self._drop = drop
+        if func_desc is None:
+            func_desc = ""
+        self._func_desc = func_desc
+        col_str = _list_str(self._columns)
+        sfx = 's' if len(self._columns) > 1 else ''
+        base_str = ApplyByCols._BASE_STR.format(self._func_desc, sfx, col_str)
+        super_kwargs = {
+            'exmsg': base_str + ApplyByCols._DEF_EXC_MSG_SUFFIX,
+            'appmsg': base_str + ApplyByCols._DEF_APP_MSG_SUFFIX,
+            'desc': base_str + ApplyByCols._DEF_DESCRIPTION_SUFFIX
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        return set(self._columns).issubset(df.columns)
+
+    def _op(self, df, verbose):
+        inter_df = df
+        for i, colname in enumerate(self._columns):
+            source_col = df[colname]
+            loc = df.columns.get_loc(colname) + 1
+            new_name = self._result_columns[i]
+            if self._drop:
+                inter_df = inter_df.drop(colname, axis=1)
+                loc -= 1
+            inter_df = out_of_place_col_insert(
+                df=inter_df,
+                series=source_col.agg(self._func),
+                loc=loc,
+                column_name=new_name)
+        return inter_df
