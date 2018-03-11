@@ -720,10 +720,10 @@ class Log(PipelineStage):
     def _op(self, df, verbose):
         columns_to_transform = self._columns
         if self._columns is None:
-            numeric_cols = get_numeric_column_names(df)
-            columns_to_transform = list(set(numeric_cols).difference(
-                self._exclude))
-            self._cols_to_transform = columns_to_transform
+            columns_to_transform = get_numeric_column_names(df)
+        columns_to_transform = list(set(columns_to_transform).difference(
+            self._exclude))
+        self._cols_to_transform = columns_to_transform
         if verbose:
             columns_to_transform = tqdm.tqdm(columns_to_transform)
         inter_df = df
