@@ -63,8 +63,8 @@ def get_numeric_column_names(df):
     >>> import pandas as pd; import pdpipe as pdp;
     >>> data = [[2, 3.2, "acd"], [1, 7.2, "alk"], [8, 12.1, "alk"]]
     >>> df = pd.DataFrame(data, [1,2,3], ["rank", "ph","lbl"])
-    >>> get_numeric_column_names(df)
-    ['rank', 'ph']
+    >>> sorted(get_numeric_column_names(df))
+    ['ph', 'rank']
     """
     num_cols = []
     for colbl, dtype in df.dtypes.to_dict().items():
