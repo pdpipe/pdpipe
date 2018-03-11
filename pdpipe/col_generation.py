@@ -1,11 +1,15 @@
 """Basic pdpipe PipelineStages."""
 
+import numpy as np
 import pandas as pd
 import sortedcontainers as sc
 import tqdm
 
 from pdpipe.core import PipelineStage
-from pdpipe.util import out_of_place_col_insert
+from pdpipe.util import (
+    out_of_place_col_insert,
+    get_numeric_column_names,
+)
 
 from pdpipe.shared import (
     _interpret_columns_param,
@@ -186,13 +190,12 @@ class Binarize(PipelineStage):
         if columns is None:
             self._columns = None
         else:
-            self._columns = _interpret_columns_param(columns, 'columns')
+            self._columns = _interpret_columns_param(columns)
         self._dummy_na = dummy_na
         if exclude_columns is None:
             self._exclude_columns = []
         else:
-            self._exclude_columns = _interpret_columns_param(
-                exclude_columns, 'exclude_columns')
+            self._exclude_columns = _interpret_columns_param(exclude_columns)
         self._drop_first = drop_first
         self._drop = drop
         self._dummy_col_map = {}
@@ -299,7 +302,7 @@ class MapColVals(PipelineStage):
 
     def __init__(self, columns, value_map, result_columns=None,
                  drop=True, suffix=None, **kwargs):
-        self._columns = _interpret_columns_param(columns, 'columns')
+        self._columns = _interpret_columns_param(columns)
         self._value_map = value_map
         if suffix is None:
             suffix = '_map'
@@ -311,8 +314,7 @@ class MapColVals(PipelineStage):
                 self._result_columns = [
                     col + self.suffix for col in self._columns]
         else:
-            self._result_columns = _interpret_columns_param(
-                result_columns, 'result_columns')
+            self._result_columns = _interpret_columns_param(result_columns)
             if len(self._result_columns) != len(self._columns):
                 raise ValueError("columns and result_columns parameters must"
                                  " be string lists of the same length!")
@@ -503,7 +505,7 @@ class ApplyByCols(PipelineStage):
 
     def __init__(self, columns, func, result_columns=None,
                  drop=True, func_desc=None, **kwargs):
-        self._columns = _interpret_columns_param(columns, 'columns')
+        self._columns = _interpret_columns_param(columns)
         self._func = func
         if result_columns is None:
             if drop:
@@ -511,8 +513,7 @@ class ApplyByCols(PipelineStage):
             else:
                 self._result_columns = [col + '_app' for col in self._columns]
         else:
-            self._result_columns = _interpret_columns_param(
-                result_columns, 'result_columns')
+            self._result_columns = _interpret_columns_param(result_columns)
             if len(self._result_columns) != len(self._columns):
                 raise ValueError("columns and result_columns parameters must"
                                  " be string lists of the same length!")
@@ -599,7 +600,7 @@ class AggByCols(PipelineStage):
         if suffix is None:
             suffix = AggByCols._DEF_COLNAME_SUFFIX
         self._suffix = suffix
-        self._columns = _interpret_columns_param(columns, 'columns')
+        self._columns = _interpret_columns_param(columns)
         self._func = func
         if result_columns is None:
             if drop:
@@ -607,8 +608,7 @@ class AggByCols(PipelineStage):
             else:
                 self._result_columns = [col + suffix for col in self._columns]
         else:
-            self._result_columns = _interpret_columns_param(
-                result_columns, 'result_columns')
+            self._result_columns = _interpret_columns_param(result_columns)
             if len(self._result_columns) != len(self._columns):
                 raise ValueError("columns and result_columns parameters must"
                                  " be string lists of the same length!")
@@ -642,6 +642,142 @@ class AggByCols(PipelineStage):
             inter_df = out_of_place_col_insert(
                 df=inter_df,
                 series=source_col.agg(self._func),
+                loc=loc,
+                column_name=new_name)
+        return inter_df
+
+
+class Log(PipelineStage):
+    """A pipeline stage that log-transforms numeric data.
+
+    Parameters
+    ----------
+    columns : str or list-like, default None
+        Column names in the DataFrame to be encoded. If columns is None then
+        all the columns with a numeric dtype will be transformed, except those
+        given in the exclude_columns parameter.
+    exclude : str or list-like, default None
+        Name or names of numeric columns to be excluded from log-transforming
+        when the columns parameter is not given. If None no column is excluded.
+        Ignored if the columns parameter is given.
+    drop : bool, default False
+        If set to True, the source columns are dropped after being encoded,
+        and the resulting encoded columns retain the names of the source
+        columns. Otherwise, encoded columns gain the suffix '_log'.
+    non_neg : bool, default False
+        If True, each transformed column is first shifted by smallest negative
+        value it includes (non-negative columns are thus not shifted).
+    const_shift : int, optional
+        If given, each transformed column is first shifted by this constant. If
+        non_neg is True then that transformation is applied first, and only
+        then is the column shifted by this constant.
+
+    Example
+    -------
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
+    >>> df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
+    >>> log_stage = pdp.Log("ph", drop=True)
+    >>> log_stage(df)
+             ph  lbl
+    1  1.163151  acd
+    2  1.974081  alk
+    3  2.493205  alk
+    """
+
+    _DEF_LOG_EXC_MSG = ("Log stage failed because not all columns "
+                        "{} were found in input dataframe.")
+    _DEF_LOG_APP_MSG = "Log-transforming {}..."
+
+    def __init__(self, columns=None, exclude=None, drop=False,
+                 non_neg=False, const_shift=None, **kwargs):
+        if columns is None:
+            self._columns = None
+        else:
+            self._columns = _interpret_columns_param(columns)
+        if exclude is None:
+            self._exclude = []
+        else:
+            self._exclude = _interpret_columns_param(exclude)
+        self._drop = drop
+        self._non_neg = non_neg
+        self._const_shift = const_shift
+        self._col_to_minval = {}
+        col_str = "all numeric columns"
+        if self._columns:
+            col_str = _list_str(self._columns)
+        super_kwargs = {
+            'exmsg': Log._DEF_LOG_EXC_MSG.format(col_str),
+            'appmsg': Log._DEF_LOG_APP_MSG.format(col_str),
+            'desc': "Log-transform {}".format(col_str)
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        return set(self._columns or []).issubset(df.columns)
+
+    def _op(self, df, verbose):
+        columns_to_transform = self._columns
+        if self._columns is None:
+            numeric_cols = get_numeric_column_names(df)
+            columns_to_transform = list(set(numeric_cols).difference(
+                self._exclude))
+            self._cols_to_transform = columns_to_transform
+        if verbose:
+            columns_to_transform = tqdm.tqdm(columns_to_transform)
+        inter_df = df
+        for colname in columns_to_transform:
+            source_col = df[colname]
+            loc = df.columns.get_loc(colname) + 1
+            new_name = colname + "_log"
+            if self._drop:
+                inter_df = inter_df.drop(colname, axis=1)
+                new_name = colname
+                loc -= 1
+            new_col = source_col
+            if self._non_neg:
+                minval = min(new_col)
+                if minval < 0:
+                    new_col = new_col + abs(minval)
+                    self._col_to_minval[colname] = abs(minval)
+            # must check not None as neg numbers eval to False
+            if self._const_shift is not None:
+                new_col = new_col + self._const_shift
+            new_col = np.log(new_col)
+            inter_df = out_of_place_col_insert(
+                df=inter_df,
+                series=new_col,
+                loc=loc,
+                column_name=new_name)
+        self.is_fitted = True
+        return inter_df
+
+    def _transform(self, df, verbose):
+        inter_df = df
+        columns_to_transform = self._cols_to_transform
+        if verbose:
+            columns_to_transform = tqdm.tqdm(columns_to_transform)
+        for colname in columns_to_transform:
+            source_col = df[colname]
+            loc = df.columns.get_loc(colname) + 1
+            new_name = colname + "_log"
+            if self._drop:
+                inter_df = inter_df.drop(colname, axis=1)
+                new_name = colname
+                loc -= 1
+            new_col = source_col
+            if self._non_neg:
+                if colname in self._col_to_minval:
+                    absminval = self._col_to_minval[colname]
+                    new_col = new_col + absminval
+            # must check not None as neg numbers eval to False
+            if self._const_shift is not None:
+                new_col = new_col + self._const_shift
+            new_col = np.log(new_col)
+            inter_df = out_of_place_col_insert(
+                df=inter_df,
+                series=new_col,
                 loc=loc,
                 column_name=new_name)
         return inter_df

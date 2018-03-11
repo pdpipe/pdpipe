@@ -146,10 +146,10 @@
         },
         "pytest": {
             "hashes": [
-                "sha256:8970e25181e15ab14ae895599a0a0e0ade7d1f1c4c8ca1072ce16f25526a184d",
-                "sha256:9ddcb879c8cc859d2540204b5399011f842e5e8823674bf429f70ada281b3cc6"
+                "sha256:062027955bccbc04d2fcd5d79690947e018ba31abe4c90b2c6721abec734261b",
+                "sha256:117bad36c1a787e1a8a659df35de53ba05f9f3398fb9e4ac17e80ad5903eb8c5"
             ],
-            "version": "==3.4.1"
+            "version": "==3.4.2"
         },
         "pytest-cov": {
             "hashes": [
@@ -192,6 +192,13 @@
                 "sha256:844daced0f20d75c02ce53f373d048ea2e401ad8a7b3a4c43b2aa544b569efb3"
             ],
             "version": "==1.5.9"
+        },
+        "strct": {
+            "hashes": [
+                "sha256:d8a259aaf306d784fa64330c069ac86684f47492a8cd56d9def6788e85568d8d",
+                "sha256:550ab7f8b5c3cdb9471c4722f259a20a55c0a81475ba2b3c7b1b5e0333b49af4"
+            ],
+            "version": "==0.0.24"
         },
         "tqdm": {
             "hashes": [

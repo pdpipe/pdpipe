@@ -1,7 +1,5 @@
 """Testing basic pipeline stages."""
 
-import datetime
-
 import pandas as pd
 import pytest
 
@@ -52,21 +50,6 @@ def test_coldrop_multi_col():
     assert 'char' in res_df.columns
 
 
-def test_coldrop_bad_args_in_list():
-    """Testing the ColDrop pipeline stage."""
-    df = _test_df()
-    with pytest.raises(ValueError):
-        stage = ColDrop(['num1', df])
-        assert not isinstance(stage, ColDrop)
-
-
-def test_coldrop_bad_arg_not_str_or_list():
-    """Testing the ColDrop pipeline stage."""
-    with pytest.raises(ValueError):
-        stage = ColDrop(datetime.datetime.now())
-        assert not isinstance(stage, ColDrop)
-
-
 def test_coldrop_lambda():
     """Testing the ColDrop pipeline stage."""
     df = _test_df()
@@ -77,3 +60,22 @@ def test_coldrop_lambda():
     assert 'num1' not in res_df.columns
     assert 'num2' not in res_df.columns
     assert 'char' in res_df.columns
+
+
+def _test_df2():
+    return pd.DataFrame(
+        data=[[1, 2, 'a'], [2, 4, 'b']],
+        index=[1, 2],
+        columns=['num1', 2, False]
+    )
+
+
+def test_coldrop_non_str_lbl():
+    """Testing the ColDrop pipeline stage."""
+    df = _test_df2()
+    assert 2 in df.columns
+    stage = ColDrop(2)
+    res_df = stage.apply(df)
+    assert 2 not in res_df.columns
+    assert 'num1' in res_df.columns
+    assert False in res_df.columns

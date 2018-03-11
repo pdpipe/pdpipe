@@ -50,7 +50,7 @@ class ColDrop(PipelineStage):
         self._errors = errors
         self._columns_str = _list_str(self._columns)
         if not callable(columns):
-            self._columns = _interpret_columns_param(columns, 'columns')
+            self._columns = _interpret_columns_param(columns)
         super_kwargs = {
             'exmsg': ColDrop._DEF_COLDROP_EXC_MSG.format(self._columns_str),
             'appmsg': ColDrop._DEF_COLDROP_APPLY_MSG.format(self._columns_str),
@@ -120,7 +120,7 @@ class ValDrop(PipelineStage):
             apply_msg = ValDrop._DEF_VALDROP_APPLY_MSG.format(
                 self._values_str)
         else:
-            self._columns = _interpret_columns_param(columns, 'columns')
+            self._columns = _interpret_columns_param(columns)
             apply_msg = ValDrop._DEF_VALDROP_APPLY_MSG.format(
                 "{} in {}".format(
                     self._values_str, self._columns_str))
@@ -192,7 +192,7 @@ class ValKeep(PipelineStage):
             apply_msg = ValKeep._DEF_VALKEEP_APPLY_MSG.format(
                 self._values_str)
         else:
-            self._columns = _interpret_columns_param(columns, 'columns')
+            self._columns = _interpret_columns_param(columns)
             apply_msg = ValKeep._DEF_VALKEEP_APPLY_MSG.format(
                 "{} in {}".format(
                     self._values_str, self._columns_str))

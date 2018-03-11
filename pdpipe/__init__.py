@@ -33,6 +33,7 @@ from .col_generation import (
     ApplyToRows,
     ApplyByCols,
     AggByCols,
+    Log,
 )
 core.__load_stage_attributes_from_module__('pdpipe.col_generation')
 
@@ -41,9 +42,12 @@ try:
     from .sklearn_stages import (
         Encode,
         Scale,
+        TfidfVectorize,
     )
     core.__load_stage_attributes_from_module__('pdpipe.sklearn_stages')
 except ImportError:
+    tb = traceback.format_exc()
+    warnings.warn(tb)
     warnings.warn("pdpipe: Scikit-learn import failed. Scikit-learn-dependent"
                   " pipeline stages will not be loaded.")
 

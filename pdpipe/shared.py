@@ -1,20 +1,13 @@
 """Shared inner functionalities for pdpipe."""
 
 
-def _interpret_columns_param(columns, param_name):
+def _interpret_columns_param(columns):
     if isinstance(columns, str):
         return [columns]
     elif hasattr(columns, '__iter__'):
-        if all(isinstance(arg, str) for arg in columns):
-            return columns
-        else:
-            raise ValueError(
-                "When {} is an iterable all its members should be "
-                "strings.".format(param_name))
+        return columns
     else:
-        raise ValueError(
-            "Parameter {} should be either a string or an iterable of "
-            "strings.".format(param_name))
+        return [columns]
 
 
 def _list_str(listi):

@@ -6,7 +6,9 @@ import tqdm
 from skutil.preprocessing import scaler_by_params
 
 from pdpipe.core import PipelineStage
-from pdpipe.util import out_of_place_col_insert
+from pdpipe.util import (
+    out_of_place_col_insert,
+)
 from pdpipe.shared import (
     _interpret_columns_param,
     _list_str
@@ -59,12 +61,11 @@ class Encode(PipelineStage):
         if columns is None:
             self._columns = None
         else:
-            self._columns = _interpret_columns_param(columns, 'columns')
+            self._columns = _interpret_columns_param(columns)
         if exclude_columns is None:
             self._exclude_columns = []
         else:
-            self._exclude_columns = _interpret_columns_param(
-                exclude_columns, 'exclude_columns')
+            self._exclude_columns = _interpret_columns_param(exclude_columns)
         self._drop = drop
         self.encoders = {}
         col_str = _list_str(self._columns)
@@ -168,8 +169,7 @@ class Scale(PipelineStage):
             self._exclude_columns = None
             desc_suffix = "."
         else:
-            self._exclude_columns = _interpret_columns_param(
-                exclude_columns, 'exclude_columns')
+            self._exclude_columns = _interpret_columns_param(exclude_columns)
             col_str = _list_str(self._exclude_columns)
             desc_suffix = " except columns {}.".format(col_str)
         super_kwargs = {

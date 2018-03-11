@@ -242,11 +242,15 @@ Column Generation
 * Binarize - Convert a categorical column to the several binary columns corresponding to it.
 * ApplyToRows - Generate columns by applying a function to each row.
 * ApplyByCols - Generate columns by applying an element-wise function to columns.
+* AggByCols - Generate columns by applying an series-wise function to columns.
+* Log - Log-transform numeric data, possibly shifting data before.
 
 Scikit-learn-dependent Stages
 -----------------------------
 
 * Encode - Encode a categorical column to corresponding number values.
+* Scale - Scale data with any of the sklearn scalers. 
+  
 
 nltk-dependent Stages
 -----------------------------

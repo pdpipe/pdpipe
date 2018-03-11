@@ -53,7 +53,7 @@ class TokenizeWords(MapColVals):
 
     def __init__(self, columns, drop=True, **kwargs):
         self.__check_punkt()
-        self._columns = _interpret_columns_param(columns, 'columns')
+        self._columns = _interpret_columns_param(columns)
         col_str = _list_str(self._columns)
         super_kwargs = {
             'columns': columns,
@@ -104,7 +104,7 @@ class UntokenizeWords(MapColVals):
         return ' '.join(token_list)
 
     def __init__(self, columns, drop=True, **kwargs):
-        self._columns = _interpret_columns_param(columns, 'columns')
+        self._columns = _interpret_columns_param(columns)
         col_str = _list_str(self._columns)
         super_kwargs = {
             'columns': columns,
@@ -180,7 +180,7 @@ class RemoveStopwords(MapColVals):
             language)
         self._stopwords_remover = RemoveStopwords._StopwordsRemover(
             self._stopwords_list)
-        self._columns = _interpret_columns_param(columns, 'columns')
+        self._columns = _interpret_columns_param(columns)
         col_str = _list_str(self._columns)
         super_kwargs = {
             'columns': columns,
@@ -255,7 +255,7 @@ class SnowballStem(MapColVals):
         self.stemmer_name = stemmer_name
         self.stemmer = SnowballStem.__safe_stemmer_by_name(stemmer_name)
         self.list_stemmer = SnowballStem._TokenListStemmer(self.stemmer)
-        self._columns = _interpret_columns_param(columns, 'columns')
+        self._columns = _interpret_columns_param(columns)
         col_str = _list_str(self._columns)
         super_kwargs = {
             'columns': columns,
@@ -305,7 +305,7 @@ class DropRareTokens(PipelineStage):
                          "{} were found in input dataframe.")
 
     def __init__(self, columns, threshold, drop=True, **kwargs):
-        self._columns = _interpret_columns_param(columns, 'columns')
+        self._columns = _interpret_columns_param(columns)
         self._threshold = threshold
         self._drop = drop
         self._rare_removers = {}
