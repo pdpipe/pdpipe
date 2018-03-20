@@ -1,7 +1,5 @@
 """Testing pdpipe util module."""
 
-import collections
-
 import pandas as pd
 import pytest
 
@@ -56,3 +54,19 @@ def test_out_of_place_col_insert_nameless_error():
 
     with pytest.raises(ValueError):
         out_of_place_col_insert(df, series, 1)
+
+
+def test_out_of_place_col_last_position():
+    """Testing the ColDrop pipeline stage."""
+    df = _test_df()
+    series = pd.Series(
+        data=[10, 20],
+        index=[1, 2],
+        name='tens')
+
+    result_df = out_of_place_col_insert(df, series, len(df.columns), 'Tigers')
+    assert 'tens' not in result_df.columns
+    assert 'Tigers' in result_df.columns
+    assert result_df.columns.get_loc('Tigers') == 2
+    assert result_df['Tigers'][1] == 10
+    assert result_df['Tigers'][2] == 20

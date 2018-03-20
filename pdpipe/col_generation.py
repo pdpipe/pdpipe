@@ -16,6 +16,10 @@ from pdpipe.shared import (
     _list_str
 )
 
+from .exceptions import (
+    PipelineApplicationError,
+)
+
 
 class Bin(PipelineStage):
     """A pipeline stage that adds a binned version of a column or columns.
@@ -559,6 +563,85 @@ class ApplyByCols(PipelineStage):
                 series=source_col.apply(self._func),
                 loc=loc,
                 column_name=new_name)
+        return inter_df
+
+
+class ColByFrameFunc(PipelineStage):
+    """A pipeline stage adding a column by applying a dataframw-wide function.
+
+    Parameters
+    ----------
+    column : str
+        The name of the resulting column.
+    func : function
+        The function to be applied to the input dataframe. The function should
+        return a pandas.Series object.
+    follow_column : str, default None
+        Resulting columns will be inserted after this column. If None, new
+        columns are inserted at the end of the processed DataFrame.
+    func_desc : str, default None
+        A function description of the given function; e.g. 'normalizing revenue
+        by company size'. A default description is used if None is given.
+
+
+    Example
+    -------
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> data = [[3, 3], [2, 4], [1, 5]]
+    >>> df = pd.DataFrame(data, [1,2,3], ["A","B"])
+    >>> func = lambda df: df['A'] == df['B']
+    >>> add_equal = pdp.ColByFrameFunc("A==B", func)
+    >>> add_equal(df)
+       A  B   A==B
+    1  3  3   True
+    2  2  4  False
+    3  1  5  False
+    """
+
+    _BASE_STR = "Applying a function{} to column {}"
+    _DEF_EXC_MSG_SUFFIX = " failed."
+    _DEF_APP_MSG_SUFFIX = "..."
+    _DEF_DESCRIPTION_SUFFIX = "."
+
+    def __init__(self, column, func, follow_column=None, func_desc=None,
+                 **kwargs):
+        self._column = column
+        self._func = func
+        self._follow_column = follow_column
+        if func_desc is None:
+            func_desc = ""
+        else:
+            func_desc = " " + func_desc
+        self._func_desc = func_desc
+        base_str = ColByFrameFunc._BASE_STR.format(self._func_desc, column)
+        super_kwargs = {
+            'exmsg': base_str + ColByFrameFunc._DEF_EXC_MSG_SUFFIX,
+            'appmsg': base_str + ColByFrameFunc._DEF_APP_MSG_SUFFIX,
+            'desc': base_str + ColByFrameFunc._DEF_DESCRIPTION_SUFFIX
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        return True
+
+    def _op(self, df, verbose):
+        inter_df = df
+        try:
+            new_col = self._func(df)
+        except Exception:
+            raise PipelineApplicationError(
+                "Exception raised applying function{} to dataframe.".format(
+                    self._func_desc))
+        if self._follow_column:
+            loc = df.columns.get_loc(self._follow_column) + 1
+        else:
+            loc = len(df.columns)
+        inter_df = out_of_place_col_insert(
+            df=inter_df,
+            series=new_col,
+            loc=loc,
+            column_name=self._column)
         return inter_df
 
 

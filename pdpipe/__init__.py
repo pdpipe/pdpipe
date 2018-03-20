@@ -32,6 +32,7 @@ from .col_generation import (
     MapColVals,
     ApplyToRows,
     ApplyByCols,
+    ColByFrameFunc,
     AggByCols,
     Log,
 )
