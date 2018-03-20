@@ -1,8 +1,10 @@
 """Testing basic pipeline stages."""
 
+import pytest
 import pandas as pd
 
 from pdpipe.sklearn_stages import Scale
+from pdpipe.exceptions import PipelineApplicationError
 
 
 def _some_df1():
@@ -95,3 +97,10 @@ def test_scale_with_exclude():
     res_df = scale_stage(df)
     assert 'ph' in res_df.columns
     assert 'gt' in res_df.columns
+
+
+def test_scale_app_exception():
+    df = _some_df1()
+    scale_stage = Scale("StandardScaler", exclude_columns=[])
+    with pytest.raises(PipelineApplicationError):
+        scale_stage(df)

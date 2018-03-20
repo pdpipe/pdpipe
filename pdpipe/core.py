@@ -11,6 +11,10 @@ import abc
 import collections
 import textwrap
 
+from .exceptions import (
+    FailedPreconditionError,
+)
+
 
 # === loading stage attributes ===
 
@@ -51,12 +55,6 @@ def __load_stage_attributes_from_module__(module_name):
 
 
 # === basic classes ===
-
-class FailedPreconditionError(Exception):
-    """An exception raised when a pipeline stage is applied to a dataframe for
-    which the stage precondition does not hold.
-    """
-    pass
 
 
 class PipelineStage(abc.ABC):

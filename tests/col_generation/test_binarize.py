@@ -301,3 +301,40 @@ def test_binarize_one_no_drop():
     assert res_df2['Born_UK'][1] == 0
     assert 'Born_USA' in res_df.columns
     assert res_df2['Born_USA'][1] == 0
+
+
+@pytest.mark.binarize
+def test_binarize_col_subset():
+    df = _two_categ_df()
+    binarize = Binarize(columns=['Born', 'Cat'], col_subset=True)
+    res_df = binarize(df)
+    assert 'Born' not in res_df.columns
+    assert 'Born_Greece' not in res_df.columns
+    assert 'Born_UK' in res_df.columns
+    assert res_df['Born_UK'][1] == 0
+    assert res_df['Born_UK'][2] == 1
+    assert res_df['Born_UK'][3] == 0
+    assert 'Born_USA' in res_df.columns
+    assert res_df['Born_USA'][1] == 1
+    assert res_df['Born_USA'][2] == 0
+    assert res_df['Born_USA'][3] == 0
+    assert 'Name' in res_df.columns
+    assert 'Name_Bob' not in res_df.columns
+    assert 'Name_Jack' not in res_df.columns
+    assert 'Name_Yan' not in res_df.columns
+
+    # check when fitted
+    df2 = _two_categ_single_row_df()
+    assert binarize.is_fitted
+    res_df2 = binarize(df2, verbose=True)
+    print(res_df2)
+    assert 'Born' not in res_df2.columns
+    assert 'Born_Greece' not in res_df2.columns
+    assert 'Born_UK' in res_df2.columns
+    assert res_df2['Born_UK'][1] == 0
+    assert 'Born_USA' in res_df.columns
+    assert res_df2['Born_USA'][1] == 0
+    assert 'Name' in res_df.columns
+    assert 'Name_Bob' not in res_df.columns
+    assert 'Name_Jack' not in res_df.columns
+    assert 'Name_Yan' not in res_df.columns

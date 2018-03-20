@@ -149,6 +149,11 @@ class Binarize(PipelineStage):
         Name or names of categorical columns to be excluded from binarization
         when the columns parameter is not given. If None no column is excluded.
         Ignored if the columns parameter is given.
+    col_subset : bool, default False
+        If set to True, if only a subset of given columns is found that subset
+        is binarized (if the missing columns are encoutered after the stage
+        is fitted they will be ignored). Otherwise, the stage will fail on
+        the precondition requiring all given columns are in input dataframes.
     drop_first : bool, default True
         Whether to get k-1 dummies out of k categorical levels by removing the
         first level.
@@ -186,7 +191,7 @@ class Binarize(PipelineStage):
             )
 
     def __init__(self, columns=None, dummy_na=False, exclude_columns=None,
-                 drop_first=True, drop=True, **kwargs):
+                 col_subset=False, drop_first=True, drop=True, **kwargs):
         if columns is None:
             self._columns = None
         else:
@@ -196,6 +201,7 @@ class Binarize(PipelineStage):
             self._exclude_columns = []
         else:
             self._exclude_columns = _interpret_columns_param(exclude_columns)
+        self._col_subset = col_subset
         self._drop_first = drop_first
         self._drop = drop
         self._dummy_col_map = {}
@@ -211,6 +217,8 @@ class Binarize(PipelineStage):
         super().__init__(**super_kwargs)
 
     def _prec(self, df):
+        if self._col_subset:
+            return True
         return set(self._columns or []).issubset(df.columns)
 
     def _op(self, df, verbose):
@@ -219,6 +227,8 @@ class Binarize(PipelineStage):
             columns_to_binar = list(set(df.select_dtypes(
                 include=['object', 'category']).columns).difference(
                     self._exclude_columns))
+        if self._col_subset:
+            columns_to_binar = [x for x in columns_to_binar if x in df.columns]
         self._cols_to_binar = columns_to_binar
         assign_map = {}
         if verbose:

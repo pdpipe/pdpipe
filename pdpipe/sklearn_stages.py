@@ -14,6 +14,8 @@ from pdpipe.shared import (
     _list_str
 )
 
+from .exceptions import PipelineApplicationError
+
 
 class Encode(PipelineStage):
     """A pipeline stage that encodes categorical columns to integer values.
@@ -199,11 +201,16 @@ class Scale(PipelineStage):
         else:
             apply_to = df
         self._scaler = scaler_by_params(self.scaler, **self._kwargs)
-        res = pd.DataFrame(
-            data=self._scaler.fit_transform(apply_to),
-            index=apply_to.index,
-            columns=apply_to.columns,
-        )
+        try:
+            res = pd.DataFrame(
+                data=self._scaler.fit_transform(apply_to),
+                index=apply_to.index,
+                columns=apply_to.columns,
+            )
+        except Exception:
+            raise PipelineApplicationError(
+                "Exception raised when Scale applied to columns {}".format(
+                    apply_to.columns))
         if len(self._exclude_columns) > 0:
             res = pd.concat([res, exclude], axis=1)
             res = res[self._col_order]
