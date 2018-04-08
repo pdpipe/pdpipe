@@ -1,5 +1,6 @@
 """Pipeline stages dependent on the scikit-learn Python library."""
 
+import os
 import importlib
 
 import nltk
@@ -49,6 +50,8 @@ class TokenizeWords(MapColVals):
             # try:
             #     nltk.data.find('corpora/stopwords')
             # except LookupError:  # pragma: no cover
+            dpath = os.path.expanduser('~/nltk_data/tokenizers')
+            os.makedirs(dpath, exist_ok=True)
             nltk.download('punkt')
 
     def __init__(self, columns, drop=True, **kwargs):
@@ -170,6 +173,8 @@ class RemoveStopwords(MapColVals):
             # try:
             #     nltk.data.find('corpora/stopwords')
             # except LookupError:  # pragma: no cover
+            dpath = os.path.expanduser('~/nltk_data/corpora/stopwords')
+            os.makedirs(dpath, exist_ok=True)
             nltk.download('stopwords')
             from nltk.corpus import stopwords
             return stopwords.words(language)
@@ -248,6 +253,8 @@ class SnowballStem(MapColVals):
         try:
             return SnowballStem.__stemmer_by_name(stemmer_name)
         except LookupError:  # pragma: no cover
+            dpath = os.path.expanduser('~/nltk_data/stemmers')
+            os.makedirs(dpath, exist_ok=True)
             nltk.download('snowball_data')
             return SnowballStem.__stemmer_by_name(stemmer_name)
 
