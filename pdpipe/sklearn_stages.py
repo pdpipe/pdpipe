@@ -1,9 +1,12 @@
 """Pipeline stages dependent on the scikit-learn Python library."""
 
+import tqdm
 import pandas as pd
 import sklearn.preprocessing
-import tqdm
 from skutil.preprocessing import scaler_by_params
+from pdutil.transform import (
+    x_y_by_col_lbl,
+)
 
 from pdpipe.core import PipelineStage
 from pdpipe.util import (
@@ -15,6 +18,76 @@ from pdpipe.shared import (
 )
 
 from .exceptions import PipelineApplicationError
+
+
+class GenericSkTransformerStage(PipelineStage):
+    """A generic pipeline stage that wraps around a fittable sklearn
+    transformer.
+
+    Parameters
+    ----------
+    klass : class object
+        The class object to instantiate.
+    y_col_lbl : str, optinal
+        The label of the y column. If not given, the entire input dataframe
+        is the given as the X parameter of the fit_transform and transform
+        methods.
+    **kwargs : extra keyword arguments
+        Extra keyword arguments are forwarded to klass constructor, unless they
+        qualify for pdpipe.PipelineStage's constructor, in which case they are
+        forwarded to it on stage creation.
+
+    Example
+    -------
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> data = [[3.2, 98], [7.2, 17], [12.1, 71]]
+    >>> df = pd.DataFrame(data, [1,2,3], ["ph","gh"])
+    >>> from sklearn.feature_selection import SelectPercentile
+    >>> sp_stage = pdp.GenericSklearnStage(SelectPercentile, percentile=20)
+    >>> sp_stage(df)
+         ph  gh
+    1   3.2   3
+    2   7.2   4
+    3  12.1   4
+    """
+
+    def __init__(self, klass, y_col_lbl=None, **kwargs):
+        self._klass = klass
+        self._y_col_lbl = y_col_lbl
+        super_kwargs = {
+            'appmsg': "Transforming dataframe with {}...".format(klass),
+            'desc': "Transform the dataframe with {}".format(klass)
+        }
+        self._kwargs = kwargs.copy()
+        self._is_fitted = False
+        valid_super_kwargs = super()._init_kwargs()
+        for key in kwargs:
+            if key in valid_super_kwargs:
+                super_kwargs[key] = self._kwargs.pop(key)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        return True
+
+    def _op(self, df, verbose):
+        if self._y_col_lbl:
+            X, y = x_y_by_col_lbl(df, self._y_col_lbl)
+        else:
+            X = df
+            y = None
+        self._instance = self._klass(**self._kwargs)
+        X_new = self._instance.fit_transform(X=X, y=y)
+        self._is_fitted = True
+        return X_new
+
+    def _transform(self, df, verbose):
+        if self._y_col_lbl:
+            X, y = x_y_by_col_lbl(df, self._y_col_lbl)
+        else:
+            X = df
+            y = None
+        X_new = self._instance.transform(X=X, y=y)
+        return X_new
 
 
 class Encode(PipelineStage):
