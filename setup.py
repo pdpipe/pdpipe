@@ -18,7 +18,8 @@ with open('README.rst') as f:
 INSTALL_REQUIRES = [
     'pandas>=0.18.0', 'sortedcontainers', 'tqdm', 'strct',
 ]
-TEST_REQUIRES = ['pytest', 'coverage', 'pytest-cov']
+TEST_REQUIRES = [
+    'pytest', 'coverage', 'pytest-cov', 'pdutil']
 
 
 setup(
