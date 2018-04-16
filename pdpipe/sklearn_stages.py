@@ -43,7 +43,7 @@ class GenericSkTransformerStage(PipelineStage):
     >>> data = [[3.2, 98], [7.2, 17], [12.1, 71]]
     >>> df = pd.DataFrame(data, [1,2,3], ["ph","gh"])
     >>> from sklearn.feature_selection import SelectPercentile
-    >>> sp_stage = pdp.GenericSklearnStage(SelectPercentile, percentile=20)
+    >>> sp_stage = pdp.GenericSkTransformerStage(SelectPercentile, percentile=20)
     >>> sp_stage(df)
          ph  gh
     1   3.2   3

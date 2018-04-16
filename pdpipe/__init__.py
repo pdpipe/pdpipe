@@ -41,6 +41,7 @@ core.__load_stage_attributes_from_module__('pdpipe.col_generation')
 try:
     from . import sklearn_stages
     from .sklearn_stages import (
+        GenericSkTransformerStage,
         Encode,
         Scale,
     )
