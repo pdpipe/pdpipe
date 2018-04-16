@@ -1,11 +1,12 @@
 """Basic pdpipe PipelineStages."""
 
 import types
+from collections import deque
 
+from strct.dicts import reverse_dict_partial
 
 from pdpipe.core import PipelineStage
 # from pdpipe.util import out_of_place_col_insert
-
 from pdpipe.shared import (
     _interpret_columns_param,
     _list_str
@@ -352,3 +353,56 @@ class FreqDrop(PipelineStage):
         if verbose:
             print("{} rows dropped.".format(before_count - len(inter_df)))
         return inter_df
+
+
+class ColReorder(PipelineStage):
+    """A pipeline stage that reorder columns.
+
+    Parameters
+    ----------
+    positions : dict
+        A mapping column names to their desired positions after reordering.
+        Columns not included in the mapping will maintain their relative
+        positions over the non-mapped colums
+
+    Example
+    -------
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> df = pd.DataFrame([[8,4,3,7]], columns=['a', 'b', 'c', 'd'])
+    >>> pdp.ColReorder({'b': 0, 'c': 3}).apply(df)
+       b  a  d  c
+    0  4  8  7  3
+    """
+
+    _DEF_ORD_EXC_MSG = ("ColReorder stage failed because not all columns in {}"
+                        " were found in input dataframe.")
+
+    def __init__(self, positions, **kwargs):
+        self._col_to_pos = positions
+        self._pos_to_col = reverse_dict_partial(positions)
+        super_kwargs = {
+            'exmsg': ColReorder._DEF_ORD_EXC_MSG.format(self._col_to_pos),
+            'appmsg': "Reordering columns by {}".format(self._col_to_pos),
+            'desc': "Reorder columns by {}".format(self._col_to_pos),
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        return set(self._col_to_pos.keys()).issubset(df.columns)
+
+    def _op(self, df, verbose):
+        cols = df.columns
+        map_cols = list(self._col_to_pos.keys())
+        non_map_cols = deque(x for x in cols if x not in map_cols)
+        new_columns = []
+        try:
+            for pos in range(len(cols)):
+                if pos in self._pos_to_col:
+                    new_columns.append(self._pos_to_col[pos])
+                else:
+                    new_columns.append(non_map_cols.popleft())
+            return df[new_columns]
+        except (IndexError):
+            raise ValueError("Bad positions mapping given: {}".format(
+                new_columns))
