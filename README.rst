@@ -234,6 +234,7 @@ Basic Stages
 * ColRename - Rename columns.
 * DropNa - Drop null values. Supports all parameter supported by pandas.dropna function. 
 * FreqDrop - Drop rows by value frequency threshold on a specific column. 
+* ColReorder - Reorder columns.
 
 Column Generation
 -----------------
