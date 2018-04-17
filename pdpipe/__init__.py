@@ -8,9 +8,10 @@ import traceback
 
 from . import core
 from .core import (
-    PipelineStage,
+    PdPipelineStage,
     AdHocStage,
-    Pipeline
+    PdPipeline,
+    make_pdpipeline,
 )
 core.__load_stage_attributes_from_module__('pdpipe.core')
 
