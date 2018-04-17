@@ -3,8 +3,8 @@
 import pandas as pd
 import pytest
 
-from pdpipe.basic_stages import ColDrop
-from pdpipe.core import FailedPreconditionError
+from pdpipe import ColDrop
+from pdpipe.exceptions import FailedPreconditionError
 
 
 def _test_df():

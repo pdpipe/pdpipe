@@ -1,4 +1,4 @@
-"""Pipeline stages dependent on the polyglot Python library."""
+"""PdPipeline stages dependent on the polyglot Python library."""
 
 # from polyglot.detect import Detector
 #
@@ -22,7 +22,8 @@
 #     result_columns : str or list-like, default None
 #         The name of the new columns resulting from the operation. Must
 #         be of the same length as columns. If None, behavior depends on the
-#         drop parameter: If drop is True, the name of the source column is used;
+#         drop parameter: If drop is True, the name of the source column is
+#         used;
 #         otherwise, the name of the source column is used with the suffix
 #         '_lang'.
 #     drop : bool, default True
@@ -38,7 +39,8 @@
 #             if drop:
 #                 self._result_columns = self._columns
 #             else:
-#                 self._result_columns = [col + '_lang' for col in self._columns]
+#                 self._result_columns = [
+#                    col + '_lang' for col in self._columns]
 #         else:
 #             self._result_columns = _interpret_columns_param(
 #                 result_columns, 'result_columns')

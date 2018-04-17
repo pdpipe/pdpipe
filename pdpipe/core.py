@@ -296,26 +296,26 @@ class AdHocStage(PdPipelineStage):
 
     Parameters
     ----------
-    op : callable
-        The operation this stage applies to dataframes.
+    transform : callable
+        The transformation this stage applies to dataframes.
     prec : callable, default None
         A callable that returns a boolean value. Represent a a precondition
         used to determine whether this stage can be applied to a given
         dataframe. If None is given, set to a function always returning True.
     """
 
-    def __init__(self, op, prec=None, **kwargs):
+    def __init__(self, transform, prec=None, **kwargs):
         if prec is None:
             prec = _always_true
-        self._adhoc_op = op
+        self._adhoc_transform = transform
         self._adhoc_prec = prec
         super().__init__(**kwargs)
 
     def _prec(self, df):
         return self._adhoc_prec(df)
 
-    def _op(self, df, verbose):
-        return self._adhoc_op(df)
+    def _transform(self, df, verbose):
+        return self._adhoc_transform(df)
 
 
 class PdPipeline(PdPipelineStage, collections.abc.Sequence):
@@ -366,7 +366,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         # PdPipeline overrides apply in a way which makes this moot
         raise NotImplementedError
 
-    def _op(self, df, verbose):
+    def _transform(self, df, verbose):
         # PdPipeline overrides apply in a way which makes this moot
         raise NotImplementedError
 
@@ -377,9 +377,36 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         return inter_df
 
     def fit_transform(self, df, exraise=None, verbose=None):
+        """Fits this pipeline and transforms the input dataframe.
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            The dataframe to transform and fit this pipeline by.
+        exraise : bool, default None
+            Determines behaviour if the precondition of composing stages is not
+            fulfilled by the input dataframe: If True, a
+            pdpipe.FailedPreconditionError is raised. If False, the stage is
+            skipped. If not given, or set to None, the default behaviour of
+            each stage is used, as determined by its 'exraise' constructor
+            parameter.
+        verbose : bool, default False
+            If True an explanation message is printed after the precondition
+            of each stage is checked but before its application. Otherwise, no
+            messages are printed.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The resulting dataframe.
+        """
         inter_df = df
         for stage in self._stages:
-            inter_df = stage.fit_transform(inter_df, exraise, verbose)
+            inter_df = stage.fit_transform(
+                df=inter_df,
+                exraise=exraise,
+                verbose=verbose,
+            )
         return inter_df
 
     def fit(self, df, exraise=None, verbose=None):
@@ -404,13 +431,15 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         Returns
         -------
         pandas.DataFrame
-            The resulting dataframe.
+            The input dataframe, unchanged.
         """
-        self.fit_transform(
-            df=df,
-            exraise=exraise,
-            verbose=verbose,
-        )
+        inter_df = df
+        for stage in self._stages:
+            inter_df = self.fit_transform(
+                df=inter_df,
+                exraise=exraise,
+                verbose=verbose,
+            )
         return df
 
     def transform(self, df, exraise=None, verbose=None):
@@ -447,7 +476,11 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                     " unfitted!").format(stage))
         inter_df = df
         for stage in self._stages:
-            inter_df = stage.transform(inter_df, exraise, verbose)
+            inter_df = stage.transform(
+                df=inter_df,
+                exraise=exraise,
+                verbose=verbose,
+            )
         return inter_df
 
     __call__ = apply

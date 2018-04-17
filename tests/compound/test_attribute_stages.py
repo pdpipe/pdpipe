@@ -3,7 +3,7 @@
 import pandas as pd
 
 import pdpipe as pdp
-from pdpipe.core import Pipeline
+from pdpipe.core import PdPipeline
 from pdpipe.basic_stages import ColDrop
 from pdpipe.col_generation import Bin
 
@@ -18,7 +18,7 @@ def _some_df():
 def test_attribute_stage():
     """Testing attribute pipeline stages."""
     pipeline = pdp.ColDrop('name').Bin({'speed': [5]}, drop=True)
-    assert isinstance(pipeline, Pipeline)
+    assert isinstance(pipeline, PdPipeline)
     assert isinstance(pipeline[0], ColDrop)
     assert isinstance(pipeline[1], Bin)
     df = _some_df()

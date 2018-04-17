@@ -44,7 +44,7 @@ Features
 * A simple interface.
 * Informative prints and errors on pipeline application.
 * Chaining pipeline stages constructor calls for easy, one-liners pipelines.
-* PdPipeline arithmetics.
+* Pipeline arithmetics.
 * Compatible with Python 3.5+.
 * Pure Python.
 
@@ -54,7 +54,7 @@ Design Decisions
 
 * **Extra infromative naming:** Meant to make pipelines very readable, understanding their entire flow by pipeline stages names; e.g. ColDrop vs. ValDrop instead of an all-encompassing Drop stage emulating the ``pandas.DataFrame.drop`` method.
 * **Data science-oriented naming** (rather than statistics).
-* **A functional approach:** PdPipelines never change input DataFrames. Nothing is done "in place".
+* **A functional approach:** Pipelines never change input DataFrames. Nothing is done "in place".
 * **Opinionated operations:** Help novices avoid mistake by default appliance of good practices; e.g., binarizing (creating dummy variables) a column will drop one of the resulting columns by default, to avoid `the dummy variable trap`_ (perfect `multicollinearity`_).
 * **Machine learning-oriented:** The target use case is transforming tabular data into a vectorized dataset on which a machine learning model will be trained; e.g., column transformations will drop the source columns to avoid strong linear dependence.
 
@@ -162,9 +162,13 @@ A pipeline structre can be clearly displayed by printing the object:
 
   >>> drop_name = pdp.ColDrop("Name")
   >>> binar_label = pdp.Binarize("Label")
-  >> map_job = pdp.MapColVals("Job", {"Part": True, "Full":True, "No": False})
+  >>> map_job = pdp.MapColVals("Job", {"Part": True, "Full":True, "No": False})
   >>> pipeline = pdp.PdPipeline([drop_name, binar_label, map_job])
-  print(pipeline)
+  >>> print(pipeline)
+  A pdpipe pipeline:
+  [ 0]  Drop column Name
+  [ 1]  Binarize Label
+  [ 2]  Map values of column Job with {'Part': True, 'Full': True, 'No': False}.
 
 
 Pipeline Arithmetics
@@ -188,7 +192,7 @@ Or even by adding pipelines together or pipelines to pipeline stages:
 Pipeline Chaining
 ~~~~~~~~~~~~~~~~~
 
-PdPipeline stages can also be chained to other stages to create pipelines:
+Pipeline stages can also be chained to other stages to create pipelines:
 
 .. code-block:: python
 
@@ -206,13 +210,12 @@ Pipelines are Python Sequence objects, and as such can be sliced using Python's 
   >>> pipeline[1:2]
   A pdpipe pipeline:
   [ 0] Binarize Label
-  
 
 
 Applying Pipelines
 ~~~~~~~~~~~~~~~~~~
 
-PdPipelines are pipeline stages themselves, and can be applied to a DataFrame using the same syntax, applying each of the stages making them up, in order:
+Pipelines are pipeline stages themselves, and can be applied to a DataFrame using the same syntax, applying each of the stages making them up, in order:
 
 .. code-block:: python
 
@@ -235,7 +238,7 @@ Additionally, passing ``verbose=True`` to a pipeline apply call will apply all p
   res_df = pipeline.apply(df, verbose=True)
 
 
-Finally, to re-fit all fittable pipeline stages in the pipeline use the ``fit_transform`` method, which calls the corresponding method for all composing pipeline stages.
+Finally, ``fit``, ``transform`` and ``fit_transform`` all call the corresponding pipeline stage methods of all stages composing the pipeline
 
 
 Types of Pipeline Stages
@@ -260,8 +263,10 @@ Column Generation
 
 * Bin - Convert a continuous valued column to categoric data using binning.
 * Binarize - Convert a categorical column to the several binary columns corresponding to it.
+* MapColVals - Replace column values by a map.
 * ApplyToRows - Generate columns by applying a function to each row.
 * ApplyByCols - Generate columns by applying an element-wise function to columns.
+* ColByFrameFunc - Add a column by applying a dataframe-wide function.
 * AggByCols - Generate columns by applying an series-wise function to columns.
 * Log - Log-transform numeric data, possibly shifting data before.
 
@@ -276,7 +281,7 @@ nltk-dependent Stages
 ---------------------
 
 * TokenizeWords - Tokenize a sentence into a list of tokens by whitespaces.
-* UntokenizeWords - Joins token lists to whitespace-seperated strings.
+* UntokenizeWords - Joins token lists into whitespace-seperated strings.
 * RemoveStopwords - Remove stopwords from a tokenized list.
 * SnowballStem - Stems tokens in a list using the Snowball stemmer.
 * DropRareTokens - Drop rare tokens from token lists.

@@ -1,11 +1,11 @@
-"""Basic pdpipe PipelineStages."""
+"""Basic pdpipe PdPipelineStages."""
 
 import types
 from collections import deque
 
 from strct.dicts import reverse_dict_partial
 
-from pdpipe.core import PipelineStage
+from pdpipe.core import PdPipelineStage
 # from pdpipe.util import out_of_place_col_insert
 from pdpipe.shared import (
     _interpret_columns_param,
@@ -13,7 +13,7 @@ from pdpipe.shared import (
 )
 
 
-class ColDrop(PipelineStage):
+class ColDrop(PdPipelineStage):
     """A pipeline stage that drops columns by name.
 
     Parameters
@@ -67,7 +67,7 @@ class ColDrop(PipelineStage):
             return set(self._columns).issubset(df.columns)
         return True
 
-    def _op(self, df, verbose):
+    def _transform(self, df, verbose):
         if callable(self._columns):
             cols_to_drop = [
                 col for col in df.columns
@@ -77,7 +77,7 @@ class ColDrop(PipelineStage):
         return df.drop(self._columns, axis=1, errors=self._errors)
 
 
-class ValDrop(PipelineStage):
+class ValDrop(PdPipelineStage):
     """A pipeline stage that drops rows by value.
 
     Parameters
@@ -136,7 +136,7 @@ class ValDrop(PipelineStage):
     def _prec(self, df):
         return set(self._columns or []).issubset(df.columns)
 
-    def _op(self, df, verbose):
+    def _transform(self, df, verbose):
         inter_df = df
         before_count = len(inter_df)
         columns_to_check = self._columns
@@ -149,7 +149,7 @@ class ValDrop(PipelineStage):
         return inter_df
 
 
-class ValKeep(PipelineStage):
+class ValKeep(PdPipelineStage):
     """A pipeline stage that keeps rows by value.
 
     Parameters
@@ -208,7 +208,7 @@ class ValKeep(PipelineStage):
     def _prec(self, df):
         return set(self._columns or []).issubset(df.columns)
 
-    def _op(self, df, verbose):
+    def _transform(self, df, verbose):
         inter_df = df
         columns_to_check = self._columns
         if self._columns is None:
@@ -218,7 +218,7 @@ class ValKeep(PipelineStage):
         return inter_df
 
 
-class ColRename(PipelineStage):
+class ColRename(PdPipelineStage):
     """A pipeline stage that renames a column or columns.
 
     Parameters
@@ -256,11 +256,11 @@ class ColRename(PipelineStage):
     def _prec(self, df):
         return set(self._rename_map.keys()).issubset(df.columns)
 
-    def _op(self, df, verbose):
+    def _transform(self, df, verbose):
         return df.rename(columns=self._rename_map)
 
 
-class DropNa(PipelineStage):
+class DropNa(PdPipelineStage):
     """A pipeline stage that drops null values.
 
     Supports all parameter supported by pandas.dropna function.
@@ -293,7 +293,7 @@ class DropNa(PipelineStage):
     def _prec(self, df):
         return True
 
-    def _op(self, df, verbose):
+    def _transform(self, df, verbose):
         before_count = len(df)
         inter_df = df.dropna(**self.dropna_kwargs)
         if verbose:
@@ -301,7 +301,7 @@ class DropNa(PipelineStage):
         return inter_df
 
 
-class FreqDrop(PipelineStage):
+class FreqDrop(PdPipelineStage):
     """A pipeline stage that drops rows by value frequency.
 
     Parameters
@@ -344,7 +344,7 @@ class FreqDrop(PipelineStage):
     def _prec(self, df):
         return self._column in df.columns
 
-    def _op(self, df, verbose):
+    def _transform(self, df, verbose):
         inter_df = df
         before_count = len(inter_df)
         valcount = df[self._column].value_counts()
@@ -355,8 +355,8 @@ class FreqDrop(PipelineStage):
         return inter_df
 
 
-class ColReorder(PipelineStage):
-    """A pipeline stage that reorder columns.
+class ColReorder(PdPipelineStage):
+    """A pipeline stage that reorders columns.
 
     Parameters
     ----------
@@ -391,7 +391,7 @@ class ColReorder(PipelineStage):
     def _prec(self, df):
         return set(self._col_to_pos.keys()).issubset(df.columns)
 
-    def _op(self, df, verbose):
+    def _transform(self, df, verbose):
         cols = df.columns
         map_cols = list(self._col_to_pos.keys())
         non_map_cols = deque(x for x in cols if x not in map_cols)

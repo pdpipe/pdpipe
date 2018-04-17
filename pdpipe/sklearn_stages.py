@@ -1,11 +1,11 @@
-"""Pipeline stages dependent on the scikit-learn Python library."""
+"""PdPipeline stages dependent on the scikit-learn Python library."""
 
 import pandas as pd
 import sklearn.preprocessing
 import tqdm
 from skutil.preprocessing import scaler_by_params
 
-from pdpipe.core import PipelineStage
+from pdpipe.core import PdPipelineStage
 from pdpipe.util import (
     out_of_place_col_insert,
 )
@@ -17,7 +17,7 @@ from pdpipe.shared import (
 from .exceptions import PipelineApplicationError
 
 
-class Encode(PipelineStage):
+class Encode(PdPipelineStage):
     """A pipeline stage that encodes categorical columns to integer values.
 
     The encoder for each column is saved in the attribute 'encoders', which
@@ -82,7 +82,7 @@ class Encode(PipelineStage):
     def _prec(self, df):
         return set(self._columns or []).issubset(df.columns)
 
-    def _op(self, df, verbose):
+    def _fit_transform(self, df, verbose):
         self.encoders = {}
         columns_to_encode = self._columns
         if self._columns is None:
@@ -129,7 +129,7 @@ class Encode(PipelineStage):
         return inter_df
 
 
-class Scale(PipelineStage):
+class Scale(PdPipelineStage):
     """A pipeline stage that scales data.
 
     Parameters
@@ -145,7 +145,7 @@ class Scale(PipelineStage):
     **kwargs : extra keyword arguments
         All valid extra keyword arguments are forwarded to the scaler
         constructor on scaler creation (e.g. 'n_quantiles' for
-        QuantileTransformer). PipelineStage valid keyword arguments are used
+        QuantileTransformer). PdPipelineStage valid keyword arguments are used
         to override Scale class defaults.
 
     Example
@@ -189,7 +189,7 @@ class Scale(PipelineStage):
     def _prec(self, df):
         return True
 
-    def _op(self, df, verbose):
+    def _fit_transform(self, df, verbose):
         if self._exclude_columns is None:
             self._exclude_columns = list(
                 (df.dtypes[df.dtypes == object]).index)
