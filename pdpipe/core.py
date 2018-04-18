@@ -51,7 +51,7 @@ def __load_stage_attributes_from_module__(module_name):
         if inspect.isclass(obj) and obj.__module__ == module_name:
             class_obj = getattr(module_obj, name)
             if issubclass(class_obj, PdPipelineStage) and (
-                    class_obj.__name__ != 'PipelineStage'):
+                    class_obj.__name__ != 'PdPipelineStage'):
                 __load_stage_attribute__(class_obj)
 
 
@@ -224,7 +224,7 @@ class PdPipelineStage(abc.ABC):
             if verbose:
                 msg = '- ' + '\n  '.join(textwrap.wrap(self._appmsg))
                 print(msg, flush=True)
-            self._fit_tranform(df, verbose)
+            self._fit_transform(df, verbose)
             return df
         if exraise:
             raise FailedPreconditionError(self._exmsg)
@@ -263,7 +263,7 @@ class PdPipelineStage(abc.ABC):
                 msg = '- ' + '\n  '.join(textwrap.wrap(self._appmsg))
                 print(msg, flush=True)
             if self._is_fittable():
-                if self.is_fitted():
+                if self.is_fitted:
                     return self._transform(df, verbose)
                 raise UnfittedPipelineStageError(
                     "transform of an unfitted pipeline stage was called!")
@@ -281,10 +281,14 @@ class PdPipelineStage(abc.ABC):
             return NotImplemented
 
     def __str__(self):
-        return self._desc
+        return "PdPipelineStage: {}".format(self._desc)
 
     def __repr__(self):
         return self.__str__()
+
+    def description(self):
+        """Returns the description of this pipeline stage"""
+        return self._desc
 
 
 def _always_true(x):
@@ -433,13 +437,11 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         pandas.DataFrame
             The input dataframe, unchanged.
         """
-        inter_df = df
-        for stage in self._stages:
-            inter_df = self.fit_transform(
-                df=inter_df,
-                exraise=exraise,
-                verbose=verbose,
-            )
+        self.fit_transform(
+            df=df,
+            exraise=exraise,
+            verbose=verbose,
+        )
         return df
 
     def transform(self, df, exraise=None, verbose=None):
@@ -470,7 +472,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             The resulting dataframe.
         """
         for stage in self._stages:
-            if stage._is_fittable() and not stage.is_fitted():
+            if stage._is_fittable() and not stage.is_fitted:
                 raise UnfittedPipelineStageError((
                     "PipelineStage {} in pipeline is fittable but"
                     " unfitted!").format(stage))
@@ -496,10 +498,10 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
     def __str__(self):
         res = "A pdpipe pipeline:\n"
         res += '[ 0]  ' + "\n      ".join(
-            textwrap.wrap(self._stages[0].__str__())) + '\n'
+            textwrap.wrap(self._stages[0].description())) + '\n'
         for i, stage in enumerate(self._stages[1:]):
             res += '[{:>2}]  '.format(i+1) + "\n      ".join(
-                textwrap.wrap(stage.__str__())) + '\n'
+                textwrap.wrap(stage.description())) + '\n'
         return res
 
     def get_transformer(self):

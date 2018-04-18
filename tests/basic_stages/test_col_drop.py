@@ -25,6 +25,39 @@ def test_coldrop_one_col():
     assert 'num2' in res_df.columns
     assert 'char' in res_df.columns
 
+    # make sure fit is null operation for unfittable stages
+    res_df = stage.fit(df)
+    assert 'num1' in res_df.columns
+    assert 'num2' in res_df.columns
+    assert 'char' in res_df.columns
+
+    res_df = stage.fit(df, verbose=True)
+    assert 'num1' in res_df.columns
+    assert 'num2' in res_df.columns
+    assert 'char' in res_df.columns
+
+    # make sure transform and fit_transform are equivalent to apply
+    # for unfittable stages
+    res_df = stage.transform(df)
+    assert 'num1' not in res_df.columns
+    assert 'num2' in res_df.columns
+    assert 'char' in res_df.columns
+
+    res_df = stage.transform(df, verbose=True)
+    assert 'num1' not in res_df.columns
+    assert 'num2' in res_df.columns
+    assert 'char' in res_df.columns
+
+    res_df = stage.fit_transform(df)
+    assert 'num1' not in res_df.columns
+    assert 'num2' in res_df.columns
+    assert 'char' in res_df.columns
+
+    res_df = stage.fit_transform(df, verbose=True)
+    assert 'num1' not in res_df.columns
+    assert 'num2' in res_df.columns
+    assert 'char' in res_df.columns
+
 
 def test_coldrop_missing_col():
     """Testing the ColDrop pipeline stage."""
@@ -33,8 +66,54 @@ def test_coldrop_missing_col():
     stage = ColDrop('num3')
     with pytest.raises(FailedPreconditionError):
         res_df = stage.apply(df)
+
+    res_df = stage.apply(df, exraise=False)
+    assert res_df.equals(df)
+
+    # make sure fit is null operation for unfittable stages
+    with pytest.raises(FailedPreconditionError):
+        res_df = stage.fit(df)
+
+    with pytest.raises(FailedPreconditionError):
+        res_df = stage.fit(df, verbose=True)
+
+    res_df = stage.fit(df, exraise=False)
+    assert res_df.equals(df)
+
+    # make sure transform and fit_transform are equivalent to apply
+    # for unfittable stages
+    with pytest.raises(FailedPreconditionError):
+        res_df = stage.transform(df)
+
+    with pytest.raises(FailedPreconditionError):
+        res_df = stage.transform(df, verbose=True)
+
+    res_df = stage.transform(df, exraise=False)
+    assert res_df.equals(df)
+
+    with pytest.raises(FailedPreconditionError):
+        res_df = stage.fit_transform(df)
+
+    with pytest.raises(FailedPreconditionError):
+        res_df = stage.fit_transform(df, verbose=True)
+
+    res_df = stage.fit_transform(df, exraise=False)
+    assert res_df.equals(df)
+
     stage = ColDrop('num3', errors='ignore')
     res_df = stage.apply(df)
+    assert res_df.equals(df)
+
+    # make sure fit is null operation for unfittable stages
+    res_df = stage.fit(df)
+    assert res_df.equals(df)
+
+    # make sure transform and fit_transform are equivalent to apply
+    # for unfittable stages
+    res_df = stage.fit_transform(df)
+    assert res_df.equals(df)
+
+    res_df = stage.transform(df)
     assert res_df.equals(df)
 
 

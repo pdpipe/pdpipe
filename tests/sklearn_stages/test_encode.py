@@ -1,8 +1,11 @@
 """Testing basic pipeline stages."""
 
+import pytest
 import pandas as pd
 
+import pdpipe as pdp
 from pdpipe.sklearn_stages import Encode
+from pdpipe.exceptions import UnfittedPipelineStageError
 
 
 def _some_df():
@@ -22,7 +25,6 @@ def _some_df2():
 
 
 def test_encode():
-    """Basic binning test."""
     df = _some_df()
     encode_stage = Encode()
     res_df = encode_stage(df)
@@ -45,6 +47,17 @@ def test_encode():
     assert res_df2['name'][2] == 1
     assert res_df2['name'][3] == 2
 
+    # see only transform (no fit) when already fitted
+    df2 = _some_df2()
+    res_df2 = encode_stage.transform(df2)
+    assert 'lbl' in res_df2.columns
+    assert res_df2['lbl'][1] == 1
+    assert res_df2['lbl'][2] == 0
+    assert res_df2['lbl'][3] == 1
+    assert res_df2['name'][1] == 0
+    assert res_df2['name'][2] == 1
+    assert res_df2['name'][3] == 2
+
     # check fit_transform when already fitted
     df2 = _some_df2()
     res_df2 = encode_stage.fit_transform(df2)
@@ -57,8 +70,43 @@ def test_encode():
     assert res_df2['name'][3] == 2
 
 
+def test_encode_fit():
+    df = _some_df()
+    encode_stage = Encode()
+
+    with pytest.raises(UnfittedPipelineStageError):
+        encode_stage.transform(df)
+
+    res_df = encode_stage.fit(df)
+    assert 'lbl' in res_df.columns
+    assert res_df['lbl'][1] == 'acd'
+    assert res_df['lbl'][2] == 'alk'
+    assert res_df['lbl'][3] == 'alk'
+
+    # see only transform (no fit) when already fitted
+    df2 = _some_df2()
+    res_df2 = encode_stage.transform(df2)
+    assert 'lbl' in res_df2.columns
+    assert res_df2['lbl'][1] == 1
+    assert res_df2['lbl'][2] == 0
+    assert res_df2['lbl'][3] == 1
+    assert res_df2['name'][1] == 0
+    assert res_df2['name'][2] == 1
+    assert res_df2['name'][3] == 2
+
+    # check that apply only transforms (no fit) when already fitted
+    df2 = _some_df2()
+    res_df2 = encode_stage.transform(df2)
+    assert 'lbl' in res_df2.columns
+    assert res_df2['lbl'][1] == 1
+    assert res_df2['lbl'][2] == 0
+    assert res_df2['lbl'][3] == 1
+    assert res_df2['name'][1] == 0
+    assert res_df2['name'][2] == 1
+    assert res_df2['name'][3] == 2
+
+
 def test_encode_with_args():
-    """Basic binning test."""
     df = _some_df()
     encode_stage = Encode("lbl", drop=False)
     res_df = encode_stage(df, verbose=True)
@@ -85,7 +133,6 @@ def test_encode_with_args():
 
 
 def test_encode_with_exclude():
-    """Basic binning test."""
     df = _some_df()
     encode_stage = Encode("lbl", exclude_columns="name")
     res_df = encode_stage(df)
@@ -93,3 +140,67 @@ def test_encode_with_exclude():
     assert res_df['lbl'][1] == 0
     assert res_df['lbl'][2] == 1
     assert res_df['lbl'][3] == 1
+
+
+def test_encode_in_pipeline():
+    drop_name = pdp.ColDrop('name')
+    encode_stage = Encode()
+    pline = drop_name + encode_stage
+
+    df = _some_df()
+    res_df = pline(df)
+    assert 'lbl' in res_df.columns
+    assert 'name' not in res_df.columns
+    assert res_df['lbl'][1] == 0
+    assert res_df['lbl'][2] == 1
+    assert res_df['lbl'][3] == 1
+
+    # check fitted pipeline
+    df2 = _some_df2()
+    res_df2 = pline(df2)
+    assert 'lbl' in res_df2.columns
+    assert res_df2['lbl'][1] == 1
+    assert res_df2['lbl'][2] == 0
+    assert res_df2['lbl'][3] == 1
+
+
+def test_encode_in_pipelin_fit_n_transform():
+    drop_name = pdp.ColDrop('name')
+    encode_stage = Encode()
+    pline = drop_name + encode_stage
+
+    df = _some_df()
+
+    with pytest.raises(UnfittedPipelineStageError):
+        res_df = pline.transform(df)
+
+    res_df = pline.fit(df)
+    assert 'lbl' in res_df.columns
+    assert 'name' in res_df.columns
+    assert res_df['lbl'][1] == 'acd'
+    assert res_df['lbl'][2] == 'alk'
+    assert res_df['lbl'][3] == 'alk'
+
+    res_df = pline.transform(df)
+    assert 'lbl' in res_df.columns
+    assert 'name' not in res_df.columns
+    assert res_df['lbl'][1] == 0
+    assert res_df['lbl'][2] == 1
+    assert res_df['lbl'][3] == 1
+
+    # check fitted pipeline
+    df2 = _some_df2()
+    res_df2 = pline.transform(df2)
+    assert 'lbl' in res_df2.columns
+    assert res_df2['lbl'][1] == 1
+    assert res_df2['lbl'][2] == 0
+    assert res_df2['lbl'][3] == 1
+
+    # check fit_transform when already fitted
+    df2 = _some_df2()
+    res_df2 = pline.fit_transform(df2, verbose=True)
+    assert 'lbl' in res_df.columns
+    assert 'name' not in res_df.columns
+    assert res_df2['lbl'][1] == 1
+    assert res_df2['lbl'][2] == 0
+    assert res_df2['lbl'][3] == 1

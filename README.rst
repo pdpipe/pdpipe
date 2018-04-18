@@ -86,8 +86,8 @@ All pipeline stages have a predefined precondition function that returns True fo
   drop_name = pdp.ColDrop("Name", exraise=False)
 
 
-Applying Pipelines Stages
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Applying Pipeline Stages
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can apply a pipeline stage to a DataFrame using its ``apply`` method:
 
@@ -207,6 +207,8 @@ Pipelines are Python Sequence objects, and as such can be sliced using Python's 
 .. code-block:: python
 
   >>> pipeline = pdp.ColDrop("Name").Binarize("Label").ValDrop([-1], "Children").ApplyByCols("height", math.ceil)
+  >>> pipeline[0]
+  Drop column Name
   >>> pipeline[1:2]
   A pdpipe pipeline:
   [ 0] Binarize Label

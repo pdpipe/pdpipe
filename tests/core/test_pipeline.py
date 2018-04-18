@@ -7,6 +7,7 @@ from pdpipe.core import (
     PdPipelineStage,
     PdPipeline
 )
+from pdpipe import make_pdpipeline
 
 
 def _test_df():
@@ -44,6 +45,19 @@ def test_two_stage_pipeline_stage():
     assert 'char' in res_df.columns
     str(pipeline)
 
+    # test fit
+    df = _test_df()
+    res_df = pipeline.fit(df, verbose=True)
+    for x in ['num1', 'num2', 'char']:
+        assert x in res_df.columns
+
+    # test transform
+    df = _test_df()
+    res_df = pipeline.transform(df, verbose=True)
+    assert 'num1' not in res_df.columns
+    assert 'num2' not in res_df.columns
+    assert 'char' in res_df.columns
+
     # test fit_transform
     df = _test_df()
     res_df = pipeline.fit_transform(df, verbose=True)
@@ -55,6 +69,19 @@ def test_two_stage_pipeline_stage():
     res_df = transformer(df, verbose=True)
     assert 'num1' not in res_df.columns
     assert 'num2' in res_df.columns
+    assert 'char' in res_df.columns
+
+
+def test_make_pdpipeline():
+    """Testing something."""
+    drop_num1 = SilentDropStage('num1')
+    drop_num2 = SilentDropStage('num2')
+    pipeline = make_pdpipeline(drop_num1, drop_num2)
+    assert len(pipeline) == 2
+    df = _test_df()
+    res_df = pipeline.apply(df, verbose=True)
+    assert 'num1' not in res_df.columns
+    assert 'num2' not in res_df.columns
     assert 'char' in res_df.columns
 
 

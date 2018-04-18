@@ -63,8 +63,10 @@ def test_basic_pipeline_stage():
     res_df = test_stage.fit_transform(df, verbose=True)
     assert res_df.equals(df)
 
-    assert str(test_stage) == PdPipelineStage._DEF_DESCRIPTION
-    assert repr(test_stage) == PdPipelineStage._DEF_DESCRIPTION
+    expected_repr = "PdPipelineStage: {}".format(
+        PdPipelineStage._DEF_DESCRIPTION)
+    assert str(test_stage) == expected_repr
+    assert repr(test_stage) == expected_repr
 
 
 class FailStage(PdPipelineStage):
