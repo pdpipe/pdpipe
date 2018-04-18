@@ -68,7 +68,7 @@ class Bin(PdPipelineStage):
         columns = list(self._bin_map.keys())
         col1 = columns[0]
         string += "Bin {} by {},\n".format(col1, self._bin_map[col1])
-        for col in columns:
+        for col in columns[1:]:
             string += "bin {} by {},\n".format(col, self._bin_map[col])
         string = string[0:-2] + '.'
         return string

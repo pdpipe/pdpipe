@@ -40,11 +40,11 @@ Similarly, some pipeline stages require ``nltk``; they will simply not be loaded
 Features
 ========
 
-* Compatible with `scikit-learn pipelines <http://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html>`_ (see examples).
 * A simple interface.
 * Informative prints and errors on pipeline application.
 * Chaining pipeline stages constructor calls for easy, one-liners pipelines.
 * Pipeline arithmetics.
+* Fully tested.
 * Compatible with Python 3.5+.
 * Pure Python.
 
