@@ -42,3 +42,20 @@ def test_bin_drop():
     assert res_df['speed'][2] == '<5'
     assert res_df['speed'][3] == '5≤'
     assert res_df['speed'][4] == '5≤'
+
+
+def test_bin_two_col():
+    """Basic binning test."""
+    df = pd.DataFrame([[-3, 9], [4, 2], [5, 1], [9, 5]], columns=['s', 'p'])
+    bin_stage = Bin({'s': [5], 'p': [5]}, drop=False)
+    res_df = bin_stage.apply(df, verbose=True)
+    assert 's_bin' in res_df.columns
+    assert res_df['s_bin'][0] == '<5'
+    assert res_df['s_bin'][1] == '<5'
+    assert res_df['s_bin'][2] == '5≤'
+    assert res_df['s_bin'][3] == '5≤'
+    assert 'p_bin' in res_df.columns
+    assert res_df['p_bin'][0] == '5≤'
+    assert res_df['p_bin'][1] == '<5'
+    assert res_df['p_bin'][2] == '<5'
+    assert res_df['p_bin'][3] == '5≤'
