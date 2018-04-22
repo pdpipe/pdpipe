@@ -1,4 +1,4 @@
-"""Pipeline stages dependent on the scikit-learn Python library."""
+"""PdPipeline stages dependent on the scikit-learn Python library."""
 
 import os
 import importlib
@@ -6,7 +6,7 @@ import importlib
 import nltk
 import pandas as pd
 
-from pdpipe.core import PipelineStage
+from pdpipe.core import PdPipelineStage
 from pdpipe.util import out_of_place_col_insert
 from pdpipe.col_generation import MapColVals
 from pdpipe.shared import (
@@ -281,7 +281,7 @@ class SnowballStem(MapColVals):
             col_type == object for col_type in df.dtypes[self._columns])
 
 
-class DropRareTokens(PipelineStage):
+class DropRareTokens(PdPipelineStage):
     """A pipeline stage that drop rare tokens from token lists.
 
     Parameters
@@ -343,7 +343,7 @@ class DropRareTokens(PipelineStage):
         rare_words = freq_series[freq_series <= threshold]
         return DropRareTokens._RareRemover(rare_words)
 
-    def _op(self, df, verbose):
+    def _fit_transform(self, df, verbose):
         inter_df = df
         for colname in self._columns:
             source_col = df[colname]

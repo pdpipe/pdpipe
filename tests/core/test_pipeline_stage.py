@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 
 from pdpipe.core import (
-    PipelineStage,
+    PdPipelineStage,
     FailedPreconditionError
 )
 
@@ -17,7 +17,7 @@ def _test_df():
     )
 
 
-class SomeStage(PipelineStage):
+class SomeStage(PdPipelineStage):
     """A pipeline stage for testing"""
 
     def __init__(self, **kwargs):
@@ -26,7 +26,7 @@ class SomeStage(PipelineStage):
     def _prec(self, df):
         return True
 
-    def _op(self, df, verbose):
+    def _transform(self, df, verbose):
         return df
 
 
@@ -63,11 +63,13 @@ def test_basic_pipeline_stage():
     res_df = test_stage.fit_transform(df, verbose=True)
     assert res_df.equals(df)
 
-    assert str(test_stage) == PipelineStage._DEF_DESCRIPTION
-    assert repr(test_stage) == PipelineStage._DEF_DESCRIPTION
+    expected_repr = "PdPipelineStage: {}".format(
+        PdPipelineStage._DEF_DESCRIPTION)
+    assert str(test_stage) == expected_repr
+    assert repr(test_stage) == expected_repr
 
 
-class FailStage(PipelineStage):
+class FailStage(PdPipelineStage):
     """A pipeline stage for testing"""
 
     def __init__(self, **kwargs):
@@ -76,7 +78,7 @@ class FailStage(PipelineStage):
     def _prec(self, df):
         return False
 
-    def _op(self, df, verbose):
+    def _transform(self, df, verbose):
         return df
 
 
@@ -92,7 +94,7 @@ def test_fail_pipeline_stage():
     assert res_df.equals(df)
 
 
-class SilentDropStage(PipelineStage):
+class SilentDropStage(PdPipelineStage):
     """A pipeline stage for testing"""
 
     def __init__(self, colname):
@@ -102,7 +104,7 @@ class SilentDropStage(PipelineStage):
     def _prec(self, df):
         return self.colname in df.columns
 
-    def _op(self, df, verbose):
+    def _transform(self, df, verbose):
         return df.drop([self.colname], axis=1)
 
 

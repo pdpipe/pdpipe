@@ -1,11 +1,11 @@
-"""Basic pdpipe PipelineStages."""
+"""Basic pdpipe PdPipelineStages."""
 
 import numpy as np
 import pandas as pd
 import sortedcontainers as sc
 import tqdm
 
-from pdpipe.core import PipelineStage
+from pdpipe.core import PdPipelineStage
 from pdpipe.util import (
     out_of_place_col_insert,
     get_numeric_column_names,
@@ -21,7 +21,7 @@ from .exceptions import (
 )
 
 
-class Bin(PipelineStage):
+class Bin(PdPipelineStage):
     """A pipeline stage that adds a binned version of a column or columns.
 
     If drop is set to True the new columns retain the names of the source
@@ -68,7 +68,7 @@ class Bin(PipelineStage):
         columns = list(self._bin_map.keys())
         col1 = columns[0]
         string += "Bin {} by {},\n".format(col1, self._bin_map[col1])
-        for col in columns:
+        for col in columns[1:]:
             string += "bin {} by {},\n".format(col, self._bin_map[col])
         string = string[0:-2] + '.'
         return string
@@ -109,7 +109,7 @@ class Bin(PipelineStage):
                 return '{}≤'.format(sorted_bins[sorted_bins.bisect(val)-1])
         return _col_binner
 
-    def _op(self, df, verbose):
+    def _transform(self, df, verbose):
         inter_df = df
         colnames = list(self._bin_map.keys())
         if verbose:
@@ -133,7 +133,7 @@ class Bin(PipelineStage):
         return inter_df
 
 
-class Binarize(PipelineStage):
+class Binarize(PdPipelineStage):
     """A pipeline stage that binarizes categorical columns.
 
     By default only k-1 dummies are created fo k categorical levels, as to
@@ -225,7 +225,7 @@ class Binarize(PipelineStage):
             return True
         return set(self._columns or []).issubset(df.columns)
 
-    def _op(self, df, verbose):
+    def _fit_transform(self, df, verbose):
         columns_to_binar = self._columns
         if self._columns is None:
             columns_to_binar = list(set(df.select_dtypes(
@@ -275,7 +275,7 @@ class Binarize(PipelineStage):
         return inter_df
 
 
-class MapColVals(PipelineStage):
+class MapColVals(PdPipelineStage):
     """A pipeline stage that replaces the values of a column by a map.
 
     Parameters
@@ -348,7 +348,7 @@ class MapColVals(PipelineStage):
     def _prec(self, df):
         return set(self._columns).issubset(df.columns)
 
-    def _op(self, df, verbose):
+    def _transform(self, df, verbose):
         inter_df = df
         for i, colname in enumerate(self._columns):
             source_col = df[colname]
@@ -369,7 +369,7 @@ def _always_true(x):
     return True
 
 
-class ApplyToRows(PipelineStage):
+class ApplyToRows(PdPipelineStage):
     """A pipeline stage generating columns by applying a function to each row.
 
     Parameters
@@ -445,7 +445,7 @@ class ApplyToRows(PipelineStage):
     def _prec(self, df):
         return self._prec_func(df)
 
-    def _op(self, df, verbose):
+    def _transform(self, df, verbose):
         new_cols = df.apply(self._func, axis=1)
         if isinstance(new_cols, pd.Series):
             loc = len(df.columns)
@@ -477,7 +477,7 @@ class ApplyToRows(PipelineStage):
             " Only Series and DataFrame are allowed.")
 
 
-class ApplyByCols(PipelineStage):
+class ApplyByCols(PdPipelineStage):
     """A pipeline stage applying an element-wise function to columns.
 
     Parameters
@@ -549,7 +549,7 @@ class ApplyByCols(PipelineStage):
     def _prec(self, df):
         return set(self._columns).issubset(df.columns)
 
-    def _op(self, df, verbose):
+    def _transform(self, df, verbose):
         inter_df = df
         for i, colname in enumerate(self._columns):
             source_col = df[colname]
@@ -566,7 +566,7 @@ class ApplyByCols(PipelineStage):
         return inter_df
 
 
-class ColByFrameFunc(PipelineStage):
+class ColByFrameFunc(PdPipelineStage):
     """A pipeline stage adding a column by applying a dataframw-wide function.
 
     Parameters
@@ -625,7 +625,7 @@ class ColByFrameFunc(PipelineStage):
     def _prec(self, df):
         return True
 
-    def _op(self, df, verbose):
+    def _transform(self, df, verbose):
         inter_df = df
         try:
             new_col = self._func(df)
@@ -645,7 +645,7 @@ class ColByFrameFunc(PipelineStage):
         return inter_df
 
 
-class AggByCols(PipelineStage):
+class AggByCols(PdPipelineStage):
     """A pipeline stage applying a series-wise function to columns.
 
     Parameters
@@ -723,7 +723,7 @@ class AggByCols(PipelineStage):
     def _prec(self, df):
         return set(self._columns).issubset(df.columns)
 
-    def _op(self, df, verbose):
+    def _transform(self, df, verbose):
         inter_df = df
         for i, colname in enumerate(self._columns):
             source_col = df[colname]
@@ -740,7 +740,7 @@ class AggByCols(PipelineStage):
         return inter_df
 
 
-class Log(PipelineStage):
+class Log(PdPipelineStage):
     """A pipeline stage that log-transforms numeric data.
 
     Parameters
@@ -810,7 +810,7 @@ class Log(PipelineStage):
     def _prec(self, df):
         return set(self._columns or []).issubset(df.columns)
 
-    def _op(self, df, verbose):
+    def _fit_transform(self, df, verbose):
         columns_to_transform = self._columns
         if self._columns is None:
             columns_to_transform = get_numeric_column_names(df)

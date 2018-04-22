@@ -13,3 +13,10 @@ class PipelineApplicationError(Exception):
     of a pipeline or a pipeline stage to a dataframe.
     """
     pass
+
+
+class UnfittedPipelineStageError(Exception):
+    """An exception raised when a (non-fit) transform is attempted with an
+    unfitted pipeline stage.
+    """
+    pass

@@ -18,7 +18,7 @@ def _test_df():
 def test_adhoc_stage():
     """Testing ad hoc stages."""
     test_stage = AdHocStage(
-        op=lambda df: df.drop(['num'], axis=1),
+        transform=lambda df: df.drop(['num'], axis=1),
         prec=lambda df: 'num' in df.columns
     )
     df = _test_df()
@@ -30,7 +30,7 @@ def test_adhoc_stage():
 def test_adhoc_stage_no_prec():
     """Testing ad hoc stages."""
     test_stage = AdHocStage(
-        op=lambda df: df.drop(['num'], axis=1),
+        transform=lambda df: df.drop(['num'], axis=1),
         prec=None
     )
     df = _test_df()

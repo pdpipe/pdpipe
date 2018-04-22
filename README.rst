@@ -1,5 +1,5 @@
 pdpipe
-#########
+######
 |PyPI-Status| |PyPI-Versions| |Build-Status| |Codecov| |LICENCE|
 
 Easy pipelines for pandas DataFrames.
@@ -8,14 +8,14 @@ Easy pipelines for pandas DataFrames.
 
   >>> df = pd.DataFrame(
           data=[[4, 165, 'USA'], [2, 180, 'UK'], [2, 170, 'Greece']],
-          index=['Dana', 'Jack', 'Nick'],
+          index=['Dana', 'Jane', 'Nick'],
           columns=['Medals', 'Height', 'Born']
       )
   >>> pipeline = pdp.ColDrop('Medals').Binarize('Born')
   >>> pipeline(df)
               Height  Born_UK  Born_USA
       Dana     165        0         1
-      Jack     180        1         0
+      Jane     180        1         0
       Nick     170        0         0
 
 .. contents::
@@ -31,25 +31,28 @@ Install ``pdpipe`` with:
 
   pip install pdpipe
 
-Some pipeline stages require ``scikit-learn``; they will simply not be loaded if ``scikit-learn`` is not found on the system, and ``pdpipe`` will issue a warning. To use them you must also `install scikit-learn`_.
+Some pipeline stages require ``scikit-learn``; they will simply not be loaded if ``scikit-learn`` is not found on the system, and ``pdpipe`` will issue a warning. To use them you must also `install scikit-learn <http://scikit-learn.org/stable/install.html>`_.
 
-.. _`install scikit-learn`: http://scikit-learn.org/stable/install.html
+
+Similarly, some pipeline stages require ``nltk``; they will simply not be loaded if ``nltk`` is not found on your system, and ``pdpipe`` will issue a warning. To use them you must additionally `install nltk <http://www.nltk.org/install.html>`_.
 
 
 Features
 ========
 
-* Pure Python.
-* Compatible with Python 3.5+.
 * A simple interface.
 * Informative prints and errors on pipeline application.
 * Chaining pipeline stages constructor calls for easy, one-liners pipelines.
 * Pipeline arithmetics.
+* Fully tested.
+* Compatible with Python 3.5+.
+* Pure Python.
 
 
 Design Decisions
 ----------------
 
+* **Extra infromative naming:** Meant to make pipelines very readable, understanding their entire flow by pipeline stages names; e.g. ColDrop vs. ValDrop instead of an all-encompassing Drop stage emulating the ``pandas.DataFrame.drop`` method.
 * **Data science-oriented naming** (rather than statistics).
 * **A functional approach:** Pipelines never change input DataFrames. Nothing is done "in place".
 * **Opinionated operations:** Help novices avoid mistake by default appliance of good practices; e.g., binarizing (creating dummy variables) a column will drop one of the resulting columns by default, to avoid `the dummy variable trap`_ (perfect `multicollinearity`_).
@@ -59,8 +62,8 @@ Design Decisions
 .. _`multicollinearity`: https://en.wikipedia.org/wiki/Multicollinearity
 
 
-Use
-===
+Basic Use
+=========
 
 Pipeline Stages
 ---------------
@@ -76,16 +79,15 @@ You can create stages with the following syntax:
   drop_name = pdp.ColDrop("Name")
 
 
-All pipeline stages have a predefined precondition function that returns True for dataframes to which the stage can be applied. By default, pipeline stages raise an exception if a DataFrame not meeting
-their precondition is piped through. This behaviour can be set per-stage by assigning ``exraise`` with a bool in the constructor call. If ``exraise`` is set to ``False`` the input DataFrame is instead returned without change:
+All pipeline stages have a predefined precondition function that returns True for dataframes to which the stage can be applied. By default, pipeline stages raise an exception if a DataFrame not meeting their precondition is piped through. This behaviour can be set per-stage by assigning ``exraise`` with a bool in the constructor call. If ``exraise`` is set to ``False`` the input DataFrame is instead returned without change:
 
 .. code-block:: python
 
   drop_name = pdp.ColDrop("Name", exraise=False)
 
 
-Applying Pipelines Stages
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Applying Pipeline Stages
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can apply a pipeline stage to a DataFrame using its ``apply`` method:
 
@@ -113,29 +115,23 @@ Additionally, to have an explanation message print after the precondition is che
 
   res_df = drop_name(df, verbose=True)
 
+All pipeline stages also adhere to the ``scikit-learn`` transformer API, and so have ``fit_transform`` and ``transform`` methods; these behave exactly like ``apply``, and accept the input dataframe as parameter ``X``. For the same reason, pipeline stages also have a ``fit`` method, which applies them but returns the input dataframe unchanged.
+
 
 Fittable Pipeline Stages
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Some pipeline stages can be fitted, meaning that some transformation parameters are set the first time a dataframe is piped through the stage, while later applications of the stage use these now-set parameters without changing them; the ``Encode`` stage is a good example.
+Some pipeline stages can be fitted, meaning that some transformation parameters are set the first time a dataframe is piped through the stage, while later applications of the stage use these now-set parameters without changing them; the ``Encode`` scikit-learn-dependent stage is a good example.
 
-If you want to re-fit an already fitted pipeline stage use the ``fit_transform`` method to re-fit the stage to a new dataframe. Notice that for an unfitted stage ``apply`` and ``fit_transform`` are equivalent, and only later calls to apply will ``transform`` input dataframes without refitting the stage.
+For these type of stages the first call to ``apply`` will both fit the stage and transform the input dataframe, while subsequent calls to ``apply`` will transform input dataframes according to the already-fitted transformation parameters.
 
-Finally, ``apply`` and ``fit_transform`` are of course equivalent for non-fittable pipeline stages.
+Additionally, for fittable stages the ``scikit-learn`` transformer API methods behave as expected:
 
+* ``fit`` sets the transformation parameters of the stage but returns the input dataframe unchanged.
+* ``fit_transform`` both sets the transformation parameters of the stage and returns the input dataframe after transformation.
+* ``transform`` transforms input dataframes according to already-fitted transformation parameters; if the stage is not fitted, an ``UnfittedPipelineStageError`` is raised.
 
-Extending PipelineStage
-~~~~~~~~~~~~~~~~~~~~~~~
-
-To use other stages than the built-in ones (see `Types of Pipeline Stages`_) you can extend the ``PipelineStage`` class. The constructor must pass the ``PipelineStage`` constructor the ``exmsg``, ``appmsg`` and ``desc`` keyword arguments to set the exception message, application message and description for the pipeline stage, respectively. Additionally, the ``_prec`` and ``_op`` abstract methods must be implemented to define the precondition and the effect of the new pipeline stage, respectively.
-
-Fittable custom pipeline stages should implement, additionally to the ``_op`` method, the ``_transform`` method, which should apply the fitted pipeline to an input dataframe, while also setting ``self.is_fitted = True``. The ``_op`` method then acts as the ``fit_tranform`` for the stage.
-
-
-Ad-Hoc Pipeline Stages
-~~~~~~~~~~~~~~~~~~~~~~
-
-To create a custom pipeline stage without creating a proper new class, you can instantiate the ``AdHocStage`` class which takes a function in its ``op`` constructor parameter to define the stage's operation, and the optional ``prec`` parameter to define a precondition (an always-true function is the default).
+Again, ``apply``, ``fit_transform`` and ``transform`` are all of equivalent for non-fittable pipeline stages. And in all cases the ``y`` parameter of these methods is ignored.
 
 
 Pipelines
@@ -148,7 +144,31 @@ Pipelines can be created by supplying a list of pipeline stages:
 
 .. code-block:: python
 
-  pipeline = pdp.Pipeline([pdp.ColDrop("Name"), pdp.Binarize("Label")])
+  pipeline = pdp.PdPipeline([pdp.ColDrop("Name"), pdp.Binarize("Label")])
+
+Additionally, the ``make_pdpipeline`` method can be used to give stages as positional arguments.
+
+.. code-block:: python
+
+    pipeline = pdp.make_pdpipeline(pdp.ColDrop("Name"), pdp.Binarize("Label"))
+
+
+Printing Pipelines
+~~~~~~~~~~~~~~~~~~
+
+A pipeline structre can be clearly displayed by printing the object:
+
+.. code-block:: python
+
+  >>> drop_name = pdp.ColDrop("Name")
+  >>> binar_label = pdp.Binarize("Label")
+  >>> map_job = pdp.MapColVals("Job", {"Part": True, "Full":True, "No": False})
+  >>> pipeline = pdp.PdPipeline([drop_name, binar_label, map_job])
+  >>> print(pipeline)
+  A pdpipe pipeline:
+  [ 0]  Drop column Name
+  [ 1]  Binarize Label
+  [ 2]  Map values of column Job with {'Part': True, 'Full': True, 'No': False}.
 
 
 Pipeline Arithmetics
@@ -165,8 +185,8 @@ Or even by adding pipelines together or pipelines to pipeline stages:
 .. code-block:: python
 
   pipeline = pdp.ColDrop("Name") + pdp.Binarize("Label")
-  pipeline += pdp.ApplyToRows("Job", {"Part": True, "Full":True, "No": False})
-  pipeline += pdp.Pipeline([pdp.ColRename({"Job": "Employed"})])
+  pipeline += pdp.MapColVals("Job", {"Part": True, "Full":True, "No": False})
+  pipeline += pdp.PdPipeline([pdp.ColRename({"Job": "Employed"})])
 
 
 Pipeline Chaining
@@ -186,8 +206,12 @@ Pipelines are Python Sequence objects, and as such can be sliced using Python's 
 
 .. code-block:: python
 
-  pipeline = pdp.ColDrop("Name").Binarize("Label").ValDrop([-1], "Children").ApplyByCols("height", math.ceil)
-  result_df = pipeline[1:2](df)
+  >>> pipeline = pdp.ColDrop("Name").Binarize("Label").ValDrop([-1], "Children").ApplyByCols("height", math.ceil)
+  >>> pipeline[0]
+  Drop column Name
+  >>> pipeline[1:2]
+  A pdpipe pipeline:
+  [ 0] Binarize Label
 
 
 Applying Pipelines
@@ -216,7 +240,7 @@ Additionally, passing ``verbose=True`` to a pipeline apply call will apply all p
   res_df = pipeline.apply(df, verbose=True)
 
 
-Finally, to re-fit all fittable pipeline stages in the pipeline use the ``fit_transform`` method, which calls the corresponding method for all composing pipeline stages.
+Finally, ``fit``, ``transform`` and ``fit_transform`` all call the corresponding pipeline stage methods of all stages composing the pipeline
 
 
 Types of Pipeline Stages
@@ -241,8 +265,10 @@ Column Generation
 
 * Bin - Convert a continuous valued column to categoric data using binning.
 * Binarize - Convert a categorical column to the several binary columns corresponding to it.
+* MapColVals - Replace column values by a map.
 * ApplyToRows - Generate columns by applying a function to each row.
 * ApplyByCols - Generate columns by applying an element-wise function to columns.
+* ColByFrameFunc - Add a column by applying a dataframe-wide function.
 * AggByCols - Generate columns by applying an series-wise function to columns.
 * Log - Log-transform numeric data, possibly shifting data before.
 
@@ -254,13 +280,30 @@ Scikit-learn-dependent Stages
   
 
 nltk-dependent Stages
------------------------------
+---------------------
 
 * TokenizeWords - Tokenize a sentence into a list of tokens by whitespaces.
-* UntokenizeWords - Joins token lists to whitespace-seperated strings.
+* UntokenizeWords - Joins token lists into whitespace-seperated strings.
 * RemoveStopwords - Remove stopwords from a tokenized list.
 * SnowballStem - Stems tokens in a list using the Snowball stemmer.
 * DropRareTokens - Drop rare tokens from token lists.
+
+
+Creating additional stages
+==========================
+
+Extending PdPipelineStage
+-------------------------
+
+To use other stages than the built-in ones (see `Types of Pipeline Stages`_) you can extend the ``PdPipelineStage`` class. The constructor must pass the ``PdPipelineStage`` constructor the ``exmsg``, ``appmsg`` and ``desc`` keyword arguments to set the exception message, application message and description for the pipeline stage, respectively. Additionally, the ``_prec`` and ``_transform`` abstract methods must be implemented to define the precondition and the effect of the new pipeline stage, respectively.
+
+Fittable custom pipeline stages should implement, additionally to the ``_transform`` method, the ``_fit_transform`` method, which should both fit pipeline stage by the input dataframe and transform transform the dataframe, while also setting ``self.is_fitted = True``. 
+
+
+Ad-Hoc Pipeline Stages
+----------------------
+
+To create a custom pipeline stage without creating a proper new class, you can instantiate the ``AdHocStage`` class which takes a function in its ``transform`` constructor parameter to define the stage's operation, and the optional ``prec`` parameter to define a precondition (an always-true function is the default).
 
 
 Contributing
@@ -303,6 +346,8 @@ This project is documented using the `numpy docstring conventions`_, which were 
 
 .. _`numpy docstring conventions`: https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
 .. _`these conventions`: https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
+
+Additionally, if you update this ``README.rst`` file,  use ``python setup.py checkdocs`` to validate it compiles.
 
 
 Credits
