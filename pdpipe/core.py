@@ -153,21 +153,23 @@ class PdPipelineStage(abc.ABC):
                 msg = '- ' + '\n  '.join(textwrap.wrap(self._appmsg))
                 print(msg, flush=True)
             if self.is_fitted:
-                return self._transform(df, verbose)
-            return self._fit_transform(df, verbose)
+                return self._transform(df, verbose=verbose)
+            return self._fit_transform(df, verbose=verbose)
         if exraise:
             raise FailedPreconditionError(self._exmsg)
         return df
 
     __call__ = apply
 
-    def fit_transform(self, df, exraise=None, verbose=False):
+    def fit_transform(self, X, y=None, exraise=None, verbose=False):
         """Fits this stage and transforms the given dataframe.
 
         Parameters
         ----------
-        df : pandas.DataFrame
-            The dataframe to be transformed.
+        X : pandas.DataFrame
+            The dataframe to transform and fit this pipeline stage by.
+        y : array-like, optional
+            Targets for supervised learning.
         exraise : bool, default None
             Determines behaviour if the precondition of this stage is not
             fulfilled by the given dataframe: If True,
@@ -186,22 +188,24 @@ class PdPipelineStage(abc.ABC):
         """
         if exraise is None:
             exraise = self._exraise
-        if self._prec(df):
+        if self._prec(X):
             if verbose:
                 msg = '- ' + '\n  '.join(textwrap.wrap(self._appmsg))
                 print(msg, flush=True)
-            return self._fit_transform(df, verbose)
+            return self._fit_transform(X, verbose=verbose)
         if exraise:
             raise FailedPreconditionError(self._exmsg)
-        return df
+        return X
 
-    def fit(self, df, exraise=None, verbose=False):
+    def fit(self, X, y=None, exraise=None, verbose=False):
         """Fits this stage without transforming the given dataframe.
 
         Parameters
         ----------
-        df : pandas.DataFrame
-            The dataframe to fit this stage with.
+        X : pandas.DataFrame
+            The dataframe to be transformed.
+        y : array-like, optional
+            Targets for supervised learning.
         exraise : bool, default None
             Determines behaviour if the precondition of this stage is not
             fulfilled by the given dataframe: If True,
@@ -220,17 +224,17 @@ class PdPipelineStage(abc.ABC):
         """
         if exraise is None:
             exraise = self._exraise
-        if self._prec(df):
+        if self._prec(X):
             if verbose:
                 msg = '- ' + '\n  '.join(textwrap.wrap(self._appmsg))
                 print(msg, flush=True)
-            self._fit_transform(df, verbose)
-            return df
+            self._fit_transform(X, verbose=verbose)
+            return X
         if exraise:
             raise FailedPreconditionError(self._exmsg)
-        return df
+        return X
 
-    def transform(self, df, exraise=None, verbose=False):
+    def transform(self, X, y=None, exraise=None, verbose=False):
         """Transforms the given dataframe without fitting this stage.
 
         If this stage is fittable but is not fitter, an
@@ -238,8 +242,10 @@ class PdPipelineStage(abc.ABC):
 
         Parameters
         ----------
-        df : pandas.DataFrame
+        X : pandas.DataFrame
             The dataframe to be transformed.
+        y : array-like, optional
+            Targets for supervised learning.
         exraise : bool, default None
             Determines behaviour if the precondition of this stage is not
             fulfilled by the given dataframe: If True,
@@ -258,19 +264,19 @@ class PdPipelineStage(abc.ABC):
         """
         if exraise is None:
             exraise = self._exraise
-        if self._prec(df):
+        if self._prec(X):
             if verbose:
                 msg = '- ' + '\n  '.join(textwrap.wrap(self._appmsg))
                 print(msg, flush=True)
             if self._is_fittable():
                 if self.is_fitted:
-                    return self._transform(df, verbose)
+                    return self._transform(X, verbose=verbose)
                 raise UnfittedPipelineStageError(
                     "transform of an unfitted pipeline stage was called!")
-            return self._transform(df, verbose)
+            return self._transform(X, verbose=verbose)
         if exraise:
             raise FailedPreconditionError(self._exmsg)
-        return df
+        return X
 
     def __add__(self, other):
         if isinstance(other, PdPipeline):
@@ -380,13 +386,15 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             inter_df = stage.apply(inter_df, exraise, verbose)
         return inter_df
 
-    def fit_transform(self, df, exraise=None, verbose=None):
+    def fit_transform(self, X, y=None, exraise=None, verbose=None):
         """Fits this pipeline and transforms the input dataframe.
 
         Parameters
         ----------
-        df : pandas.DataFrame
+        X : pandas.DataFrame
             The dataframe to transform and fit this pipeline by.
+        y : array-like, optional
+            Targets for supervised learning.
         exraise : bool, default None
             Determines behaviour if the precondition of composing stages is not
             fulfilled by the input dataframe: If True, a
@@ -404,22 +412,25 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         pandas.DataFrame
             The resulting dataframe.
         """
-        inter_df = df
+        inter_x = X
         for stage in self._stages:
-            inter_df = stage.fit_transform(
-                df=inter_df,
+            inter_x = stage.fit_transform(
+                X=inter_x,
+                y=None,
                 exraise=exraise,
                 verbose=verbose,
             )
-        return inter_df
+        return inter_x
 
-    def fit(self, df, exraise=None, verbose=None):
+    def fit(self, X, y=None, exraise=None, verbose=None):
         """Fits this pipeline without transforming the input dataframe.
 
         Parameters
         ----------
-        df : pandas.DataFrame
+        X : pandas.DataFrame
             The dataframe to fit this pipeline by.
+        y : array-like, optional
+            Targets for supervised learning.
         exraise : bool, default None
             Determines behaviour if the precondition of composing stages is not
             fulfilled by the input dataframe: If True, a
@@ -438,13 +449,14 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             The input dataframe, unchanged.
         """
         self.fit_transform(
-            df=df,
+            X=X,
+            y=None,
             exraise=exraise,
             verbose=verbose,
         )
-        return df
+        return X
 
-    def transform(self, df, exraise=None, verbose=None):
+    def transform(self, X, y=None, exraise=None, verbose=None):
         """Transforms the given dataframe without fitting this pipeline.
 
         If any stage in this pipeline is fittable but is not fitted, an
@@ -452,8 +464,10 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
 
         Parameters
         ----------
-        df : pandas.DataFrame
-            The dataframe to be transformed.
+        X : pandas.DataFrame
+            The dataframe to transform.
+        y : array-like, optional
+            Targets for supervised learning.
         exraise : bool, default None
             Determines behaviour if the precondition of composing stages is not
             fulfilled by the input dataframe: If True, a
@@ -476,10 +490,11 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                 raise UnfittedPipelineStageError((
                     "PipelineStage {} in pipeline is fittable but"
                     " unfitted!").format(stage))
-        inter_df = df
+        inter_df = X
         for stage in self._stages:
             inter_df = stage.transform(
-                df=inter_df,
+                X=inter_df,
+                y=None,
                 exraise=exraise,
                 verbose=verbose,
             )
