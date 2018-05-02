@@ -2,6 +2,7 @@
 
 import os
 import importlib
+import collections
 
 import nltk
 import pandas as pd
@@ -131,9 +132,11 @@ class RemoveStopwords(MapColVals):
 
     Parameters
     ----------
-    langugae : str
-        The language of the stopwords. Should be one of the languages
-        supported by the NLTK Stopwords Corpus.
+    langugae : str or array-like
+        If a string is given, interpreted as the language of the stopwords, and
+        should then be one of the languages supported by the NLTK Stopwords
+        Corpus. If a list is given, it is assumed to be the list of stopwords
+        to remove.
     columns : str or list-like
         Column names in the DataFrame from which to remove stopwords.
     drop : bool, default True
@@ -181,8 +184,13 @@ class RemoveStopwords(MapColVals):
 
     def __init__(self, language, columns, drop=True, **kwargs):
         self._language = language
-        self._stopwords_list = RemoveStopwords.__stopwords_by_language(
-            language)
+        if isinstance(language, str):
+            self._stopwords_list = RemoveStopwords.__stopwords_by_language(
+                language)
+        elif isinstance(language, collections.Iterable):
+            self._stopwords_list = list(language)
+        else:
+            raise TypeError("language parameter should be string or list!")
         self._stopwords_remover = RemoveStopwords._StopwordsRemover(
             self._stopwords_list)
         self._columns = _interpret_columns_param(columns)

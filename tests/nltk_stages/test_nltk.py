@@ -48,12 +48,22 @@ def test_remove_stopwords():
     assert 'txt_nostop' not in res_df.columns
     assert res_df['txt'][1] == ['kick', 'baby']
 
-    untok = pdp.RemoveStopwords('english', 'txt', drop=False)
-    res_df = untok(df)
+    stop = pdp.RemoveStopwords('english', 'txt', drop=False)
+    res_df = stop(df)
     assert 'txt' in res_df.columns
     assert 'txt_nostop' in res_df.columns
     assert res_df['txt'][1] == ['kick', 'the', 'baby']
     assert res_df['txt_nostop'][1] == ['kick', 'baby']
+
+    stop = pdp.RemoveStopwords(['baby', 'fart'], 'txt', drop=False)
+    res_df = stop(df)
+    assert 'txt' in res_df.columns
+    assert 'txt_nostop' in res_df.columns
+    assert res_df['txt'][1] == ['kick', 'the', 'baby']
+    assert res_df['txt_nostop'][1] == ['kick', 'the']
+
+    with pytest.raises(TypeError):
+        pdp.RemoveStopwords(34, 'txt')
 
 
 @pytest.mark.first
