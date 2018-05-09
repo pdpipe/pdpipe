@@ -325,7 +325,10 @@ class AdHocStage(PdPipelineStage):
         return self._adhoc_prec(df)
 
     def _transform(self, df, verbose):
-        return self._adhoc_transform(df)
+        try:
+            return self._adhoc_transform(df, verbose=verbose)
+        except TypeError:
+            return self._adhoc_transform(df)
 
 
 class PdPipeline(PdPipelineStage, collections.abc.Sequence):
