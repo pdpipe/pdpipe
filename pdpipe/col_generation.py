@@ -457,6 +457,8 @@ class ApplyToRows(PdPipelineStage):
                 loc=loc,
                 column_name=self._colname)
         elif isinstance(new_cols, pd.DataFrame):
+            sorted_cols = sorted(list(new_cols.columns))
+            new_cols = new_cols[sorted_cols]
             if self._follow_column:
                 inter_df = df
                 loc = df.columns.get_loc(self._follow_column) + 1
