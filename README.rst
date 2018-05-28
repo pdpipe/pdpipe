@@ -352,7 +352,7 @@ Additionally, if you update this ``README.rst`` file,  use ``python setup.py che
 
 Credits
 =======
-Created by Shay Palachy  (shay.palachy@gmail.com).
+Created by Shay Palachy (shay.palachy@gmail.com).
 
 
 .. |PyPI-Status| image:: https://img.shields.io/pypi/v/pdpipe.svg
