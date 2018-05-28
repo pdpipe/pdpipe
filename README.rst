@@ -354,6 +354,8 @@ Credits
 =======
 Created by Shay Palachy  (shay.palachy@gmail.com).
 
+.. alternative:
+.. https://badge.fury.io/py/yellowbrick.svg
 
 .. |PyPI-Status| image:: https://img.shields.io/pypi/v/pdpipe.svg
   :target: https://pypi.org/project/pdpipe
