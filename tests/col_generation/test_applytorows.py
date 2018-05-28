@@ -87,6 +87,7 @@ def test_applytorows_with_df_generation_follow():
     df = _num_df()
     cbf_stage = ApplyToRows(_sum_and_diff, follow_column='num1')
     res_df = cbf_stage(df)
+    print(res_df.columns)
     assert res_df.columns.get_loc('sum') == 2
     assert res_df.columns.get_loc('diff') == 1
     assert 'sum' in res_df.columns
