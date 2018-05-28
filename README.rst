@@ -356,10 +356,10 @@ Created by Shay Palachy (shay.palachy@gmail.com).
 
 
 .. |PyPI-Status| image:: https://img.shields.io/pypi/v/pdpipe.svg
-  :target: https://pypi.python.org/pypi/pdpipe
+  :target: https://pypi.org/project/pdpipe
 
 .. |PyPI-Versions| image:: https://img.shields.io/pypi/pyversions/pdpipe.svg
-   :target: https://pypi.python.org/pypi/pdpipe
+   :target: https://pypi.org/project/pdpipe
 
 .. |Build-Status| image:: https://travis-ci.org/shaypal5/pdpipe.svg?branch=master
   :target: https://travis-ci.org/shaypal5/pdpipe
