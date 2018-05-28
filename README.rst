@@ -364,7 +364,10 @@ Created by Shay Palachy (shay.palachy@gmail.com).
 .. |Build-Status| image:: https://travis-ci.org/shaypal5/pdpipe.svg?branch=master
   :target: https://travis-ci.org/shaypal5/pdpipe
 
-.. |LICENCE| image:: https://github.com/shaypal5/pdpipe/blob/master/mit_license_badge.svg
+.. |LICENCE| image:: https://img.shields.io/badge/License-MIT-yellow.svg
+  :target: https://pypi.python.org/pypi/pdpipe
+  
+.. .. |LICENCE| image:: https://github.com/shaypal5/pdpipe/blob/master/mit_license_badge.svg
   :target: https://pypi.python.org/pypi/pdpipe
   
 .. https://img.shields.io/pypi/l/pdpipe.svg
