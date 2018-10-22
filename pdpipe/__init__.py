@@ -50,8 +50,8 @@ try:
 except ImportError:
     tb = traceback.format_exc()
     warnings.warn(tb)
-    warnings.warn("pdpipe: Scikit-learn import failed. Scikit-learn-dependent"
-                  " pipeline stages will not be loaded.")
+    warnings.warn("pdpipe: Scikit-learn or skutil import failed. Scikit-learn"
+                  "-dependent pipeline stages will not be loaded.")
 
 try:
     from . import nltk_stages
