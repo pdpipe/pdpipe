@@ -345,8 +345,8 @@ Adding documentation
 
 This project is documented using the `numpy docstring conventions`_, which were chosen as they are perhaps the most widely-spread conventions that are both supported by common tools such as Sphinx and result in human-readable docstrings (in my personal opinion, of course). When documenting code you add to this project, please follow `these conventions`_.
 
-.. _`numpy docstring conventions`: https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
-.. _`these conventions`: https://github.com/numpy/numpy/blob/master/doc/HOWTO_DOCUMENT.rst.txt
+.. _`numpy docstring conventions`: https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
+.. _`these conventions`: https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 
 Additionally, if you update this ``README.rst`` file,  use ``python setup.py checkdocs`` to validate it compiles.
 
