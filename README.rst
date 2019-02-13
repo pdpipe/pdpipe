@@ -310,7 +310,7 @@ To create a custom pipeline stage without creating a proper new class, you can i
 Contributing
 ============
 
-Package author and current maintainer is Shay Palachy (shay.palachy@gmail.com); You are more than welcome to approach him for help. Contributions are very welcomed, especially since this package is very much in its infancy and many other pipeline stages can be added.
+Package author and current maintainer is Shay Palachy (shay.palachy@gmail.com); You are more than welcome to approach him for help. Contributions are very welcomed, especially since this package is very much in its infancy and many other pipeline stages can be added. Intuit are nice.
 
 Installing for development
 --------------------------
