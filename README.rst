@@ -1,10 +1,7 @@
 pdpipe
 ######
 
-.. image:: https://api.codacy.com/project/badge/Grade/7d605e063f114ecdb5569266bd0226cd
-   :alt: Codacy Badge
-   :target: https://app.codacy.com/app/shaypal5/pdpipe?utm_source=github.com&utm_medium=referral&utm_content=shaypal5/pdpipe&utm_campaign=Badge_Grade_Dashboard
-|PyPI-Status| |PyPI-Versions| |Build-Status| |Codecov| |LICENCE|
+|PyPI-Status| |PyPI-Versions| |Build-Status| |Codecov| |Codacy| |Requirements| |LICENCE|
 
 Easy pipelines for pandas DataFrames.
 
@@ -381,3 +378,12 @@ Created by Shay Palachy  (shay.palachy@gmail.com).
 
 .. |Codecov| image:: https://codecov.io/github/shaypal5/pdpipe/coverage.svg?branch=master
    :target: https://codecov.io/github/shaypal5/pdpipe?branch=master
+
+  
+.. |Codacy|  image:: https://api.codacy.com/project/badge/Grade/7d605e063f114ecdb5569266bd0226cd
+   :alt: Codacy Badge
+   :target: https://app.codacy.com/app/shaypal5/pdpipe?utm_source=github.com&utm_medium=referral&utm_content=shaypal5/pdpipe&utm_campaign=Badge_Grade_Dashboard
+
+.. |Requirements| image:: https://requires.io/github/shaypal5/pdpipe/requirements.svg?branch=master
+     :target: https://requires.io/github/shaypal5/pdpipe/requirements/?branch=master
+     :alt: Requirements Status
