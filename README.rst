@@ -1,5 +1,9 @@
 pdpipe
 ######
+
+.. image:: https://api.codacy.com/project/badge/Grade/7d605e063f114ecdb5569266bd0226cd
+   :alt: Codacy Badge
+   :target: https://app.codacy.com/app/shaypal5/pdpipe?utm_source=github.com&utm_medium=referral&utm_content=shaypal5/pdpipe&utm_campaign=Badge_Grade_Dashboard
 |PyPI-Status| |PyPI-Versions| |Build-Status| |Codecov| |LICENCE|
 
 Easy pipelines for pandas DataFrames.
