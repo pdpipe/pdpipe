@@ -1,7 +1,7 @@
 pdpipe
 ######
 
-|PyPI-Status| |Downloads| |PyPI-Versions| |Build-Status| |Codecov| |Codacy| |LICENCE|
+|PyPI-Status| |Downloads| |PyPI-Versions| |Build-Status| |Codecov| |Codefactor| |LICENCE|
 
 .. |Requirements|
 
@@ -393,3 +393,7 @@ Created by Shay Palachy  (shay.palachy@gmail.com).
 .. |Downloads| image:: https://pepy.tech/badge/pdpipe
      :target: https://pepy.tech/project/pdpipe
      :alt: PePy stats
+     
+.. |Codefactor| image:: https://www.codefactor.io/repository/github/shaypal5/pdpipe/badge?style=plastic
+     :target: https://www.codefactor.io/repository/github/shaypal5/pdpipe
+     :alt: Codefactor code quality
