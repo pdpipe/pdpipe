@@ -1,7 +1,7 @@
 pdpipe
 ######
 
-|PyPI-Status| |PyPI-Versions| |Build-Status| |Codecov| |Codacy| |Requirements| |LICENCE|
+|PyPI-Status| |Downloads| |PyPI-Versions| |Build-Status| |Codecov| |Codacy| |Requirements| |LICENCE|
 
 Easy pipelines for pandas DataFrames.
 
@@ -387,3 +387,7 @@ Created by Shay Palachy  (shay.palachy@gmail.com).
 .. |Requirements| image:: https://requires.io/github/shaypal5/pdpipe/requirements.svg?branch=master
      :target: https://requires.io/github/shaypal5/pdpipe/requirements/?branch=master
      :alt: Requirements Status
+
+.. |Downloads| image:: https://pepy.tech/badge/pdpipe
+     :target: https://pepy.tech/project/pdpipe
+     :alt: PePy stats
