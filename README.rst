@@ -1,7 +1,9 @@
 pdpipe
 ######
 
-|PyPI-Status| |Downloads| |PyPI-Versions| |Build-Status| |Codecov| |Codacy| |Requirements| |LICENCE|
+|PyPI-Status| |Downloads| |PyPI-Versions| |Build-Status| |Codecov| |Codacy| |LICENCE|
+
+.. |Requirements|
 
 Easy pipelines for pandas DataFrames.
 
