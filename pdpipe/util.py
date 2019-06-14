@@ -42,7 +42,7 @@ def out_of_place_col_insert(df, series, loc, column_name=None):
     inter_df = df.assign(**{column_name: series})
     cols = list(inter_df.columns)
     cols.insert(loc, cols.pop(cols.index(column_name)))
-    return inter_df.ix[:, cols]
+    return inter_df.loc[:, cols]
 
 
 def get_numeric_column_names(df):

@@ -210,11 +210,14 @@ class ValKeep(PdPipelineStage):
 
     def _transform(self, df, verbose):
         inter_df = df
+        before_count = len(inter_df)
         columns_to_check = self._columns
         if self._columns is None:
             columns_to_check = df.columns
         for col in columns_to_check:
             inter_df = inter_df[inter_df[col].isin(self._values)]
+        if verbose:
+            print("{} rows dropped.".format(before_count - len(inter_df)))
         return inter_df
 
 
