@@ -3,7 +3,6 @@ pdpipe
 
 |PyPI-Status| |Downloads| |PyPI-Versions| |Build-Status| |Codecov| |Codefactor| |LICENCE|
 
-.. |Requirements|
 
 Easy pipelines for pandas DataFrames.
 
