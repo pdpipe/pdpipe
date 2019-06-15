@@ -298,9 +298,13 @@ class DropNa(PdPipelineStage):
 
     def _transform(self, df, verbose):
         before_count = len(df)
+        ncols_before = len(df.columns)
         inter_df = df.dropna(**self.dropna_kwargs)
         if verbose:
-            print("{} rows dropeed".format(before_count - len(inter_df)))
+            print("{} rows, {} columns dropeed".format(
+                before_count - len(inter_df),
+                ncols_before - len(inter_df.columns),
+            ))
         return inter_df
 
 
