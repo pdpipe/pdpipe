@@ -6,19 +6,11 @@ import sortedcontainers as sc
 import tqdm
 
 from pdpipe.core import PdPipelineStage
-from pdpipe.util import (
-    out_of_place_col_insert,
-    get_numeric_column_names,
-)
+from pdpipe.util import out_of_place_col_insert, get_numeric_column_names
 
-from pdpipe.shared import (
-    _interpret_columns_param,
-    _list_str
-)
+from pdpipe.shared import _interpret_columns_param, _list_str
 
-from .exceptions import (
-    PipelineApplicationError,
-)
+from .exceptions import PipelineApplicationError
 
 
 class Bin(PdPipelineStage):
@@ -30,7 +22,7 @@ class Bin(PdPipelineStage):
     Parameters
     ----------
     bin_map : dict
-        Maps column names to bin arrays. The bin array is interpreted as
+        Maps column labels to bin arrays. The bin array is interpreted as
         containing start points of consecutive bins, except for the final
         point, assumed to be the end point of the last bin. Additionally, a
         bin array implicitly projects a left-most bin containing all elements
@@ -59,8 +51,10 @@ class Bin(PdPipelineStage):
     4      9        8≤
     """
 
-    _DEF_BIN_EXC_MSG = ("Bin stage failed because not all columns "
-                        "{} were found in input dataframe.")
+    _DEF_BIN_EXC_MSG = (
+        "Bin stage failed because not all columns "
+        "{} were found in input dataframe."
+    )
     _DEF_BIN_APP_MSG = "Binning column{} {}..."
 
     def _default_desc(self):
@@ -70,7 +64,7 @@ class Bin(PdPipelineStage):
         string += "Bin {} by {},\n".format(col1, self._bin_map[col1])
         for col in columns[1:]:
             string += "bin {} by {},\n".format(col, self._bin_map[col])
-        string = string[0:-2] + '.'
+        string = string[0:-2] + "."
         return string
 
     def __init__(self, bin_map, drop=True, **kwargs):
@@ -78,10 +72,11 @@ class Bin(PdPipelineStage):
         self._drop = drop
         columns_str = _list_str(list(bin_map.keys()))
         super_kwargs = {
-            'exmsg': Bin._DEF_BIN_EXC_MSG.format(columns_str),
-            'appmsg': Bin._DEF_BIN_APP_MSG.format(
-                's' if len(bin_map) > 1 else '', columns_str),
-            'desc': self._default_desc()
+            "exmsg": Bin._DEF_BIN_EXC_MSG.format(columns_str),
+            "appmsg": Bin._DEF_BIN_APP_MSG.format(
+                "s" if len(bin_map) > 1 else "", columns_str
+            ),
+            "desc": self._default_desc(),
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -96,17 +91,18 @@ class Bin(PdPipelineStage):
 
         def _col_binner(val):
             if val in sorted_bins:
-                ind = sorted_bins.bisect(val)-1
+                ind = sorted_bins.bisect(val) - 1
                 if ind == last_ix:
-                    return '{}≤'.format(sorted_bins[-1])
-                return '{}-{}'.format(sorted_bins[ind], sorted_bins[ind+1])
+                    return "{}≤".format(sorted_bins[-1])
+                return "{}-{}".format(sorted_bins[ind], sorted_bins[ind + 1])
             try:
                 ind = sorted_bins.bisect(val)
                 if ind == 0:
-                    return '<{}'.format(sorted_bins[ind])
-                return '{}-{}'.format(sorted_bins[ind-1], sorted_bins[ind])
+                    return "<{}".format(sorted_bins[ind])
+                return "{}-{}".format(sorted_bins[ind - 1], sorted_bins[ind])
             except IndexError:
-                return '{}≤'.format(sorted_bins[sorted_bins.bisect(val)-1])
+                return "{}≤".format(sorted_bins[sorted_bins.bisect(val) - 1])
+
         return _col_binner
 
     def _transform(self, df, verbose):
@@ -127,9 +123,11 @@ class Bin(PdPipelineStage):
             inter_df = out_of_place_col_insert(
                 df=inter_df,
                 series=source_col.apply(
-                    self._get_col_binner(self._bin_map[colname])),
+                    self._get_col_binner(self._bin_map[colname])
+                ),
                 loc=loc,
-                column_name=new_name)
+                column_name=new_name,
+            )
         return inter_df
 
 
@@ -138,13 +136,13 @@ class Binarize(PdPipelineStage):
 
     By default only k-1 dummies are created fo k categorical levels, as to
     avoid perfect multicollinearity between the dummy features (also called
-    the dummy variable  trap). This is done since features are usually
-    binarized for use with linear model, which require this behaviour.
+    the dummy variabletrap). This is done since features are usually
+    binarized for use with linear models, which require this behaviour.
 
     Parameters
     ----------
-    columns : str or list-like, default None
-        Column names in the DataFrame to be encoded. If columns is None then
+    columns : single label or list-like, default None
+        Column labels in the DataFrame to be encoded. If columns is None then
         all the columns with object or category dtype will be converted, except
         those given in the exclude_columns parameter.
     dummy_na : bool, default False
@@ -154,13 +152,15 @@ class Binarize(PdPipelineStage):
         when the columns parameter is not given. If None no column is excluded.
         Ignored if the columns parameter is given.
     col_subset : bool, default False
-        If set to True, if only a subset of given columns is found that subset
-        is binarized (if the missing columns are encoutered after the stage
-        is fitted they will be ignored). Otherwise, the stage will fail on
-        the precondition requiring all given columns are in input dataframes.
-    drop_first : bool, default True
+        If set to True, and only a subset of given columns is found, they are
+        binarized (if the missing columns are encoutered after the stage is
+        fitted they will be ignored). Otherwise, the stage will fail on the
+        precondition requiring all given columns are in input dataframes.
+    drop_first : bool or single label, default True
         Whether to get k-1 dummies out of k categorical levels by removing the
-        first level.
+        first level. If a non bool argument matching one of the categories is
+        provided, the dummy column corresponding to this value is dropped
+        instead of the first level.
     drop : bool, default True
         If set to True, the source columns are dropped after being binarized.
 
@@ -175,8 +175,10 @@ class Binarize(PdPipelineStage):
     3        0         0
     """
 
-    _DEF_BINAR_EXC_MSG = ("Binarize stage failed because not all columns "
-                          "{} were found in input dataframe.")
+    _DEF_BINAR_EXC_MSG = (
+        "Binarize stage failed because not all columns "
+        "{} were found in input dataframe."
+    )
     _DEF_BINAR_APP_MSG = "Binarizing {}..."
 
     class _FittedBinarizer(object):
@@ -185,7 +187,7 @@ class Binarize(PdPipelineStage):
             self.dummy_columns = dummy_columns
 
         def __call__(self, value):
-            this_dummy = '{}_{}'.format(self.col_name, value)
+            this_dummy = "{}_{}".format(self.col_name, value)
             return pd.Series(
                 data=[
                     int(this_dummy == dummy_col)
@@ -194,8 +196,16 @@ class Binarize(PdPipelineStage):
                 index=self.dummy_columns,
             )
 
-    def __init__(self, columns=None, dummy_na=False, exclude_columns=None,
-                 col_subset=False, drop_first=True, drop=True, **kwargs):
+    def __init__(
+        self,
+        columns=None,
+        dummy_na=False,
+        exclude_columns=None,
+        col_subset=False,
+        drop_first=True,
+        drop=True,
+        **kwargs
+    ):
         if columns is None:
             self._columns = None
         else:
@@ -212,10 +222,11 @@ class Binarize(PdPipelineStage):
         self._binarizer_map = {}
         col_str = _list_str(self._columns)
         super_kwargs = {
-            'exmsg': Binarize._DEF_BINAR_EXC_MSG.format(col_str),
-            'appmsg': Binarize._DEF_BINAR_APP_MSG.format(
-                col_str or "all columns"),
-            'desc': "Binarize {}".format(col_str or "all categorical columns")
+            "exmsg": Binarize._DEF_BINAR_EXC_MSG.format(col_str),
+            "appmsg": Binarize._DEF_BINAR_APP_MSG.format(
+                col_str or "all columns"
+            ),
+            "desc": "Binarize {}".format(col_str or "all categorical columns"),
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -228,9 +239,11 @@ class Binarize(PdPipelineStage):
     def _fit_transform(self, df, verbose):
         columns_to_binar = self._columns
         if self._columns is None:
-            columns_to_binar = list(set(df.select_dtypes(
-                include=['object', 'category']).columns).difference(
-                    self._exclude_columns))
+            columns_to_binar = list(
+                set(
+                    df.select_dtypes(include=["object", "category"]).columns
+                ).difference(self._exclude_columns)
+            )
         if self._col_subset:
             columns_to_binar = [x for x in columns_to_binar if x in df.columns]
         self._cols_to_binar = columns_to_binar
@@ -241,17 +254,32 @@ class Binarize(PdPipelineStage):
             if verbose:
                 columns_to_binar.set_description(colname)
             dummies = pd.get_dummies(
-                df[colname], drop_first=False, dummy_na=self._dummy_na,
-                prefix=colname, prefix_sep='_')
-            nan_col = colname+"_nan"
+                df[colname],
+                drop_first=False,
+                dummy_na=self._dummy_na,
+                prefix=colname,
+                prefix_sep="_",
+            )
+            nan_col = colname + "_nan"
             if self._drop_first:
-                if nan_col in dummies:
+                dfirst_col = colname + "_" + str(self._drop_first)
+                if dfirst_col in dummies:
+                    if verbose:
+                        print(
+                            (
+                                "Dropping {} dummy column instead of first "
+                                "column when binarizing {}"
+                            ).format(dfirst_col, colname)
+                        )
+                    dummies.drop(dfirst_col, axis=1, inplace=True)
+                elif nan_col in dummies:
                     dummies.drop(nan_col, axis=1, inplace=True)
                 else:
                     dummies.drop(dummies.columns[0], axis=1, inplace=True)
             self._dummy_col_map[colname] = list(dummies.columns)
             self._binarizer_map[colname] = Binarize._FittedBinarizer(
-                colname, list(dummies.columns))
+                colname, list(dummies.columns)
+            )
             for column in dummies:
                 assign_map[column] = dummies[column]
 
@@ -280,23 +308,23 @@ class MapColVals(PdPipelineStage):
 
     Parameters
     ----------
-    columns : str or list-like
-        Column names in the DataFrame to be mapped.
+    columns : single label or list-like
+        Column labels in the DataFrame to be mapped.
     value_map : dict, function or pandas.Series
         A dictionary mapping existing values to new ones. Values not in the
         dictionary as keys will be converted to NaN. If a function is given, it
         is applied element-wise to given columns. If a Series is given, values
         are mapped by its index to its values.
-    result_columns : str or list-like, default None
-        The name of the new columns resulting from the mapping operation. Must
+    result_columns : single label or list-like, default None
+        Labels for the new columns resulting from the mapping operation. Must
         be of the same length as columns. If None, behavior depends on the
-        drop parameter: If drop is True, the name of the source column is used;
-        otherwise, the name of the source column is used with the suffix
+        drop parameter: If drop is True, then the label of the source column is
+        used; otherwise, the label of the source column is used with the suffix
         '_map'.
     drop : bool, default True
         If set to True, source columns are dropped after being mapped.
     suffix : str, default '_map'
-        The suffix mapped columns gain if no new column names are given.
+        The suffix mapped columns gain if no new column labels are given.
 
     Example
     -------
@@ -310,37 +338,51 @@ class MapColVals(PdPipelineStage):
     US    Silver
     """
 
-    _DEF_MAP_COLVAL_EXC_MSG = ("MapColVals stage failed because column{} "
-                               "{} were not found in input dataframe.")
+    _DEF_MAP_COLVAL_EXC_MSG = (
+        "MapColVals stage failed because column{} "
+        "{} were not found in input dataframe."
+    )
     _DEF_MAP_COLVAL_APP_MSG = "Mapping values of column{} {} with {}..."
 
-    def __init__(self, columns, value_map, result_columns=None,
-                 drop=True, suffix=None, **kwargs):
+    def __init__(
+        self,
+        columns,
+        value_map,
+        result_columns=None,
+        drop=True,
+        suffix=None,
+        **kwargs
+    ):
         self._columns = _interpret_columns_param(columns)
         self._value_map = value_map
         if suffix is None:
-            suffix = '_map'
+            suffix = "_map"
         self.suffix = suffix
         if result_columns is None:
             if drop:
                 self._result_columns = self._columns
             else:
                 self._result_columns = [
-                    col + self.suffix for col in self._columns]
+                    col + self.suffix for col in self._columns
+                ]
         else:
             self._result_columns = _interpret_columns_param(result_columns)
             if len(self._result_columns) != len(self._columns):
-                raise ValueError("columns and result_columns parameters must"
-                                 " be string lists of the same length!")
+                raise ValueError(
+                    "columns and result_columns parameters must"
+                    " be string lists of the same length!"
+                )
         col_str = _list_str(self._columns)
-        sfx = 's' if len(self._columns) > 1 else ''
+        sfx = "s" if len(self._columns) > 1 else ""
         self._drop = drop
         super_kwargs = {
-            'exmsg': MapColVals._DEF_MAP_COLVAL_EXC_MSG.format(sfx, col_str),
-            'appmsg': MapColVals._DEF_MAP_COLVAL_APP_MSG.format(
-                sfx, col_str, self._value_map),
-            'desc': "Map values of column{} {} with {}.".format(
-                sfx, col_str, self._value_map)
+            "exmsg": MapColVals._DEF_MAP_COLVAL_EXC_MSG.format(sfx, col_str),
+            "appmsg": MapColVals._DEF_MAP_COLVAL_APP_MSG.format(
+                sfx, col_str, self._value_map
+            ),
+            "desc": "Map values of column{} {} with {}.".format(
+                sfx, col_str, self._value_map
+            ),
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -361,7 +403,8 @@ class MapColVals(PdPipelineStage):
                 df=inter_df,
                 series=source_col.map(self._value_map),
                 loc=loc,
-                column_name=new_name)
+                column_name=new_name,
+            )
         return inter_df
 
 
@@ -376,11 +419,11 @@ class ApplyToRows(PdPipelineStage):
     ----------
     func : function
         The function to be applied to each row of the processed DataFrame.
-    colname : str, default None
-        The name of the new column resulting from the function application. If
+    colname : single label, default None
+        The label of the new column resulting from the function application. If
         None, 'new_col' is used. Ignored if a DataFrame is generated by the
         function (i.e. each row generates a Series rather than a value), in
-        which case the name of each column in the resulting DataFrame is used.
+        which case the laebl of each column in the resulting DataFrame is used.
     follow_column : str, default None
         Resulting columns will be inserted after this column. If None, new
         columns are inserted at the end of the processed DataFrame.
@@ -418,10 +461,17 @@ class ApplyToRows(PdPipelineStage):
 
     _DEF_APPLYTOROWS_EXC_MSG = "Applying function {} failed."
     _DEF_APPLYTOROWS_APP_MSG = "Applying function {}..."
-    _DEF_COLNAME = 'new_col'
+    _DEF_COLNAME = "new_col"
 
-    def __init__(self, func, colname=None, follow_column=None,
-                 func_desc=None, prec=None, **kwargs):
+    def __init__(
+        self,
+        func,
+        colname=None,
+        follow_column=None,
+        func_desc=None,
+        prec=None,
+        **kwargs
+    ):
         if colname is None:
             colname = ApplyToRows._DEF_COLNAME
         if func_desc is None:
@@ -434,10 +484,11 @@ class ApplyToRows(PdPipelineStage):
         self._func_desc = func_desc
         self._prec_func = prec
         super_kwargs = {
-            'exmsg': ApplyToRows._DEF_APPLYTOROWS_EXC_MSG.format(func_desc),
-            'appmsg': ApplyToRows._DEF_APPLYTOROWS_APP_MSG.format(func_desc),
-            'desc': "Generating a column with a function {}.".format(
-                self._func_desc)
+            "exmsg": ApplyToRows._DEF_APPLYTOROWS_EXC_MSG.format(func_desc),
+            "appmsg": ApplyToRows._DEF_APPLYTOROWS_APP_MSG.format(func_desc),
+            "desc": "Generating a column with a function {}.".format(
+                self._func_desc
+            ),
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -452,10 +503,8 @@ class ApplyToRows(PdPipelineStage):
             if self._follow_column:
                 loc = df.columns.get_loc(self._follow_column) + 1
             return out_of_place_col_insert(
-                df=df,
-                series=new_cols,
-                loc=loc,
-                column_name=self._colname)
+                df=df, series=new_cols, loc=loc, column_name=self._colname
+            )
         elif isinstance(new_cols, pd.DataFrame):
             sorted_cols = sorted(list(new_cols.columns))
             new_cols = new_cols[sorted_cols]
@@ -467,7 +516,8 @@ class ApplyToRows(PdPipelineStage):
                         df=inter_df,
                         series=new_cols[colname],
                         loc=loc,
-                        column_name=colname)
+                        column_name=colname,
+                    )
                     loc += 1
                 return inter_df
             assign_map = {
@@ -476,7 +526,8 @@ class ApplyToRows(PdPipelineStage):
             return df.assign(**assign_map)
         raise TypeError(  # pragma: no cover
             "Unexpected type generated by applying a function to a DataFrame."
-            " Only Series and DataFrame are allowed.")
+            " Only Series and DataFrame are allowed."
+        )
 
 
 class ApplyByCols(PdPipelineStage):
@@ -519,31 +570,40 @@ class ApplyByCols(PdPipelineStage):
     _DEF_APP_MSG_SUFFIX = "..."
     _DEF_DESCRIPTION_SUFFIX = "."
 
-    def __init__(self, columns, func, result_columns=None,
-                 drop=True, func_desc=None, **kwargs):
+    def __init__(
+        self,
+        columns,
+        func,
+        result_columns=None,
+        drop=True,
+        func_desc=None,
+        **kwargs
+    ):
         self._columns = _interpret_columns_param(columns)
         self._func = func
         if result_columns is None:
             if drop:
                 self._result_columns = self._columns
             else:
-                self._result_columns = [col + '_app' for col in self._columns]
+                self._result_columns = [col + "_app" for col in self._columns]
         else:
             self._result_columns = _interpret_columns_param(result_columns)
             if len(self._result_columns) != len(self._columns):
-                raise ValueError("columns and result_columns parameters must"
-                                 " be string lists of the same length!")
+                raise ValueError(
+                    "columns and result_columns parameters must"
+                    " be string lists of the same length!"
+                )
         self._drop = drop
         if func_desc is None:
             func_desc = ""
         self._func_desc = func_desc
         col_str = _list_str(self._columns)
-        sfx = 's' if len(self._columns) > 1 else ''
+        sfx = "s" if len(self._columns) > 1 else ""
         base_str = ApplyByCols._BASE_STR.format(self._func_desc, sfx, col_str)
         super_kwargs = {
-            'exmsg': base_str + ApplyByCols._DEF_EXC_MSG_SUFFIX,
-            'appmsg': base_str + ApplyByCols._DEF_APP_MSG_SUFFIX,
-            'desc': base_str + ApplyByCols._DEF_DESCRIPTION_SUFFIX
+            "exmsg": base_str + ApplyByCols._DEF_EXC_MSG_SUFFIX,
+            "appmsg": base_str + ApplyByCols._DEF_APP_MSG_SUFFIX,
+            "desc": base_str + ApplyByCols._DEF_DESCRIPTION_SUFFIX,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -564,7 +624,8 @@ class ApplyByCols(PdPipelineStage):
                 df=inter_df,
                 series=source_col.apply(self._func),
                 loc=loc,
-                column_name=new_name)
+                column_name=new_name,
+            )
         return inter_df
 
 
@@ -605,8 +666,9 @@ class ColByFrameFunc(PdPipelineStage):
     _DEF_APP_MSG_SUFFIX = "..."
     _DEF_DESCRIPTION_SUFFIX = "."
 
-    def __init__(self, column, func, follow_column=None, func_desc=None,
-                 **kwargs):
+    def __init__(
+        self, column, func, follow_column=None, func_desc=None, **kwargs
+    ):
         self._column = column
         self._func = func
         self._follow_column = follow_column
@@ -617,9 +679,9 @@ class ColByFrameFunc(PdPipelineStage):
         self._func_desc = func_desc
         base_str = ColByFrameFunc._BASE_STR.format(self._func_desc, column)
         super_kwargs = {
-            'exmsg': base_str + ColByFrameFunc._DEF_EXC_MSG_SUFFIX,
-            'appmsg': base_str + ColByFrameFunc._DEF_APP_MSG_SUFFIX,
-            'desc': base_str + ColByFrameFunc._DEF_DESCRIPTION_SUFFIX
+            "exmsg": base_str + ColByFrameFunc._DEF_EXC_MSG_SUFFIX,
+            "appmsg": base_str + ColByFrameFunc._DEF_APP_MSG_SUFFIX,
+            "desc": base_str + ColByFrameFunc._DEF_DESCRIPTION_SUFFIX,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -634,16 +696,16 @@ class ColByFrameFunc(PdPipelineStage):
         except Exception:
             raise PipelineApplicationError(
                 "Exception raised applying function{} to dataframe.".format(
-                    self._func_desc))
+                    self._func_desc
+                )
+            )
         if self._follow_column:
             loc = df.columns.get_loc(self._follow_column) + 1
         else:
             loc = len(df.columns)
         inter_df = out_of_place_col_insert(
-            df=inter_df,
-            series=new_col,
-            loc=loc,
-            column_name=self._column)
+            df=inter_df, series=new_col, loc=loc, column_name=self._column
+        )
         return inter_df
 
 
@@ -688,10 +750,18 @@ class AggByCols(PdPipelineStage):
     _DEF_EXC_MSG_SUFFIX = " failed."
     _DEF_APP_MSG_SUFFIX = "..."
     _DEF_DESCRIPTION_SUFFIX = "."
-    _DEF_COLNAME_SUFFIX = '_agg'
+    _DEF_COLNAME_SUFFIX = "_agg"
 
-    def __init__(self, columns, func, result_columns=None,
-                 drop=True, func_desc=None, suffix=None, **kwargs):
+    def __init__(
+        self,
+        columns,
+        func,
+        result_columns=None,
+        drop=True,
+        func_desc=None,
+        suffix=None,
+        **kwargs
+    ):
         if suffix is None:
             suffix = AggByCols._DEF_COLNAME_SUFFIX
         self._suffix = suffix
@@ -705,19 +775,21 @@ class AggByCols(PdPipelineStage):
         else:
             self._result_columns = _interpret_columns_param(result_columns)
             if len(self._result_columns) != len(self._columns):
-                raise ValueError("columns and result_columns parameters must"
-                                 " be string lists of the same length!")
+                raise ValueError(
+                    "columns and result_columns parameters must"
+                    " be string lists of the same length!"
+                )
         self._drop = drop
         if func_desc is None:
             func_desc = ""
         self._func_desc = func_desc
         col_str = _list_str(self._columns)
-        sfx = 's' if len(self._columns) > 1 else ''
+        sfx = "s" if len(self._columns) > 1 else ""
         base_str = ApplyByCols._BASE_STR.format(self._func_desc, sfx, col_str)
         super_kwargs = {
-            'exmsg': base_str + ApplyByCols._DEF_EXC_MSG_SUFFIX,
-            'appmsg': base_str + ApplyByCols._DEF_APP_MSG_SUFFIX,
-            'desc': base_str + ApplyByCols._DEF_DESCRIPTION_SUFFIX
+            "exmsg": base_str + ApplyByCols._DEF_EXC_MSG_SUFFIX,
+            "appmsg": base_str + ApplyByCols._DEF_APP_MSG_SUFFIX,
+            "desc": base_str + ApplyByCols._DEF_DESCRIPTION_SUFFIX,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -738,7 +810,8 @@ class AggByCols(PdPipelineStage):
                 df=inter_df,
                 series=source_col.agg(self._func),
                 loc=loc,
-                column_name=new_name)
+                column_name=new_name,
+            )
         return inter_df
 
 
@@ -780,12 +853,21 @@ class Log(PdPipelineStage):
     3  2.493205  alk
     """
 
-    _DEF_LOG_EXC_MSG = ("Log stage failed because not all columns "
-                        "{} were found in input dataframe.")
+    _DEF_LOG_EXC_MSG = (
+        "Log stage failed because not all columns "
+        "{} were found in input dataframe."
+    )
     _DEF_LOG_APP_MSG = "Log-transforming {}..."
 
-    def __init__(self, columns=None, exclude=None, drop=False,
-                 non_neg=False, const_shift=None, **kwargs):
+    def __init__(
+        self,
+        columns=None,
+        exclude=None,
+        drop=False,
+        non_neg=False,
+        const_shift=None,
+        **kwargs
+    ):
         if columns is None:
             self._columns = None
         else:
@@ -802,9 +884,9 @@ class Log(PdPipelineStage):
         if self._columns:
             col_str = _list_str(self._columns)
         super_kwargs = {
-            'exmsg': Log._DEF_LOG_EXC_MSG.format(col_str),
-            'appmsg': Log._DEF_LOG_APP_MSG.format(col_str),
-            'desc': "Log-transform {}".format(col_str)
+            "exmsg": Log._DEF_LOG_EXC_MSG.format(col_str),
+            "appmsg": Log._DEF_LOG_APP_MSG.format(col_str),
+            "desc": "Log-transform {}".format(col_str),
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -816,8 +898,9 @@ class Log(PdPipelineStage):
         columns_to_transform = self._columns
         if self._columns is None:
             columns_to_transform = get_numeric_column_names(df)
-        columns_to_transform = list(set(columns_to_transform).difference(
-            self._exclude))
+        columns_to_transform = list(
+            set(columns_to_transform).difference(self._exclude)
+        )
         self._cols_to_transform = columns_to_transform
         if verbose:
             columns_to_transform = tqdm.tqdm(columns_to_transform)
@@ -841,10 +924,8 @@ class Log(PdPipelineStage):
                 new_col = new_col + self._const_shift
             new_col = np.log(new_col)
             inter_df = out_of_place_col_insert(
-                df=inter_df,
-                series=new_col,
-                loc=loc,
-                column_name=new_name)
+                df=inter_df, series=new_col, loc=loc, column_name=new_name
+            )
         self.is_fitted = True
         return inter_df
 
@@ -871,8 +952,6 @@ class Log(PdPipelineStage):
                 new_col = new_col + self._const_shift
             new_col = np.log(new_col)
             inter_df = out_of_place_col_insert(
-                df=inter_df,
-                series=new_col,
-                loc=loc,
-                column_name=new_name)
+                df=inter_df, series=new_col, loc=loc, column_name=new_name
+            )
         return inter_df
