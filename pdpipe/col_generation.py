@@ -160,7 +160,8 @@ class Binarize(PdPipelineStage):
         Whether to get k-1 dummies out of k categorical levels by removing the
         first level. If a non bool argument matching one of the categories is
         provided, the dummy column corresponding to this value is dropped
-        instead of the first level.
+        instead of the first level; if it matches no category the first
+        category will still be dropped.
     drop : bool, default True
         If set to True, the source columns are dropped after being binarized.
 
@@ -268,7 +269,7 @@ class Binarize(PdPipelineStage):
                         print(
                             (
                                 "Dropping {} dummy column instead of first "
-                                "column when binarizing {}"
+                                "column when binarizing {}."
                             ).format(dfirst_col, colname)
                         )
                     dummies.drop(dfirst_col, axis=1, inplace=True)
