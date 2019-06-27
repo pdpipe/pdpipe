@@ -131,13 +131,13 @@ class Bin(PdPipelineStage):
         return inter_df
 
 
-class Binarize(PdPipelineStage):
-    """A pipeline stage that binarizes categorical columns.
+class OneHotEncode(PdPipelineStage):
+    """A pipeline stage that one-hot-encodes categorical columns.
 
     By default only k-1 dummies are created fo k categorical levels, as to
     avoid perfect multicollinearity between the dummy features (also called
-    the dummy variabletrap). This is done since features are usually
-    binarized for use with linear models, which require this behaviour.
+    the dummy variabletrap). This is done since features are usually one-hot
+    encoded for use with linear models, which require this behaviour.
 
     Parameters
     ----------
@@ -148,12 +148,12 @@ class Binarize(PdPipelineStage):
     dummy_na : bool, default False
         Add a column to indicate NaNs, if False NaNs are ignored.
     exclude_columns : str or list-like, default None
-        Name or names of categorical columns to be excluded from binarization
+        Name or names of categorical columns to be excluded from encoding
         when the columns parameter is not given. If None no column is excluded.
         Ignored if the columns parameter is given.
     col_subset : bool, default False
         If set to True, and only a subset of given columns is found, they are
-        binarized (if the missing columns are encoutered after the stage is
+        encoded (if the missing columns are encoutered after the stage is
         fitted they will be ignored). Otherwise, the stage will fail on the
         precondition requiring all given columns are in input dataframes.
     drop_first : bool or single label, default True
@@ -163,26 +163,26 @@ class Binarize(PdPipelineStage):
         instead of the first level; if it matches no category the first
         category will still be dropped.
     drop : bool, default True
-        If set to True, the source columns are dropped after being binarized.
+        If set to True, the source columns are dropped after being encoded.
 
     Example
     -------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([['USA'], ['UK'], ['Greece']], [1,2,3], ['Born'])
-    >>> pdp.Binarize().apply(df)
+    >>> pdp.OneHotEncode().apply(df)
        Born_UK  Born_USA
     1        0         1
     2        1         0
     3        0         0
     """
 
-    _DEF_BINAR_EXC_MSG = (
-        "Binarize stage failed because not all columns "
+    _DEF_1HENCODE_EXC_MSG = (
+        "OneHotEncode stage failed because not all columns "
         "{} were found in input dataframe."
     )
-    _DEF_BINAR_APP_MSG = "Binarizing {}..."
+    _DEF_1HENCODE_APP_MSG = "One-hot encoding {}..."
 
-    class _FittedBinarizer(object):
+    class _FitterEncoder(object):
         def __init__(self, col_name, dummy_columns):
             self.col_name = col_name
             self.dummy_columns = dummy_columns
@@ -220,14 +220,16 @@ class Binarize(PdPipelineStage):
         self._drop_first = drop_first
         self._drop = drop
         self._dummy_col_map = {}
-        self._binarizer_map = {}
+        self._encoder_map = {}
         col_str = _list_str(self._columns)
         super_kwargs = {
-            "exmsg": Binarize._DEF_BINAR_EXC_MSG.format(col_str),
-            "appmsg": Binarize._DEF_BINAR_APP_MSG.format(
+            "exmsg": OneHotEncode._DEF_1HENCODE_EXC_MSG.format(col_str),
+            "appmsg": OneHotEncode._DEF_1HENCODE_APP_MSG.format(
                 col_str or "all columns"
             ),
-            "desc": "Binarize {}".format(col_str or "all categorical columns"),
+            "desc": "One-hot encode {}".format(
+                col_str or "all categorical columns"
+            ),
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -238,22 +240,24 @@ class Binarize(PdPipelineStage):
         return set(self._columns or []).issubset(df.columns)
 
     def _fit_transform(self, df, verbose):
-        columns_to_binar = self._columns
+        columns_to_encode = self._columns
         if self._columns is None:
-            columns_to_binar = list(
+            columns_to_encode = list(
                 set(
                     df.select_dtypes(include=["object", "category"]).columns
                 ).difference(self._exclude_columns)
             )
         if self._col_subset:
-            columns_to_binar = [x for x in columns_to_binar if x in df.columns]
-        self._cols_to_binar = columns_to_binar
+            columns_to_encode = [
+                x for x in columns_to_encode if x in df.columns
+            ]
+        self._cols_to_encode = columns_to_encode
         assign_map = {}
         if verbose:
-            columns_to_binar = tqdm.tqdm(columns_to_binar)
-        for colname in columns_to_binar:
+            columns_to_encode = tqdm.tqdm(columns_to_encode)
+        for colname in columns_to_encode:
             if verbose:
-                columns_to_binar.set_description(colname)
+                columns_to_encode.set_description(colname)
             dummies = pd.get_dummies(
                 df[colname],
                 drop_first=False,
@@ -269,7 +273,7 @@ class Binarize(PdPipelineStage):
                         print(
                             (
                                 "Dropping {} dummy column instead of first "
-                                "column when binarizing {}."
+                                "column when one-hot encoding {}."
                             ).format(dfirst_col, colname)
                         )
                     dummies.drop(dfirst_col, axis=1, inplace=True)
@@ -278,7 +282,7 @@ class Binarize(PdPipelineStage):
                 else:
                     dummies.drop(dummies.columns[0], axis=1, inplace=True)
             self._dummy_col_map[colname] = list(dummies.columns)
-            self._binarizer_map[colname] = Binarize._FittedBinarizer(
+            self._encoder_map[colname] = OneHotEncode._FitterEncoder(
                 colname, list(dummies.columns)
             )
             for column in dummies:
@@ -287,20 +291,20 @@ class Binarize(PdPipelineStage):
         inter_df = df.assign(**assign_map)
         self.is_fitted = True
         if self._drop:
-            return inter_df.drop(columns_to_binar, axis=1)
+            return inter_df.drop(columns_to_encode, axis=1)
         return inter_df
 
     def _transform(self, df, verbose):
         assign_map = {}
-        for colname in self._cols_to_binar:
+        for colname in self._cols_to_encode:
             col = df[colname]
-            binarizer = self._binarizer_map[colname]
-            res_cols = col.apply(binarizer)
+            encoder = self._encoder_map[colname]
+            res_cols = col.apply(encoder)
             for res_col in res_cols:
                 assign_map[res_col] = res_cols[res_col]
         inter_df = df.assign(**assign_map)
         if self._drop:
-            return inter_df.drop(self._cols_to_binar, axis=1)
+            return inter_df.drop(self._cols_to_encode, axis=1)
         return inter_df
 
 

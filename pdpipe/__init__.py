@@ -7,13 +7,9 @@ import traceback
 
 
 from . import core
-from .core import (
-    PdPipelineStage,
-    AdHocStage,
-    PdPipeline,
-    make_pdpipeline,
-)
-core.__load_stage_attributes_from_module__('pdpipe.core')
+from .core import PdPipelineStage, AdHocStage, PdPipeline, make_pdpipeline
+
+core.__load_stage_attributes_from_module__("pdpipe.core")
 
 from . import basic_stages
 from .basic_stages import (
@@ -25,12 +21,13 @@ from .basic_stages import (
     FreqDrop,
     ColReorder,
 )
-core.__load_stage_attributes_from_module__('pdpipe.basic_stages')
+
+core.__load_stage_attributes_from_module__("pdpipe.basic_stages")
 
 from . import col_generation
 from .col_generation import (
     Bin,
-    Binarize,
+    OneHotEncode,
     MapColVals,
     ApplyToRows,
     ApplyByCols,
@@ -38,20 +35,21 @@ from .col_generation import (
     AggByCols,
     Log,
 )
-core.__load_stage_attributes_from_module__('pdpipe.col_generation')
+
+core.__load_stage_attributes_from_module__("pdpipe.col_generation")
 
 try:
     from . import sklearn_stages
-    from .sklearn_stages import (
-        Encode,
-        Scale,
-    )
-    core.__load_stage_attributes_from_module__('pdpipe.sklearn_stages')
+    from .sklearn_stages import Encode, Scale
+
+    core.__load_stage_attributes_from_module__("pdpipe.sklearn_stages")
 except ImportError:
     tb = traceback.format_exc()
     warnings.warn(tb)
-    warnings.warn("pdpipe: Scikit-learn or skutil import failed. Scikit-learn"
-                  "-dependent pipeline stages will not be loaded.")
+    warnings.warn(
+        "pdpipe: Scikit-learn or skutil import failed. Scikit-learn"
+        "-dependent pipeline stages will not be loaded."
+    )
 
 try:
     from . import nltk_stages
@@ -62,21 +60,34 @@ try:
         SnowballStem,
         DropRareTokens,
     )
-    core.__load_stage_attributes_from_module__('pdpipe.nltk_stages')
+
+    core.__load_stage_attributes_from_module__("pdpipe.nltk_stages")
 except ImportError:
     tb = traceback.format_exc()
     warnings.warn(tb)
-    warnings.warn("pdpipe: nltk import failed. nltk-dependent  pipeline "
-                  "stages will not be loaded.")
+    warnings.warn(
+        "pdpipe: nltk import failed. nltk-dependent  pipeline "
+        "stages will not be loaded."
+    )
 
 
 from ._version import get_versions
-__version__ = get_versions()['version']
+
+__version__ = get_versions()["version"]
 
 for name in [
-        'warnings', 'traceback', '_custom_formatwarning', 'core',
-        'basic_stages', 'sklearn_stages', 'col_generation', 'shared', 'util',
-        '_version', 'get_versions']:
+    "warnings",
+    "traceback",
+    "_custom_formatwarning",
+    "core",
+    "basic_stages",
+    "sklearn_stages",
+    "col_generation",
+    "shared",
+    "util",
+    "_version",
+    "get_versions",
+]:
     try:
         globals().pop(name)
     except KeyError:

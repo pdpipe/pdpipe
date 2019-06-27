@@ -1,9 +1,9 @@
-"""Testing Binarize pipeline stages."""
+"""Testing OneHotEncode pipeline stages."""
 
 import pytest
 import pandas as pd
 
-from pdpipe.col_generation import Binarize
+from pdpipe.col_generation import OneHotEncode
 
 
 def _one_categ_df():
@@ -14,12 +14,12 @@ def _one_categ_single_row_df():
     return pd.DataFrame([["Greece"]], [1], ["Born"])
 
 
-@pytest.mark.binarize
-def test_binarize_one():
+@pytest.mark.onehotencode
+def test_onehotencode_one():
     """Basic binning test."""
     df = _one_categ_df()
-    binarize = Binarize("Born")
-    res_df = binarize(df, verbose=True)
+    onehotencode = OneHotEncode("Born")
+    res_df = onehotencode(df, verbose=True)
     assert "Born" not in res_df.columns
     assert "Born_Greece" not in res_df.columns
     assert "Born_UK" in res_df.columns
@@ -33,8 +33,8 @@ def test_binarize_one():
 
     # check when fitted
     df2 = _one_categ_single_row_df()
-    assert binarize.is_fitted
-    res_df2 = binarize(df2, verbose=True)
+    assert onehotencode.is_fitted
+    res_df2 = onehotencode(df2, verbose=True)
     print(res_df2)
     assert "Born" not in res_df2.columns
     assert "Born_Greece" not in res_df2.columns
@@ -44,12 +44,12 @@ def test_binarize_one():
     assert res_df2["Born_USA"][1] == 0
 
 
-@pytest.mark.binarize
-def test_binarize_no_drop_first():
+@pytest.mark.onehotencode
+def test_onehotencode_no_drop_first():
     """Basic binning test."""
     df = _one_categ_df()
-    binarize = Binarize("Born", drop_first=False)
-    res_df = binarize(df, verbose=True)
+    onehotencode = OneHotEncode("Born", drop_first=False)
+    res_df = onehotencode(df, verbose=True)
     assert "Born" not in res_df.columns
     assert "Born_UK" in res_df.columns
     assert res_df["Born_UK"][1] == 0
@@ -66,8 +66,8 @@ def test_binarize_no_drop_first():
 
     # check when fitted
     df2 = _one_categ_single_row_df()
-    assert binarize.is_fitted
-    res_df2 = binarize(df2, verbose=True)
+    assert onehotencode.is_fitted
+    res_df2 = onehotencode(df2, verbose=True)
     print(res_df2)
     assert "Born" not in res_df2.columns
     assert "Born_UK" in res_df2.columns
@@ -90,12 +90,12 @@ def _two_categ_single_row_df():
     return pd.DataFrame([["Greece", "Bob"]], [1], ["Born", "Name"])
 
 
-@pytest.mark.binarize
-def test_binarize_two():
+@pytest.mark.onehotencode
+def test_onehotencode_two():
     """Basic binning test."""
     df = _two_categ_df()
-    binarize = Binarize()
-    res_df = binarize(df)
+    onehotencode = OneHotEncode()
+    res_df = onehotencode(df)
     assert "Born" not in res_df.columns
     assert "Born_Greece" not in res_df.columns
     assert "Born_UK" in res_df.columns
@@ -119,8 +119,8 @@ def test_binarize_two():
 
     # check when fitted
     df2 = _two_categ_single_row_df()
-    assert binarize.is_fitted
-    res_df2 = binarize(df2, verbose=True)
+    assert onehotencode.is_fitted
+    res_df2 = onehotencode(df2, verbose=True)
     print(res_df2)
     assert "Born" not in res_df2.columns
     assert "Born_Greece" not in res_df2.columns
@@ -136,12 +136,12 @@ def test_binarize_two():
     assert res_df2["Name_Yan"][1] == 0
 
 
-@pytest.mark.binarize
-def test_binarize_one_with_exclude():
+@pytest.mark.onehotencode
+def test_onehotencode_one_with_exclude():
     """Basic binning test."""
     df = _two_categ_df()
-    binarize = Binarize(exclude_columns=["Name"])
-    res_df = binarize(df)
+    onehotencode = OneHotEncode(exclude_columns=["Name"])
+    res_df = onehotencode(df)
     assert "Born" not in res_df.columns
     assert "Name" in res_df.columns
     assert "Name_Bob" not in res_df.columns
@@ -159,8 +159,8 @@ def test_binarize_one_with_exclude():
 
     # check when fitted
     df2 = _two_categ_single_row_df()
-    assert binarize.is_fitted
-    res_df2 = binarize(df2, verbose=True)
+    assert onehotencode.is_fitted
+    res_df2 = onehotencode(df2, verbose=True)
     print(res_df2)
     assert "Born" not in res_df2.columns
     assert "Born_Greece" not in res_df2.columns
@@ -179,12 +179,12 @@ def _one_categ_df_with_nan():
     return pd.DataFrame([["USA"], ["UK"], [None]], [1, 2, 3], ["Born"])
 
 
-@pytest.mark.binarize
-def test_binarize_with_nan():
+@pytest.mark.onehotencode
+def test_onehotencode_with_nan():
     """Basic binning test."""
     df = _one_categ_df_with_nan()
-    binarize = Binarize("Born")
-    res_df = binarize(df)
+    onehotencode = OneHotEncode("Born")
+    res_df = onehotencode(df)
     print(res_df)
     assert "Born" not in res_df.columns
     assert "Born_UK" not in res_df.columns
@@ -197,8 +197,8 @@ def test_binarize_with_nan():
 
     # check when fitted
     df2 = _one_categ_single_row_df()
-    assert binarize.is_fitted
-    res_df2 = binarize(df2, verbose=True)
+    assert onehotencode.is_fitted
+    res_df2 = onehotencode(df2, verbose=True)
     print(res_df2)
     assert "Born" not in res_df2.columns
     assert "Born_UK" not in res_df2.columns
@@ -207,12 +207,12 @@ def test_binarize_with_nan():
     assert res_df2["Born_USA"][1] == 0
 
 
-@pytest.mark.binarize
-def test_binarize_with_dummy_na():
+@pytest.mark.onehotencode
+def test_onehotencode_with_dummy_na():
     """Basic binning test."""
     df = _one_categ_df_with_nan()
-    binarize = Binarize("Born", dummy_na=True)
-    res_df = binarize(df)
+    onehotencode = OneHotEncode("Born", dummy_na=True)
+    res_df = onehotencode(df)
     assert "Born" not in res_df.columns
     assert "Born_nan" not in res_df.columns
     assert "Born_UK" in res_df.columns
@@ -226,8 +226,8 @@ def test_binarize_with_dummy_na():
 
     # check when fitted
     df2 = _one_categ_single_row_df()
-    assert binarize.is_fitted
-    res_df2 = binarize(df2, verbose=True)
+    assert onehotencode.is_fitted
+    res_df2 = onehotencode(df2, verbose=True)
     print(res_df2)
     assert "Born" not in res_df2.columns
     assert "Born_nan" not in res_df2.columns
@@ -237,12 +237,12 @@ def test_binarize_with_dummy_na():
     assert res_df2["Born_UK"][1] == 0
 
 
-@pytest.mark.binarize
-def test_binarize_with_dummy_na_no_drop_first():
+@pytest.mark.onehotencode
+def test_onehotencode_with_dummy_na_no_drop_first():
     """Basic binning test."""
     df = _one_categ_df_with_nan()
-    binarize = Binarize("Born", dummy_na=True, drop_first=False)
-    res_df = binarize(df)
+    onehotencode = OneHotEncode("Born", dummy_na=True, drop_first=False)
+    res_df = onehotencode(df)
     assert "Born" not in res_df.columns
     assert "Born_UK" in res_df.columns
     assert res_df["Born_UK"][1] == 0
@@ -259,8 +259,8 @@ def test_binarize_with_dummy_na_no_drop_first():
 
     # check when fitted
     df2 = _one_categ_single_row_df()
-    assert binarize.is_fitted
-    res_df2 = binarize(df2, verbose=True)
+    assert onehotencode.is_fitted
+    res_df2 = onehotencode(df2, verbose=True)
     print(res_df2)
     assert "Born" not in res_df2.columns
     assert "Born_Greece" not in res_df2.columns
@@ -272,12 +272,12 @@ def test_binarize_with_dummy_na_no_drop_first():
     assert res_df2["Born_nan"][1] == 0
 
 
-@pytest.mark.binarize
-def test_binarize_one_no_drop():
+@pytest.mark.onehotencode
+def test_onehotencode_one_no_drop():
     """Basic binning test."""
     df = _one_categ_df()
-    binarize = Binarize("Born", drop=False)
-    res_df = binarize(df, verbose=True)
+    onehotencode = OneHotEncode("Born", drop=False)
+    res_df = onehotencode(df, verbose=True)
     assert "Greece" not in res_df.columns
     assert "Born" in res_df.columns
     assert "Born_UK" in res_df.columns
@@ -291,8 +291,8 @@ def test_binarize_one_no_drop():
 
     # check when fitted
     df2 = _one_categ_single_row_df()
-    assert binarize.is_fitted
-    res_df2 = binarize(df2, verbose=True)
+    assert onehotencode.is_fitted
+    res_df2 = onehotencode(df2, verbose=True)
     print(res_df2)
     assert "Born" in res_df2.columns
     assert res_df2["Born"][1] == "Greece"
@@ -303,11 +303,11 @@ def test_binarize_one_no_drop():
     assert res_df2["Born_USA"][1] == 0
 
 
-@pytest.mark.binarize
-def test_binarize_col_subset():
+@pytest.mark.onehotencode
+def test_onehotencode_col_subset():
     df = _two_categ_df()
-    binarize = Binarize(columns=["Born", "Cat"], col_subset=True)
-    res_df = binarize(df)
+    onehotencode = OneHotEncode(columns=["Born", "Cat"], col_subset=True)
+    res_df = onehotencode(df)
     assert "Born" not in res_df.columns
     assert "Born_Greece" not in res_df.columns
     assert "Born_UK" in res_df.columns
@@ -325,8 +325,8 @@ def test_binarize_col_subset():
 
     # check when fitted
     df2 = _two_categ_single_row_df()
-    assert binarize.is_fitted
-    res_df2 = binarize(df2, verbose=True)
+    assert onehotencode.is_fitted
+    res_df2 = onehotencode(df2, verbose=True)
     print(res_df2)
     assert "Born" not in res_df2.columns
     assert "Born_Greece" not in res_df2.columns
@@ -340,13 +340,13 @@ def test_binarize_col_subset():
     assert "Name_Yan" not in res_df.columns
 
 
-@pytest.mark.binarize
+@pytest.mark.onehotencode
 @pytest.mark.parametrize("verbose", [True, False])
-def test_binarize_one_with_drop_first_colname(verbose):
+def test_onehotencode_one_with_drop_first_colname(verbose):
     """Basic binning test."""
     df = _one_categ_df()
-    binarize = Binarize("Born", drop_first="UK")
-    res_df = binarize(df, verbose=verbose)
+    onehotencode = OneHotEncode("Born", drop_first="UK")
+    res_df = onehotencode(df, verbose=verbose)
     assert "Born" not in res_df.columns
     assert "Born_Greece" in res_df.columns
     assert "Born_UK" not in res_df.columns
@@ -360,8 +360,8 @@ def test_binarize_one_with_drop_first_colname(verbose):
 
     # check when fitted
     df2 = _one_categ_single_row_df()
-    assert binarize.is_fitted
-    res_df2 = binarize(df2, verbose=True)
+    assert onehotencode.is_fitted
+    res_df2 = onehotencode(df2, verbose=True)
     print(res_df2)
     assert "Born" not in res_df2.columns
     assert "Born_UK" not in res_df2.columns

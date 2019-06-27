@@ -14,7 +14,7 @@ Easy pipelines for pandas DataFrames.
           columns=['Medals', 'Height', 'Born']
       )
   >>> import pdpipe as pdp
-  >>> pipeline = pdp.ColDrop('Medals').Binarize('Born')
+  >>> pipeline = pdp.ColDrop('Medals').OneHotEncode('Born')
   >>> pipeline(df)
               Height  Born_UK  Born_USA
       Dana     165        0         1
@@ -47,6 +47,7 @@ Features
 * Informative prints and errors on pipeline application.
 * Chaining pipeline stages constructor calls for easy, one-liners pipelines.
 * Pipeline arithmetics.
+* Easier handling of mixed data (numeric, categorical and others).
 * Fully tested.
 * Compatible with Python 3.5+.
 * Pure Python.
@@ -58,7 +59,7 @@ Design Decisions
 * **Extra infromative naming:** Meant to make pipelines very readable, understanding their entire flow by pipeline stages names; e.g. ColDrop vs. ValDrop instead of an all-encompassing Drop stage emulating the ``pandas.DataFrame.drop`` method.
 * **Data science-oriented naming** (rather than statistics).
 * **A functional approach:** Pipelines never change input DataFrames. Nothing is done "in place".
-* **Opinionated operations:** Help novices avoid mistake by default appliance of good practices; e.g., binarizing (creating dummy variables) a column will drop one of the resulting columns by default, to avoid `the dummy variable trap`_ (perfect `multicollinearity`_).
+* **Opinionated operations:** Help novices avoid mistake by default appliance of good practices; e.g., one-hot-encoding (creating dummy variables) a column will drop one of the resulting columns by default, to avoid `the dummy variable trap`_ (perfect `multicollinearity`_).
 * **Machine learning-oriented:** The target use case is transforming tabular data into a vectorized dataset on which a machine learning model will be trained; e.g., column transformations will drop the source columns to avoid strong linear dependence.
 
 .. _`the dummy variable trap`: http://www.algosome.com/articles/dummy-variable-trap-regression.html
@@ -147,13 +148,13 @@ Pipelines can be created by supplying a list of pipeline stages:
 
 .. code-block:: python
 
-  pipeline = pdp.PdPipeline([pdp.ColDrop("Name"), pdp.Binarize("Label")])
+  pipeline = pdp.PdPipeline([pdp.ColDrop("Name"), pdp.OneHotEncode("Label")])
 
 Additionally, the ``make_pdpipeline`` method can be used to give stages as positional arguments.
 
 .. code-block:: python
 
-    pipeline = pdp.make_pdpipeline(pdp.ColDrop("Name"), pdp.Binarize("Label"))
+    pipeline = pdp.make_pdpipeline(pdp.ColDrop("Name"), pdp.OneHotEncode("Label"))
 
 
 Printing Pipelines
@@ -164,13 +165,13 @@ A pipeline structre can be clearly displayed by printing the object:
 .. code-block:: python
 
   >>> drop_name = pdp.ColDrop("Name")
-  >>> binar_label = pdp.Binarize("Label")
+  >>> binar_label = pdp.OneHotEncode("Label")
   >>> map_job = pdp.MapColVals("Job", {"Part": True, "Full":True, "No": False})
   >>> pipeline = pdp.PdPipeline([drop_name, binar_label, map_job])
   >>> print(pipeline)
   A pdpipe pipeline:
   [ 0]  Drop column Name
-  [ 1]  Binarize Label
+  [ 1]  OneHotEncode Label
   [ 2]  Map values of column Job with {'Part': True, 'Full': True, 'No': False}.
 
 
@@ -181,13 +182,13 @@ Alternatively, you can create pipelines by adding pipeline stages together:
 
 .. code-block:: python
 
-  pipeline = pdp.ColDrop("Name") + pdp.Binarize("Label")
+  pipeline = pdp.ColDrop("Name") + pdp.OneHotEncode("Label")
 
 Or even by adding pipelines together or pipelines to pipeline stages:
 
 .. code-block:: python
 
-  pipeline = pdp.ColDrop("Name") + pdp.Binarize("Label")
+  pipeline = pdp.ColDrop("Name") + pdp.OneHotEncode("Label")
   pipeline += pdp.MapColVals("Job", {"Part": True, "Full":True, "No": False})
   pipeline += pdp.PdPipeline([pdp.ColRename({"Job": "Employed"})])
 
@@ -199,7 +200,7 @@ Pipeline stages can also be chained to other stages to create pipelines:
 
 .. code-block:: python
 
-  pipeline = pdp.ColDrop("Name").Binarize("Label").ValDrop([-1], "Children")
+  pipeline = pdp.ColDrop("Name").OneHotEncode("Label").ValDrop([-1], "Children")
 
 
 Pipeline Slicing
@@ -209,12 +210,12 @@ Pipelines are Python Sequence objects, and as such can be sliced using Python's 
 
 .. code-block:: python
 
-  >>> pipeline = pdp.ColDrop("Name").Binarize("Label").ValDrop([-1], "Children").ApplyByCols("height", math.ceil)
+  >>> pipeline = pdp.ColDrop("Name").OneHotEncode("Label").ValDrop([-1], "Children").ApplyByCols("height", math.ceil)
   >>> pipeline[0]
   Drop column Name
   >>> pipeline[1:2]
   A pdpipe pipeline:
-  [ 0] Binarize Label
+  [ 0] OneHotEncode Label
 
 
 Applying Pipelines
@@ -224,7 +225,7 @@ Pipelines are pipeline stages themselves, and can be applied to a DataFrame usin
 
 .. code-block:: python
 
-  pipeline = pdp.ColDrop("Name") + pdp.Binarize("Label")
+  pipeline = pdp.ColDrop("Name") + pdp.OneHotEncode("Label")
   res_df = pipeline(df)
 
 
@@ -232,7 +233,7 @@ Assigning the ``exraise`` parameter to a pipeline apply call with a bool sets or
 
 .. code-block:: python
 
-  pipeline = pdp.ColDrop("Name") + pdp.Binarize("Label")
+  pipeline = pdp.ColDrop("Name") + pdp.OneHotEncode("Label")
   res_df = pipeline.apply(df, exraise=False)
 
 
@@ -267,7 +268,7 @@ Column Generation
 -----------------
 
 * Bin - Convert a continuous valued column to categoric data using binning.
-* Binarize - Convert a categorical column to the several binary columns corresponding to it.
+* OneHotEncode - Convert a categorical column to the several binary columns corresponding to it.
 * MapColVals - Replace column values by a map.
 * ApplyToRows - Generate columns by applying a function to each row.
 * ApplyByCols - Generate columns by applying an element-wise function to columns.
