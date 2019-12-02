@@ -413,3 +413,75 @@ class ColReorder(PdPipelineStage):
         except (IndexError):
             raise ValueError("Bad positions mapping given: {}".format(
                 new_columns))
+
+
+class RowDrop(PdPipelineStage):
+    """A pipeline stage that drop rows by condition.
+
+    Parameters
+    ----------
+    conditions : list-like or dict
+        A list of the values to keep.
+    columns : str or list-like, default None
+        The name, or an iterable of names, of columns to check for the given
+        values. If set to None, all columns are checked.
+
+    Example
+    -------
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], ['a','b'])
+    >>> pdp.ValKeep([4, 5], 'a').apply(df)
+       a   b
+    2  4   5
+    3  5  11
+    >>> pdp.ValKeep([4, 5]).apply(df)
+       a  b
+    2  4  5
+    """
+
+    _DEF_VALKEEP_EXC_MSG = ("ValKeep stage failed because not all columns {}"
+                            " were found in input dataframe.")
+    _DEF_VALKEEP_APPLY_MSG = "Keeping values {}..."
+
+    def _default_desc(self):
+        if self._columns:
+            return "Keep values {} in column{} {}".format(
+                self._values_str, 's' if len(self._columns) > 1 else '',
+                self._columns_str)
+        return "Keep values {}".format(self._values_str)
+
+    def __init__(self, values, columns=None, **kwargs):
+        self._values = values
+        self._values_str = _list_str(self._values)
+        self._columns_str = _list_str(columns)
+        if columns is None:
+            self._columns = None
+            apply_msg = ValKeep._DEF_VALKEEP_APPLY_MSG.format(
+                self._values_str)
+        else:
+            self._columns = _interpret_columns_param(columns)
+            apply_msg = ValKeep._DEF_VALKEEP_APPLY_MSG.format(
+                "{} in {}".format(
+                    self._values_str, self._columns_str))
+        super_kwargs = {
+            'exmsg': ValKeep._DEF_VALKEEP_EXC_MSG.format(self._columns_str),
+            'appmsg': apply_msg,
+            'desc': self._default_desc()
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        return set(self._columns or []).issubset(df.columns)
+
+    def _transform(self, df, verbose):
+        inter_df = df
+        before_count = len(inter_df)
+        columns_to_check = self._columns
+        if self._columns is None:
+            columns_to_check = df.columns
+        for col in columns_to_check:
+            inter_df = inter_df[inter_df[col].isin(self._values)]
+        if verbose:
+            print("{} rows dropped.".format(before_count - len(inter_df)))
+        return inter_df
