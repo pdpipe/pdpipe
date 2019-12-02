@@ -1,10 +1,10 @@
-pdpipe
-######
+pdpipe ˨ 
+########
 
 |PyPI-Status| |Downloads| |PyPI-Versions| |Build-Status| |Codecov| |Codefactor| |LICENCE|
 
 
-Easy pipelines for pandas DataFrames.
+Easy pipelines for pandas DataFrames (`learn how! <https://towardsdatascience.com/https-medium-com-tirthajyoti-build-pipelines-with-pandas-using-pdpipe-cade6128cd31>`_).
 
 .. code-block:: python
 
@@ -20,6 +20,8 @@ Easy pipelines for pandas DataFrames.
       Dana     165        0         1
       Jane     180        1         0
       Nick     170        0         0
+
+.. .. alternative symbols: ˨ ᛪ ᛢ ᚶ ᚺ ↬ ⑀ ⤃ ⤳ ⥤ 』
 
 .. contents::
 
@@ -68,6 +70,8 @@ Design Decisions
 
 Basic Use
 =========
+
+The awesome Tirthajyoti Sarkar wrote `an excellent practical introduction on how to use pdpipe <https://towardsdatascience.com/https-medium-com-tirthajyoti-build-pipelines-with-pandas-using-pdpipe-cade6128cd31>`_. Read it now `on Towards Data Science <https://towardsdatascience.com/https-medium-com-tirthajyoti-build-pipelines-with-pandas-using-pdpipe-cade6128cd31>`_!
 
 Pipeline Stages
 ---------------
