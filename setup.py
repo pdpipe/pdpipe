@@ -22,7 +22,7 @@ TEST_REQUIRES = [
     # testing and coverage
     'pytest', 'coverage', 'pytest-cov',
     # non-testing packagesrequired by tests, not by the package
-    'scikit-learn', 'pdutil',
+    'scikit-learn', 'pdutil', 'nltk',
     # to be able to run `python setup.py checkdocs`
     'collective.checkdocs', 'pygments',
 ]
@@ -57,6 +57,7 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Topic :: Software Development :: Libraries',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Intended Audience :: Developers',

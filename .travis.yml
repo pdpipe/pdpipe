@@ -34,8 +34,18 @@ matrix:
         - choco install python --version 3.5.4
         - python --version
         - python -m pip install --upgrade pip
-        - pip3 install --upgrade pytest
-        - pip3 install codecov
+        - doskey python3=python
+        # - pip3 install --upgrade pytest
+        # - pip3 install codecov
+	  install:
+		- pip3 install -U pip
+		- pip3 install -U pytest
+		- pip3 install codecov
+		# required for the pip only-binary fkag
+		- pip3 install --upgrade pip setuptools wheel
+		# we don't want to compile sources for the following packages:
+		- pip3 install --only-binary=all numpy scipy pandas scikit-learn nltk
+	    - pip3 install ".[test,sklearn,nltk]"
 	  script: python -m pytest
 	  after_success: python -m codecov
       env: PATH=/c/Python35:/c/Python35/Scripts:$PATH
