@@ -12,7 +12,7 @@ import versioneer
 
 
 README_RST = ''
-with open('README.rst') as f:
+with open('README.rst', encoding="utf-8") as f:
     README_RST = f.read()
 
 INSTALL_REQUIRES = [
