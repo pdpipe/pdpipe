@@ -16,7 +16,6 @@ matrix:
     - python: "3.6-dev"
     - python: "3.7-dev"
     - python: "3.8-dev"
-    - os: windows
   include: 
     # ======= OSX ========
     - name: "Python 3.6.5 on macOS 10.13"
