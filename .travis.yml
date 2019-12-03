@@ -22,6 +22,12 @@ matrix:
       os: osx
       osx_image: xcode9.4  # Python 3.6.5 running on macOS 10.13
       language: shell       # 'language: python' is an error on Travis CI macOS
+      script: python3 -m pytest -c pytest_osx.ini
+    - name: "Python 3.7.3 on macOS 10.14"
+      os: osx
+      osx_image: xcode10.2  # Python 3.7.3 running on macOS 10.14.3
+      language: shell       # 'language: python' is an error on Travis CI macOS
+      script: python3 -m pytest -c pytest_osx.ini
 before_install:
   - pip3 install -U pip
   - pip3 install -U pytest
