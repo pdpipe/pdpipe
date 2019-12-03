@@ -14,6 +14,14 @@ def _one_categ_single_row_df():
     return pd.DataFrame([["Greece"]], [1], ["Born"])
 
 
+def _one_categ_df_large():
+    return pd.DataFrame(
+        data=[["USA"], ["UK"], ["Greece"], ["USA"], ["USA"], ["UK"], ["UK"]],
+        index=[1, 2, 3, 4, 5, 6, 7],
+        columns=["Born"],
+    )
+
+
 @pytest.mark.onehotencode
 def test_onehotencode_one():
     """Basic binning test."""
@@ -42,6 +50,39 @@ def test_onehotencode_one():
     assert res_df2["Born_UK"][1] == 0
     assert "Born_USA" in res_df.columns
     assert res_df2["Born_USA"][1] == 0
+
+
+@pytest.mark.onehotencode
+def test_onehotencode_large():
+    """Basic binning test."""
+    df = _one_categ_df()
+    onehotencode = OneHotEncode("Born")
+    res_df = onehotencode(df, verbose=True)
+    assert "Born" not in res_df.columns
+    assert "Born_Greece" not in res_df.columns
+    assert "Born_UK" in res_df.columns
+    assert res_df["Born_UK"][1] == 0
+    assert res_df["Born_UK"][2] == 1
+    assert res_df["Born_UK"][3] == 0
+    assert "Born_USA" in res_df.columns
+    assert res_df["Born_USA"][1] == 1
+    assert res_df["Born_USA"][2] == 0
+    assert res_df["Born_USA"][3] == 0
+
+    # check when fitted
+    df2 = _one_categ_df_large()
+    assert onehotencode.is_fitted
+    res_df2 = onehotencode(df2, verbose=True)
+    print(res_df2)
+    assert len(res_df2) == 7
+    assert "Born" not in res_df2.columns
+    assert "Born_Greece" not in res_df2.columns
+    assert res_df2["Born_UK"][3] == 0
+    assert res_df2["Born_USA"][3] == 0
+    assert "Born_UK" in res_df2.columns
+    assert res_df2["Born_UK"][2] == 1
+    assert "Born_USA" in res_df.columns
+    assert res_df2["Born_USA"][1] == 1
 
 
 @pytest.mark.onehotencode
