@@ -83,6 +83,7 @@ before_install:
   - pip3 install --only-binary=all numpy scipy pandas scikit-learn nltk
 install:
   - pip3 install ".[test,sklearn,nltk]"
-script: python3 -m pytest
+script:
+  - python3 -m pytest
 after_success:
   - python3 -m codecov
