@@ -41,7 +41,7 @@ setup(
     packages=['pdpipe'],
     install_requires=INSTALL_REQUIRES,
     extras_require={
-        'sklearn': ['scikit-learn', 'skutil'],
+        'sklearn': ['scikit-learn'],
         'nltk': ['nltk'],
         'test': TEST_REQUIRES
     },

@@ -48,7 +48,6 @@ matrix:
         - choco install python --version 3.6.8
         - python --version
         - python -m pip install --upgrade pip
-      install: pip3 install .
       after_success: python -m codecov
       env: PATH=/c/Python36:/c/Python36/Scripts:$PATH
     - name: "Python 3.7.4 on Windows"
@@ -63,12 +62,12 @@ matrix:
       env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
 before_install:
   - pip3 install -U pip
+install:
   - pip3 install -U pytest
   - pip3 install codecov
   - pip3 install --upgrade pip setuptools wheel
   - pip3 install --only-binary=all numpy scipy pandas scikit-learn nltk
-install:
-  - pip3 install ".[test,sklearn,nltk]"
+  - pip3 install ".[test]"
 script:
   - python3 -m pytest
 after_success:
