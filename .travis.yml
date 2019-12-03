@@ -49,7 +49,6 @@ matrix:
         - python --version
         - python -m pip install --upgrade pip
       install: pip3 install .
-      script: python -m pytest
       after_success: python -m codecov
       env: PATH=/c/Python36:/c/Python36/Scripts:$PATH
     - name: "Python 3.7.4 on Windows"
