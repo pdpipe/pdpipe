@@ -16,7 +16,7 @@ with open('README.rst') as f:
     README_RST = f.read()
 
 INSTALL_REQUIRES = [
-    'pandas>=0.18.0', 'sortedcontainers', 'tqdm', 'strct', 'skutil',
+    'pandas>=0.18.0', 'sortedcontainers', 'tqdm', 'strct', 'skutil>=0.0.15',
 ]
 TEST_REQUIRES = [
     # testing and coverage
