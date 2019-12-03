@@ -48,6 +48,7 @@ matrix:
         - choco install python --version 3.6.8
         - python --version
         - python -m pip install --upgrade pip
+      install: pip3 install .
       script: python -m pytest
       after_success: python -m codecov
       env: PATH=/c/Python36:/c/Python36/Scripts:$PATH
