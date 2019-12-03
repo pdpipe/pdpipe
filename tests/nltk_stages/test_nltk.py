@@ -1,6 +1,7 @@
 """Test nltk pipeline stages."""
 
 import os
+import sys
 
 import pytest
 import pandas as pd
@@ -43,7 +44,7 @@ def test_untokenize():
 
 @pytest.mark.first
 @pytest.mark.skipif(
-    os.name == 'nt',
+    (os.name == 'nt') or (sys.platform.startswith('win')),
     reason="nltk has a problem locating resources on windows",
 )
 def test_remove_stopwords():
