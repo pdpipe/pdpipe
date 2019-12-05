@@ -368,9 +368,9 @@ class ColReorder(PdPipelineStage):
     Parameters
     ----------
     positions : dict
-        A mapping column names to their desired positions after reordering.
+        A mapping of column names to their desired positions after reordering.
         Columns not included in the mapping will maintain their relative
-        positions over the non-mapped colums
+        positions over the non-mapped colums.
 
     Example
     -------
@@ -421,8 +421,15 @@ class RowDrop(PdPipelineStage):
     Parameters
     ----------
     conditions : list-like or dict
-        A list of the values to keep.
-    columns : str or list-like, default None
+        The list of conditions that make a row eligible to be dropped. If a
+        list of callables is given, the conditions are checked for each column
+        value of each row. If a dict mapping column labels to callables is
+        given, then each condition is only checked for the column values of the
+        designated column.
+    all : bool, default False
+        If set to True, a row must satisfy all given conditions to be dropped.
+        Otherwise, satisfying any of the condition
+    columns : list-like, default None
         The name, or an iterable of names, of columns to check for the given
         values. If set to None, all columns are checked.
 
