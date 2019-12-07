@@ -416,16 +416,17 @@ class ColReorder(PdPipelineStage):
 
 
 class RowDrop(PdPipelineStage):
-    """A pipeline stage that drop rows by condition.
+    """A pipeline stage that drop rows by callable condition.
 
     Parameters
     ----------
     conditions : list-like or dict
-        The list of conditions that make a row eligible to be dropped. If a
-        list of callables is given, the conditions are checked for each column
-        value of each row. If a dict mapping column labels to callables is
-        given, then each condition is only checked for the column values of the
-        designated column.
+        The list of conditions that make a row eligible to be dropped. Each
+        condition must be a callable that take a cell value and return a bool
+        value. If a list of callables is given, the conditions are checked for
+        each column value of each row. If a dict mapping column labels to
+        callables is given, then each condition is only checked for the column
+        values of the designated column.
     reduce : 'any', 'all' or 'xor', default 'any'
         Determines how row conditions are reduced. If set to 'all', a row must
         satisfy all given conditions to be dropped. If set to 'any', rows
@@ -455,14 +456,14 @@ class RowDrop(PdPipelineStage):
                             " were found in input dataframe.")
     _DEF_ROWDROP_APPLY_MSG = "Dropping rows by conditions: {}..."
 
-    def _default_desc(self):
-        return "Drop rows by conditions: {}".format(self._conditions)
-
     _REDUCERS = {
         'all': all,
         'any': any,
         'xor': lambda x: sum(x) == 1
     }
+
+    def _default_desc(self):
+        return "Drop rows by conditions: {}".format(self._conditions)
 
     def _row_condition_builder(self, conditions, reduce):
         reducer = RowDrop._REDUCERS[reduce]
