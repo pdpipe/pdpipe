@@ -19,7 +19,7 @@ class ColDrop(PdPipelineStage):
     Parameters
     ----------
     columns : str, iterable or callable
-        The name, or an iterable of names, of columns to drop. Alternatively,
+        The label, or an iterable of labels, of columns to drop. Alternatively,
         columns can be assigned a callable returning bool values for
         pandas.Series objects; if this is the case, every column for which it
         return True will be dropped.
@@ -368,9 +368,9 @@ class ColReorder(PdPipelineStage):
     Parameters
     ----------
     positions : dict
-        A mapping column names to their desired positions after reordering.
+        A mapping of column names to their desired positions after reordering.
         Columns not included in the mapping will maintain their relative
-        positions over the non-mapped colums
+        positions over the non-mapped colums.
 
     Example
     -------
@@ -413,3 +413,115 @@ class ColReorder(PdPipelineStage):
         except (IndexError):
             raise ValueError("Bad positions mapping given: {}".format(
                 new_columns))
+
+
+class RowDrop(PdPipelineStage):
+    """A pipeline stage that drop rows by callable conditions.
+
+    Parameters
+    ----------
+    conditions : list-like or dict
+        The list of conditions that make a row eligible to be dropped. Each
+        condition must be a callable that take a cell value and return a bool
+        value. If a list of callables is given, the conditions are checked for
+        each column value of each row. If a dict mapping column labels to
+        callables is given, then each condition is only checked for the column
+        values of the designated column.
+    reduce : 'any', 'all' or 'xor', default 'any'
+        Determines how row conditions are reduced. If set to 'all', a row must
+        satisfy all given conditions to be dropped. If set to 'any', rows
+        satisfying at least one of the conditions are dropped. If set to 'xor',
+        rows satisfying exactly one of the conditions will be dropped. Set to
+        'any' by default.
+    columns : str or iterable, optional
+        The label, or an iterable of labels, of columns. Optional. If given,
+        input conditions will be applied to the sub-dataframe made up of
+        these columns to determine which rows to drop.
+
+    Example
+    -------
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], ['a','b'])
+    >>> pdp.RowDrop([lambda x: x < 2]).apply(df)
+       a   b
+    2  4   5
+    3  5  11
+    >>> pdp.RowDrop({'a': lambda x: x == 4}).apply(df)
+       a   b
+    1  1   4
+    3  5  11
+    """
+
+    _DEF_ROWDROP_EXC_MSG = ("RowDrop stage failed because not all columns {}"
+                            " were found in input dataframe.")
+    _DEF_ROWDROP_APPLY_MSG = "Dropping rows by conditions: {}..."
+
+    _REDUCERS = {
+        'all': all,
+        'any': any,
+        'xor': lambda x: sum(x) == 1
+    }
+
+    def _default_desc(self):
+        return "Drop rows by conditions: {}".format(self._conditions)
+
+    def _row_condition_builder(self, conditions, reduce):
+        reducer = RowDrop._REDUCERS[reduce]
+        if self._cond_is_dict:
+            def _row_cond(row):
+                res = [cond(row[lbl]) for lbl, cond in conditions.items()]
+                return reducer(res)
+        else:
+            def _row_cond(row):
+                res = [reducer(row.apply(cond)) for cond in conditions]
+                return reducer(res)
+        return _row_cond
+
+    def __init__(self, conditions, reduce=None, columns=None, **kwargs):
+        self._conditions = conditions
+        if reduce is None:
+            reduce = 'any'
+        self._reduce = reduce
+        self._columns = None
+        if columns:
+            self._columns = _interpret_columns_param(columns)
+        if reduce not in RowDrop._REDUCERS.keys():
+            raise ValueError((
+                "{} is an unsupported argument for the 'reduce' parameter of "
+                "the RowDrop constructor!").format(reduce))
+        self._cond_is_dict = isinstance(conditions, dict)
+        self._columns_str = ""
+        if self._cond_is_dict:
+            valid = all([callable(cond) for cond in conditions.values()])
+            if not valid:
+                raise ValueError(
+                    "Condition dicts given to RowDrop must map to callables!")
+            self._columns = list(conditions.keys())
+            self._columns_str = _list_str(self._columns)
+        else:
+            valid = all([callable(cond) for cond in conditions])
+            if not valid:
+                raise ValueError(
+                    "RowDrop condition lists can contain only callables!")
+        self._row_cond = self._row_condition_builder(conditions, reduce)
+        super_kwargs = {
+            'exmsg': RowDrop._DEF_ROWDROP_EXC_MSG.format(self._columns_str),
+            'appmsg': RowDrop._DEF_ROWDROP_APPLY_MSG.format(self._columns_str),
+            'desc': self._default_desc()
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        return set(self._columns or []).issubset(df.columns)
+
+    def _transform(self, df, verbose):
+        before_count = len(df)
+        subdf = df
+        if self._columns is not None:
+            subdf = df[self._columns]
+        drop_index = ~subdf.apply(self._row_cond, axis=1)
+        inter_df = df[drop_index]
+        if verbose:
+            print("{} rows dropped.".format(before_count - len(inter_df)))
+        return inter_df

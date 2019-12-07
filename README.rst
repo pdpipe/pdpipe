@@ -265,8 +265,9 @@ Basic Stages
 * ValKeep - Keep rows by by their value in specific or all columns.
 * ColRename - Rename columns.
 * DropNa - Drop null values. Supports all parameter supported by pandas.dropna function. 
-* FreqDrop - Drop rows by value frequency threshold on a specific column. 
+* FreqDrop - Drop rows by value frequency threshold on a specific column 
 * ColReorder - Reorder columns.
+* RowDrop - Drop rows by callable conditions.
 
 Column Generation
 -----------------
