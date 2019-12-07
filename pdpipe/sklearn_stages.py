@@ -207,7 +207,7 @@ class Scale(PdPipelineStage):
             obj_cols = [x for x in obj_cols if x not in cols_to_exclude]
             cols_to_exclude += obj_cols
         self._col_order = list(df.columns)
-        if len(cols_to_exclude) > 0:
+        if cols_to_exclude:
             excluded = df[cols_to_exclude]
             apply_to = df[
                 [col for col in df.columns if col not in cols_to_exclude]
@@ -227,7 +227,7 @@ class Scale(PdPipelineStage):
                     apply_to.columns
                 )
             )
-        if len(cols_to_exclude) > 0:
+        if cols_to_exclude:
             res = pd.concat([res, excluded], axis=1)
             res = res[self._col_order]
         self.is_fitted = True
@@ -240,7 +240,7 @@ class Scale(PdPipelineStage):
             obj_cols = [x for x in obj_cols if x not in cols_to_exclude]
             cols_to_exclude += obj_cols
         self._col_order = list(df.columns)
-        if len(cols_to_exclude) > 0:
+        if cols_to_exclude:
             excluded = df[cols_to_exclude]
             apply_to = df[
                 [col for col in df.columns if col not in cols_to_exclude]
@@ -259,7 +259,7 @@ class Scale(PdPipelineStage):
                     apply_to.columns
                 )
             )
-        if len(cols_to_exclude) > 0:
+        if cols_to_exclude:
             res = pd.concat([res, excluded], axis=1)
             res = res[self._col_order]
         return res
