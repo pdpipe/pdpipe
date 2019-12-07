@@ -416,7 +416,7 @@ class ColReorder(PdPipelineStage):
 
 
 class RowDrop(PdPipelineStage):
-    """A pipeline stage that drop rows by callable condition.
+    """A pipeline stage that drop rows by callable conditions.
 
     Parameters
     ----------
