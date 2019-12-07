@@ -50,7 +50,7 @@ Features
 * Chaining pipeline stages constructor calls for easy, one-liners pipelines.
 * Pipeline arithmetics.
 * Easier handling of mixed data (numeric, categorical and others).
-* Fully tested.
+* `Fully tested on Linux, macOS and Windows systems <https://travis-ci.org/shaypal5/pdpipe>`_.
 * Compatible with Python 3.5+.
 * Pure Python.
 

@@ -146,11 +146,11 @@ class RemoveStopwords(MapColVals):
 
     Example
     -------
-    >>> import pandas as pd; import pdpipe as pdp;
-    >>> data = [[3.2, ['kick', 'the', 'baby']]]
-    >>> df = pd.DataFrame(data, [1], ['freq', 'content'])
-    >>> remove_stopwords = pdp.RemoveStopwords('english', 'content')
-    >>> remove_stopwords(df)
+    >> import pandas as pd; import pdpipe as pdp;
+    >> data = [[3.2, ['kick', 'the', 'baby']]]
+    >> df = pd.DataFrame(data, [1], ['freq', 'content'])
+    >> remove_stopwords = pdp.RemoveStopwords('english', 'content')
+    >> remove_stopwords(df)
        freq       content
     1   3.2  [kick, baby]
     """
