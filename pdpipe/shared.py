@@ -6,8 +6,7 @@ def _interpret_columns_param(columns):
         return [columns]
     elif hasattr(columns, '__iter__'):
         return columns
-    else:
-        return [columns]
+    return [columns]
 
 
 def _list_str(listi):

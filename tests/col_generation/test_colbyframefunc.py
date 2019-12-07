@@ -38,8 +38,8 @@ def test_colbyframefunc_follow():
     res_df = cbf_stage(df)
     assert res_df.columns.get_loc('A==B') == 1
     assert res_df['A==B'][1] is True
-    assert res_df['A==B'][2] == False
-    assert res_df['A==B'][3] == False
+    assert res_df['A==B'][2] is False
+    assert res_df['A==B'][3] is False
 
 
 def _are_a_c_equal(df):
