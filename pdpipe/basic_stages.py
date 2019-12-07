@@ -426,38 +426,35 @@ class RowDrop(PdPipelineStage):
         value of each row. If a dict mapping column labels to callables is
         given, then each condition is only checked for the column values of the
         designated column.
-    all : bool, default False
-        If set to True, a row must satisfy all given conditions to be dropped.
-        Otherwise, satisfying any of the condition
-    columns : list-like, default None
-        The name, or an iterable of names, of columns to check for the given
-        values. If set to None, all columns are checked.
+    reduce : 'any', 'all' or 'xor', default 'any'
+        Determines how row conditions are reduced. If set to 'all', a row must
+        satisfy all given conditions to be dropped. If set to 'any', rows
+        satisfying at least one of the conditions are dropped. If set to 'xor',
+        rows satisfying exactly one of the conditions will be dropped. Set to
+        'any' by default.
 
     Example
     -------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], ['a','b'])
-    >>> pdp.ValKeep([4, 5], 'a').apply(df)
+    >>> pdp.RowDrop([lambda x: x < 2]).apply(df)
        a   b
     2  4   5
     3  5  11
-    >>> pdp.ValKeep([4, 5]).apply(df)
-       a  b
-    2  4  5
+    >>> pdp.RowDrop({'a': lambda x: x == 4}).apply(df)
+       a   b
+    1  1   4
+    3  5  11
     """
 
-    _DEF_VALKEEP_EXC_MSG = ("ValKeep stage failed because not all columns {}"
+    _DEF_ROWDROP_EXC_MSG = ("RowDrop stage failed because not all columns {}"
                             " were found in input dataframe.")
-    _DEF_VALKEEP_APPLY_MSG = "Keeping values {}..."
+    _DEF_VALKEEP_APPLY_MSG = "Dropping rows by conditions: {}..."
 
     def _default_desc(self):
-        if self._columns:
-            return "Keep values {} in column{} {}".format(
-                self._values_str, 's' if len(self._columns) > 1 else '',
-                self._columns_str)
-        return "Keep values {}".format(self._values_str)
+        return "Drop rows by conditions: {}".format(self._conditions)
 
-    def __init__(self, values, columns=None, **kwargs):
+    def __init__(self, conditions, reduce=None, **kwargs):
         self._values = values
         self._values_str = _list_str(self._values)
         self._columns_str = _list_str(columns)
