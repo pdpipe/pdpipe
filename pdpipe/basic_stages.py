@@ -19,7 +19,7 @@ class ColDrop(PdPipelineStage):
     Parameters
     ----------
     columns : str, iterable or callable
-        The name, or an iterable of names, of columns to drop. Alternatively,
+        The label, or an iterable of labels, of columns to drop. Alternatively,
         columns can be assigned a callable returning bool values for
         pandas.Series objects; if this is the case, every column for which it
         return True will be dropped.
@@ -432,6 +432,10 @@ class RowDrop(PdPipelineStage):
         satisfying at least one of the conditions are dropped. If set to 'xor',
         rows satisfying exactly one of the conditions will be dropped. Set to
         'any' by default.
+    columns : str or iterable, optional
+        The label, or an iterable of labels, of columns. Optional. If given,
+        input conditions will be applied to the sub-dataframe made up of
+        these columns to determine which rows to drop.
 
     Example
     -------
@@ -449,27 +453,59 @@ class RowDrop(PdPipelineStage):
 
     _DEF_ROWDROP_EXC_MSG = ("RowDrop stage failed because not all columns {}"
                             " were found in input dataframe.")
-    _DEF_VALKEEP_APPLY_MSG = "Dropping rows by conditions: {}..."
+    _DEF_ROWDROP_APPLY_MSG = "Dropping rows by conditions: {}..."
 
     def _default_desc(self):
         return "Drop rows by conditions: {}".format(self._conditions)
 
-    def __init__(self, conditions, reduce=None, **kwargs):
-        self._values = values
-        self._values_str = _list_str(self._values)
-        self._columns_str = _list_str(columns)
-        if columns is None:
-            self._columns = None
-            apply_msg = ValKeep._DEF_VALKEEP_APPLY_MSG.format(
-                self._values_str)
+    _REDUCERS = {
+        'all': all,
+        'any': any,
+        'xor': lambda x: sum(x) == 1
+    }
+
+    def _row_condition_builder(self, conditions, reduce):
+        reducer = RowDrop._REDUCERS[reduce]
+        if self._cond_is_dict:
+            def _row_cond(row):
+                res = [cond(row[lbl]) for lbl, cond in conditions.items()]
+                return reducer(res)
         else:
+            def _row_cond(row):
+                res = [reducer(row.apply(cond)) for cond in conditions]
+                return reducer(res)
+        return _row_cond
+
+    def __init__(self, conditions, reduce=None, columns=None, **kwargs):
+        self._conditions = conditions
+        if reduce is None:
+            reduce = 'any'
+        self._reduce = reduce
+        self._columns = None
+        if columns:
             self._columns = _interpret_columns_param(columns)
-            apply_msg = ValKeep._DEF_VALKEEP_APPLY_MSG.format(
-                "{} in {}".format(
-                    self._values_str, self._columns_str))
+        if reduce not in RowDrop._REDUCERS.keys():
+            raise ValueError((
+                "{} is an unsupported argument for the 'reduce' parameter of "
+                "the RowDrop constructor!").format(reduce))
+        self._cond_is_dict = isinstance(conditions, dict)
+        self._columns_str = ""
+        if self._cond_is_dict:
+            valid = all([callable(cond) for cond in conditions.values()])
+            if not valid:
+                raise ValueError(
+                    "Condition dicts given to RowDrop must map to callables!")
+            self._columns = list(conditions.keys())
+            self._columns_str = _list_str(self._columns)
+        else:
+            valid = all([callable(cond) for cond in conditions])
+            if not valid:
+                raise ValueError(
+                    "RowDrop condition lists can contain only callables!")
+        self._row_cond = self._row_condition_builder(conditions, reduce)
         super_kwargs = {
-            'exmsg': ValKeep._DEF_VALKEEP_EXC_MSG.format(self._columns_str),
-            'appmsg': apply_msg,
+            'exmsg': RowDrop._DEF_ROWDROP_EXC_MSG.format(self._columns_str),
+            'appmsg': RowDrop._DEF_ROWDROP_APPLY_MSG.format(self._columns_str),
             'desc': self._default_desc()
         }
         super_kwargs.update(**kwargs)
@@ -479,13 +515,12 @@ class RowDrop(PdPipelineStage):
         return set(self._columns or []).issubset(df.columns)
 
     def _transform(self, df, verbose):
-        inter_df = df
-        before_count = len(inter_df)
-        columns_to_check = self._columns
-        if self._columns is None:
-            columns_to_check = df.columns
-        for col in columns_to_check:
-            inter_df = inter_df[inter_df[col].isin(self._values)]
+        before_count = len(df)
+        subdf = df
+        if self._columns is not None:
+            subdf = df[self._columns]
+        drop_index = ~subdf.apply(self._row_cond, axis=1)
+        inter_df = df[drop_index]
         if verbose:
             print("{} rows dropped.".format(before_count - len(inter_df)))
         return inter_df

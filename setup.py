@@ -20,7 +20,7 @@ INSTALL_REQUIRES = [
 ]
 TEST_REQUIRES = [
     # testing and coverage
-    'pytest', 'coverage', 'pytest-cov',
+    'pytest', 'coverage', 'pytest-cov', 'pytest-ordering',
     # non-testing packagesrequired by tests, not by the package
     'scikit-learn', 'pdutil', 'nltk',
     # to be able to run `python setup.py checkdocs`
