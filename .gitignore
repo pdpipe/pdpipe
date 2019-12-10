@@ -97,3 +97,6 @@ tags
 
 # vim swap files
 *.swp
+
+# annotying mac files!
+.DS_Store

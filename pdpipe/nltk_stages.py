@@ -202,7 +202,7 @@ class RemoveStopwords(MapColVals):
             'suffix': '_nostop',
             'exmsg': RemoveStopwords._DEF_STOPWORDS_EXC_MSG.format(col_str),
             'appmsg': RemoveStopwords._DEF_STOPWORDS_APP_MSG.format(col_str),
-            'desc': "Removing stopwords from {}".format(col_str),
+            'desc': "Remove stopwords from {}".format(col_str),
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)

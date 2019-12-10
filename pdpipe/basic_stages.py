@@ -454,7 +454,7 @@ class RowDrop(PdPipelineStage):
 
     _DEF_ROWDROP_EXC_MSG = ("RowDrop stage failed because not all columns {}"
                             " were found in input dataframe.")
-    _DEF_ROWDROP_APPLY_MSG = "Dropping rows by conditions: {}..."
+    _DEF_ROWDROP_APPLY_MSG = "Dropping rows by conditions on columns {}..."
 
     _REDUCERS = {
         'all': all,
