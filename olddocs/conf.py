@@ -35,7 +35,7 @@ copyright = u'2019, Shay Palachy'
 author = u'Shay Palachy'
 
 
-# -- A few basic configurations ---------------------------------------------------------------------------------------
+# -- A few basic configurations -----------------------------------------------
 
 # The documentation in this project will be mostly generated from .rst files
 # In This project, every auto-documented module/class has its own .rst file, under the main documentation dir,
@@ -73,7 +73,13 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.autodoc',
     'sphinx.ext.imgmath',
+    'sphinx_automodapi.automodapi',
 ]
+
+# this line is needed by automodapi:
+# https://sphinx-automodapi.readthedocs.io/en/latest/
+numpydoc_show_class_members = False
+
 
 # Above extensions explanation and configurations:
 

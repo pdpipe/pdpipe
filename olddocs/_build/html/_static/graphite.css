@@ -1,0 +1,326 @@
+/*
+:Author: Andy Pearce
+:Contact: andy@andy-pearce.com
+:Copyright: This stylesheet has been placed in the public domain.
+
+Stylesheet for use with Docutils.
+*/
+
+@import url(html4css1.css);
+
+body {
+  background-color: #333333;
+  font-family: sans-serif;
+  padding: 0;
+  margin: 0;
+  color: #eeeeee;
+  text-shadow: 0 1px 1px black;
+}
+
+body > h1, h1.title {
+  text-align: center;
+  font-size: 240%;
+  color: #cccccc;
+  text-shadow: 0 3px 6px rgba(0,0,0,0.5);
+}
+
+div.related {
+  background-color: #555555;
+  margin: 0;
+  padding: 0.2em;
+  clear: both;
+}
+
+div.related h3 {
+  display: none;
+}
+
+div.related ul {
+  display: inline;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+div.related li {
+  display: inline;
+}
+
+div.related li.right {
+  float: right;
+  margin-right: 0.25em;
+}
+
+div.related a {
+  color: #eeeeee;
+}
+
+div.section {
+  background-color: #444444;
+  border-radius: 0.5em;
+  -moz-border-radius: 0.5em;
+  margin: 2em 0;
+  padding: 0 0 1em;
+}
+
+div.document > div.section {
+  margin: 2em 2em;
+}
+
+div.section h1 {
+  text-align: left;
+  font-size: 180%;
+  border-bottom: 1px solid #333333;
+  padding: 0.2em;
+  margin: 0;
+}
+
+div.section h2 {
+  text-align: left;
+  font-size: 140%;
+  border-top: 1px solid #333333;
+  border-bottom: 1px solid #333333;
+  padding: 0.2em;
+  margin: 0;
+}
+
+div.section h3 {
+  text-align: left;
+  font-size: 120%;
+  border: 0;
+  padding: 0.2em;
+  margin: 0;
+}
+
+div.section p {
+  margin: 0;
+  padding: 0.5em 0.5em 0;
+}
+
+div.section img {
+  margin: 0 2px;
+  vertical-align: middle;
+}
+
+tt {
+  color: #cccccc;
+  font-family: monospace;
+}
+
+div.section blockquote {
+  margin: 1em 2em 0.5em;
+  padding: 0.5em;
+  background-color: #555555;
+  border-radius: 0.5em;
+  -moz-border-radius: 0,5em;
+}
+
+div.section pre {
+  margin: 1em 2em 0.5em;
+  padding: 0.5em;
+  background-color: #555555;
+  border: 1px solid #333333;
+  color: #cccccc;
+  white-space: pre-wrap;
+  text-shadow: none;
+}
+
+div.section ul, div.sphinxsidebar ul {
+  list-style: none;
+  margin-left: 0;
+  padding-left: 2.2em;
+}
+
+div.sphinxsidebar ul > li:before {
+  content: "\2022 \2002";
+}
+
+div.sphinxsidebar p.topless {
+  margin-left: 0;
+  padding-left: 1em;
+}
+
+div.section li {
+  margin: 0.8em 0.1em 0.4em 1em;
+}
+
+div.section ol {
+  counter-reset: li;
+  list-style: decimal;
+  margin-left: 0;
+  padding-left: 2.6em;
+  /* text-indent: -1.6em; */
+}
+
+div.section ol li ol {
+  list-style: lower-latin;
+}
+
+div.section ul {
+  list-style: square;
+}
+
+
+/*
+div.section ul > li:before {
+  content: "\2023 \2002";
+  color: #cccccc;
+}
+
+
+div.section ol > li:before {
+  content: counter(li) ". \2000";
+  counter-increment: li;
+  color: #cccccc;
+}
+*/
+
+div.section li p {
+  margin: 0;
+  padding: 0;
+}
+
+div.section dl {
+  margin: 1em 2em 0.5em;
+  padding: 0;
+}
+
+div.section dt {
+  background-color: #555555;
+  margin: 0.2em 0;
+  padding: 0.2em 0.5em;
+}
+
+div.section dd {
+  margin: 0;
+  padding: 0;
+}
+
+a {
+  color: #bbbbbb;
+  text-decoration: none;
+}
+
+a:hover {
+  text-shadow: 0 0 8px #cccccc;
+}
+
+a.headerlink {
+  text-shadow: none;
+  visibility: hidden;
+}
+
+a.headerlink:hover {
+  color: #cccccc;
+  text-shadow: 0 0 8px #cccccc;
+}
+
+a:-webkit-any-link {
+    color: #95B9C7;
+    text-decoration: underline;
+}
+
+h1:hover > a.headerlink, h2:hover > a.headerlink, h3:hover > a.headerlink,
+h4:hover > a.headerlink, h5:hover > a.headerlink, h6:hover > a.headerlink,
+dt:hover > a.headerlink {
+  visibility: visible;
+}
+
+div.footer {
+  margin: 0.5em;
+  font-size: 80%;
+  text-align: right;
+}
+
+div.documentwrapper {
+  float: left;
+  width: 100%;
+  background-color: #333333;
+}
+
+div.bodywrapper {
+  margin: 0 0 0 220px;
+}
+
+div.body {
+  padding: 0 1em;
+}
+
+div.sphinxsidebar {
+  float: left;
+  width: 220px;
+  margin-left: -100%;
+  padding: 10px;
+}
+
+table.indextable {
+  margin-bottom: 1em;
+}
+
+table.indextable td {
+  margin: 0;
+  padding: 0.2em 2em 0.2em 0.5em;
+}
+
+em {
+  font-weight: bold;
+  font-style: italic;
+}
+
+em.property {
+  margin: 0 0.25em;
+}
+
+big {
+  font-size: 120%;
+  margin: 0 0.25em;
+}
+
+.viewcode-link {
+  margin: 0 0.5em;
+  font-variant: small-caps;
+  font-size: 90%;
+  vertical-align: text-top;
+}
+
+.class dt {
+  font-size: 18px;
+}
+
+.class .property {
+  color: #d481e6;
+}
+
+.function dt, .method dt {
+  color: #d481e6;
+  font-size: 16px;
+}
+
+.function .option dt, .class .option dt {
+  color: #50ce50;
+  background-color: #2b2b2b;
+  font-size: 13px;
+}
+
+body .highlight {
+  background-color: transparent;
+}
+
+.logo {
+  width: 172px;
+  border-radius: 10px;
+}
+
+.search div {
+  display: inline;
+}
+
+#searchbox h3 {
+  color: #bbbbbb;
+  margin-bottom: 0px;
+  font-weight: normal;
+}
+
+.pinktext {
+  color: #d481e6;
+}

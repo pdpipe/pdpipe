@@ -1,0 +1,651 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>pdpipe.core &#8212; pdpipe  documentation</title>
+    <link rel="stylesheet" href="../../_static/graphite.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pdpipe  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pdpipe.core</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Defines pipelines for processing Pandas.DataFrame-based datasets.</span>
+
+<span class="sd">&gt;&gt;&gt; import pdpipe as pdp</span>
+<span class="sd">&gt;&gt;&gt; pipeline = pdp.ColDrop(&#39;Name&#39;) + pdp.Bin({&#39;Speed&#39;: [0,5]})</span>
+<span class="sd">&gt;&gt;&gt; pipeline = pdp.ColDrop(&#39;Name&#39;).Bin({&#39;Speed&#39;: [0,5]}, drop=True)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">abc</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">textwrap</span>
+
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FailedPreconditionError</span><span class="p">,</span>
+    <span class="n">UnfittedPipelineStageError</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="c1"># === loading stage attributes ===</span>
+
+<span class="k">def</span> <span class="nf">__get_append_stage_attr_doc</span><span class="p">(</span><span class="n">class_obj</span><span class="p">):</span>
+    <span class="n">doc</span> <span class="o">=</span> <span class="n">class_obj</span><span class="o">.</span><span class="vm">__doc__</span>
+    <span class="n">first_line</span> <span class="o">=</span> <span class="n">doc</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">doc</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s2">&quot;An&quot;</span> <span class="ow">in</span> <span class="n">first_line</span><span class="p">:</span>
+        <span class="n">new_first_line</span> <span class="o">=</span> <span class="n">first_line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;An&quot;</span><span class="p">,</span> <span class="s2">&quot;Creates and adds an&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">new_first_line</span> <span class="o">=</span> <span class="n">first_line</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;A&quot;</span><span class="p">,</span> <span class="s2">&quot;Creates and adds a&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">new_first_line</span> <span class="o">=</span> <span class="n">new_first_line</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span>
+        <span class="s2">&quot; to this pipeline stage.&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">doc</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">first_line</span><span class="p">,</span> <span class="n">new_first_line</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">__load_stage_attribute__</span><span class="p">(</span><span class="n">class_obj</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">_append_stage_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">):</span>
+        <span class="c1"># self is always a PdPipelineStage</span>
+        <span class="k">return</span> <span class="bp">self</span> <span class="o">+</span> <span class="n">class_obj</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwds</span><span class="p">)</span>
+    <span class="n">_append_stage_func</span><span class="o">.</span><span class="vm">__doc__</span> <span class="o">=</span> <span class="n">__get_append_stage_attr_doc</span><span class="p">(</span><span class="n">class_obj</span><span class="p">)</span>
+    <span class="n">_append_stage_func</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">=</span> <span class="n">class_obj</span><span class="o">.</span><span class="vm">__name__</span>  <span class="c1"># .lower()</span>
+    <span class="n">_append_stage_func</span><span class="o">.</span><span class="n">__signature__</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">class_obj</span><span class="o">.</span><span class="fm">__init__</span><span class="p">)</span>
+    <span class="nb">setattr</span><span class="p">(</span><span class="n">PdPipelineStage</span><span class="p">,</span> <span class="n">class_obj</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">_append_stage_func</span><span class="p">)</span>
+
+    <span class="c1"># unbound_method = types.MethodType(_append_stage_func, class_obj)</span>
+    <span class="c1"># setattr(class_obj, class_obj.__name__, unbound_method)</span>
+
+
+<span class="k">def</span> <span class="nf">__load_stage_attributes_from_module__</span><span class="p">(</span><span class="n">module_name</span><span class="p">):</span>
+    <span class="n">module_obj</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="n">module_name</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getmembers</span><span class="p">(</span><span class="n">module_obj</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="vm">__module__</span> <span class="o">==</span> <span class="n">module_name</span><span class="p">:</span>
+            <span class="n">class_obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">module_obj</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">class_obj</span><span class="p">,</span> <span class="n">PdPipelineStage</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+                    <span class="n">class_obj</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">!=</span> <span class="s1">&#39;PdPipelineStage&#39;</span><span class="p">):</span>
+                <span class="n">__load_stage_attribute__</span><span class="p">(</span><span class="n">class_obj</span><span class="p">)</span>
+
+
+<span class="c1"># === basic classes ===</span>
+
+
+<div class="viewcode-block" id="PdPipelineStage"><a class="viewcode-back" href="../../index.html#pdpipe.core.PdPipelineStage">[docs]</a><span class="k">class</span> <span class="nc">PdPipelineStage</span><span class="p">(</span><span class="n">abc</span><span class="o">.</span><span class="n">ABC</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A stage of a pandas DataFrame-processing pipeline.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    exraise : bool, default True</span>
+<span class="sd">        If true, a pdpipe.FailedPreconditionError is raised when this</span>
+<span class="sd">        stage is applied to a dataframe for which the precondition does</span>
+<span class="sd">        not hold. Otherwise the stage is skipped.</span>
+<span class="sd">    exmsg : str, default None</span>
+<span class="sd">        The message of the exception that is raised on a failed</span>
+<span class="sd">        precondition if exraise is set to True. A default message is used</span>
+<span class="sd">        if None is given.</span>
+<span class="sd">    appmsg : str, default None</span>
+<span class="sd">        The message printed when this stage is applied with verbose=True.</span>
+<span class="sd">        A default message is used if None is given.</span>
+<span class="sd">    desc : str, default None</span>
+<span class="sd">        A short description of this stage, used as its string representation.</span>
+<span class="sd">        A default description is used if None is given.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_DEF_EXC_MSG</span> <span class="o">=</span> <span class="s1">&#39;Precondition failed!&#39;</span>
+    <span class="n">_DEF_APPLY_MSG</span> <span class="o">=</span> <span class="s1">&#39;Applying a pipeline stage...&#39;</span>
+    <span class="n">_DEF_DESCRIPTION</span> <span class="o">=</span> <span class="s1">&#39;A pipeline stage.&#39;</span>
+    <span class="n">_INIT_KWARGS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;exraise&#39;</span><span class="p">,</span> <span class="s1">&#39;exmsg&#39;</span><span class="p">,</span> <span class="s1">&#39;appmsg&#39;</span><span class="p">,</span> <span class="s1">&#39;desc&#39;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exraise</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exmsg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">appmsg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">exmsg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">exmsg</span> <span class="o">=</span> <span class="n">PdPipelineStage</span><span class="o">.</span><span class="n">_DEF_EXC_MSG</span>
+        <span class="k">if</span> <span class="n">appmsg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">appmsg</span> <span class="o">=</span> <span class="n">PdPipelineStage</span><span class="o">.</span><span class="n">_DEF_APPLY_MSG</span>
+        <span class="k">if</span> <span class="n">desc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">desc</span> <span class="o">=</span> <span class="n">PdPipelineStage</span><span class="o">.</span><span class="n">_DEF_DESCRIPTION</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_exraise</span> <span class="o">=</span> <span class="n">exraise</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_exmsg</span> <span class="o">=</span> <span class="n">exmsg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_appmsg</span> <span class="o">=</span> <span class="n">appmsg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_desc</span> <span class="o">=</span> <span class="n">desc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_fitted</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_init_kwargs</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_INIT_KWARGS</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_prec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>  <span class="c1"># pylint: disable=R0201,W0613</span>
+        <span class="sd">&quot;&quot;&quot;Returns True if this stage can be applied to the given dataframe.&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">_fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fits this stage and transforms the input dataframe.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transform</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_is_fittable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">_fit_transform</span> <span class="o">==</span> <span class="n">PdPipelineStage</span><span class="o">.</span><span class="n">_fit_transform</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="nd">@abc</span><span class="o">.</span><span class="n">abstractmethod</span>
+    <span class="k">def</span> <span class="nf">_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Transforms the given dataframe without fitting this stage.&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;_transform method not implemented!&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PdPipelineStage.apply"><a class="viewcode-back" href="../../index.html#pdpipe.core.PdPipelineStage.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">exraise</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Applies this pipeline stage to the given dataframe.</span>
+
+<span class="sd">        If the stage is not fitted fit_transform is called. Otherwise,</span>
+<span class="sd">        transform is called.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        df : pandas.DataFrame</span>
+<span class="sd">            The dataframe to which this pipeline stage will be applied.</span>
+<span class="sd">        exraise : bool, default None</span>
+<span class="sd">            Determines behaviour if the precondition of this stage is not</span>
+<span class="sd">            fulfilled by the given dataframe: If True,</span>
+<span class="sd">            a pdpipe.FailedPreconditionError is raised. If False, the stage is</span>
+<span class="sd">            skipped. If None, the default behaviour of this stage is used, as</span>
+<span class="sd">            determined by the exraise constructor parameter.</span>
+<span class="sd">        verbose : bool, default False</span>
+<span class="sd">            If True an explanation message is printed after the precondition</span>
+<span class="sd">            is checked but before the application of the pipeline stage.</span>
+<span class="sd">            Defaults to False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pandas.DataFrame</span>
+<span class="sd">            The resulting dataframe.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">exraise</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">exraise</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exraise</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prec</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;- &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">  &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">textwrap</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_appmsg</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_fitted</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transform</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_transform</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">exraise</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">FailedPreconditionError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_exmsg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">df</span></div>
+
+    <span class="fm">__call__</span> <span class="o">=</span> <span class="n">apply</span>
+
+<div class="viewcode-block" id="PdPipelineStage.fit_transform"><a class="viewcode-back" href="../../index.html#pdpipe.core.PdPipelineStage.fit_transform">[docs]</a>    <span class="k">def</span> <span class="nf">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exraise</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fits this stage and transforms the given dataframe.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : pandas.DataFrame</span>
+<span class="sd">            The dataframe to transform and fit this pipeline stage by.</span>
+<span class="sd">        y : array-like, optional</span>
+<span class="sd">            Targets for supervised learning.</span>
+<span class="sd">        exraise : bool, default None</span>
+<span class="sd">            Determines behaviour if the precondition of this stage is not</span>
+<span class="sd">            fulfilled by the given dataframe: If True,</span>
+<span class="sd">            a pdpipe.FailedPreconditionError is raised. If False, the stage is</span>
+<span class="sd">            skipped. If None, the default behaviour of this stage is used, as</span>
+<span class="sd">            determined by the exraise constructor parameter.</span>
+<span class="sd">        verbose : bool, default False</span>
+<span class="sd">            If True an explanation message is printed after the precondition</span>
+<span class="sd">            is checked but before the application of the pipeline stage.</span>
+<span class="sd">            Defaults to False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pandas.DataFrame</span>
+<span class="sd">            The resulting dataframe.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">exraise</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">exraise</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exraise</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prec</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;- &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">  &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">textwrap</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_appmsg</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">exraise</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">FailedPreconditionError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_exmsg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">X</span></div>
+
+<div class="viewcode-block" id="PdPipelineStage.fit"><a class="viewcode-back" href="../../index.html#pdpipe.core.PdPipelineStage.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exraise</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fits this stage without transforming the given dataframe.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : pandas.DataFrame</span>
+<span class="sd">            The dataframe to be transformed.</span>
+<span class="sd">        y : array-like, optional</span>
+<span class="sd">            Targets for supervised learning.</span>
+<span class="sd">        exraise : bool, default None</span>
+<span class="sd">            Determines behaviour if the precondition of this stage is not</span>
+<span class="sd">            fulfilled by the given dataframe: If True,</span>
+<span class="sd">            a pdpipe.FailedPreconditionError is raised. If False, the stage is</span>
+<span class="sd">            skipped. If None, the default behaviour of this stage is used, as</span>
+<span class="sd">            determined by the exraise constructor parameter.</span>
+<span class="sd">        verbose : bool, default False</span>
+<span class="sd">            If True an explanation message is printed after the precondition</span>
+<span class="sd">            is checked but before the application of the pipeline stage.</span>
+<span class="sd">            Defaults to False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pandas.DataFrame</span>
+<span class="sd">            The resulting dataframe.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">exraise</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">exraise</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exraise</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prec</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;- &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">  &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">textwrap</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_appmsg</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">X</span>
+        <span class="k">if</span> <span class="n">exraise</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">FailedPreconditionError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_exmsg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">X</span></div>
+
+<div class="viewcode-block" id="PdPipelineStage.transform"><a class="viewcode-back" href="../../index.html#pdpipe.core.PdPipelineStage.transform">[docs]</a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exraise</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Transforms the given dataframe without fitting this stage.</span>
+
+<span class="sd">        If this stage is fittable but is not fitter, an</span>
+<span class="sd">        UnfittedPipelineStageError is raised.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : pandas.DataFrame</span>
+<span class="sd">            The dataframe to be transformed.</span>
+<span class="sd">        y : array-like, optional</span>
+<span class="sd">            Targets for supervised learning.</span>
+<span class="sd">        exraise : bool, default None</span>
+<span class="sd">            Determines behaviour if the precondition of this stage is not</span>
+<span class="sd">            fulfilled by the given dataframe: If True,</span>
+<span class="sd">            a pdpipe.FailedPreconditionError is raised. If False, the stage is</span>
+<span class="sd">            skipped. If None, the default behaviour of this stage is used, as</span>
+<span class="sd">            determined by the exraise constructor parameter.</span>
+<span class="sd">        verbose : bool, default False</span>
+<span class="sd">            If True an explanation message is printed after the precondition</span>
+<span class="sd">            is checked but before the application of the pipeline stage.</span>
+<span class="sd">            Defaults to False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pandas.DataFrame</span>
+<span class="sd">            The resulting dataframe.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">exraise</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">exraise</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_exraise</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prec</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s1">&#39;- &#39;</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">  &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">textwrap</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_appmsg</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_fittable</span><span class="p">():</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_fitted</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transform</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">UnfittedPipelineStageError</span><span class="p">(</span>
+                    <span class="s2">&quot;transform of an unfitted pipeline stage was called!&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transform</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">exraise</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">FailedPreconditionError</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_exmsg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">X</span></div>
+
+    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">PdPipeline</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">PdPipeline</span><span class="p">([</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">other</span><span class="o">.</span><span class="n">_stages</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">PdPipelineStage</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">PdPipeline</span><span class="p">([</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;PdPipelineStage: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_desc</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__str__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="PdPipelineStage.description"><a class="viewcode-back" href="../../index.html#pdpipe.core.PdPipelineStage.description">[docs]</a>    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the description of this pipeline stage&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_desc</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_always_true</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="kc">True</span>
+
+
+<div class="viewcode-block" id="AdHocStage"><a class="viewcode-back" href="../../index.html#pdpipe.core.AdHocStage">[docs]</a><span class="k">class</span> <span class="nc">AdHocStage</span><span class="p">(</span><span class="n">PdPipelineStage</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An ad-hoc stage of a pandas DataFrame-processing pipeline.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    transform : callable</span>
+<span class="sd">        The transformation this stage applies to dataframes.</span>
+<span class="sd">    prec : callable, default None</span>
+<span class="sd">        A callable that returns a boolean value. Represent a a precondition</span>
+<span class="sd">        used to determine whether this stage can be applied to a given</span>
+<span class="sd">        dataframe. If None is given, set to a function always returning True.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transform</span><span class="p">,</span> <span class="n">prec</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">prec</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">prec</span> <span class="o">=</span> <span class="n">_always_true</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_adhoc_transform</span> <span class="o">=</span> <span class="n">transform</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_adhoc_prec</span> <span class="o">=</span> <span class="n">prec</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_prec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_adhoc_prec</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_adhoc_transform</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_adhoc_transform</span><span class="p">(</span><span class="n">df</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PdPipeline"><a class="viewcode-back" href="../../index.html#pdpipe.core.PdPipeline">[docs]</a><span class="k">class</span> <span class="nc">PdPipeline</span><span class="p">(</span><span class="n">PdPipelineStage</span><span class="p">,</span> <span class="n">collections</span><span class="o">.</span><span class="n">abc</span><span class="o">.</span><span class="n">Sequence</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A pipeline for processing pandas DataFrame objects.</span>
+
+<span class="sd">    transformer_getter is usefull to avoid applying pipeline stages that are</span>
+<span class="sd">    aimed to filter out items in a big dataset to create a training set for a</span>
+<span class="sd">    machine learning model, for example, but should not be applied on future</span>
+<span class="sd">    individual items to be transformed by the fitted pipeline.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    stages : list</span>
+<span class="sd">        A list of PdPipelineStage objects making up this pipeline.</span>
+<span class="sd">    transform_getter : callable, optional</span>
+<span class="sd">        A callable that can be applied to the fitted pipeline to produce a</span>
+<span class="sd">        sub-pipeline of it which should be used to transform dataframes after</span>
+<span class="sd">        the pipeline has been fitted. If not given, the fitted pipeline is used</span>
+<span class="sd">        entirely.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_DEF_EXC_MSG</span> <span class="o">=</span> <span class="s1">&#39;Pipeline precondition failed!&#39;</span>
+    <span class="n">_DEF_APP_MSG</span> <span class="o">=</span> <span class="s1">&#39;Applying a pipeline...&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stages</span><span class="p">,</span> <span class="n">transformer_getter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_stages</span> <span class="o">=</span> <span class="n">stages</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_trans_getter</span> <span class="o">=</span> <span class="n">transformer_getter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_fitted</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">super_kwargs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;exraise&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+            <span class="s1">&#39;exmsg&#39;</span><span class="p">:</span> <span class="n">PdPipeline</span><span class="o">.</span><span class="n">_DEF_EXC_MSG</span><span class="p">,</span>
+            <span class="s1">&#39;appmsg&#39;</span><span class="p">:</span> <span class="n">PdPipeline</span><span class="o">.</span><span class="n">_DEF_APP_MSG</span>
+        <span class="p">}</span>
+        <span class="n">super_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">super_kwargs</span><span class="p">)</span>
+
+    <span class="c1"># implementing a collections.abc.Sequence abstract method</span>
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="nb">slice</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">PdPipeline</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_stages</span><span class="p">[</span><span class="n">index</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stages</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+
+    <span class="c1"># implementing a collections.abc.Sequence abstract method</span>
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_stages</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_prec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
+        <span class="c1"># PdPipeline overrides apply in a way which makes this moot</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">verbose</span><span class="p">):</span>
+        <span class="c1"># PdPipeline overrides apply in a way which makes this moot</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+<div class="viewcode-block" id="PdPipeline.apply"><a class="viewcode-back" href="../../index.html#pdpipe.core.PdPipeline.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">exraise</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">inter_df</span> <span class="o">=</span> <span class="n">df</span>
+        <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stages</span><span class="p">:</span>
+            <span class="n">inter_df</span> <span class="o">=</span> <span class="n">stage</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">inter_df</span><span class="p">,</span> <span class="n">exraise</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">inter_df</span></div>
+
+<div class="viewcode-block" id="PdPipeline.fit_transform"><a class="viewcode-back" href="../../index.html#pdpipe.core.PdPipeline.fit_transform">[docs]</a>    <span class="k">def</span> <span class="nf">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exraise</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fits this pipeline and transforms the input dataframe.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : pandas.DataFrame</span>
+<span class="sd">            The dataframe to transform and fit this pipeline by.</span>
+<span class="sd">        y : array-like, optional</span>
+<span class="sd">            Targets for supervised learning.</span>
+<span class="sd">        exraise : bool, default None</span>
+<span class="sd">            Determines behaviour if the precondition of composing stages is not</span>
+<span class="sd">            fulfilled by the input dataframe: If True, a</span>
+<span class="sd">            pdpipe.FailedPreconditionError is raised. If False, the stage is</span>
+<span class="sd">            skipped. If not given, or set to None, the default behaviour of</span>
+<span class="sd">            each stage is used, as determined by its &#39;exraise&#39; constructor</span>
+<span class="sd">            parameter.</span>
+<span class="sd">        verbose : bool, default False</span>
+<span class="sd">            If True an explanation message is printed after the precondition</span>
+<span class="sd">            of each stage is checked but before its application. Otherwise, no</span>
+<span class="sd">            messages are printed.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pandas.DataFrame</span>
+<span class="sd">            The resulting dataframe.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">inter_x</span> <span class="o">=</span> <span class="n">X</span>
+        <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stages</span><span class="p">:</span>
+            <span class="n">inter_x</span> <span class="o">=</span> <span class="n">stage</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span>
+                <span class="n">X</span><span class="o">=</span><span class="n">inter_x</span><span class="p">,</span>
+                <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">exraise</span><span class="o">=</span><span class="n">exraise</span><span class="p">,</span>
+                <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">inter_x</span></div>
+
+<div class="viewcode-block" id="PdPipeline.fit"><a class="viewcode-back" href="../../index.html#pdpipe.core.PdPipeline.fit">[docs]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exraise</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fits this pipeline without transforming the input dataframe.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : pandas.DataFrame</span>
+<span class="sd">            The dataframe to fit this pipeline by.</span>
+<span class="sd">        y : array-like, optional</span>
+<span class="sd">            Targets for supervised learning.</span>
+<span class="sd">        exraise : bool, default None</span>
+<span class="sd">            Determines behaviour if the precondition of composing stages is not</span>
+<span class="sd">            fulfilled by the input dataframe: If True, a</span>
+<span class="sd">            pdpipe.FailedPreconditionError is raised. If False, the stage is</span>
+<span class="sd">            skipped. If not given, or set to None, the default behaviour of</span>
+<span class="sd">            each stage is used, as determined by its &#39;exraise&#39; constructor</span>
+<span class="sd">            parameter.</span>
+<span class="sd">        verbose : bool, default False</span>
+<span class="sd">            If True an explanation message is printed after the precondition</span>
+<span class="sd">            of each stage is checked but before its application. Otherwise, no</span>
+<span class="sd">            messages are printed.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pandas.DataFrame</span>
+<span class="sd">            The input dataframe, unchanged.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span>
+            <span class="n">X</span><span class="o">=</span><span class="n">X</span><span class="p">,</span>
+            <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">exraise</span><span class="o">=</span><span class="n">exraise</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">X</span></div>
+
+<div class="viewcode-block" id="PdPipeline.transform"><a class="viewcode-back" href="../../index.html#pdpipe.core.PdPipeline.transform">[docs]</a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exraise</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Transforms the given dataframe without fitting this pipeline.</span>
+
+<span class="sd">        If any stage in this pipeline is fittable but is not fitted, an</span>
+<span class="sd">        UnfittedPipelineStageError is raised before transformation starts.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : pandas.DataFrame</span>
+<span class="sd">            The dataframe to transform.</span>
+<span class="sd">        y : array-like, optional</span>
+<span class="sd">            Targets for supervised learning.</span>
+<span class="sd">        exraise : bool, default None</span>
+<span class="sd">            Determines behaviour if the precondition of composing stages is not</span>
+<span class="sd">            fulfilled by the input dataframe: If True, a</span>
+<span class="sd">            pdpipe.FailedPreconditionError is raised. If False, the stage is</span>
+<span class="sd">            skipped. If not given, or set to None, the default behaviour of</span>
+<span class="sd">            each stage is used, as determined by its &#39;exraise&#39; constructor</span>
+<span class="sd">            parameter.</span>
+<span class="sd">        verbose : bool, default False</span>
+<span class="sd">            If True an explanation message is printed after the precondition</span>
+<span class="sd">            of each stage is checked but before its application. Otherwise, no</span>
+<span class="sd">            messages are printed.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pandas.DataFrame</span>
+<span class="sd">            The resulting dataframe.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stages</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">stage</span><span class="o">.</span><span class="n">_is_fittable</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">stage</span><span class="o">.</span><span class="n">is_fitted</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">UnfittedPipelineStageError</span><span class="p">((</span>
+                    <span class="s2">&quot;PipelineStage </span><span class="si">{}</span><span class="s2"> in pipeline is fittable but&quot;</span>
+                    <span class="s2">&quot; unfitted!&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">stage</span><span class="p">))</span>
+        <span class="n">inter_df</span> <span class="o">=</span> <span class="n">X</span>
+        <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_stages</span><span class="p">:</span>
+            <span class="n">inter_df</span> <span class="o">=</span> <span class="n">stage</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span>
+                <span class="n">X</span><span class="o">=</span><span class="n">inter_df</span><span class="p">,</span>
+                <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">exraise</span><span class="o">=</span><span class="n">exraise</span><span class="p">,</span>
+                <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">inter_df</span></div>
+
+    <span class="fm">__call__</span> <span class="o">=</span> <span class="n">apply</span>
+
+    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">PdPipeline</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">PdPipeline</span><span class="p">([</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_stages</span><span class="p">,</span> <span class="o">*</span><span class="n">other</span><span class="o">.</span><span class="n">_stages</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">PdPipelineStage</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">PdPipeline</span><span class="p">([</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_stages</span><span class="p">,</span> <span class="n">other</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="s2">&quot;A pdpipe pipeline:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">res</span> <span class="o">+=</span> <span class="s1">&#39;[ 0]  &#39;</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">      &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">textwrap</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_stages</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">description</span><span class="p">()))</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">stage</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_stages</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
+            <span class="n">res</span> <span class="o">+=</span> <span class="s1">&#39;[</span><span class="si">{:&gt;2}</span><span class="s1">]  &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">      &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="n">textwrap</span><span class="o">.</span><span class="n">wrap</span><span class="p">(</span><span class="n">stage</span><span class="o">.</span><span class="n">description</span><span class="p">()))</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="k">return</span> <span class="n">res</span>
+
+<div class="viewcode-block" id="PdPipeline.get_transformer"><a class="viewcode-back" href="../../api/pdpipe.core.PdPipeline.html#pdpipe.core.PdPipeline.get_transformer">[docs]</a>    <span class="k">def</span> <span class="nf">get_transformer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_trans_getter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>  <span class="c1"># pragma: no cover</span>
+            <span class="k">return</span> <span class="bp">self</span></div></div>
+
+    <span class="c1"># def drop(self, index):</span>
+    <span class="c1">#     &quot;&quot;&quot;Returns this pipeline with the stage of the given index removed.</span>
+
+    <span class="c1">#     Arguments</span>
+    <span class="c1">#     ---------</span>
+    <span class="c1">#     index</span>
+
+
+<div class="viewcode-block" id="make_pdpipeline"><a class="viewcode-back" href="../../index.html#pdpipe.core.make_pdpipeline">[docs]</a><span class="k">def</span> <span class="nf">make_pdpipeline</span><span class="p">(</span><span class="o">*</span><span class="n">stages</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Constructs a PdPipeline from the given pipeline stages.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    *stages : pdpipe.PipelineStage objects</span>
+<span class="sd">       PdPipeline stages given as positional arguments.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    p : pdpipe.PdPipeline</span>
+<span class="sd">        The resulting pipeline.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    import pdpipe as pdp</span>
+<span class="sd">    make_pdpipeline(pdp.ColDrop(&#39;a&#39;), pdp.Bin(&#39;speed&#39;))</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">PdPipeline</span><span class="p">(</span><span class="n">stages</span><span class="o">=</span><span class="n">stages</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../index.html">
+              <img class="logo" src="../../_static/universe.jpg" alt="Logo"/>
+            </a></p>
+<h3><a href="../../index.html">Universe</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../dummy_class_template_for_your_next_project.html">This is a template for including classes</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pdpipe.core.make_pdpipeline.html">make_pdpipeline</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pdpipe.core.AdHocStage.html">AdHocStage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pdpipe.core.PdPipeline.html">PdPipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/pdpipe.core.PdPipelineStage.html">PdPipelineStage</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pdpipe  documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Shay Palachy.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
+    </div>
+  </body>
+</html>

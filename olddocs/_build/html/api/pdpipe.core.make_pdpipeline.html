@@ -1,0 +1,124 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>make_pdpipeline &#8212; pdpipe  documentation</title>
+    <link rel="stylesheet" href="../_static/graphite.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="AdHocStage" href="pdpipe.core.AdHocStage.html" />
+    <link rel="prev" title="This is a template for including classes" href="../dummy_class_template_for_your_next_project.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pdpipe.core.AdHocStage.html" title="AdHocStage"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../dummy_class_template_for_your_next_project.html" title="This is a template for including classes"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pdpipe  documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="make-pdpipeline">
+<h1>make_pdpipeline<a class="headerlink" href="#make-pdpipeline" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="pdpipe.core.make_pdpipeline">
+<code class="sig-prename descclassname">pdpipe.core.</code><code class="sig-name descname">make_pdpipeline</code><span class="sig-paren">(</span><em class="sig-param">*stages</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pdpipe/core.html#make_pdpipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pdpipe.core.make_pdpipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs a PdPipeline from the given pipeline stages.</p>
+<dl class="simple">
+<dt><a href="#id1"><span class="problematic" id="id2">*</span></a>stages<span class="classifier">pdpipe.PipelineStage objects</span></dt><dd><p>PdPipeline stages given as positional arguments.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>p<span class="classifier">pdpipe.PdPipeline</span></dt><dd><p>The resulting pipeline.</p>
+</dd>
+</dl>
+<p>import pdpipe as pdp
+make_pdpipeline(pdp.ColDrop(‘a’), pdp.Bin(‘speed’))</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../index.html">
+              <img class="logo" src="../_static/universe.jpg" alt="Logo"/>
+            </a></p>
+<h3><a href="../index.html">Universe</a></h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../dummy_class_template_for_your_next_project.html">This is a template for including classes</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">make_pdpipeline</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pdpipe.core.AdHocStage.html">AdHocStage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pdpipe.core.PdPipeline.html">PdPipeline</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pdpipe.core.PdPipelineStage.html">PdPipelineStage</a></li>
+</ul>
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pdpipe.core.AdHocStage.html" title="AdHocStage"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../dummy_class_template_for_your_next_project.html" title="This is a template for including classes"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">pdpipe  documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2019, Shay Palachy.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.2.
+    </div>
+  </body>
+</html>

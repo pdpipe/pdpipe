@@ -3,8 +3,8 @@
 
 
 
-Welcome to pdpipe's documentation !
-=========================================================
+Welcome to pdpipe's documentation!
+==================================
 |
 
 Easy pipelines for pandas DataFrames (`learn how! <https://towardsdatascience.com/https-medium-com-tirthajyoti-build-pipelines-with-pandas-using-pdpipe-cade6128cd31>`_).
@@ -32,6 +32,12 @@ The source code is available `here <https://github.com/shaypal5/pdpipe>`_.
 
 .. :ref:`genindex`
 
+
+pdpipe API documentation
+========================
+
+.. automodapi:: pdpipe.core
+  :no-inheritance-diagram: 
 
 |
 
