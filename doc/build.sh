@@ -20,22 +20,21 @@ mkdir -p "$BUILDROOT"
 rm -r "$BUILDROOT" 2>/dev/null || true
 pushd "$DOCROOT/.." >/dev/null
 pdoc3 --html \
-     ${IS_RELEASE+--template-dir "$DOCROOT/pdoc_template"} \
      --output-dir "$BUILDROOT" \
-     pdoc
+     pdpipe
 popd >/dev/null
 
 
-if [ "$IS_RELEASE" ]; then
-    echo -e '\nAdding GAnalytics code\n'
-
-    ANALYTICS="<script>window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;ga('create','UA-43663477-5','auto');ga('require','cleanUrlTracker',{indexFilename:'index.html',trailingSlash:'add'});ga('require','outboundLinkTracker',{events:['click','auxclick','contextmenu']});ga('require','maxScrollTracker');ga('require','pageVisibilityTracker');ga('send','pageview');setTimeout(function(){ga('send','event','pageview','view')},15000);</script><script async src='https://www.google-analytics.com/analytics.js'></script><script async src='https://cdnjs.cloudflare.com/ajax/libs/autotrack/2.4.1/autotrack.js'></script>"
-    find "$BUILDROOT" -name '*.html' -print0 |
-        xargs -0 -- sed -i "s#</body>#$ANALYTICS</body>#i"
-    ANALYTICS='<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle=window.adsbygoogle||[]).push({google_ad_client:"ca-pub-2900001379782823",enable_page_level_ads:true});</script>'
-    find "$BUILDROOT" -name '*.html' -print0 |
-        xargs -0 -- sed -i "s#</head>#$ANALYTICS</head>#i"
-fi
+# if [ "$IS_RELEASE" ]; then
+#     echo -e '\nAdding GAnalytics code\n'
+#
+#     ANALYTICS="<script>window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;ga('create','UA-43663477-5','auto');ga('require','cleanUrlTracker',{indexFilename:'index.html',trailingSlash:'add'});ga('require','outboundLinkTracker',{events:['click','auxclick','contextmenu']});ga('require','maxScrollTracker');ga('require','pageVisibilityTracker');ga('send','pageview');setTimeout(function(){ga('send','event','pageview','view')},15000);</script><script async src='https://www.google-analytics.com/analytics.js'></script><script async src='https://cdnjs.cloudflare.com/ajax/libs/autotrack/2.4.1/autotrack.js'></script>"
+#     find "$BUILDROOT" -name '*.html' -print0 |
+#         xargs -0 -- sed -i "s#</body>#$ANALYTICS</body>#i"
+#     ANALYTICS='<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script><script>(adsbygoogle=window.adsbygoogle||[]).push({google_ad_client:"ca-pub-2900001379782823",enable_page_level_ads:true});</script>'
+#     find "$BUILDROOT" -name '*.html' -print0 |
+#         xargs -0 -- sed -i "s#</head>#$ANALYTICS</head>#i"
+# fi
 
 
 echo
@@ -69,5 +68,5 @@ popd >/dev/null
 echo
 echo "All good. Docs in: $BUILDROOT"
 echo
-echo "    file://$BUILDROOT/pdoc/index.html"
+echo "    file://$BUILDROOT/pdpipe/index.html"
 echo

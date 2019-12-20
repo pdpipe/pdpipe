@@ -66,9 +66,8 @@ def test_applybycols_with_drop():
 
 def test_applybycols_with_bad_len_result_columns():
     """Testing ApplyByCols pipeline stages."""
-    df = ph_df()
     with pytest.raises(ValueError):
-        round_ph = ApplyByCols("ph", math.ceil, result_columns=['a', 'b'])
+        ApplyByCols("ph", math.ceil, result_columns=['a', 'b'])
 
 
 # def _num_df():
@@ -80,8 +79,10 @@ def test_applybycols_with_bad_len_result_columns():
 
 
 # def _sum_and_diff(row):
-#     return pd.Series(
-#         {'sum': row['num1'] + row['num2'], 'diff': row['num1'] - row['num2']})
+#     return pd.Series({
+#         'sum': row['num1'] + row['num2'],
+#         'diff': row['num1'] - row['num2']
+#     })
 
 
 # def test_applytorows_with_df_generation():

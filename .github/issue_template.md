@@ -1,8 +1,3 @@
-<!--
-NOTE: Only submit issues for Python package "pdoc3" on PyPI.
-Python package "pdoc" lives elsewhere.
--->
-
 
 ### Expected Behavior
 
@@ -21,4 +16,4 @@ Python package "pdoc" lives elsewhere.
 
 ### Additional info
 
-- pdoc version:
+- pdpipe version:

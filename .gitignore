@@ -100,3 +100,7 @@ tags
 
 # annotying mac files!
 .DS_Store
+
+# don't like pipfiles
+Pipfile
+Pipfile.lock
