@@ -1,0 +1,2990 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.2" />
+<title>pdpipe.core API documentation</title>
+<meta name="description" content="Defines pipelines for processing Pandas.DataFrame-based datasets …" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pdpipe.core</code></h1>
+</header>
+<section id="section-intro">
+<p>Defines pipelines for processing Pandas.DataFrame-based datasets.</p>
+<pre><code>&gt;&gt;&gt; import pdpipe as pdp
+&gt;&gt;&gt; pipeline = pdp.ColDrop('Name') + pdp.Bin({'Speed': [0,5]})
+&gt;&gt;&gt; pipeline = pdp.ColDrop('Name').Bin({'Speed': [0,5]}, drop=True)
+</code></pre>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Defines pipelines for processing Pandas.DataFrame-based datasets.
+
+&gt;&gt;&gt; import pdpipe as pdp
+&gt;&gt;&gt; pipeline = pdp.ColDrop(&#39;Name&#39;) + pdp.Bin({&#39;Speed&#39;: [0,5]})
+&gt;&gt;&gt; pipeline = pdp.ColDrop(&#39;Name&#39;).Bin({&#39;Speed&#39;: [0,5]}, drop=True)
+&#34;&#34;&#34;
+
+import sys
+import inspect
+import abc
+import collections
+import textwrap
+
+from .exceptions import (
+    FailedPreconditionError,
+    UnfittedPipelineStageError,
+)
+
+
+# === loading stage attributes ===
+
+def __get_append_stage_attr_doc(class_obj):
+    doc = class_obj.__doc__
+    first_line = doc[0:doc.find(&#39;.&#39;) + 1]
+    if &#34;An&#34; in first_line:
+        new_first_line = first_line.replace(&#34;An&#34;, &#34;Creates and adds an&#34;, 1)
+    else:
+        new_first_line = first_line.replace(&#34;A&#34;, &#34;Creates and adds a&#34;, 1)
+    new_first_line = new_first_line[0:-1] + (
+        &#34; to this pipeline stage.&#34;)
+    return doc.replace(first_line, new_first_line, 1)
+
+
+def __load_stage_attribute__(class_obj):
+
+    def _append_stage_func(self, *args, **kwds):
+        # self is always a PdPipelineStage
+        return self + class_obj(*args, **kwds)
+    _append_stage_func.__doc__ = __get_append_stage_attr_doc(class_obj)
+    _append_stage_func.__name__ = class_obj.__name__  # .lower()
+    _append_stage_func.__signature__ = inspect.signature(class_obj.__init__)
+    setattr(PdPipelineStage, class_obj.__name__, _append_stage_func)
+
+    # unbound_method = types.MethodType(_append_stage_func, class_obj)
+    # setattr(class_obj, class_obj.__name__, unbound_method)
+
+
+def __load_stage_attributes_from_module__(module_name):
+    module_obj = sys.modules[module_name]
+    for name, obj in inspect.getmembers(module_obj):
+        if inspect.isclass(obj) and obj.__module__ == module_name:
+            class_obj = getattr(module_obj, name)
+            if issubclass(class_obj, PdPipelineStage) and (
+                    class_obj.__name__ != &#39;PdPipelineStage&#39;):
+                __load_stage_attribute__(class_obj)
+
+
+# === basic classes ===
+
+
+class PdPipelineStage(abc.ABC):
+    &#34;&#34;&#34;A stage of a pandas DataFrame-processing pipeline.
+
+    Parameters
+    ----------
+    exraise : bool, default True
+        If true, a pdpipe.FailedPreconditionError is raised when this
+        stage is applied to a dataframe for which the precondition does
+        not hold. Otherwise the stage is skipped.
+    exmsg : str, default None
+        The message of the exception that is raised on a failed
+        precondition if exraise is set to True. A default message is used
+        if None is given.
+    appmsg : str, default None
+        The message printed when this stage is applied with verbose=True.
+        A default message is used if None is given.
+    desc : str, default None
+        A short description of this stage, used as its string representation.
+        A default description is used if None is given.
+    &#34;&#34;&#34;
+
+    _DEF_EXC_MSG = &#39;Precondition failed!&#39;
+    _DEF_APPLY_MSG = &#39;Applying a pipeline stage...&#39;
+    _DEF_DESCRIPTION = &#39;A pipeline stage.&#39;
+    _INIT_KWARGS = [&#39;exraise&#39;, &#39;exmsg&#39;, &#39;appmsg&#39;, &#39;desc&#39;]
+
+    def __init__(self, exraise=True, exmsg=None, appmsg=None, desc=None):
+        if exmsg is None:
+            exmsg = PdPipelineStage._DEF_EXC_MSG
+        if appmsg is None:
+            appmsg = PdPipelineStage._DEF_APPLY_MSG
+        if desc is None:
+            desc = PdPipelineStage._DEF_DESCRIPTION
+        self._exraise = exraise
+        self._exmsg = exmsg
+        self._appmsg = appmsg
+        self._desc = desc
+        self.is_fitted = False
+
+    @classmethod
+    def _init_kwargs(cls):
+        return cls._INIT_KWARGS
+
+    @abc.abstractmethod
+    def _prec(self, df):  # pylint: disable=R0201,W0613
+        &#34;&#34;&#34;Returns True if this stage can be applied to the given dataframe.&#34;&#34;&#34;
+        raise NotImplementedError
+
+    def _fit_transform(self, df, verbose):
+        &#34;&#34;&#34;Fits this stage and transforms the input dataframe.&#34;&#34;&#34;
+        return self._transform(df, verbose)
+
+    def _is_fittable(self):
+        if self.__class__._fit_transform == PdPipelineStage._fit_transform:
+            return False
+        return True
+
+    @abc.abstractmethod
+    def _transform(self, df, verbose):
+        &#34;&#34;&#34;Transforms the given dataframe without fitting this stage.&#34;&#34;&#34;
+        raise NotImplementedError(&#34;_transform method not implemented!&#34;)
+
+    def apply(self, df, exraise=None, verbose=False):
+        &#34;&#34;&#34;Applies this pipeline stage to the given dataframe.
+
+        If the stage is not fitted fit_transform is called. Otherwise,
+        transform is called.
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            The dataframe to which this pipeline stage will be applied.
+        exraise : bool, default None
+            Determines behaviour if the precondition of this stage is not
+            fulfilled by the given dataframe: If True,
+            a pdpipe.FailedPreconditionError is raised. If False, the stage is
+            skipped. If None, the default behaviour of this stage is used, as
+            determined by the exraise constructor parameter.
+        verbose : bool, default False
+            If True an explanation message is printed after the precondition
+            is checked but before the application of the pipeline stage.
+            Defaults to False.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The resulting dataframe.
+        &#34;&#34;&#34;
+        if exraise is None:
+            exraise = self._exraise
+        if self._prec(df):
+            if verbose:
+                msg = &#39;- &#39; + &#39;\n  &#39;.join(textwrap.wrap(self._appmsg))
+                print(msg, flush=True)
+            if self.is_fitted:
+                return self._transform(df, verbose=verbose)
+            return self._fit_transform(df, verbose=verbose)
+        if exraise:
+            raise FailedPreconditionError(self._exmsg)
+        return df
+
+    __call__ = apply
+
+    def fit_transform(self, X, y=None, exraise=None, verbose=False):
+        &#34;&#34;&#34;Fits this stage and transforms the given dataframe.
+
+        Parameters
+        ----------
+        X : pandas.DataFrame
+            The dataframe to transform and fit this pipeline stage by.
+        y : array-like, optional
+            Targets for supervised learning.
+        exraise : bool, default None
+            Determines behaviour if the precondition of this stage is not
+            fulfilled by the given dataframe: If True,
+            a pdpipe.FailedPreconditionError is raised. If False, the stage is
+            skipped. If None, the default behaviour of this stage is used, as
+            determined by the exraise constructor parameter.
+        verbose : bool, default False
+            If True an explanation message is printed after the precondition
+            is checked but before the application of the pipeline stage.
+            Defaults to False.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The resulting dataframe.
+        &#34;&#34;&#34;
+        if exraise is None:
+            exraise = self._exraise
+        if self._prec(X):
+            if verbose:
+                msg = &#39;- &#39; + &#39;\n  &#39;.join(textwrap.wrap(self._appmsg))
+                print(msg, flush=True)
+            return self._fit_transform(X, verbose=verbose)
+        if exraise:
+            raise FailedPreconditionError(self._exmsg)
+        return X
+
+    def fit(self, X, y=None, exraise=None, verbose=False):
+        &#34;&#34;&#34;Fits this stage without transforming the given dataframe.
+
+        Parameters
+        ----------
+        X : pandas.DataFrame
+            The dataframe to be transformed.
+        y : array-like, optional
+            Targets for supervised learning.
+        exraise : bool, default None
+            Determines behaviour if the precondition of this stage is not
+            fulfilled by the given dataframe: If True,
+            a pdpipe.FailedPreconditionError is raised. If False, the stage is
+            skipped. If None, the default behaviour of this stage is used, as
+            determined by the exraise constructor parameter.
+        verbose : bool, default False
+            If True an explanation message is printed after the precondition
+            is checked but before the application of the pipeline stage.
+            Defaults to False.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The resulting dataframe.
+        &#34;&#34;&#34;
+        if exraise is None:
+            exraise = self._exraise
+        if self._prec(X):
+            if verbose:
+                msg = &#39;- &#39; + &#39;\n  &#39;.join(textwrap.wrap(self._appmsg))
+                print(msg, flush=True)
+            self._fit_transform(X, verbose=verbose)
+            return X
+        if exraise:
+            raise FailedPreconditionError(self._exmsg)
+        return X
+
+    def transform(self, X, y=None, exraise=None, verbose=False):
+        &#34;&#34;&#34;Transforms the given dataframe without fitting this stage.
+
+        If this stage is fittable but is not fitter, an
+        UnfittedPipelineStageError is raised.
+
+        Parameters
+        ----------
+        X : pandas.DataFrame
+            The dataframe to be transformed.
+        y : array-like, optional
+            Targets for supervised learning.
+        exraise : bool, default None
+            Determines behaviour if the precondition of this stage is not
+            fulfilled by the given dataframe: If True,
+            a pdpipe.FailedPreconditionError is raised. If False, the stage is
+            skipped. If None, the default behaviour of this stage is used, as
+            determined by the exraise constructor parameter.
+        verbose : bool, default False
+            If True an explanation message is printed after the precondition
+            is checked but before the application of the pipeline stage.
+            Defaults to False.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The resulting dataframe.
+        &#34;&#34;&#34;
+        if exraise is None:
+            exraise = self._exraise
+        if self._prec(X):
+            if verbose:
+                msg = &#39;- &#39; + &#39;\n  &#39;.join(textwrap.wrap(self._appmsg))
+                print(msg, flush=True)
+            if self._is_fittable():
+                if self.is_fitted:
+                    return self._transform(X, verbose=verbose)
+                raise UnfittedPipelineStageError(
+                    &#34;transform of an unfitted pipeline stage was called!&#34;)
+            return self._transform(X, verbose=verbose)
+        if exraise:
+            raise FailedPreconditionError(self._exmsg)
+        return X
+
+    def __add__(self, other):
+        if isinstance(other, PdPipeline):
+            return PdPipeline([self, *other._stages])
+        elif isinstance(other, PdPipelineStage):
+            return PdPipeline([self, other])
+        else:
+            return NotImplemented
+
+    def __str__(self):
+        return &#34;PdPipelineStage: {}&#34;.format(self._desc)
+
+    def __repr__(self):
+        return self.__str__()
+
+    def description(self):
+        &#34;&#34;&#34;Returns the description of this pipeline stage&#34;&#34;&#34;
+        return self._desc
+
+
+def _always_true(x):
+    return True
+
+
+class AdHocStage(PdPipelineStage):
+    &#34;&#34;&#34;An ad-hoc stage of a pandas DataFrame-processing pipeline.
+
+    Parameters
+    ----------
+    transform : callable
+        The transformation this stage applies to dataframes.
+    prec : callable, default None
+        A callable that returns a boolean value. Represent a a precondition
+        used to determine whether this stage can be applied to a given
+        dataframe. If None is given, set to a function always returning True.
+    &#34;&#34;&#34;
+
+    def __init__(self, transform, prec=None, **kwargs):
+        if prec is None:
+            prec = _always_true
+        self._adhoc_transform = transform
+        self._adhoc_prec = prec
+        super().__init__(**kwargs)
+
+    def _prec(self, df):
+        return self._adhoc_prec(df)
+
+    def _transform(self, df, verbose):
+        try:
+            return self._adhoc_transform(df, verbose=verbose)
+        except TypeError:
+            return self._adhoc_transform(df)
+
+
+class PdPipeline(PdPipelineStage, collections.abc.Sequence):
+    &#34;&#34;&#34;A pipeline for processing pandas DataFrame objects.
+
+    transformer_getter is usefull to avoid applying pipeline stages that are
+    aimed to filter out items in a big dataset to create a training set for a
+    machine learning model, for example, but should not be applied on future
+    individual items to be transformed by the fitted pipeline.
+
+    Parameters
+    ----------
+    stages : list
+        A list of PdPipelineStage objects making up this pipeline.
+    transform_getter : callable, optional
+        A callable that can be applied to the fitted pipeline to produce a
+        sub-pipeline of it which should be used to transform dataframes after
+        the pipeline has been fitted. If not given, the fitted pipeline is used
+        entirely.
+    &#34;&#34;&#34;
+
+    _DEF_EXC_MSG = &#39;Pipeline precondition failed!&#39;
+    _DEF_APP_MSG = &#39;Applying a pipeline...&#39;
+
+    def __init__(self, stages, transformer_getter=None, **kwargs):
+        self._stages = stages
+        self._trans_getter = transformer_getter
+        self.is_fitted = False
+        super_kwargs = {
+            &#39;exraise&#39;: False,
+            &#39;exmsg&#39;: PdPipeline._DEF_EXC_MSG,
+            &#39;appmsg&#39;: PdPipeline._DEF_APP_MSG
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    # implementing a collections.abc.Sequence abstract method
+    def __getitem__(self, index):
+        if isinstance(index, slice):
+            return PdPipeline(self._stages[index])
+        return self._stages[index]
+
+    # implementing a collections.abc.Sequence abstract method
+    def __len__(self):
+        return len(self._stages)
+
+    def _prec(self, df):
+        # PdPipeline overrides apply in a way which makes this moot
+        raise NotImplementedError
+
+    def _transform(self, df, verbose):
+        # PdPipeline overrides apply in a way which makes this moot
+        raise NotImplementedError
+
+    def apply(self, df, exraise=None, verbose=False):
+        inter_df = df
+        for stage in self._stages:
+            inter_df = stage.apply(inter_df, exraise, verbose)
+        return inter_df
+
+    def fit_transform(self, X, y=None, exraise=None, verbose=None):
+        &#34;&#34;&#34;Fits this pipeline and transforms the input dataframe.
+
+        Parameters
+        ----------
+        X : pandas.DataFrame
+            The dataframe to transform and fit this pipeline by.
+        y : array-like, optional
+            Targets for supervised learning.
+        exraise : bool, default None
+            Determines behaviour if the precondition of composing stages is not
+            fulfilled by the input dataframe: If True, a
+            pdpipe.FailedPreconditionError is raised. If False, the stage is
+            skipped. If not given, or set to None, the default behaviour of
+            each stage is used, as determined by its &#39;exraise&#39; constructor
+            parameter.
+        verbose : bool, default False
+            If True an explanation message is printed after the precondition
+            of each stage is checked but before its application. Otherwise, no
+            messages are printed.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The resulting dataframe.
+        &#34;&#34;&#34;
+        inter_x = X
+        for stage in self._stages:
+            inter_x = stage.fit_transform(
+                X=inter_x,
+                y=None,
+                exraise=exraise,
+                verbose=verbose,
+            )
+        return inter_x
+
+    def fit(self, X, y=None, exraise=None, verbose=None):
+        &#34;&#34;&#34;Fits this pipeline without transforming the input dataframe.
+
+        Parameters
+        ----------
+        X : pandas.DataFrame
+            The dataframe to fit this pipeline by.
+        y : array-like, optional
+            Targets for supervised learning.
+        exraise : bool, default None
+            Determines behaviour if the precondition of composing stages is not
+            fulfilled by the input dataframe: If True, a
+            pdpipe.FailedPreconditionError is raised. If False, the stage is
+            skipped. If not given, or set to None, the default behaviour of
+            each stage is used, as determined by its &#39;exraise&#39; constructor
+            parameter.
+        verbose : bool, default False
+            If True an explanation message is printed after the precondition
+            of each stage is checked but before its application. Otherwise, no
+            messages are printed.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The input dataframe, unchanged.
+        &#34;&#34;&#34;
+        self.fit_transform(
+            X=X,
+            y=None,
+            exraise=exraise,
+            verbose=verbose,
+        )
+        return X
+
+    def transform(self, X, y=None, exraise=None, verbose=None):
+        &#34;&#34;&#34;Transforms the given dataframe without fitting this pipeline.
+
+        If any stage in this pipeline is fittable but is not fitted, an
+        UnfittedPipelineStageError is raised before transformation starts.
+
+        Parameters
+        ----------
+        X : pandas.DataFrame
+            The dataframe to transform.
+        y : array-like, optional
+            Targets for supervised learning.
+        exraise : bool, default None
+            Determines behaviour if the precondition of composing stages is not
+            fulfilled by the input dataframe: If True, a
+            pdpipe.FailedPreconditionError is raised. If False, the stage is
+            skipped. If not given, or set to None, the default behaviour of
+            each stage is used, as determined by its &#39;exraise&#39; constructor
+            parameter.
+        verbose : bool, default False
+            If True an explanation message is printed after the precondition
+            of each stage is checked but before its application. Otherwise, no
+            messages are printed.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The resulting dataframe.
+        &#34;&#34;&#34;
+        for stage in self._stages:
+            if stage._is_fittable() and not stage.is_fitted:
+                raise UnfittedPipelineStageError((
+                    &#34;PipelineStage {} in pipeline is fittable but&#34;
+                    &#34; unfitted!&#34;).format(stage))
+        inter_df = X
+        for stage in self._stages:
+            inter_df = stage.transform(
+                X=inter_df,
+                y=None,
+                exraise=exraise,
+                verbose=verbose,
+            )
+        return inter_df
+
+    __call__ = apply
+
+    def __add__(self, other):
+        if isinstance(other, PdPipeline):
+            return PdPipeline([*self._stages, *other._stages])
+        elif isinstance(other, PdPipelineStage):
+            return PdPipeline([*self._stages, other])
+        else:
+            return NotImplemented
+
+    def __str__(self):
+        res = &#34;A pdpipe pipeline:\n&#34;
+        res += &#39;[ 0]  &#39; + &#34;\n      &#34;.join(
+            textwrap.wrap(self._stages[0].description())) + &#39;\n&#39;
+        for i, stage in enumerate(self._stages[1:]):
+            res += &#39;[{:&gt;2}]  &#39;.format(i + 1) + &#34;\n      &#34;.join(
+                textwrap.wrap(stage.description())) + &#39;\n&#39;
+        return res
+
+    def get_transformer(self):
+        try:
+            return self._trans_getter(self)
+        except TypeError:  # pragma: no cover
+            return self
+
+    # def drop(self, index):
+    #     &#34;&#34;&#34;Returns this pipeline with the stage of the given index removed.
+
+    #     Arguments
+    #     ---------
+    #     index
+
+
+def make_pdpipeline(*stages):
+    &#34;&#34;&#34;Constructs a PdPipeline from the given pipeline stages.
+
+    Parameters
+    ----------
+    *stages : pdpipe.PipelineStage objects
+       PdPipeline stages given as positional arguments.
+
+    Returns
+    -------
+    p : pdpipe.PdPipeline
+        The resulting pipeline.
+
+    Examples
+    --------
+    import pdpipe as pdp
+    make_pdpipeline(pdp.ColDrop(&#39;a&#39;), pdp.Bin(&#39;speed&#39;))
+    &#34;&#34;&#34;
+    return PdPipeline(stages=stages)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pdpipe.core.make_pdpipeline"><code class="name flex">
+<span>def <span class="ident">make_pdpipeline</span></span>(<span>*stages)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Constructs a PdPipeline from the given pipeline stages.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>*stages</code></strong> :&ensp;<code>pdpipe.PipelineStage</code> <code>objects</code></dt>
+<dd>&nbsp;</dd>
+</dl>
+<p>PdPipeline stages given as positional arguments.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>p</code></strong> :&ensp;<code>pdpipe.PdPipeline</code></dt>
+<dd>The resulting pipeline.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<p>import pdpipe as pdp
+make_pdpipeline(pdp.ColDrop('a'), pdp.Bin('speed'))</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def make_pdpipeline(*stages):
+    &#34;&#34;&#34;Constructs a PdPipeline from the given pipeline stages.
+
+    Parameters
+    ----------
+    *stages : pdpipe.PipelineStage objects
+       PdPipeline stages given as positional arguments.
+
+    Returns
+    -------
+    p : pdpipe.PdPipeline
+        The resulting pipeline.
+
+    Examples
+    --------
+    import pdpipe as pdp
+    make_pdpipeline(pdp.ColDrop(&#39;a&#39;), pdp.Bin(&#39;speed&#39;))
+    &#34;&#34;&#34;
+    return PdPipeline(stages=stages)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pdpipe.core.AdHocStage"><code class="flex name class">
+<span>class <span class="ident">AdHocStage</span></span>
+<span>(</span><span>transform, prec=None, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>An ad-hoc stage of a pandas DataFrame-processing pipeline.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>transform</code></strong> :&ensp;<code>callable</code></dt>
+<dd>The transformation this stage applies to dataframes.</dd>
+<dt><strong><code>prec</code></strong> :&ensp;<code>callable</code>, default <code>None</code></dt>
+<dd>A callable that returns a boolean value. Represent a a precondition
+used to determine whether this stage can be applied to a given
+dataframe. If None is given, set to a function always returning True.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AdHocStage(PdPipelineStage):
+    &#34;&#34;&#34;An ad-hoc stage of a pandas DataFrame-processing pipeline.
+
+    Parameters
+    ----------
+    transform : callable
+        The transformation this stage applies to dataframes.
+    prec : callable, default None
+        A callable that returns a boolean value. Represent a a precondition
+        used to determine whether this stage can be applied to a given
+        dataframe. If None is given, set to a function always returning True.
+    &#34;&#34;&#34;
+
+    def __init__(self, transform, prec=None, **kwargs):
+        if prec is None:
+            prec = _always_true
+        self._adhoc_transform = transform
+        self._adhoc_prec = prec
+        super().__init__(**kwargs)
+
+    def _prec(self, df):
+        return self._adhoc_prec(df)
+
+    def _transform(self, df, verbose):
+        try:
+            return self._adhoc_transform(df, verbose=verbose)
+        except TypeError:
+            return self._adhoc_transform(df)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pdpipe.core.PdPipelineStage" href="#pdpipe.core.PdPipelineStage">PdPipelineStage</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pdpipe.core.PdPipelineStage" href="#pdpipe.core.PdPipelineStage">PdPipelineStage</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pdpipe.core.PdPipelineStage.AdHocStage" href="#pdpipe.core.PdPipelineStage.AdHocStage">AdHocStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.AggByCols" href="#pdpipe.core.PdPipelineStage.AggByCols">AggByCols</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ApplyByCols" href="#pdpipe.core.PdPipelineStage.ApplyByCols">ApplyByCols</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ApplyToRows" href="#pdpipe.core.PdPipelineStage.ApplyToRows">ApplyToRows</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Bin" href="#pdpipe.core.PdPipelineStage.Bin">Bin</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColByFrameFunc" href="#pdpipe.core.PdPipelineStage.ColByFrameFunc">ColByFrameFunc</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColDrop" href="#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColRename" href="#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColReorder" href="#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Encode" href="#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.FreqDrop" href="#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Log" href="#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.MapColVals" href="#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.OneHotEncode" href="#pdpipe.core.PdPipelineStage.OneHotEncode">OneHotEncode</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.PdPipeline" href="#pdpipe.core.PdPipelineStage.PdPipeline">PdPipeline</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RemoveStopwords" href="#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RowDrop" href="#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Scale" href="#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.SnowballStem" href="#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.TokenizeWords" href="#pdpipe.core.PdPipelineStage.TokenizeWords">TokenizeWords</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.UntokenizeWords" href="#pdpipe.core.PdPipelineStage.UntokenizeWords">UntokenizeWords</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ValDrop" href="#pdpipe.core.PdPipelineStage.ValDrop">ValDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ValKeep" href="#pdpipe.core.PdPipelineStage.ValKeep">ValKeep</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.apply" href="#pdpipe.core.PdPipelineStage.apply">apply</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.description" href="#pdpipe.core.PdPipelineStage.description">description</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.fit" href="#pdpipe.core.PdPipelineStage.fit">fit</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.fit_transform" href="#pdpipe.core.PdPipelineStage.fit_transform">fit_transform</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.transform" href="#pdpipe.core.PdPipelineStage.transform">transform</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pdpipe.core.PdPipeline"><code class="flex name class">
+<span>class <span class="ident">PdPipeline</span></span>
+<span>(</span><span>stages, transformer_getter=None, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>A pipeline for processing pandas DataFrame objects.</p>
+<p>transformer_getter is usefull to avoid applying pipeline stages that are
+aimed to filter out items in a big dataset to create a training set for a
+machine learning model, for example, but should not be applied on future
+individual items to be transformed by the fitted pipeline.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>stages</code></strong> :&ensp;<code>list</code></dt>
+<dd>A list of PdPipelineStage objects making up this pipeline.</dd>
+<dt><strong><code>transform_getter</code></strong> :&ensp;<code>callable</code>, optional</dt>
+<dd>A callable that can be applied to the fitted pipeline to produce a
+sub-pipeline of it which should be used to transform dataframes after
+the pipeline has been fitted. If not given, the fitted pipeline is used
+entirely.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PdPipeline(PdPipelineStage, collections.abc.Sequence):
+    &#34;&#34;&#34;A pipeline for processing pandas DataFrame objects.
+
+    transformer_getter is usefull to avoid applying pipeline stages that are
+    aimed to filter out items in a big dataset to create a training set for a
+    machine learning model, for example, but should not be applied on future
+    individual items to be transformed by the fitted pipeline.
+
+    Parameters
+    ----------
+    stages : list
+        A list of PdPipelineStage objects making up this pipeline.
+    transform_getter : callable, optional
+        A callable that can be applied to the fitted pipeline to produce a
+        sub-pipeline of it which should be used to transform dataframes after
+        the pipeline has been fitted. If not given, the fitted pipeline is used
+        entirely.
+    &#34;&#34;&#34;
+
+    _DEF_EXC_MSG = &#39;Pipeline precondition failed!&#39;
+    _DEF_APP_MSG = &#39;Applying a pipeline...&#39;
+
+    def __init__(self, stages, transformer_getter=None, **kwargs):
+        self._stages = stages
+        self._trans_getter = transformer_getter
+        self.is_fitted = False
+        super_kwargs = {
+            &#39;exraise&#39;: False,
+            &#39;exmsg&#39;: PdPipeline._DEF_EXC_MSG,
+            &#39;appmsg&#39;: PdPipeline._DEF_APP_MSG
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    # implementing a collections.abc.Sequence abstract method
+    def __getitem__(self, index):
+        if isinstance(index, slice):
+            return PdPipeline(self._stages[index])
+        return self._stages[index]
+
+    # implementing a collections.abc.Sequence abstract method
+    def __len__(self):
+        return len(self._stages)
+
+    def _prec(self, df):
+        # PdPipeline overrides apply in a way which makes this moot
+        raise NotImplementedError
+
+    def _transform(self, df, verbose):
+        # PdPipeline overrides apply in a way which makes this moot
+        raise NotImplementedError
+
+    def apply(self, df, exraise=None, verbose=False):
+        inter_df = df
+        for stage in self._stages:
+            inter_df = stage.apply(inter_df, exraise, verbose)
+        return inter_df
+
+    def fit_transform(self, X, y=None, exraise=None, verbose=None):
+        &#34;&#34;&#34;Fits this pipeline and transforms the input dataframe.
+
+        Parameters
+        ----------
+        X : pandas.DataFrame
+            The dataframe to transform and fit this pipeline by.
+        y : array-like, optional
+            Targets for supervised learning.
+        exraise : bool, default None
+            Determines behaviour if the precondition of composing stages is not
+            fulfilled by the input dataframe: If True, a
+            pdpipe.FailedPreconditionError is raised. If False, the stage is
+            skipped. If not given, or set to None, the default behaviour of
+            each stage is used, as determined by its &#39;exraise&#39; constructor
+            parameter.
+        verbose : bool, default False
+            If True an explanation message is printed after the precondition
+            of each stage is checked but before its application. Otherwise, no
+            messages are printed.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The resulting dataframe.
+        &#34;&#34;&#34;
+        inter_x = X
+        for stage in self._stages:
+            inter_x = stage.fit_transform(
+                X=inter_x,
+                y=None,
+                exraise=exraise,
+                verbose=verbose,
+            )
+        return inter_x
+
+    def fit(self, X, y=None, exraise=None, verbose=None):
+        &#34;&#34;&#34;Fits this pipeline without transforming the input dataframe.
+
+        Parameters
+        ----------
+        X : pandas.DataFrame
+            The dataframe to fit this pipeline by.
+        y : array-like, optional
+            Targets for supervised learning.
+        exraise : bool, default None
+            Determines behaviour if the precondition of composing stages is not
+            fulfilled by the input dataframe: If True, a
+            pdpipe.FailedPreconditionError is raised. If False, the stage is
+            skipped. If not given, or set to None, the default behaviour of
+            each stage is used, as determined by its &#39;exraise&#39; constructor
+            parameter.
+        verbose : bool, default False
+            If True an explanation message is printed after the precondition
+            of each stage is checked but before its application. Otherwise, no
+            messages are printed.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The input dataframe, unchanged.
+        &#34;&#34;&#34;
+        self.fit_transform(
+            X=X,
+            y=None,
+            exraise=exraise,
+            verbose=verbose,
+        )
+        return X
+
+    def transform(self, X, y=None, exraise=None, verbose=None):
+        &#34;&#34;&#34;Transforms the given dataframe without fitting this pipeline.
+
+        If any stage in this pipeline is fittable but is not fitted, an
+        UnfittedPipelineStageError is raised before transformation starts.
+
+        Parameters
+        ----------
+        X : pandas.DataFrame
+            The dataframe to transform.
+        y : array-like, optional
+            Targets for supervised learning.
+        exraise : bool, default None
+            Determines behaviour if the precondition of composing stages is not
+            fulfilled by the input dataframe: If True, a
+            pdpipe.FailedPreconditionError is raised. If False, the stage is
+            skipped. If not given, or set to None, the default behaviour of
+            each stage is used, as determined by its &#39;exraise&#39; constructor
+            parameter.
+        verbose : bool, default False
+            If True an explanation message is printed after the precondition
+            of each stage is checked but before its application. Otherwise, no
+            messages are printed.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The resulting dataframe.
+        &#34;&#34;&#34;
+        for stage in self._stages:
+            if stage._is_fittable() and not stage.is_fitted:
+                raise UnfittedPipelineStageError((
+                    &#34;PipelineStage {} in pipeline is fittable but&#34;
+                    &#34; unfitted!&#34;).format(stage))
+        inter_df = X
+        for stage in self._stages:
+            inter_df = stage.transform(
+                X=inter_df,
+                y=None,
+                exraise=exraise,
+                verbose=verbose,
+            )
+        return inter_df
+
+    __call__ = apply
+
+    def __add__(self, other):
+        if isinstance(other, PdPipeline):
+            return PdPipeline([*self._stages, *other._stages])
+        elif isinstance(other, PdPipelineStage):
+            return PdPipeline([*self._stages, other])
+        else:
+            return NotImplemented
+
+    def __str__(self):
+        res = &#34;A pdpipe pipeline:\n&#34;
+        res += &#39;[ 0]  &#39; + &#34;\n      &#34;.join(
+            textwrap.wrap(self._stages[0].description())) + &#39;\n&#39;
+        for i, stage in enumerate(self._stages[1:]):
+            res += &#39;[{:&gt;2}]  &#39;.format(i + 1) + &#34;\n      &#34;.join(
+                textwrap.wrap(stage.description())) + &#39;\n&#39;
+        return res
+
+    def get_transformer(self):
+        try:
+            return self._trans_getter(self)
+        except TypeError:  # pragma: no cover
+            return self</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pdpipe.core.PdPipelineStage" href="#pdpipe.core.PdPipelineStage">PdPipelineStage</a></li>
+<li>abc.ABC</li>
+<li>collections.abc.Sequence</li>
+<li>collections.abc.Reversible</li>
+<li>collections.abc.Collection</li>
+<li>collections.abc.Sized</li>
+<li>collections.abc.Iterable</li>
+<li>collections.abc.Container</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="pdpipe.core.PdPipeline.fit"><code class="name flex">
+<span>def <span class="ident">fit</span></span>(<span>self, X, y=None, exraise=None, verbose=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Fits this pipeline without transforming the input dataframe.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>X</code></strong> :&ensp;<code>pandas.DataFrame</code></dt>
+<dd>The dataframe to fit this pipeline by.</dd>
+<dt><strong><code>y</code></strong> :&ensp;<code>array</code>-<code>like</code>, optional</dt>
+<dd>Targets for supervised learning.</dd>
+<dt><strong><code>exraise</code></strong> :&ensp;<code>bool</code>, default <code>None</code></dt>
+<dd>Determines behaviour if the precondition of composing stages is not
+fulfilled by the input dataframe: If True, a
+pdpipe.FailedPreconditionError is raised. If False, the stage is
+skipped. If not given, or set to None, the default behaviour of
+each stage is used, as determined by its 'exraise' constructor
+parameter.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>bool</code>, default <code>False</code></dt>
+<dd>If True an explanation message is printed after the precondition
+of each stage is checked but before its application. Otherwise, no
+messages are printed.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pandas.DataFrame</code></dt>
+<dd>The input dataframe, unchanged.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fit(self, X, y=None, exraise=None, verbose=None):
+    &#34;&#34;&#34;Fits this pipeline without transforming the input dataframe.
+
+    Parameters
+    ----------
+    X : pandas.DataFrame
+        The dataframe to fit this pipeline by.
+    y : array-like, optional
+        Targets for supervised learning.
+    exraise : bool, default None
+        Determines behaviour if the precondition of composing stages is not
+        fulfilled by the input dataframe: If True, a
+        pdpipe.FailedPreconditionError is raised. If False, the stage is
+        skipped. If not given, or set to None, the default behaviour of
+        each stage is used, as determined by its &#39;exraise&#39; constructor
+        parameter.
+    verbose : bool, default False
+        If True an explanation message is printed after the precondition
+        of each stage is checked but before its application. Otherwise, no
+        messages are printed.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The input dataframe, unchanged.
+    &#34;&#34;&#34;
+    self.fit_transform(
+        X=X,
+        y=None,
+        exraise=exraise,
+        verbose=verbose,
+    )
+    return X</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipeline.fit_transform"><code class="name flex">
+<span>def <span class="ident">fit_transform</span></span>(<span>self, X, y=None, exraise=None, verbose=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Fits this pipeline and transforms the input dataframe.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>X</code></strong> :&ensp;<code>pandas.DataFrame</code></dt>
+<dd>The dataframe to transform and fit this pipeline by.</dd>
+<dt><strong><code>y</code></strong> :&ensp;<code>array</code>-<code>like</code>, optional</dt>
+<dd>Targets for supervised learning.</dd>
+<dt><strong><code>exraise</code></strong> :&ensp;<code>bool</code>, default <code>None</code></dt>
+<dd>Determines behaviour if the precondition of composing stages is not
+fulfilled by the input dataframe: If True, a
+pdpipe.FailedPreconditionError is raised. If False, the stage is
+skipped. If not given, or set to None, the default behaviour of
+each stage is used, as determined by its 'exraise' constructor
+parameter.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>bool</code>, default <code>False</code></dt>
+<dd>If True an explanation message is printed after the precondition
+of each stage is checked but before its application. Otherwise, no
+messages are printed.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pandas.DataFrame</code></dt>
+<dd>The resulting dataframe.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fit_transform(self, X, y=None, exraise=None, verbose=None):
+    &#34;&#34;&#34;Fits this pipeline and transforms the input dataframe.
+
+    Parameters
+    ----------
+    X : pandas.DataFrame
+        The dataframe to transform and fit this pipeline by.
+    y : array-like, optional
+        Targets for supervised learning.
+    exraise : bool, default None
+        Determines behaviour if the precondition of composing stages is not
+        fulfilled by the input dataframe: If True, a
+        pdpipe.FailedPreconditionError is raised. If False, the stage is
+        skipped. If not given, or set to None, the default behaviour of
+        each stage is used, as determined by its &#39;exraise&#39; constructor
+        parameter.
+    verbose : bool, default False
+        If True an explanation message is printed after the precondition
+        of each stage is checked but before its application. Otherwise, no
+        messages are printed.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The resulting dataframe.
+    &#34;&#34;&#34;
+    inter_x = X
+    for stage in self._stages:
+        inter_x = stage.fit_transform(
+            X=inter_x,
+            y=None,
+            exraise=exraise,
+            verbose=verbose,
+        )
+    return inter_x</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipeline.get_transformer"><code class="name flex">
+<span>def <span class="ident">get_transformer</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_transformer(self):
+    try:
+        return self._trans_getter(self)
+    except TypeError:  # pragma: no cover
+        return self</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipeline.transform"><code class="name flex">
+<span>def <span class="ident">transform</span></span>(<span>self, X, y=None, exraise=None, verbose=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Transforms the given dataframe without fitting this pipeline.</p>
+<p>If any stage in this pipeline is fittable but is not fitted, an
+UnfittedPipelineStageError is raised before transformation starts.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>X</code></strong> :&ensp;<code>pandas.DataFrame</code></dt>
+<dd>The dataframe to transform.</dd>
+<dt><strong><code>y</code></strong> :&ensp;<code>array</code>-<code>like</code>, optional</dt>
+<dd>Targets for supervised learning.</dd>
+<dt><strong><code>exraise</code></strong> :&ensp;<code>bool</code>, default <code>None</code></dt>
+<dd>Determines behaviour if the precondition of composing stages is not
+fulfilled by the input dataframe: If True, a
+pdpipe.FailedPreconditionError is raised. If False, the stage is
+skipped. If not given, or set to None, the default behaviour of
+each stage is used, as determined by its 'exraise' constructor
+parameter.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>bool</code>, default <code>False</code></dt>
+<dd>If True an explanation message is printed after the precondition
+of each stage is checked but before its application. Otherwise, no
+messages are printed.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pandas.DataFrame</code></dt>
+<dd>The resulting dataframe.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def transform(self, X, y=None, exraise=None, verbose=None):
+    &#34;&#34;&#34;Transforms the given dataframe without fitting this pipeline.
+
+    If any stage in this pipeline is fittable but is not fitted, an
+    UnfittedPipelineStageError is raised before transformation starts.
+
+    Parameters
+    ----------
+    X : pandas.DataFrame
+        The dataframe to transform.
+    y : array-like, optional
+        Targets for supervised learning.
+    exraise : bool, default None
+        Determines behaviour if the precondition of composing stages is not
+        fulfilled by the input dataframe: If True, a
+        pdpipe.FailedPreconditionError is raised. If False, the stage is
+        skipped. If not given, or set to None, the default behaviour of
+        each stage is used, as determined by its &#39;exraise&#39; constructor
+        parameter.
+    verbose : bool, default False
+        If True an explanation message is printed after the precondition
+        of each stage is checked but before its application. Otherwise, no
+        messages are printed.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The resulting dataframe.
+    &#34;&#34;&#34;
+    for stage in self._stages:
+        if stage._is_fittable() and not stage.is_fitted:
+            raise UnfittedPipelineStageError((
+                &#34;PipelineStage {} in pipeline is fittable but&#34;
+                &#34; unfitted!&#34;).format(stage))
+    inter_df = X
+    for stage in self._stages:
+        inter_df = stage.transform(
+            X=inter_df,
+            y=None,
+            exraise=exraise,
+            verbose=verbose,
+        )
+    return inter_df</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pdpipe.core.PdPipelineStage" href="#pdpipe.core.PdPipelineStage">PdPipelineStage</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pdpipe.core.PdPipelineStage.AdHocStage" href="#pdpipe.core.PdPipelineStage.AdHocStage">AdHocStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.AggByCols" href="#pdpipe.core.PdPipelineStage.AggByCols">AggByCols</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ApplyByCols" href="#pdpipe.core.PdPipelineStage.ApplyByCols">ApplyByCols</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ApplyToRows" href="#pdpipe.core.PdPipelineStage.ApplyToRows">ApplyToRows</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Bin" href="#pdpipe.core.PdPipelineStage.Bin">Bin</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColByFrameFunc" href="#pdpipe.core.PdPipelineStage.ColByFrameFunc">ColByFrameFunc</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColDrop" href="#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColRename" href="#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColReorder" href="#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Encode" href="#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.FreqDrop" href="#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Log" href="#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.MapColVals" href="#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.OneHotEncode" href="#pdpipe.core.PdPipelineStage.OneHotEncode">OneHotEncode</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.PdPipeline" href="#pdpipe.core.PdPipelineStage.PdPipeline">PdPipeline</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RemoveStopwords" href="#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RowDrop" href="#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Scale" href="#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.SnowballStem" href="#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.TokenizeWords" href="#pdpipe.core.PdPipelineStage.TokenizeWords">TokenizeWords</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.UntokenizeWords" href="#pdpipe.core.PdPipelineStage.UntokenizeWords">UntokenizeWords</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ValDrop" href="#pdpipe.core.PdPipelineStage.ValDrop">ValDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ValKeep" href="#pdpipe.core.PdPipelineStage.ValKeep">ValKeep</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.apply" href="#pdpipe.core.PdPipelineStage.apply">apply</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.description" href="#pdpipe.core.PdPipelineStage.description">description</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage"><code class="flex name class">
+<span>class <span class="ident">PdPipelineStage</span></span>
+<span>(</span><span>exraise=True, exmsg=None, appmsg=None, desc=None)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>A stage of a pandas DataFrame-processing pipeline.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>exraise</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
+<dd>If true, a pdpipe.FailedPreconditionError is raised when this
+stage is applied to a dataframe for which the precondition does
+not hold. Otherwise the stage is skipped.</dd>
+<dt><strong><code>exmsg</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
+<dd>The message of the exception that is raised on a failed
+precondition if exraise is set to True. A default message is used
+if None is given.</dd>
+<dt><strong><code>appmsg</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
+<dd>The message printed when this stage is applied with verbose=True.
+A default message is used if None is given.</dd>
+<dt><strong><code>desc</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
+<dd>A short description of this stage, used as its string representation.
+A default description is used if None is given.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PdPipelineStage(abc.ABC):
+    &#34;&#34;&#34;A stage of a pandas DataFrame-processing pipeline.
+
+    Parameters
+    ----------
+    exraise : bool, default True
+        If true, a pdpipe.FailedPreconditionError is raised when this
+        stage is applied to a dataframe for which the precondition does
+        not hold. Otherwise the stage is skipped.
+    exmsg : str, default None
+        The message of the exception that is raised on a failed
+        precondition if exraise is set to True. A default message is used
+        if None is given.
+    appmsg : str, default None
+        The message printed when this stage is applied with verbose=True.
+        A default message is used if None is given.
+    desc : str, default None
+        A short description of this stage, used as its string representation.
+        A default description is used if None is given.
+    &#34;&#34;&#34;
+
+    _DEF_EXC_MSG = &#39;Precondition failed!&#39;
+    _DEF_APPLY_MSG = &#39;Applying a pipeline stage...&#39;
+    _DEF_DESCRIPTION = &#39;A pipeline stage.&#39;
+    _INIT_KWARGS = [&#39;exraise&#39;, &#39;exmsg&#39;, &#39;appmsg&#39;, &#39;desc&#39;]
+
+    def __init__(self, exraise=True, exmsg=None, appmsg=None, desc=None):
+        if exmsg is None:
+            exmsg = PdPipelineStage._DEF_EXC_MSG
+        if appmsg is None:
+            appmsg = PdPipelineStage._DEF_APPLY_MSG
+        if desc is None:
+            desc = PdPipelineStage._DEF_DESCRIPTION
+        self._exraise = exraise
+        self._exmsg = exmsg
+        self._appmsg = appmsg
+        self._desc = desc
+        self.is_fitted = False
+
+    @classmethod
+    def _init_kwargs(cls):
+        return cls._INIT_KWARGS
+
+    @abc.abstractmethod
+    def _prec(self, df):  # pylint: disable=R0201,W0613
+        &#34;&#34;&#34;Returns True if this stage can be applied to the given dataframe.&#34;&#34;&#34;
+        raise NotImplementedError
+
+    def _fit_transform(self, df, verbose):
+        &#34;&#34;&#34;Fits this stage and transforms the input dataframe.&#34;&#34;&#34;
+        return self._transform(df, verbose)
+
+    def _is_fittable(self):
+        if self.__class__._fit_transform == PdPipelineStage._fit_transform:
+            return False
+        return True
+
+    @abc.abstractmethod
+    def _transform(self, df, verbose):
+        &#34;&#34;&#34;Transforms the given dataframe without fitting this stage.&#34;&#34;&#34;
+        raise NotImplementedError(&#34;_transform method not implemented!&#34;)
+
+    def apply(self, df, exraise=None, verbose=False):
+        &#34;&#34;&#34;Applies this pipeline stage to the given dataframe.
+
+        If the stage is not fitted fit_transform is called. Otherwise,
+        transform is called.
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            The dataframe to which this pipeline stage will be applied.
+        exraise : bool, default None
+            Determines behaviour if the precondition of this stage is not
+            fulfilled by the given dataframe: If True,
+            a pdpipe.FailedPreconditionError is raised. If False, the stage is
+            skipped. If None, the default behaviour of this stage is used, as
+            determined by the exraise constructor parameter.
+        verbose : bool, default False
+            If True an explanation message is printed after the precondition
+            is checked but before the application of the pipeline stage.
+            Defaults to False.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The resulting dataframe.
+        &#34;&#34;&#34;
+        if exraise is None:
+            exraise = self._exraise
+        if self._prec(df):
+            if verbose:
+                msg = &#39;- &#39; + &#39;\n  &#39;.join(textwrap.wrap(self._appmsg))
+                print(msg, flush=True)
+            if self.is_fitted:
+                return self._transform(df, verbose=verbose)
+            return self._fit_transform(df, verbose=verbose)
+        if exraise:
+            raise FailedPreconditionError(self._exmsg)
+        return df
+
+    __call__ = apply
+
+    def fit_transform(self, X, y=None, exraise=None, verbose=False):
+        &#34;&#34;&#34;Fits this stage and transforms the given dataframe.
+
+        Parameters
+        ----------
+        X : pandas.DataFrame
+            The dataframe to transform and fit this pipeline stage by.
+        y : array-like, optional
+            Targets for supervised learning.
+        exraise : bool, default None
+            Determines behaviour if the precondition of this stage is not
+            fulfilled by the given dataframe: If True,
+            a pdpipe.FailedPreconditionError is raised. If False, the stage is
+            skipped. If None, the default behaviour of this stage is used, as
+            determined by the exraise constructor parameter.
+        verbose : bool, default False
+            If True an explanation message is printed after the precondition
+            is checked but before the application of the pipeline stage.
+            Defaults to False.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The resulting dataframe.
+        &#34;&#34;&#34;
+        if exraise is None:
+            exraise = self._exraise
+        if self._prec(X):
+            if verbose:
+                msg = &#39;- &#39; + &#39;\n  &#39;.join(textwrap.wrap(self._appmsg))
+                print(msg, flush=True)
+            return self._fit_transform(X, verbose=verbose)
+        if exraise:
+            raise FailedPreconditionError(self._exmsg)
+        return X
+
+    def fit(self, X, y=None, exraise=None, verbose=False):
+        &#34;&#34;&#34;Fits this stage without transforming the given dataframe.
+
+        Parameters
+        ----------
+        X : pandas.DataFrame
+            The dataframe to be transformed.
+        y : array-like, optional
+            Targets for supervised learning.
+        exraise : bool, default None
+            Determines behaviour if the precondition of this stage is not
+            fulfilled by the given dataframe: If True,
+            a pdpipe.FailedPreconditionError is raised. If False, the stage is
+            skipped. If None, the default behaviour of this stage is used, as
+            determined by the exraise constructor parameter.
+        verbose : bool, default False
+            If True an explanation message is printed after the precondition
+            is checked but before the application of the pipeline stage.
+            Defaults to False.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The resulting dataframe.
+        &#34;&#34;&#34;
+        if exraise is None:
+            exraise = self._exraise
+        if self._prec(X):
+            if verbose:
+                msg = &#39;- &#39; + &#39;\n  &#39;.join(textwrap.wrap(self._appmsg))
+                print(msg, flush=True)
+            self._fit_transform(X, verbose=verbose)
+            return X
+        if exraise:
+            raise FailedPreconditionError(self._exmsg)
+        return X
+
+    def transform(self, X, y=None, exraise=None, verbose=False):
+        &#34;&#34;&#34;Transforms the given dataframe without fitting this stage.
+
+        If this stage is fittable but is not fitter, an
+        UnfittedPipelineStageError is raised.
+
+        Parameters
+        ----------
+        X : pandas.DataFrame
+            The dataframe to be transformed.
+        y : array-like, optional
+            Targets for supervised learning.
+        exraise : bool, default None
+            Determines behaviour if the precondition of this stage is not
+            fulfilled by the given dataframe: If True,
+            a pdpipe.FailedPreconditionError is raised. If False, the stage is
+            skipped. If None, the default behaviour of this stage is used, as
+            determined by the exraise constructor parameter.
+        verbose : bool, default False
+            If True an explanation message is printed after the precondition
+            is checked but before the application of the pipeline stage.
+            Defaults to False.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The resulting dataframe.
+        &#34;&#34;&#34;
+        if exraise is None:
+            exraise = self._exraise
+        if self._prec(X):
+            if verbose:
+                msg = &#39;- &#39; + &#39;\n  &#39;.join(textwrap.wrap(self._appmsg))
+                print(msg, flush=True)
+            if self._is_fittable():
+                if self.is_fitted:
+                    return self._transform(X, verbose=verbose)
+                raise UnfittedPipelineStageError(
+                    &#34;transform of an unfitted pipeline stage was called!&#34;)
+            return self._transform(X, verbose=verbose)
+        if exraise:
+            raise FailedPreconditionError(self._exmsg)
+        return X
+
+    def __add__(self, other):
+        if isinstance(other, PdPipeline):
+            return PdPipeline([self, *other._stages])
+        elif isinstance(other, PdPipelineStage):
+            return PdPipeline([self, other])
+        else:
+            return NotImplemented
+
+    def __str__(self):
+        return &#34;PdPipelineStage: {}&#34;.format(self._desc)
+
+    def __repr__(self):
+        return self.__str__()
+
+    def description(self):
+        &#34;&#34;&#34;Returns the description of this pipeline stage&#34;&#34;&#34;
+        return self._desc</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="pdpipe.core.AdHocStage" href="#pdpipe.core.AdHocStage">AdHocStage</a></li>
+<li><a title="pdpipe.core.PdPipeline" href="#pdpipe.core.PdPipeline">PdPipeline</a></li>
+<li><a title="pdpipe.basic_stages.ColDrop" href="basic_stages.html#pdpipe.basic_stages.ColDrop">ColDrop</a></li>
+<li><a title="pdpipe.basic_stages.ValDrop" href="basic_stages.html#pdpipe.basic_stages.ValDrop">ValDrop</a></li>
+<li><a title="pdpipe.basic_stages.ValKeep" href="basic_stages.html#pdpipe.basic_stages.ValKeep">ValKeep</a></li>
+<li><a title="pdpipe.basic_stages.ColRename" href="basic_stages.html#pdpipe.basic_stages.ColRename">ColRename</a></li>
+<li><a title="pdpipe.basic_stages.DropNa" href="basic_stages.html#pdpipe.basic_stages.DropNa">DropNa</a></li>
+<li><a title="pdpipe.basic_stages.FreqDrop" href="basic_stages.html#pdpipe.basic_stages.FreqDrop">FreqDrop</a></li>
+<li><a title="pdpipe.basic_stages.ColReorder" href="basic_stages.html#pdpipe.basic_stages.ColReorder">ColReorder</a></li>
+<li><a title="pdpipe.basic_stages.RowDrop" href="basic_stages.html#pdpipe.basic_stages.RowDrop">RowDrop</a></li>
+<li><a title="pdpipe.col_generation.Bin" href="col_generation.html#pdpipe.col_generation.Bin">Bin</a></li>
+<li><a title="pdpipe.col_generation.OneHotEncode" href="col_generation.html#pdpipe.col_generation.OneHotEncode">OneHotEncode</a></li>
+<li><a title="pdpipe.col_generation.MapColVals" href="col_generation.html#pdpipe.col_generation.MapColVals">MapColVals</a></li>
+<li><a title="pdpipe.col_generation.ApplyToRows" href="col_generation.html#pdpipe.col_generation.ApplyToRows">ApplyToRows</a></li>
+<li><a title="pdpipe.col_generation.ApplyByCols" href="col_generation.html#pdpipe.col_generation.ApplyByCols">ApplyByCols</a></li>
+<li><a title="pdpipe.col_generation.ColByFrameFunc" href="col_generation.html#pdpipe.col_generation.ColByFrameFunc">ColByFrameFunc</a></li>
+<li><a title="pdpipe.col_generation.AggByCols" href="col_generation.html#pdpipe.col_generation.AggByCols">AggByCols</a></li>
+<li><a title="pdpipe.col_generation.Log" href="col_generation.html#pdpipe.col_generation.Log">Log</a></li>
+<li><a title="pdpipe.sklearn_stages.Encode" href="sklearn_stages.html#pdpipe.sklearn_stages.Encode">Encode</a></li>
+<li><a title="pdpipe.sklearn_stages.Scale" href="sklearn_stages.html#pdpipe.sklearn_stages.Scale">Scale</a></li>
+<li><a title="pdpipe.nltk_stages.DropRareTokens" href="nltk_stages.html#pdpipe.nltk_stages.DropRareTokens">DropRareTokens</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="pdpipe.core.PdPipelineStage.AdHocStage"><code class="name flex">
+<span>def <span class="ident">AdHocStage</span></span>(<span>self, transform, prec=None, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates and adds an ad-hoc stage of a pandas DataFrame-processing pipeline to this pipeline stage.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>transform</code></strong> :&ensp;<code>callable</code></dt>
+<dd>The transformation this stage applies to dataframes.</dd>
+<dt><strong><code>prec</code></strong> :&ensp;<code>callable</code>, default <code>None</code></dt>
+<dd>A callable that returns a boolean value. Represent a a precondition
+used to determine whether this stage can be applied to a given
+dataframe. If None is given, set to a function always returning True.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.AggByCols"><code class="name flex">
+<span>def <span class="ident">AggByCols</span></span>(<span>self, columns, func, result_columns=None, drop=True, func_desc=None, suffix=None, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates and adds a pipeline stage applying a series-wise function to columns to this pipeline stage.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code></dt>
+<dd>Names of columns on which to apply the given function.</dd>
+<dt><strong><code>func</code></strong> :&ensp;<code>function</code></dt>
+<dd>The function to be applied to each element of the given columns.</dd>
+<dt><strong><code>result_columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
+<dd>The names of the new columns resulting from the mapping operation. Must
+be of the same length as columns. If None, behavior depends on the
+drop parameter: If drop is True, the name of the source column is used;
+otherwise, the name of the source column is used with a defined suffix.</dd>
+<dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
+<dd>If set to True, source columns are dropped after being mapped.</dd>
+<dt><strong><code>func_desc</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
+<dd>A function description of the given function; e.g. 'normalizing revenue
+by company size'. A default description is used if None is given.</dd>
+<dt><strong><code>suffix</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>The suffix to add to resulting columns in case where results_columns
+is None and drop is set to False. Of not given, defaults to '_agg'.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import numpy as np;
+&gt;&gt;&gt; data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
+&gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
+&gt;&gt;&gt; log_ph = pdp.ApplyByCols("ph", np.log)
+&gt;&gt;&gt; log_ph(df)
+         ph  lbl
+</code></pre>
+<p>1
+1.163151
+acd
+2
+1.974081
+alk
+3
+2.493205
+alk</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.ApplyByCols"><code class="name flex">
+<span>def <span class="ident">ApplyByCols</span></span>(<span>self, columns, func, result_columns=None, drop=True, func_desc=None, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates and adds a pipeline stage applying an element-wise function to columns to this pipeline stage.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code></dt>
+<dd>Names of columns on which to apply the given function.</dd>
+<dt><strong><code>func</code></strong> :&ensp;<code>function</code></dt>
+<dd>The function to be applied to each element of the given columns.</dd>
+<dt><strong><code>result_columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
+<dd>The names of the new columns resulting from the mapping operation. Must
+be of the same length as columns. If None, behavior depends on the
+drop parameter: If drop is True, the name of the source column is used;
+otherwise, the name of the source column is used with the suffix
+'_app'.</dd>
+<dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
+<dd>If set to True, source columns are dropped after being mapped.</dd>
+<dt><strong><code>func_desc</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
+<dd>A function description of the given function; e.g. 'normalizing revenue
+by company size'. A default description is used if None is given.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import math;
+&gt;&gt;&gt; data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
+&gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
+&gt;&gt;&gt; round_ph = pdp.ApplyByCols("ph", math.ceil)
+&gt;&gt;&gt; round_ph(df)
+   ph  lbl
+</code></pre>
+<p>1
+4
+acd
+2
+8
+alk
+3
+13
+alk</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.ApplyToRows"><code class="name flex">
+<span>def <span class="ident">ApplyToRows</span></span>(<span>self, func, colname=None, follow_column=None, func_desc=None, prec=None, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates and adds a pipeline stage generating columns by applying a function to each row to this pipeline stage.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>func</code></strong> :&ensp;<code>function</code></dt>
+<dd>The function to be applied to each row of the processed DataFrame.</dd>
+<dt><strong><code>colname</code></strong> :&ensp;<code>single</code> <code>label</code>, default <code>None</code></dt>
+<dd>The label of the new column resulting from the function application. If
+None, 'new_col' is used. Ignored if a DataFrame is generated by the
+function (i.e. each row generates a Series rather than a value), in
+which case the laebl of each column in the resulting DataFrame is used.</dd>
+<dt><strong><code>follow_column</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
+<dd>Resulting columns will be inserted after this column. If None, new
+columns are inserted at the end of the processed DataFrame.</dd>
+<dt><strong><code>func_desc</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
+<dd>A function description of the given function; e.g. 'normalizing revenue
+by company size'. A default description is used if None is given.</dd>
+<dt><strong><code>prec</code></strong> :&ensp;<code>function</code>, default <code>None</code></dt>
+<dd>A function taking a DataFrame, returning True if it this stage is
+applicable to the given DataFrame. If None is given, a function always
+returning True is used.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; data = [[3, 2143], [10, 1321], [7, 1255]]
+&gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], ['years', 'avg_revenue'])
+&gt;&gt;&gt; total_rev = lambda row: row['years'] * row['avg_revenue']
+&gt;&gt;&gt; add_total_rev = pdp.ApplyToRows(total_rev, 'total_revenue')
+&gt;&gt;&gt; add_total_rev(df)
+   years  avg_revenue  total_revenue
+</code></pre>
+<p>1
+3
+2143
+6429
+2
+10
+1321
+13210
+3
+7
+1255
+8785</p>
+<pre><code>&gt;&gt;&gt; def halfer(row):
+...     new = {'year/2': row['years']/2, 'rev/2': row['avg_revenue']/2}
+...     return pd.Series(new)
+&gt;&gt;&gt; half_cols = pdp.ApplyToRows(halfer, follow_column='years')
+&gt;&gt;&gt; half_cols(df)
+   years   rev/2  year/2  avg_revenue
+</code></pre>
+<p>1
+3
+1071.5
+1.5
+2143
+2
+10
+660.5
+5.0
+1321
+3
+7
+627.5
+3.5
+1255</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.Bin"><code class="name flex">
+<span>def <span class="ident">Bin</span></span>(<span>self, bin_map, drop=True, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates and adds a pipeline stage that adds a binned version of a column or columns to this pipeline stage.</p>
+<p>If drop is set to True the new columns retain the names of the source
+columns; otherwise, the resulting column gain the suffix '_bin'</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>bin_map</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Maps column labels to bin arrays. The bin array is interpreted as
+containing start points of consecutive bins, except for the final
+point, assumed to be the end point of the last bin. Additionally, a
+bin array implicitly projects a left-most bin containing all elements
+smaller than the left-most end point and a right-most bin containing
+all elements larger that the right-most end point. For example, the
+list [0, 5, 8] is interpreted as the bins (-∞, 0),
+[0-5), [5-8) and [8, ∞).</dd>
+<dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
+<dd>If set to True, the source columns are dropped after being binned.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame([[-3],[4],[5], [9]], [1,2,3, 4], ['speed'])
+&gt;&gt;&gt; pdp.Bin({'speed': [5]}, drop=False).apply(df)
+   speed speed_bin
+</code></pre>
+<p>1
+-3
+&lt;5
+2
+4
+&lt;5
+3
+5
+5≤
+4
+9
+5≤</p>
+<pre><code>&gt;&gt;&gt; pdp.Bin({'speed': [0,5,8]}, drop=False).apply(df)
+   speed speed_bin
+</code></pre>
+<p>1
+-3
+&lt;0
+2
+4
+0-5
+3
+5
+5-8
+4
+9
+8≤</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.ColByFrameFunc"><code class="name flex">
+<span>def <span class="ident">ColByFrameFunc</span></span>(<span>self, column, func, follow_column=None, func_desc=None, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates and adds a pipeline stage adding a column by applying a dataframw-wide function to this pipeline stage.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>column</code></strong> :&ensp;<code>str</code></dt>
+<dd>The name of the resulting column.</dd>
+<dt><strong><code>func</code></strong> :&ensp;<code>function</code></dt>
+<dd>The function to be applied to the input dataframe. The function should
+return a pandas.Series object.</dd>
+<dt><strong><code>follow_column</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
+<dd>Resulting columns will be inserted after this column. If None, new
+columns are inserted at the end of the processed DataFrame.</dd>
+<dt><strong><code>func_desc</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
+<dd>A function description of the given function; e.g. 'normalizing revenue
+by company size'. A default description is used if None is given.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; data = [[3, 3], [2, 4], [1, 5]]
+&gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], ["A","B"])
+&gt;&gt;&gt; func = lambda df: df['A'] == df['B']
+&gt;&gt;&gt; add_equal = pdp.ColByFrameFunc("A==B", func)
+&gt;&gt;&gt; add_equal(df)
+   A  B   A==B
+</code></pre>
+<p>1
+3
+3
+True
+2
+2
+4
+False
+3
+1
+5
+False</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.ColDrop"><code class="name flex">
+<span>def <span class="ident">ColDrop</span></span>(<span>self, columns, errors=None, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates and adds a pipeline stage that drops columns by name to this pipeline stage.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>columns</code></strong> :&ensp;<code>str</code>, <code>iterable</code> or <code>callable</code></dt>
+<dd>The label, or an iterable of labels, of columns to drop. Alternatively,
+columns can be assigned a callable returning bool values for
+pandas.Series objects; if this is the case, every column for which it
+return True will be dropped.</dd>
+<dt><strong><code>errors</code></strong> :&ensp;{‘<code>ignore</code>’, ‘<code>raise</code>’}, default ‘<code>raise</code>’</dt>
+<dd>If ‘ignore’, suppress error and existing labels are dropped.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'char'])
+&gt;&gt;&gt; pdp.ColDrop('num').apply(df)
+  char
+</code></pre>
+<p>1
+a
+2
+b</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.ColRename"><code class="name flex">
+<span>def <span class="ident">ColRename</span></span>(<span>self, rename_map, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates and adds a pipeline stage that renames a column or columns to this pipeline stage.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>rename_map</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Maps old column names to new ones.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'char'])
+&gt;&gt;&gt; pdp.ColRename({'num': 'len', 'char': 'initial'}).apply(df)
+   len initial
+</code></pre>
+<p>1
+8
+a
+2
+5
+b</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.ColReorder"><code class="name flex">
+<span>def <span class="ident">ColReorder</span></span>(<span>self, positions, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates and adds a pipeline stage that reorders columns to this pipeline stage.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>positions</code></strong> :&ensp;<code>dict</code></dt>
+<dd>A mapping of column names to their desired positions after reordering.
+Columns not included in the mapping will maintain their relative
+positions over the non-mapped colums.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame([[8,4,3,7]], columns=['a', 'b', 'c', 'd'])
+&gt;&gt;&gt; pdp.ColReorder({'b': 0, 'c': 3}).apply(df)
+   b  a  d  c
+</code></pre>
+<p>0
+4
+8
+7
+3</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.DropNa"><code class="name flex">
+<span>def <span class="ident">DropNa</span></span>(<span>self, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates and adds a pipeline stage that drops null values to this pipeline stage.</p>
+<p>Supports all parameter supported by pandas.dropna function.</p>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,None],[1,11]], [1,2,3], ['a','b'])
+&gt;&gt;&gt; pdp.DropNa().apply(df)
+   a     b
+</code></pre>
+<p>1
+1
+4.0
+3
+1
+11.0</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.DropRareTokens"><code class="name flex">
+<span>def <span class="ident">DropRareTokens</span></span>(<span>self, columns, threshold, drop=True, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates and adds a pipeline stage that drop rare tokens from token lists to this pipeline stage.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code></dt>
+<dd>Column names in the DataFrame for which to drop rare words.</dd>
+<dt><strong><code>threshold</code></strong> :&ensp;<code>int</code></dt>
+<dd>The rarity threshold to use. Only tokens appearing more than this
+number of times in a column will remain in token lists in that column.</dd>
+<dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
+<dd>If set to True, the source columns are dropped after being transformed,
+and the resulting columns retain the names of the source columns.
+Otherwise, the new columns gain the suffix '_norare'.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; data = [[7, ['a', 'a', 'b']], [3, ['b', 'c', 'd']]]
+&gt;&gt;&gt; df = pd.DataFrame(data, columns=['num', 'chars'])
+&gt;&gt;&gt; rare_dropper = pdp.DropRareTokens('chars', 1)
+&gt;&gt;&gt; rare_dropper(df)
+   num      chars
+</code></pre>
+<p>0
+7
+[a, a, b]
+1
+3
+[b]</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.Encode"><code class="name flex">
+<span>def <span class="ident">Encode</span></span>(<span>self, columns=None, exclude_columns=None, drop=True, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates and adds a pipeline stage that encodes categorical columns to integer values to this pipeline stage.</p>
+<p>The encoder for each column is saved in the attribute 'encoders', which
+is a dict mapping each encoded column name to the
+sklearn.preprocessing.LabelEncoder object used to encode it.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
+<dd>Column names in the DataFrame to be encoded. If columns is None then
+all the columns with object or category dtype will be encoded, except
+those given in the exclude_columns parameter.</dd>
+<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
+<dd>Name or names of categorical columns to be excluded from encoding
+when the columns parameter is not given. If None no column is excluded.
+Ignored if the columns parameter is given.</dd>
+<dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
+<dd>If set to True, the source columns are dropped after being encoded,
+and the resulting encoded columns retain the names of the source
+columns. Otherwise, encoded columns gain the suffix '_enc'.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
+&gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
+&gt;&gt;&gt; encode_stage = pdp.Encode("lbl")
+&gt;&gt;&gt; encode_stage(df)
+     ph  lbl
+</code></pre>
+<p>1
+3.2
+0
+2
+7.2
+1
+3
+12.1
+1</p>
+<pre><code>&gt;&gt;&gt; encode_stage.encoders["lbl"].inverse_transform([0,1,1])
+array(['acd', 'alk', 'alk'], dtype=object)
+</code></pre></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.FreqDrop"><code class="name flex">
+<span>def <span class="ident">FreqDrop</span></span>(<span>self, threshold, column, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates and adds a pipeline stage that drops rows by value frequency to this pipeline stage.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>threshold</code></strong> :&ensp;<code>int</code></dt>
+<dd>The minimum frequency required for a value to be kept.</dd>
+<dt><strong><code>column</code></strong> :&ensp;<code>str</code></dt>
+<dd>The name of the colums to check for the given value frequency.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,5],[1,11]], [1,2,3], ['a','b'])
+&gt;&gt;&gt; pdp.FreqDrop(2, 'a').apply(df)
+   a   b
+</code></pre>
+<p>1
+1
+4
+3
+1
+11</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.Log"><code class="name flex">
+<span>def <span class="ident">Log</span></span>(<span>self, columns=None, exclude=None, drop=False, non_neg=False, const_shift=None, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates and adds a pipeline stage that log-transforms numeric data to this pipeline stage.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
+<dd>Column names in the DataFrame to be encoded. If columns is None then
+all the columns with a numeric dtype will be transformed, except those
+given in the exclude_columns parameter.</dd>
+<dt><strong><code>exclude</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
+<dd>Name or names of numeric columns to be excluded from log-transforming
+when the columns parameter is not given. If None no column is excluded.
+Ignored if the columns parameter is given.</dd>
+<dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>False</code></dt>
+<dd>If set to True, the source columns are dropped after being encoded,
+and the resulting encoded columns retain the names of the source
+columns. Otherwise, encoded columns gain the suffix '_log'.</dd>
+<dt><strong><code>non_neg</code></strong> :&ensp;<code>bool</code>, default <code>False</code></dt>
+<dd>If True, each transformed column is first shifted by smallest negative
+value it includes (non-negative columns are thus not shifted).</dd>
+<dt><strong><code>const_shift</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>If given, each transformed column is first shifted by this constant. If
+non_neg is True then that transformation is applied first, and only
+then is the column shifted by this constant.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
+&gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
+&gt;&gt;&gt; log_stage = pdp.Log("ph", drop=True)
+&gt;&gt;&gt; log_stage(df)
+         ph  lbl
+</code></pre>
+<p>1
+1.163151
+acd
+2
+1.974081
+alk
+3
+2.493205
+alk</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.MapColVals"><code class="name flex">
+<span>def <span class="ident">MapColVals</span></span>(<span>self, columns, value_map, result_columns=None, drop=True, suffix=None, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates and adds a pipeline stage that replaces the values of a column by a map to this pipeline stage.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single</code> <code>label</code> or <code>list</code>-<code>like</code></dt>
+<dd>Column labels in the DataFrame to be mapped.</dd>
+<dt><strong><code>value_map</code></strong> :&ensp;<code>dict</code>, <code>function</code> or <code>pandas.Series</code></dt>
+<dd>A dictionary mapping existing values to new ones. Values not in the
+dictionary as keys will be converted to NaN. If a function is given, it
+is applied element-wise to given columns. If a Series is given, values
+are mapped by its index to its values.</dd>
+<dt><strong><code>result_columns</code></strong> :&ensp;<code>single</code> <code>label</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
+<dd>Labels for the new columns resulting from the mapping operation. Must
+be of the same length as columns. If None, behavior depends on the
+drop parameter: If drop is True, then the label of the source column is
+used; otherwise, the label of the source column is used with the suffix
+'_map'.</dd>
+<dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
+<dd>If set to True, source columns are dropped after being mapped.</dd>
+<dt><strong><code>suffix</code></strong> :&ensp;<code>str</code>, default <code>'_map'</code></dt>
+<dd>The suffix mapped columns gain if no new column labels are given.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame([[1], [3], [2]], ['UK', 'USSR', 'US'], ['Medal'])
+&gt;&gt;&gt; value_map = {1: 'Gold', 2: 'Silver', 3: 'Bronze'}
+&gt;&gt;&gt; pdp.MapColVals('Medal', value_map).apply(df)
+       Medal
+</code></pre>
+<p>UK
+Gold
+USSR
+Bronze
+US
+Silver</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.OneHotEncode"><code class="name flex">
+<span>def <span class="ident">OneHotEncode</span></span>(<span>self, columns=None, dummy_na=False, exclude_columns=None, col_subset=False, drop_first=True, drop=True, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates and adds a pipeline stage that one-hot-encodes categorical columns to this pipeline stage.</p>
+<p>By default only k-1 dummies are created fo k categorical levels, as to
+avoid perfect multicollinearity between the dummy features (also called
+the dummy variabletrap). This is done since features are usually one-hot
+encoded for use with linear models, which require this behaviour.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single</code> <code>label</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
+<dd>Column labels in the DataFrame to be encoded. If columns is None then
+all the columns with object or category dtype will be converted, except
+those given in the exclude_columns parameter.</dd>
+<dt><strong><code>dummy_na</code></strong> :&ensp;<code>bool</code>, default <code>False</code></dt>
+<dd>Add a column to indicate NaNs, if False NaNs are ignored.</dd>
+<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
+<dd>Name or names of categorical columns to be excluded from encoding
+when the columns parameter is not given. If None no column is excluded.
+Ignored if the columns parameter is given.</dd>
+<dt><strong><code>col_subset</code></strong> :&ensp;<code>bool</code>, default <code>False</code></dt>
+<dd>If set to True, and only a subset of given columns is found, they are
+encoded (if the missing columns are encoutered after the stage is
+fitted they will be ignored). Otherwise, the stage will fail on the
+precondition requiring all given columns are in input dataframes.</dd>
+<dt><strong><code>drop_first</code></strong> :&ensp;<code>bool</code> or <code>single</code> <code>label</code>, default <code>True</code></dt>
+<dd>Whether to get k-1 dummies out of k categorical levels by removing the
+first level. If a non bool argument matching one of the categories is
+provided, the dummy column corresponding to this value is dropped
+instead of the first level; if it matches no category the first
+category will still be dropped.</dd>
+<dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
+<dd>If set to True, the source columns are dropped after being encoded.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame([['USA'], ['UK'], ['Greece']], [1,2,3], ['Born'])
+&gt;&gt;&gt; pdp.OneHotEncode().apply(df)
+   Born_UK  Born_USA
+</code></pre>
+<p>1
+0
+1
+2
+1
+0
+3
+0
+0</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.PdPipeline"><code class="name flex">
+<span>def <span class="ident">PdPipeline</span></span>(<span>self, stages, transformer_getter=None, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates and adds a pipeline for processing pandas DataFrame objects to this pipeline stage.</p>
+<p>transformer_getter is usefull to avoid applying pipeline stages that are
+aimed to filter out items in a big dataset to create a training set for a
+machine learning model, for example, but should not be applied on future
+individual items to be transformed by the fitted pipeline.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>stages</code></strong> :&ensp;<code>list</code></dt>
+<dd>A list of PdPipelineStage objects making up this pipeline.</dd>
+<dt><strong><code>transform_getter</code></strong> :&ensp;<code>callable</code>, optional</dt>
+<dd>A callable that can be applied to the fitted pipeline to produce a
+sub-pipeline of it which should be used to transform dataframes after
+the pipeline has been fitted. If not given, the fitted pipeline is used
+entirely.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.RemoveStopwords"><code class="name flex">
+<span>def <span class="ident">RemoveStopwords</span></span>(<span>self, language, columns, drop=True, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates and adds a pipeline stage that removes stopwords from a tokenized list to this pipeline stage.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>langugae</code></strong> :&ensp;<code>str</code> or <code>array</code>-<code>like</code></dt>
+<dd>If a string is given, interpreted as the language of the stopwords, and
+should then be one of the languages supported by the NLTK Stopwords
+Corpus. If a list is given, it is assumed to be the list of stopwords
+to remove.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code></dt>
+<dd>Column names in the DataFrame from which to remove stopwords.</dd>
+<dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
+<dd>If set to True, the source columns are dropped after stopword removal,
+and the resulting columns retain the names of the source columns.
+Otherwise, resulting columns gain the suffix '_nostop'.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<blockquote>
+<blockquote>
+<p>import pandas as pd; import pdpipe as pdp;
+data = [[3.2, ['kick', 'the', 'baby']]]
+df = pd.DataFrame(data, [1], ['freq', 'content'])
+remove_stopwords = pdp.RemoveStopwords('english', 'content')
+remove_stopwords(df)
+freq
+content
+1
+3.2
+[kick, baby]</p>
+</blockquote>
+</blockquote></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.RowDrop"><code class="name flex">
+<span>def <span class="ident">RowDrop</span></span>(<span>self, conditions, reduce=None, columns=None, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates and adds a pipeline stage that drop rows by callable conditions to this pipeline stage.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>conditions</code></strong> :&ensp;<code>list</code>-<code>like</code> or <code>dict</code></dt>
+<dd>The list of conditions that make a row eligible to be dropped. Each
+condition must be a callable that take a cell value and return a bool
+value. If a list of callables is given, the conditions are checked for
+each column value of each row. If a dict mapping column labels to
+callables is given, then each condition is only checked for the column
+values of the designated column.</dd>
+<dt><strong><code>reduce</code></strong> :&ensp;<code>'any'</code>, <code>'all'</code> or <code>'xor'</code>, default <code>'any'</code></dt>
+<dd>Determines how row conditions are reduced. If set to 'all', a row must
+satisfy all given conditions to be dropped. If set to 'any', rows
+satisfying at least one of the conditions are dropped. If set to 'xor',
+rows satisfying exactly one of the conditions will be dropped. Set to
+'any' by default.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>iterable</code>, optional</dt>
+<dd>The label, or an iterable of labels, of columns. Optional. If given,
+input conditions will be applied to the sub-dataframe made up of
+these columns to determine which rows to drop.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], ['a','b'])
+&gt;&gt;&gt; pdp.RowDrop([lambda x: x &lt; 2]).apply(df)
+   a   b
+</code></pre>
+<p>2
+4
+5
+3
+5
+11</p>
+<pre><code>&gt;&gt;&gt; pdp.RowDrop({'a': lambda x: x == 4}).apply(df)
+   a   b
+</code></pre>
+<p>1
+1
+4
+3
+5
+11</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.Scale"><code class="name flex">
+<span>def <span class="ident">Scale</span></span>(<span>self, scaler, exclude_columns=None, exclude_object_columns=True, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates and adds a pipeline stage that scales data to this pipeline stage.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>scaler</code></strong> :&ensp;<code>str</code></dt>
+<dd>The type of scaler to use to scale the data. One of 'StandardScaler',
+'MinMaxScaler', 'MaxAbsScaler', 'RobustScaler', 'QuantileTransformer'
+and 'Normalizer'.</dd>
+<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
+<dd>Name or names of columns to be excluded from scaling. Excluded columns
+are appended to the end of the resulting dataframe.</dd>
+<dt><strong><code>exclude_object_columns</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
+<dd>If set to True, all columns of dtype object are added to the list of
+columns excluded from scaling.</dd>
+<dt><strong><code>**kwargs</code></strong> :&ensp;<code>extra</code> <code>keyword</code> <code>arguments</code></dt>
+<dd>All valid extra keyword arguments are forwarded to the scaler
+constructor on scaler creation (e.g. 'n_quantiles' for
+QuantileTransformer). PdPipelineStage valid keyword arguments are used
+to override Scale class defaults.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; data = [[3.2, 0.3], [7.2, 0.35], [12.1, 0.29]]
+&gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], ["ph","gt"])
+&gt;&gt;&gt; scale_stage = pdp.Scale("StandardScaler")
+&gt;&gt;&gt; scale_stage(df)
+         ph        gt
+</code></pre>
+<p>1 -1.181449 -0.508001
+2 -0.082427
+1.397001
+3
+1.263876 -0.889001</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.SnowballStem"><code class="name flex">
+<span>def <span class="ident">SnowballStem</span></span>(<span>self, stemmer_name, columns, drop=True, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates and adds a pipeline stage that stems words in a list using the Snowball stemmer to this pipeline stage.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>stemmer_name</code></strong> :&ensp;<code>str</code></dt>
+<dd>The name of the Snowball stemmer to use. Should be one of the Snowball
+stemmers implemented by nltk. E.g. 'EnglishStemmer'.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code></dt>
+<dd>Column names in the DataFrame to stem tokens in.</dd>
+<dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
+<dd>If set to True, the source columns are dropped after stemming, and the
+resulting columns retain the names of the source columns. Otherwise,
+resulting columns gain the suffix '_stem'.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; data = [[3.2, ['kicking', 'boats']]]
+&gt;&gt;&gt; df = pd.DataFrame(data, [1], ['freq', 'content'])
+&gt;&gt;&gt; remove_stopwords = pdp.SnowballStem('EnglishStemmer', 'content')
+&gt;&gt;&gt; remove_stopwords(df)
+   freq       content
+</code></pre>
+<p>1
+3.2
+[kick, boat]</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.TokenizeWords"><code class="name flex">
+<span>def <span class="ident">TokenizeWords</span></span>(<span>self, columns, drop=True, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates and adds a pipeline stage that tokenize a sentence into words by whitespaces to this pipeline stage.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code></dt>
+<dd>Column names in the DataFrame to be tokenized.</dd>
+<dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
+<dd>If set to True, the source columns are dropped after being tokenized,
+and the resulting tokenized columns retain the names of the source
+columns. Otherwise, tokenized columns gain the suffix '_tok'.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame([[3.2, "Kick the baby!"]], [1], ['freq', 'content'])
+&gt;&gt;&gt; tokenize_stage = pdp.TokenizeWords('content')
+&gt;&gt;&gt; tokenize_stage(df)
+   freq               content
+</code></pre>
+<p>1
+3.2
+[Kick, the, baby, !]</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.UntokenizeWords"><code class="name flex">
+<span>def <span class="ident">UntokenizeWords</span></span>(<span>self, columns, drop=True, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates and adds a pipeline stage that joins token lists to whitespace-seperated strings to this pipeline stage.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code></dt>
+<dd>Column names in the DataFrame to be untokenized.</dd>
+<dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
+<dd>If set to True, the source columns are dropped after being untokenized,
+and the resulting columns retain the names of the source columns.
+Otherwise, untokenized columns gain the suffix '_untok'.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; data = [[3.2, ['Shake', 'and', 'bake!']]]
+&gt;&gt;&gt; df = pd.DataFrame(data, [1], ['freq', 'content'])
+&gt;&gt;&gt; untokenize_stage = pdp.UntokenizeWords('content')
+&gt;&gt;&gt; untokenize_stage(df)
+   freq          content
+</code></pre>
+<p>1
+3.2
+Shake and bake!</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.ValDrop"><code class="name flex">
+<span>def <span class="ident">ValDrop</span></span>(<span>self, values, columns=None, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates and adds a pipeline stage that drops rows by value to this pipeline stage.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>values</code></strong> :&ensp;<code>list</code>-<code>like</code></dt>
+<dd>A list of the values to drop.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
+<dd>The name, or an iterable of names, of columns to check for the given
+values. If set to None, all columns are checked.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,5],[18,11]], [1,2,3], ['a','b'])
+&gt;&gt;&gt; pdp.ValDrop([4], 'a').apply(df)
+    a   b
+</code></pre>
+<p>1
+1
+4
+3
+18
+11</p>
+<pre><code>&gt;&gt;&gt; pdp.ValDrop([4]).apply(df)
+    a   b
+</code></pre>
+<p>3
+18
+11</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.ValKeep"><code class="name flex">
+<span>def <span class="ident">ValKeep</span></span>(<span>self, values, columns=None, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates and adds a pipeline stage that keeps rows by value to this pipeline stage.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>values</code></strong> :&ensp;<code>list</code>-<code>like</code></dt>
+<dd>A list of the values to keep.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
+<dd>The name, or an iterable of names, of columns to check for the given
+values. If set to None, all columns are checked.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], ['a','b'])
+&gt;&gt;&gt; pdp.ValKeep([4, 5], 'a').apply(df)
+   a   b
+</code></pre>
+<p>2
+4
+5
+3
+5
+11</p>
+<pre><code>&gt;&gt;&gt; pdp.ValKeep([4, 5]).apply(df)
+   a  b
+</code></pre>
+<p>2
+4
+5</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.apply"><code class="name flex">
+<span>def <span class="ident">apply</span></span>(<span>self, df, exraise=None, verbose=False)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Applies this pipeline stage to the given dataframe.</p>
+<p>If the stage is not fitted fit_transform is called. Otherwise,
+transform is called.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>pandas.DataFrame</code></dt>
+<dd>The dataframe to which this pipeline stage will be applied.</dd>
+<dt><strong><code>exraise</code></strong> :&ensp;<code>bool</code>, default <code>None</code></dt>
+<dd>Determines behaviour if the precondition of this stage is not
+fulfilled by the given dataframe: If True,
+a pdpipe.FailedPreconditionError is raised. If False, the stage is
+skipped. If None, the default behaviour of this stage is used, as
+determined by the exraise constructor parameter.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>bool</code>, default <code>False</code></dt>
+<dd>If True an explanation message is printed after the precondition
+is checked but before the application of the pipeline stage.
+Defaults to False.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pandas.DataFrame</code></dt>
+<dd>The resulting dataframe.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def apply(self, df, exraise=None, verbose=False):
+    &#34;&#34;&#34;Applies this pipeline stage to the given dataframe.
+
+    If the stage is not fitted fit_transform is called. Otherwise,
+    transform is called.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        The dataframe to which this pipeline stage will be applied.
+    exraise : bool, default None
+        Determines behaviour if the precondition of this stage is not
+        fulfilled by the given dataframe: If True,
+        a pdpipe.FailedPreconditionError is raised. If False, the stage is
+        skipped. If None, the default behaviour of this stage is used, as
+        determined by the exraise constructor parameter.
+    verbose : bool, default False
+        If True an explanation message is printed after the precondition
+        is checked but before the application of the pipeline stage.
+        Defaults to False.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The resulting dataframe.
+    &#34;&#34;&#34;
+    if exraise is None:
+        exraise = self._exraise
+    if self._prec(df):
+        if verbose:
+            msg = &#39;- &#39; + &#39;\n  &#39;.join(textwrap.wrap(self._appmsg))
+            print(msg, flush=True)
+        if self.is_fitted:
+            return self._transform(df, verbose=verbose)
+        return self._fit_transform(df, verbose=verbose)
+    if exraise:
+        raise FailedPreconditionError(self._exmsg)
+    return df</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.description"><code class="name flex">
+<span>def <span class="ident">description</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Returns the description of this pipeline stage</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def description(self):
+    &#34;&#34;&#34;Returns the description of this pipeline stage&#34;&#34;&#34;
+    return self._desc</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.fit"><code class="name flex">
+<span>def <span class="ident">fit</span></span>(<span>self, X, y=None, exraise=None, verbose=False)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Fits this stage without transforming the given dataframe.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>X</code></strong> :&ensp;<code>pandas.DataFrame</code></dt>
+<dd>The dataframe to be transformed.</dd>
+<dt><strong><code>y</code></strong> :&ensp;<code>array</code>-<code>like</code>, optional</dt>
+<dd>Targets for supervised learning.</dd>
+<dt><strong><code>exraise</code></strong> :&ensp;<code>bool</code>, default <code>None</code></dt>
+<dd>Determines behaviour if the precondition of this stage is not
+fulfilled by the given dataframe: If True,
+a pdpipe.FailedPreconditionError is raised. If False, the stage is
+skipped. If None, the default behaviour of this stage is used, as
+determined by the exraise constructor parameter.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>bool</code>, default <code>False</code></dt>
+<dd>If True an explanation message is printed after the precondition
+is checked but before the application of the pipeline stage.
+Defaults to False.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pandas.DataFrame</code></dt>
+<dd>The resulting dataframe.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fit(self, X, y=None, exraise=None, verbose=False):
+    &#34;&#34;&#34;Fits this stage without transforming the given dataframe.
+
+    Parameters
+    ----------
+    X : pandas.DataFrame
+        The dataframe to be transformed.
+    y : array-like, optional
+        Targets for supervised learning.
+    exraise : bool, default None
+        Determines behaviour if the precondition of this stage is not
+        fulfilled by the given dataframe: If True,
+        a pdpipe.FailedPreconditionError is raised. If False, the stage is
+        skipped. If None, the default behaviour of this stage is used, as
+        determined by the exraise constructor parameter.
+    verbose : bool, default False
+        If True an explanation message is printed after the precondition
+        is checked but before the application of the pipeline stage.
+        Defaults to False.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The resulting dataframe.
+    &#34;&#34;&#34;
+    if exraise is None:
+        exraise = self._exraise
+    if self._prec(X):
+        if verbose:
+            msg = &#39;- &#39; + &#39;\n  &#39;.join(textwrap.wrap(self._appmsg))
+            print(msg, flush=True)
+        self._fit_transform(X, verbose=verbose)
+        return X
+    if exraise:
+        raise FailedPreconditionError(self._exmsg)
+    return X</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.fit_transform"><code class="name flex">
+<span>def <span class="ident">fit_transform</span></span>(<span>self, X, y=None, exraise=None, verbose=False)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Fits this stage and transforms the given dataframe.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>X</code></strong> :&ensp;<code>pandas.DataFrame</code></dt>
+<dd>The dataframe to transform and fit this pipeline stage by.</dd>
+<dt><strong><code>y</code></strong> :&ensp;<code>array</code>-<code>like</code>, optional</dt>
+<dd>Targets for supervised learning.</dd>
+<dt><strong><code>exraise</code></strong> :&ensp;<code>bool</code>, default <code>None</code></dt>
+<dd>Determines behaviour if the precondition of this stage is not
+fulfilled by the given dataframe: If True,
+a pdpipe.FailedPreconditionError is raised. If False, the stage is
+skipped. If None, the default behaviour of this stage is used, as
+determined by the exraise constructor parameter.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>bool</code>, default <code>False</code></dt>
+<dd>If True an explanation message is printed after the precondition
+is checked but before the application of the pipeline stage.
+Defaults to False.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pandas.DataFrame</code></dt>
+<dd>The resulting dataframe.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fit_transform(self, X, y=None, exraise=None, verbose=False):
+    &#34;&#34;&#34;Fits this stage and transforms the given dataframe.
+
+    Parameters
+    ----------
+    X : pandas.DataFrame
+        The dataframe to transform and fit this pipeline stage by.
+    y : array-like, optional
+        Targets for supervised learning.
+    exraise : bool, default None
+        Determines behaviour if the precondition of this stage is not
+        fulfilled by the given dataframe: If True,
+        a pdpipe.FailedPreconditionError is raised. If False, the stage is
+        skipped. If None, the default behaviour of this stage is used, as
+        determined by the exraise constructor parameter.
+    verbose : bool, default False
+        If True an explanation message is printed after the precondition
+        is checked but before the application of the pipeline stage.
+        Defaults to False.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The resulting dataframe.
+    &#34;&#34;&#34;
+    if exraise is None:
+        exraise = self._exraise
+    if self._prec(X):
+        if verbose:
+            msg = &#39;- &#39; + &#39;\n  &#39;.join(textwrap.wrap(self._appmsg))
+            print(msg, flush=True)
+        return self._fit_transform(X, verbose=verbose)
+    if exraise:
+        raise FailedPreconditionError(self._exmsg)
+    return X</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.transform"><code class="name flex">
+<span>def <span class="ident">transform</span></span>(<span>self, X, y=None, exraise=None, verbose=False)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Transforms the given dataframe without fitting this stage.</p>
+<p>If this stage is fittable but is not fitter, an
+UnfittedPipelineStageError is raised.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>X</code></strong> :&ensp;<code>pandas.DataFrame</code></dt>
+<dd>The dataframe to be transformed.</dd>
+<dt><strong><code>y</code></strong> :&ensp;<code>array</code>-<code>like</code>, optional</dt>
+<dd>Targets for supervised learning.</dd>
+<dt><strong><code>exraise</code></strong> :&ensp;<code>bool</code>, default <code>None</code></dt>
+<dd>Determines behaviour if the precondition of this stage is not
+fulfilled by the given dataframe: If True,
+a pdpipe.FailedPreconditionError is raised. If False, the stage is
+skipped. If None, the default behaviour of this stage is used, as
+determined by the exraise constructor parameter.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>bool</code>, default <code>False</code></dt>
+<dd>If True an explanation message is printed after the precondition
+is checked but before the application of the pipeline stage.
+Defaults to False.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pandas.DataFrame</code></dt>
+<dd>The resulting dataframe.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def transform(self, X, y=None, exraise=None, verbose=False):
+    &#34;&#34;&#34;Transforms the given dataframe without fitting this stage.
+
+    If this stage is fittable but is not fitter, an
+    UnfittedPipelineStageError is raised.
+
+    Parameters
+    ----------
+    X : pandas.DataFrame
+        The dataframe to be transformed.
+    y : array-like, optional
+        Targets for supervised learning.
+    exraise : bool, default None
+        Determines behaviour if the precondition of this stage is not
+        fulfilled by the given dataframe: If True,
+        a pdpipe.FailedPreconditionError is raised. If False, the stage is
+        skipped. If None, the default behaviour of this stage is used, as
+        determined by the exraise constructor parameter.
+    verbose : bool, default False
+        If True an explanation message is printed after the precondition
+        is checked but before the application of the pipeline stage.
+        Defaults to False.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The resulting dataframe.
+    &#34;&#34;&#34;
+    if exraise is None:
+        exraise = self._exraise
+    if self._prec(X):
+        if verbose:
+            msg = &#39;- &#39; + &#39;\n  &#39;.join(textwrap.wrap(self._appmsg))
+            print(msg, flush=True)
+        if self._is_fittable():
+            if self.is_fitted:
+                return self._transform(X, verbose=verbose)
+            raise UnfittedPipelineStageError(
+                &#34;transform of an unfitted pipeline stage was called!&#34;)
+        return self._transform(X, verbose=verbose)
+    if exraise:
+        raise FailedPreconditionError(self._exmsg)
+    return X</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pdpipe" href="index.html">pdpipe</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pdpipe.core.make_pdpipeline" href="#pdpipe.core.make_pdpipeline">make_pdpipeline</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pdpipe.core.AdHocStage" href="#pdpipe.core.AdHocStage">AdHocStage</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pdpipe.core.PdPipeline" href="#pdpipe.core.PdPipeline">PdPipeline</a></code></h4>
+<ul class="">
+<li><code><a title="pdpipe.core.PdPipeline.fit" href="#pdpipe.core.PdPipeline.fit">fit</a></code></li>
+<li><code><a title="pdpipe.core.PdPipeline.fit_transform" href="#pdpipe.core.PdPipeline.fit_transform">fit_transform</a></code></li>
+<li><code><a title="pdpipe.core.PdPipeline.get_transformer" href="#pdpipe.core.PdPipeline.get_transformer">get_transformer</a></code></li>
+<li><code><a title="pdpipe.core.PdPipeline.transform" href="#pdpipe.core.PdPipeline.transform">transform</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pdpipe.core.PdPipelineStage" href="#pdpipe.core.PdPipelineStage">PdPipelineStage</a></code></h4>
+<ul class="two-column">
+<li><code><a title="pdpipe.core.PdPipelineStage.AdHocStage" href="#pdpipe.core.PdPipelineStage.AdHocStage">AdHocStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.AggByCols" href="#pdpipe.core.PdPipelineStage.AggByCols">AggByCols</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ApplyByCols" href="#pdpipe.core.PdPipelineStage.ApplyByCols">ApplyByCols</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ApplyToRows" href="#pdpipe.core.PdPipelineStage.ApplyToRows">ApplyToRows</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Bin" href="#pdpipe.core.PdPipelineStage.Bin">Bin</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColByFrameFunc" href="#pdpipe.core.PdPipelineStage.ColByFrameFunc">ColByFrameFunc</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColDrop" href="#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColRename" href="#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColReorder" href="#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Encode" href="#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.FreqDrop" href="#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Log" href="#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.MapColVals" href="#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.OneHotEncode" href="#pdpipe.core.PdPipelineStage.OneHotEncode">OneHotEncode</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.PdPipeline" href="#pdpipe.core.PdPipelineStage.PdPipeline">PdPipeline</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RemoveStopwords" href="#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RowDrop" href="#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Scale" href="#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.SnowballStem" href="#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.TokenizeWords" href="#pdpipe.core.PdPipelineStage.TokenizeWords">TokenizeWords</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.UntokenizeWords" href="#pdpipe.core.PdPipelineStage.UntokenizeWords">UntokenizeWords</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ValDrop" href="#pdpipe.core.PdPipelineStage.ValDrop">ValDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ValKeep" href="#pdpipe.core.PdPipelineStage.ValKeep">ValKeep</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.apply" href="#pdpipe.core.PdPipelineStage.apply">apply</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.description" href="#pdpipe.core.PdPipelineStage.description">description</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.fit" href="#pdpipe.core.PdPipelineStage.fit">fit</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.fit_transform" href="#pdpipe.core.PdPipelineStage.fit_transform">fit_transform</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.transform" href="#pdpipe.core.PdPipelineStage.transform">transform</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.2</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>
