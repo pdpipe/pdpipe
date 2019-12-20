@@ -100,8 +100,8 @@ Created by Shay Palachy  (shay.palachy@gmail.com).
 .. |PyPI-Versions| image:: https://img.shields.io/pypi/pyversions/pdpipe.svg
    :target: https://pypi.org/project/pdpipe
 
-.. |Build-Status| image:: https://travis-ci.org/shaypal5/pdpipe.svg?branch=master
-  :target: https://travis-ci.org/shaypal5/pdpipe
+.. |Build-Status| image:: https://travis-ci.org/pdpipe/pdpipe.svg?branch=master
+  :target: https://travis-ci.org/pdpipe/pdpipe
 
 .. |LICENCE| image:: https://img.shields.io/badge/License-MIT-yellow.svg
   :target: https://pypi.python.org/pypi/pdpipe
@@ -111,8 +111,8 @@ Created by Shay Palachy  (shay.palachy@gmail.com).
   
 .. https://img.shields.io/pypi/l/pdpipe.svg
 
-.. |Codecov| image:: https://codecov.io/github/shaypal5/pdpipe/coverage.svg?branch=master
-   :target: https://codecov.io/github/shaypal5/pdpipe?branch=master
+.. |Codecov| image:: https://codecov.io/github/pdpipe/pdpipe/coverage.svg?branch=master
+   :target: https://codecov.io/github/pdpipe/pdpipe?branch=master
 
   
 .. |Codacy|  image:: https://api.codacy.com/project/badge/Grade/7d605e063f114ecdb5569266bd0226cd
@@ -127,6 +127,6 @@ Created by Shay Palachy  (shay.palachy@gmail.com).
      :target: https://pepy.tech/project/pdpipe
      :alt: PePy stats
      
-.. |Codefactor| image:: https://www.codefactor.io/repository/github/shaypal5/pdpipe/badge?style=plastic
-     :target: https://www.codefactor.io/repository/github/shaypal5/pdpipe
+.. |Codefactor| image:: https://www.codefactor.io/repository/github/pdpipe/pdpipe/badge?style=plastic
+     :target: https://www.codefactor.io/repository/github/pdpipe/pdpipe
      :alt: Codefactor code quality
