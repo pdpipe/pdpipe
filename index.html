@@ -4,9 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <meta name="description" content="Auto-generate API documentation for Python projects from docstrings in numpydoc, Google, or plain Markdown format." itemprop="description">
+    <meta name="description" content="Easy pipelines for pandas DataFrames" itemprop="description">
     <meta name="keywords" content="python, documentation, generator, api, docstrings, numpydoc, markdown">
-    <title>pdoc – Auto-generate API documentation for Python projects</title>
+    <title>pdpipe – Easy pipelines for pandas DataFrames</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.1/css/all.min.css">
@@ -24,11 +24,10 @@
     </style>
 
     <link rel="icon" type="image/png" href="logo.png" sizes="512x512" itemprop="image">
-    <link rel="canonical home" href="https://pdoc3.github.io/pdoc/" itemprop="url">
+    <link rel="canonical home" href="https://pdpipe.github.io/pdpipe/" itemprop="url">
 
-    <link href="https://en.wikipedia.org/wiki/Pdoc" itemprop="sameAs">
-    <link href="https://github.com/pdoc3/pdoc" itemprop="sameAs">
-    <link href="https://pypi.org/project/pdoc3/" itemprop="sameAs">
+    <link href="https://github.com/pdpipe/pdpipe" itemprop="sameAs">
+    <link href="https://pypi.org/project/pdpipe/" itemprop="sameAs">
     <link itemprop="license" href="https://www.gnu.org/licenses/agpl-3.0.html">
     <meta itemprop="isAccessibleForFree" content="True">
     <meta itemprop="operatingSystem" content="Linux, macOS, Windows">
@@ -48,10 +47,10 @@
                 <div class="image is-128x128" style="margin-right:3em"><img alt="" src="logo.png"></div>
                 <div>
                     <h1 class="title is-1">
-                        pdoc
+                        pdpipe
                     </h1>
                     <h2 class="subtitle is-4">
-                        Auto-generate API documentation for Python projects
+                        Easy pipelines for pandas DataFrames
                     </h2>
                 </div>
             </div>
@@ -79,10 +78,10 @@
                     <div class="media-left"><span class="icon is-medium"><i class="fa fa-2x fa-quote-left"></i></span></div>
                     <div class="media-content">
                         <p>
-                            Documentation is like sex: when it is good, it is very, very good;
-                            <br>and when it is bad, it is better than nothing.
+                            You ever seen a panda goes straight through a pipeline? You did?
+                            <br>Well, must have been a big 'un!
                         </p>
-                        <i class="is-pulled-right">— Dick B.</i>
+                        <i class="is-pulled-right">— Herbert J.</i>
                     </div>
                 </blockquote>
             </div>
@@ -167,8 +166,8 @@
                 <li class="media">
                     <div class="media-left"><span class="icon is-medium"><i class="fa fa-2x fa-eye"></i></span></div>
                     <div class="media-content">
-                        <p><b>Plain text, HTML, or PDF output</b></p>
-                        <p>Functionally laid out for every kind of eye.</p>
+                        <p><b>Verbose</b></p>
+                        <p>Informative prints and errors on pipeline application..</p>
                     </div>
                 </li>
             </ul>
@@ -185,7 +184,7 @@
         <div class="columns is-centered">
             <div class="column is-narrow">
                 <div class="control has-icons-left has-icons-right">
-                    <input class="input is-large is-dark" readonly value="pip3 install pdoc3"
+                    <input class="input is-large is-dark" readonly value="pip install pdpipe"
                            style="background:#ffd; cursor:pointer; caret-color:transparent; font-family:monospace;"
                            onclick="getSelection().removeAllRanges(); this.select();"
                            data-ga-on="click,auxclick,contextmenu" data-ga-event-action="select" data-ga-event-category="cmdline">
@@ -196,13 +195,13 @@
 
             <div class="column is-narrow has-text-centered buttons">
                 <a class="button is-success is-large"
-                   title="pdoc on PyPI" href="https://pypi.org/project/pdoc3/" style="margin-right:.8em;"
+                   title="pdoc on PyPI" href="https://pypi.org/project/pdpipe/" style="margin-right:.8em;"
                    itemprop="downloadUrl" data-ga-event-category="PyPI">
                     <span class="icon"><i class="fa fa-download"></i></span>
                     <span>PyPI</span>
                 </a>
                 <a class="button is-large has-background-white-ter"
-                   title="pdoc on GitHub" href="https://github.com/pdoc3/pdoc"
+                   title="pdoc on GitHub" href="https://github.com/pdpipe/pdpipe"
                    data-ga-event-category="GitHub">
                     <span class="icon"><i class="fab fa-github"></i></span>
                     <span>GitHub</span>
@@ -210,14 +209,14 @@
             </div>
         </div>
 
-        <p class="has-text-centered">
-            <span class="is-size-5">*</span>
-            PyPI package <b itemprop="alternateName"><a href="https://pypi.org/project/pdoc3/">pdoc3</a></b>.
-            Not to be confused with an older package
-            <a href="https://pypi.org/project/pdoc/" rel="nofollow" itemprop="isBasedOn">pdoc</a>
-            this package is a fork of. <span class="icon" ><i class="fa fa-code-branch"></i></span>
-        </p>
-    </div>
+    <!--     <p class="has&#45;text&#45;centered"> -->
+    <!--         <span class="is&#45;size&#45;5">*</span> -->
+    <!--         PyPI package <b itemprop="alternateName"><a href="https://pypi.org/project/pdoc3/">pdoc3</a></b>. -->
+    <!--         Not to be confused with an older package -->
+    <!--         <a href="https://pypi.org/project/pdoc/" rel="nofollow" itemprop="isBasedOn">pdoc</a> -->
+    <!--         this package is a fork of. <span class="icon" ><i class="fa fa&#45;code&#45;branch"></i></span> -->
+    <!--     </p> -->
+    <!-- </div> -->
 </section>
 
 <section class="section no-ads">
@@ -229,16 +228,16 @@
         <div class="content columns is-centered">
             <div class="column is-narrow has-text-centered">
                 <div class="control has-icons-left">
-                    <input class="input is-large is-dark" readonly disabled value="pdoc --html pdoc"
+                    <input class="input is-large is-dark" readonly disabled value="import pdpipe as pdp"
                            style="cursor:default; caret-color:transparent; font-family:monospace; pointer-events:none; user-select:none;"
                            tabindex="-1"
                            data-ga-on="click" data-ga-event-action="select" data-ga-event-category="pdoc line">
                     <span class="icon is-left has-text-grey" ><i class="fa fa-dollar-sign"></i></span>
                 </div>
             </div>
-            <div class="column is-narrow has-text-centered is-size-3 has-text-centered">produces</div>
+            <div class="column is-narrow has-text-centered is-size-3 has-text-centered">then read the</div>
             <div class="column is-narrow has-text-centered">
-                <a class="button is-large is-link" title="pdoc documentation" href="doc/pdoc/"
+                <a class="button is-large is-link" title="pdpipe documentation" href="doc/pdpipe/"
                    itemprop="softwareHelp mainEntityOfPage">
                     <span class="icon"><i class="fa fa-file-alt"></i></span>
                     <span>Documentation</span>
@@ -246,18 +245,18 @@
             </div>
         </div>
 
-        <p class="has-text-centered">
-            <span class="is-size-5">*</span>
-            Replace second <code>pdoc</code> with your package&nbsp;/&nbsp;directory&nbsp;/&nbsp;file&nbsp;name to view the
-            documentation of <em>your</em> project.
-        </p>
+        <!-- <p class="has&#45;text&#45;centered"> -->
+        <!--     <span class="is&#45;size&#45;5">*</span> -->
+        <!--     Replace second <code>pdoc</code> with your package&#38;nbsp;/&#38;nbsp;directory&#38;nbsp;/&#38;nbsp;file&#38;nbsp;name to view the -->
+        <!--     documentation of <em>your</em> project. -->
+        <!-- </p> -->
     </div>
 
     <ins class="adsbygoogle has-text-centered is-block" data-ad-client="ca-pub-2900001379782823" data-ad-slot="1430886616" data-ad-format="auto" data-full-width-responsive="true"></ins>
     <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
 </section>
 
-<section class="section no-ads">
+<!--<section class="section no-ads">
     <div class="container">
         <h3 class="title is-narrow has-text-centered">
             What Users are Saying
@@ -310,6 +309,7 @@
             </div>
         </div>
     </div>
+--!>
 
     <ins class="adsbygoogle has-text-centered is-block" data-ad-client="ca-pub-2900001379782823" data-ad-slot="1430886616" data-ad-format="auto" data-full-width-responsive="true"></ins>
     <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
@@ -317,12 +317,12 @@
 
 <footer class="footer" style="margin-top:8em; padding-top:4rem; clip-path:polygon(0 0, 100% 10%, 100% 100%, 0 100%);">
     <div class="container is-fluid has-text-grey-lighter">
-        <span class="is-pulled-left">卐</span>
-        <span class="is-pulled-right">卍</span>
+        <span class="is-pulled-left"></span>
+        <span class="is-pulled-right"></span>
     </div>
     <div class="container">
         <blockquote class="content is-clearfix has-text-centered has-text-grey">
-            <p>There is nothing in the programming field more despicable than an undocumented program.&ensp;<i>—&nbsp;Ed Yourdon</i></p>
+            <p>I just wanted pandas pipelines that are bit more informative.&ensp;<i>—&nbsp;<a href="http://www.shaypalachy.com/" target="_blank">Shay Palachy</a></i></p>
         </blockquote>
     </div>
 </footer>
