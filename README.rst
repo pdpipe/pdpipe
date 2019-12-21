@@ -4,9 +4,9 @@ pdpipe ˨
 |PyPI-Status| |Downloads| |PyPI-Versions| |Build-Status| |Codecov| |Codefactor| |LICENCE|
 
 
-Easy pipelines for pandas DataFrames (`learn how! <https://towardsdatascience.com/https-medium-com-tirthajyoti-build-pipelines-with-pandas-using-pdpipe-cade6128cd31>`_).|
-Website: `https://pdpipe.github.io/pdpipe/<https://pdpipe.github.io/pdpipe/>`_|
-Documentation: `https://pdpipe.github.io/pdpipe/doc/pdpipe/<https://pdpipe.github.io/pdpipe/doc/pdpipe/>`_
+Easy pipelines for pandas DataFrames (`learn how! <https://towardsdatascience.com/https-medium-com-tirthajyoti-build-pipelines-with-pandas-using-pdpipe-cade6128cd31>`_).
+| Website: `https://pdpipe.github.io/pdpipe/ <https://pdpipe.github.io/pdpipe/>`_
+| Documentation: `https://pdpipe.github.io/pdpipe/doc/pdpipe/ <https://pdpipe.github.io/pdpipe/doc/pdpipe/>`_
 
 .. code-block:: python
 
@@ -95,6 +95,50 @@ This project is documented using the `numpy docstring conventions`_, which were 
 .. _`these conventions`: https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 
 Additionally, if you update this ``README.rst`` file,  use ``python setup.py checkdocs`` to validate it compiles.
+
+
+Adding doctests
+---------------
+
+Please notice that for ``pdoc3`` - the used the generate documentation for ``pdpipe`` - to successfully include doctest in the generated documentation, the whole doctest must be indented in relation to the opening multi-string indentation:
+
+.. code-block:: python
+
+
+    class ApplyByCols(PdPipelineStage):
+        """A pipeline stage applying an element-wise function to columns.
+
+        Parameters
+        ----------
+        columns : str or list-like
+            Names of columns on which to apply the given function.
+        func : function
+            The function to be applied to each element of the given columns.
+        result_columns : str or list-like, default None
+            The names of the new columns resulting from the mapping operation. Must
+            be of the same length as columns. If None, behavior depends on the
+            drop parameter: If drop is True, the name of the source column is used;
+            otherwise, the name of the source column is used with the suffix
+            '_app'.
+        drop : bool, default True
+            If set to True, source columns are dropped after being mapped.
+        func_desc : str, default None
+            A function description of the given function; e.g. 'normalizing revenue
+            by company size'. A default description is used if None is given.
+
+
+        Example
+        -------
+            >>> import pandas as pd; import pdpipe as pdp; import math;
+            >>> data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
+            >>> df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
+            >>> round_ph = pdp.ApplyByCols("ph", math.ceil)
+            >>> round_ph(df)
+               ph  lbl
+            1   4  acd
+            2   8  alk
+            3  13  alk
+        """
 
 
 Credits

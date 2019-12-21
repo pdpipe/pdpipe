@@ -26,13 +26,13 @@ def out_of_place_col_insert(df, series, loc, column_name=None):
 
     Example
     -------
-    >>> import pandas as pd; import pdpipe as pdp;
-    >>> df = pd.DataFrame([[1, 'a'], [4, 'b']], columns=['a', 'g'])
-    >>> ser = pd.Series([7, 5])
-    >>> out_of_place_col_insert(df, ser, 1, 'n')
-       a  n  g
-    0  1  7  a
-    1  4  5  b
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> df = pd.DataFrame([[1, 'a'], [4, 'b']], columns=['a', 'g'])
+        >>> ser = pd.Series([7, 5])
+        >>> out_of_place_col_insert(df, ser, 1, 'n')
+           a  n  g
+        0  1  7  a
+        1  4  5  b
     """
     if column_name is None:
         if series.name is None:
@@ -60,11 +60,11 @@ def get_numeric_column_names(df):
 
     Example
     -------
-    >>> import pandas as pd; import pdpipe as pdp;
-    >>> data = [[2, 3.2, "acd"], [1, 7.2, "alk"], [8, 12.1, "alk"]]
-    >>> df = pd.DataFrame(data, [1,2,3], ["rank", "ph","lbl"])
-    >>> sorted(get_numeric_column_names(df))
-    ['ph', 'rank']
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> data = [[2, 3.2, "acd"], [1, 7.2, "alk"], [8, 12.1, "alk"]]
+        >>> df = pd.DataFrame(data, [1,2,3], ["rank", "ph","lbl"])
+        >>> sorted(get_numeric_column_names(df))
+        ['ph', 'rank']
     """
     num_cols = []
     for colbl, dtype in df.dtypes.to_dict().items():

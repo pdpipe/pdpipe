@@ -106,3 +106,8 @@ try:
     del name  # pylint: disable=W0631
 except NameError:
     pass
+
+# this dictates which modules are skipped on pdoc documentation generation
+__pdoc__ = {
+    'shared': False,
+}

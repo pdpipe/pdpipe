@@ -31,8 +31,7 @@ The awesome Tirthajyoti Sarkar wrote [an excellent practical introduction on how
 Pipeline Stages
 ---------------
 
-Creating Pipeline Stages
-~~~~~~~~~~~~~~~~~~~~~~~~
+### Creating Pipeline Stages
 
 You can create stages with the following syntax:
 
@@ -48,8 +47,7 @@ All pipeline stages have a predefined precondition function that returns True fo
 ```
 
 
-Applying Pipeline Stages
-~~~~~~~~~~~~~~~~~~~~~~~~
+### Applying Pipeline Stages
 
 You can apply a pipeline stage to a DataFrame using its `apply` method:
 
@@ -80,8 +78,7 @@ Additionally, to have an explanation message print after the precondition is che
 All pipeline stages also adhere to the `scikit-learn` transformer API, and so have `fit_transform` and `transform` methods; these behave exactly like `apply`, and accept the input dataframe as parameter `X`. For the same reason, pipeline stages also have a `fit` method, which applies them but returns the input dataframe unchanged.
 
 
-Fittable Pipeline Stages
-~~~~~~~~~~~~~~~~~~~~~~~~
+### Fittable Pipeline Stages
 
 Some pipeline stages can be fitted, meaning that some transformation parameters are set the first time a dataframe is piped through the stage, while later applications of the stage use these now-set parameters without changing them; the `Encode` scikit-learn-dependent stage is a good example.
 
@@ -99,8 +96,7 @@ Again, `apply`, `fit_transform` and  are all of equivalent for non-fittable pipe
 Pipelines
 ---------
 
-Creating Pipelines
-~~~~~~~~~~~~~~~~~~
+### Creating Pipelines
 
 Pipelines can be created by supplying a list of pipeline stages:
 
@@ -115,8 +111,7 @@ Additionally, the  method can be used to give stages as positional arguments.
 ```
 
 
-Printing Pipelines
-~~~~~~~~~~~~~~~~~~
+### Printing Pipelines
 
 A pipeline structre can be clearly displayed by printing the object:
 
@@ -132,8 +127,7 @@ A pipeline structre can be clearly displayed by printing the object:
   [ 2]  Map values of column Job with {'Part': True, 'Full': True, 'No': False}.
 ```
 
-Pipeline Arithmetics
-~~~~~~~~~~~~~~~~~~~~
+### Pipeline Arithmetics
 
 Alternatively, you can create pipelines by adding pipeline stages together:
 
@@ -149,8 +143,7 @@ Or even by adding pipelines together or pipelines to pipeline stages:
   pipeline += pdp.PdPipeline([pdp.ColRename({"Job": "Employed"})])
 ```
 
-Pipeline Chaining
-~~~~~~~~~~~~~~~~~
+### Pipeline Chaining
 
 Pipeline stages can also be chained to other stages to create pipelines:
 
@@ -158,8 +151,7 @@ Pipeline stages can also be chained to other stages to create pipelines:
   pipeline = pdp.ColDrop("Name").OneHotEncode("Label").ValDrop([-1], "Children")
 ```
 
-Pipeline Slicing
-~~~~~~~~~~~~~~~~
+### Pipeline Slicing
 
 Pipelines are Python Sequence objects, and as such can be sliced using Python's slicing notation, just like lists:
 
@@ -172,8 +164,7 @@ Pipelines are Python Sequence objects, and as such can be sliced using Python's 
   [ 0] OneHotEncode Label
 ```
 
-Applying Pipelines
-~~~~~~~~~~~~~~~~~~
+### Applying Pipelines
 
 Pipelines are pipeline stages themselves, and can be applied to a DataFrame using the same syntax, applying each of the stages making them up, in order:
 

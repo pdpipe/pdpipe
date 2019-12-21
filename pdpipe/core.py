@@ -523,6 +523,20 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         return res
 
     def get_transformer(self):
+        """Return the transformer induced by this fitted pipeline.
+
+           This transformer is a `pdpipe` pipeline that transforms input data
+           in a way corresponding to this pipline after it has been fitted. By
+           default this is the pipeline itself, but the `transform_getter`
+           constructor parameter can be used to return a sub-pipeline of the
+           fitted pipeline instead, for cases where some stages should only be
+           applied when fitting this pipeline to data.
+
+        Returns
+        -------
+        pdpipe.PdPipeline
+            The corresponding transformer pipeline induced by this pipeline.
+        """
         try:
             return self._trans_getter(self)
         except TypeError:  # pragma: no cover

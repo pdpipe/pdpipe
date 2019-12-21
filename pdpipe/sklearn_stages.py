@@ -36,17 +36,17 @@ class Encode(PdPipelineStage):
 
     Example
     -------
-    >>> import pandas as pd; import pdpipe as pdp;
-    >>> data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
-    >>> df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
-    >>> encode_stage = pdp.Encode("lbl")
-    >>> encode_stage(df)
-         ph  lbl
-    1   3.2    0
-    2   7.2    1
-    3  12.1    1
-    >>> encode_stage.encoders["lbl"].inverse_transform([0,1,1])
-    array(['acd', 'alk', 'alk'], dtype=object)
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
+        >>> df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
+        >>> encode_stage = pdp.Encode("lbl")
+        >>> encode_stage(df)
+             ph  lbl
+        1   3.2    0
+        2   7.2    1
+        3  12.1    1
+        >>> encode_stage.encoders["lbl"].inverse_transform([0,1,1])
+        array(['acd', 'alk', 'alk'], dtype=object)
     """
 
     _DEF_ENCODE_EXC_MSG = (
@@ -154,15 +154,15 @@ class Scale(PdPipelineStage):
 
     Example
     -------
-    >>> import pandas as pd; import pdpipe as pdp;
-    >>> data = [[3.2, 0.3], [7.2, 0.35], [12.1, 0.29]]
-    >>> df = pd.DataFrame(data, [1,2,3], ["ph","gt"])
-    >>> scale_stage = pdp.Scale("StandardScaler")
-    >>> scale_stage(df)
-             ph        gt
-    1 -1.181449 -0.508001
-    2 -0.082427  1.397001
-    3  1.263876 -0.889001
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> data = [[3.2, 0.3], [7.2, 0.35], [12.1, 0.29]]
+        >>> df = pd.DataFrame(data, [1,2,3], ["ph","gt"])
+        >>> scale_stage = pdp.Scale("StandardScaler")
+        >>> scale_stage(df)
+                 ph        gt
+        1 -1.181449 -0.508001
+        2 -0.082427  1.397001
+        3  1.263876 -0.889001
     """
 
     _DESC_PREFIX = "Scale data"
