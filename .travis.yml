@@ -27,17 +27,6 @@ matrix:
       script:
         # - find -name '*.md' | xargs .github/lint-markdown.sh
         - flake8
-        - python3 -m pytest
-    # ==== Docs built on a designated Python 3.6 job ====
-    - python: 3.6
-      name: 'Docs'
-      stage: deploy
-      before_script:
-        - pip install pydoc3
-      script:
-        - doc/build.sh
-      after_success:
-        - if [ "$TRAVIS_BRANCH" = "$TRAVIS_TAG" ]; then bash .github/deploy-gh-pages.sh; fi
     # ======= OSX ========
     - name: "Python 3.6.5 on macOS 10.13"
       os: osx
@@ -81,6 +70,16 @@ matrix:
       script: python -m pytest
       after_success: python -m codecov
       env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
+    # ==== Docs built on a designated Python 3.6 job ====
+    - python: 3.6
+      name: 'Docs'
+      stage: deploy
+      before_script:
+        - pip install pydoc3
+      script:
+        - doc/build.sh
+      after_success:
+        - if [ "$TRAVIS_BRANCH" = "$TRAVIS_TAG" ]; then bash .github/deploy-gh-pages.sh; fi
 before_install:
   - pip3 install -U pip
 install:
