@@ -97,3 +97,7 @@ script:
   - python3 -m pytest
 after_success:
   - python3 -m codecov
+notifications:
+  email:
+  - on_failure: always
+  - on_success: change
