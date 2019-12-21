@@ -4,7 +4,9 @@ pdpipe ˨
 |PyPI-Status| |Downloads| |PyPI-Versions| |Build-Status| |Codecov| |Codefactor| |LICENCE|
 
 
-Easy pipelines for pandas DataFrames (`learn how! <https://towardsdatascience.com/https-medium-com-tirthajyoti-build-pipelines-with-pandas-using-pdpipe-cade6128cd31>`_).
+Easy pipelines for pandas DataFrames (`learn how! <https://towardsdatascience.com/https-medium-com-tirthajyoti-build-pipelines-with-pandas-using-pdpipe-cade6128cd31>`_).|
+Website: `https://pdpipe.github.io/pdpipe/<https://pdpipe.github.io/pdpipe/>`_|
+Documentation: `https://pdpipe.github.io/pdpipe/doc/pdpipe/<https://pdpipe.github.io/pdpipe/doc/pdpipe/>`_
 
 .. code-block:: python
 
@@ -26,6 +28,14 @@ Easy pipelines for pandas DataFrames (`learn how! <https://towardsdatascience.co
 .. contents::
 
 .. section-numbering::
+
+Documentation
+=============
+
+This is the repository of the `pdpipe<https://pdpipe.github.io/pdpipe/>`_ package. This document is aimed to help potential contributors to the project.
+
+To learn more about how to use ``pdpipe``, either `visit pdpipe's homepage<https://pdpipe.github.io/pdpipe/>`_ or read the `online documentation of pdpipe<https://pdpipe.github.io/pdpipe/doc/pdpipe/`_.
+
 
 Installation
 ============
