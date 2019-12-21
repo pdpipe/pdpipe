@@ -36,16 +36,7 @@ Documentation
 
 This is the repository of the ``pdpipe`` package. This readme is aimed to help potential contributors to the project.
 
-To learn more about how to use ``pdpipe``, either |homepage_link| or read the |doc_link|.
-
-
-.. |homepage_link| raw:: html
-
-  <a href="https://pdpipe.github.io/pdpipe/" target="_blank">visit pdpipe's homepage</a>
-
-.. |doc_link| raw:: html
-
-  <a href="https://pdpipe.github.io/pdpipe/doc/pdpipe/" target="_blank">online documentation of pdpipe</a>
+To learn more about how to use ``pdpipe``, either `visit pdpipe's homepage <https://pdpipe.github.io/pdpipe/>`_ or read the `online documentation of pdpipe <https://pdpipe.github.io/pdpipe/doc/pdpipe/>`_.
 
 
 Installation
