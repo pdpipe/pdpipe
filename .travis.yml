@@ -24,7 +24,7 @@ matrix:
       before_script:
         - pip install flake8
       script:
-        - find -name '*.md' | xargs .github/lint-markdown.sh
+        # - find -name '*.md' | xargs .github/lint-markdown.sh
         - flake8
         - python3 -m pytest
     # ==== Docs built on a designated Python 3.6 job ====
