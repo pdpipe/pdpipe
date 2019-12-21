@@ -26,7 +26,7 @@ Design Decisions
 Basic Use
 =========
 
-The awesome Tirthajyoti Sarkar wrote [an excellent practical introduction on how to use pdpipe](https://towardsdatascience.com/https-medium-com-tirthajyoti-build-pipelines-with-pandas-using-pdpipe-cade6128cd31). Read it now [on Towards Data Science](https://towardsdatascience.com/https-medium-com-tirthajyoti-build-pipelines-with-pandas-using-pdpipe-cade6128cd31)!
+The awesome Tirthajyoti Sarkar wrote [an excellent practical introduction on how to use pdpipe](https://tirthajyoti.github.io/Notebooks/Pandas-pipeline-with-pdpipe). Read it now [on his website](https://tirthajyoti.github.io/Notebooks/Pandas-pipeline-with-pdpipe)!
 
 Pipeline Stages
 ---------------
