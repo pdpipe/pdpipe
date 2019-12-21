@@ -12,6 +12,9 @@
 <style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<style>.homelink{display:block;font-size:2em;font-weight:bold;color:#555;padding-bottom:.5em;border-bottom:1px solid silver}.homelink:hover{color:inherit}.homelink img{max-width:20%;max-height:5em;margin:auto;margin-bottom:.3em}</style>
+<link rel="canonical" href="https://pdpipe.github.io/pdpipe/doc/pdpipe/col_generation.html">
+<link rel="icon" href="https://pdpipe.github.io/pdpipe/logo.png">
 </head>
 <body>
 <main>
@@ -24,6 +27,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/col_generation.py#L0-L961" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Basic pdpipe PdPipelineStages.&#34;&#34;&#34;
 
@@ -62,20 +66,20 @@ class Bin(PdPipelineStage):
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-    &gt;&gt;&gt; df = pd.DataFrame([[-3],[4],[5], [9]], [1,2,3, 4], [&#39;speed&#39;])
-    &gt;&gt;&gt; pdp.Bin({&#39;speed&#39;: [5]}, drop=False).apply(df)
-       speed speed_bin
-    1     -3        &lt;5
-    2      4        &lt;5
-    3      5        5≤
-    4      9        5≤
-    &gt;&gt;&gt; pdp.Bin({&#39;speed&#39;: [0,5,8]}, drop=False).apply(df)
-       speed speed_bin
-    1     -3        &lt;0
-    2      4       0-5
-    3      5       5-8
-    4      9        8≤
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[-3],[4],[5], [9]], [1,2,3, 4], [&#39;speed&#39;])
+        &gt;&gt;&gt; pdp.Bin({&#39;speed&#39;: [5]}, drop=False).apply(df)
+           speed speed_bin
+        1     -3        &lt;5
+        2      4        &lt;5
+        3      5        5≤
+        4      9        5≤
+        &gt;&gt;&gt; pdp.Bin({&#39;speed&#39;: [0,5,8]}, drop=False).apply(df)
+           speed speed_bin
+        1     -3        &lt;0
+        2      4       0-5
+        3      5       5-8
+        4      9        8≤
     &#34;&#34;&#34;
 
     _DEF_BIN_EXC_MSG = (
@@ -194,13 +198,13 @@ class OneHotEncode(PdPipelineStage):
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-    &gt;&gt;&gt; df = pd.DataFrame([[&#39;USA&#39;], [&#39;UK&#39;], [&#39;Greece&#39;]], [1,2,3], [&#39;Born&#39;])
-    &gt;&gt;&gt; pdp.OneHotEncode().apply(df)
-       Born_UK  Born_USA
-    1        0         1
-    2        1         0
-    3        0         0
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[&#39;USA&#39;], [&#39;UK&#39;], [&#39;Greece&#39;]], [1,2,3], [&#39;Born&#39;])
+        &gt;&gt;&gt; pdp.OneHotEncode().apply(df)
+           Born_UK  Born_USA
+        1        0         1
+        2        1         0
+        3        0         0
     &#34;&#34;&#34;
 
     _DEF_1HENCODE_EXC_MSG = (
@@ -360,14 +364,14 @@ class MapColVals(PdPipelineStage):
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-    &gt;&gt;&gt; df = pd.DataFrame([[1], [3], [2]], [&#39;UK&#39;, &#39;USSR&#39;, &#39;US&#39;], [&#39;Medal&#39;])
-    &gt;&gt;&gt; value_map = {1: &#39;Gold&#39;, 2: &#39;Silver&#39;, 3: &#39;Bronze&#39;}
-    &gt;&gt;&gt; pdp.MapColVals(&#39;Medal&#39;, value_map).apply(df)
-           Medal
-    UK      Gold
-    USSR  Bronze
-    US    Silver
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[1], [3], [2]], [&#39;UK&#39;, &#39;USSR&#39;, &#39;US&#39;], [&#39;Medal&#39;])
+        &gt;&gt;&gt; value_map = {1: &#39;Gold&#39;, 2: &#39;Silver&#39;, 3: &#39;Bronze&#39;}
+        &gt;&gt;&gt; pdp.MapColVals(&#39;Medal&#39;, value_map).apply(df)
+               Medal
+        UK      Gold
+        USSR  Bronze
+        US    Silver
     &#34;&#34;&#34;
 
     _DEF_MAP_COLVAL_EXC_MSG = (
@@ -470,25 +474,25 @@ class ApplyToRows(PdPipelineStage):
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-    &gt;&gt;&gt; data = [[3, 2143], [10, 1321], [7, 1255]]
-    &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#39;years&#39;, &#39;avg_revenue&#39;])
-    &gt;&gt;&gt; total_rev = lambda row: row[&#39;years&#39;] * row[&#39;avg_revenue&#39;]
-    &gt;&gt;&gt; add_total_rev = pdp.ApplyToRows(total_rev, &#39;total_revenue&#39;)
-    &gt;&gt;&gt; add_total_rev(df)
-       years  avg_revenue  total_revenue
-    1      3         2143           6429
-    2     10         1321          13210
-    3      7         1255           8785
-    &gt;&gt;&gt; def halfer(row):
-    ...     new = {&#39;year/2&#39;: row[&#39;years&#39;]/2, &#39;rev/2&#39;: row[&#39;avg_revenue&#39;]/2}
-    ...     return pd.Series(new)
-    &gt;&gt;&gt; half_cols = pdp.ApplyToRows(halfer, follow_column=&#39;years&#39;)
-    &gt;&gt;&gt; half_cols(df)
-       years   rev/2  year/2  avg_revenue
-    1      3  1071.5     1.5         2143
-    2     10   660.5     5.0         1321
-    3      7   627.5     3.5         1255
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; data = [[3, 2143], [10, 1321], [7, 1255]]
+        &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#39;years&#39;, &#39;avg_revenue&#39;])
+        &gt;&gt;&gt; total_rev = lambda row: row[&#39;years&#39;] * row[&#39;avg_revenue&#39;]
+        &gt;&gt;&gt; add_total_rev = pdp.ApplyToRows(total_rev, &#39;total_revenue&#39;)
+        &gt;&gt;&gt; add_total_rev(df)
+           years  avg_revenue  total_revenue
+        1      3         2143           6429
+        2     10         1321          13210
+        3      7         1255           8785
+        &gt;&gt;&gt; def halfer(row):
+        ...     new = {&#39;year/2&#39;: row[&#39;years&#39;]/2, &#39;rev/2&#39;: row[&#39;avg_revenue&#39;]/2}
+        ...     return pd.Series(new)
+        &gt;&gt;&gt; half_cols = pdp.ApplyToRows(halfer, follow_column=&#39;years&#39;)
+        &gt;&gt;&gt; half_cols(df)
+           years   rev/2  year/2  avg_revenue
+        1      3  1071.5     1.5         2143
+        2     10   660.5     5.0         1321
+        3      7   627.5     3.5         1255
     &#34;&#34;&#34;
 
     _DEF_APPLYTOROWS_EXC_MSG = &#34;Applying function {} failed.&#34;
@@ -586,15 +590,15 @@ class ApplyByCols(PdPipelineStage):
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import math;
-    &gt;&gt;&gt; data = [[3.2, &#34;acd&#34;], [7.2, &#34;alk&#34;], [12.1, &#34;alk&#34;]]
-    &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#34;ph&#34;,&#34;lbl&#34;])
-    &gt;&gt;&gt; round_ph = pdp.ApplyByCols(&#34;ph&#34;, math.ceil)
-    &gt;&gt;&gt; round_ph(df)
-       ph  lbl
-    1   4  acd
-    2   8  alk
-    3  13  alk
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import math;
+        &gt;&gt;&gt; data = [[3.2, &#34;acd&#34;], [7.2, &#34;alk&#34;], [12.1, &#34;alk&#34;]]
+        &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#34;ph&#34;,&#34;lbl&#34;])
+        &gt;&gt;&gt; round_ph = pdp.ApplyByCols(&#34;ph&#34;, math.ceil)
+        &gt;&gt;&gt; round_ph(df)
+           ph  lbl
+        1   4  acd
+        2   8  alk
+        3  13  alk
     &#34;&#34;&#34;
 
     _BASE_STR = &#34;Applying a function {} to column{} {}&#34;
@@ -681,16 +685,16 @@ class ColByFrameFunc(PdPipelineStage):
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-    &gt;&gt;&gt; data = [[3, 3], [2, 4], [1, 5]]
-    &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#34;A&#34;,&#34;B&#34;])
-    &gt;&gt;&gt; func = lambda df: df[&#39;A&#39;] == df[&#39;B&#39;]
-    &gt;&gt;&gt; add_equal = pdp.ColByFrameFunc(&#34;A==B&#34;, func)
-    &gt;&gt;&gt; add_equal(df)
-       A  B   A==B
-    1  3  3   True
-    2  2  4  False
-    3  1  5  False
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; data = [[3, 3], [2, 4], [1, 5]]
+        &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#34;A&#34;,&#34;B&#34;])
+        &gt;&gt;&gt; func = lambda df: df[&#39;A&#39;] == df[&#39;B&#39;]
+        &gt;&gt;&gt; add_equal = pdp.ColByFrameFunc(&#34;A==B&#34;, func)
+        &gt;&gt;&gt; add_equal(df)
+           A  B   A==B
+        1  3  3   True
+        2  2  4  False
+        3  1  5  False
     &#34;&#34;&#34;
 
     _BASE_STR = &#34;Applying a function{} to column {}&#34;
@@ -767,15 +771,15 @@ class AggByCols(PdPipelineStage):
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import numpy as np;
-    &gt;&gt;&gt; data = [[3.2, &#34;acd&#34;], [7.2, &#34;alk&#34;], [12.1, &#34;alk&#34;]]
-    &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#34;ph&#34;,&#34;lbl&#34;])
-    &gt;&gt;&gt; log_ph = pdp.ApplyByCols(&#34;ph&#34;, np.log)
-    &gt;&gt;&gt; log_ph(df)
-             ph  lbl
-    1  1.163151  acd
-    2  1.974081  alk
-    3  2.493205  alk
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import numpy as np;
+        &gt;&gt;&gt; data = [[3.2, &#34;acd&#34;], [7.2, &#34;alk&#34;], [12.1, &#34;alk&#34;]]
+        &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#34;ph&#34;,&#34;lbl&#34;])
+        &gt;&gt;&gt; log_ph = pdp.ApplyByCols(&#34;ph&#34;, np.log)
+        &gt;&gt;&gt; log_ph(df)
+                 ph  lbl
+        1  1.163151  acd
+        2  1.974081  alk
+        3  2.493205  alk
     &#34;&#34;&#34;
 
     _BASE_STR = &#34;Applying a function {} to column{} {}&#34;
@@ -874,15 +878,15 @@ class Log(PdPipelineStage):
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-    &gt;&gt;&gt; data = [[3.2, &#34;acd&#34;], [7.2, &#34;alk&#34;], [12.1, &#34;alk&#34;]]
-    &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#34;ph&#34;,&#34;lbl&#34;])
-    &gt;&gt;&gt; log_stage = pdp.Log(&#34;ph&#34;, drop=True)
-    &gt;&gt;&gt; log_stage(df)
-             ph  lbl
-    1  1.163151  acd
-    2  1.974081  alk
-    3  2.493205  alk
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; data = [[3.2, &#34;acd&#34;], [7.2, &#34;alk&#34;], [12.1, &#34;alk&#34;]]
+        &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#34;ph&#34;,&#34;lbl&#34;])
+        &gt;&gt;&gt; log_stage = pdp.Log(&#34;ph&#34;, drop=True)
+        &gt;&gt;&gt; log_stage(df)
+                 ph  lbl
+        1  1.163151  acd
+        2  1.974081  alk
+        3  2.493205  alk
     &#34;&#34;&#34;
 
     _DEF_LOG_EXC_MSG = (
@@ -1031,19 +1035,14 @@ is None and drop is set to False. Of not given, defaults to '_agg'.</dd>
 &gt;&gt;&gt; log_ph = pdp.ApplyByCols("ph", np.log)
 &gt;&gt;&gt; log_ph(df)
          ph  lbl
-</code></pre>
-<p>1
-1.163151
-acd
-2
-1.974081
-alk
-3
-2.493205
-alk</p></section>
+1  1.163151  acd
+2  1.974081  alk
+3  2.493205  alk
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/col_generation.py#L717-L820" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class AggByCols(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage applying a series-wise function to columns.
@@ -1071,15 +1070,15 @@ alk</p></section>
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import numpy as np;
-    &gt;&gt;&gt; data = [[3.2, &#34;acd&#34;], [7.2, &#34;alk&#34;], [12.1, &#34;alk&#34;]]
-    &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#34;ph&#34;,&#34;lbl&#34;])
-    &gt;&gt;&gt; log_ph = pdp.ApplyByCols(&#34;ph&#34;, np.log)
-    &gt;&gt;&gt; log_ph(df)
-             ph  lbl
-    1  1.163151  acd
-    2  1.974081  alk
-    3  2.493205  alk
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import numpy as np;
+        &gt;&gt;&gt; data = [[3.2, &#34;acd&#34;], [7.2, &#34;alk&#34;], [12.1, &#34;alk&#34;]]
+        &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#34;ph&#34;,&#34;lbl&#34;])
+        &gt;&gt;&gt; log_ph = pdp.ApplyByCols(&#34;ph&#34;, np.log)
+        &gt;&gt;&gt; log_ph(df)
+                 ph  lbl
+        1  1.163151  acd
+        2  1.974081  alk
+        3  2.493205  alk
     &#34;&#34;&#34;
 
     _BASE_STR = &#34;Applying a function {} to column{} {}&#34;
@@ -1224,19 +1223,14 @@ by company size'. A default description is used if None is given.</dd>
 &gt;&gt;&gt; round_ph = pdp.ApplyByCols("ph", math.ceil)
 &gt;&gt;&gt; round_ph(df)
    ph  lbl
-</code></pre>
-<p>1
-4
-acd
-2
-8
-alk
-3
-13
-alk</p></section>
+1   4  acd
+2   8  alk
+3  13  alk
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/col_generation.py#L538-L634" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ApplyByCols(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage applying an element-wise function to columns.
@@ -1262,15 +1256,15 @@ alk</p></section>
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import math;
-    &gt;&gt;&gt; data = [[3.2, &#34;acd&#34;], [7.2, &#34;alk&#34;], [12.1, &#34;alk&#34;]]
-    &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#34;ph&#34;,&#34;lbl&#34;])
-    &gt;&gt;&gt; round_ph = pdp.ApplyByCols(&#34;ph&#34;, math.ceil)
-    &gt;&gt;&gt; round_ph(df)
-       ph  lbl
-    1   4  acd
-    2   8  alk
-    3  13  alk
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import math;
+        &gt;&gt;&gt; data = [[3.2, &#34;acd&#34;], [7.2, &#34;alk&#34;], [12.1, &#34;alk&#34;]]
+        &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#34;ph&#34;,&#34;lbl&#34;])
+        &gt;&gt;&gt; round_ph = pdp.ApplyByCols(&#34;ph&#34;, math.ceil)
+        &gt;&gt;&gt; round_ph(df)
+           ph  lbl
+        1   4  acd
+        2   8  alk
+        3  13  alk
     &#34;&#34;&#34;
 
     _BASE_STR = &#34;Applying a function {} to column{} {}&#34;
@@ -1413,44 +1407,23 @@ returning True is used.</dd>
 &gt;&gt;&gt; add_total_rev = pdp.ApplyToRows(total_rev, 'total_revenue')
 &gt;&gt;&gt; add_total_rev(df)
    years  avg_revenue  total_revenue
-</code></pre>
-<p>1
-3
-2143
-6429
-2
-10
-1321
-13210
-3
-7
-1255
-8785</p>
-<pre><code>&gt;&gt;&gt; def halfer(row):
+1      3         2143           6429
+2     10         1321          13210
+3      7         1255           8785
+&gt;&gt;&gt; def halfer(row):
 ...     new = {'year/2': row['years']/2, 'rev/2': row['avg_revenue']/2}
 ...     return pd.Series(new)
 &gt;&gt;&gt; half_cols = pdp.ApplyToRows(halfer, follow_column='years')
 &gt;&gt;&gt; half_cols(df)
    years   rev/2  year/2  avg_revenue
-</code></pre>
-<p>1
-3
-1071.5
-1.5
-2143
-2
-10
-660.5
-5.0
-1321
-3
-7
-627.5
-3.5
-1255</p></section>
+1      3  1071.5     1.5         2143
+2     10   660.5     5.0         1321
+3      7   627.5     3.5         1255
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/col_generation.py#L420-L535" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ApplyToRows(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage generating columns by applying a function to each row.
@@ -1478,25 +1451,25 @@ returning True is used.</dd>
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-    &gt;&gt;&gt; data = [[3, 2143], [10, 1321], [7, 1255]]
-    &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#39;years&#39;, &#39;avg_revenue&#39;])
-    &gt;&gt;&gt; total_rev = lambda row: row[&#39;years&#39;] * row[&#39;avg_revenue&#39;]
-    &gt;&gt;&gt; add_total_rev = pdp.ApplyToRows(total_rev, &#39;total_revenue&#39;)
-    &gt;&gt;&gt; add_total_rev(df)
-       years  avg_revenue  total_revenue
-    1      3         2143           6429
-    2     10         1321          13210
-    3      7         1255           8785
-    &gt;&gt;&gt; def halfer(row):
-    ...     new = {&#39;year/2&#39;: row[&#39;years&#39;]/2, &#39;rev/2&#39;: row[&#39;avg_revenue&#39;]/2}
-    ...     return pd.Series(new)
-    &gt;&gt;&gt; half_cols = pdp.ApplyToRows(halfer, follow_column=&#39;years&#39;)
-    &gt;&gt;&gt; half_cols(df)
-       years   rev/2  year/2  avg_revenue
-    1      3  1071.5     1.5         2143
-    2     10   660.5     5.0         1321
-    3      7   627.5     3.5         1255
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; data = [[3, 2143], [10, 1321], [7, 1255]]
+        &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#39;years&#39;, &#39;avg_revenue&#39;])
+        &gt;&gt;&gt; total_rev = lambda row: row[&#39;years&#39;] * row[&#39;avg_revenue&#39;]
+        &gt;&gt;&gt; add_total_rev = pdp.ApplyToRows(total_rev, &#39;total_revenue&#39;)
+        &gt;&gt;&gt; add_total_rev(df)
+           years  avg_revenue  total_revenue
+        1      3         2143           6429
+        2     10         1321          13210
+        3      7         1255           8785
+        &gt;&gt;&gt; def halfer(row):
+        ...     new = {&#39;year/2&#39;: row[&#39;years&#39;]/2, &#39;rev/2&#39;: row[&#39;avg_revenue&#39;]/2}
+        ...     return pd.Series(new)
+        &gt;&gt;&gt; half_cols = pdp.ApplyToRows(halfer, follow_column=&#39;years&#39;)
+        &gt;&gt;&gt; half_cols(df)
+           years   rev/2  year/2  avg_revenue
+        1      3  1071.5     1.5         2143
+        2     10   660.5     5.0         1321
+        3      7   627.5     3.5         1255
     &#34;&#34;&#34;
 
     _DEF_APPLYTOROWS_EXC_MSG = &#34;Applying function {} failed.&#34;
@@ -1639,37 +1612,21 @@ list [0, 5, 8] is interpreted as the bins (-∞, 0),
 &gt;&gt;&gt; df = pd.DataFrame([[-3],[4],[5], [9]], [1,2,3, 4], ['speed'])
 &gt;&gt;&gt; pdp.Bin({'speed': [5]}, drop=False).apply(df)
    speed speed_bin
-</code></pre>
-<p>1
--3
-&lt;5
-2
-4
-&lt;5
-3
-5
-5≤
-4
-9
-5≤</p>
-<pre><code>&gt;&gt;&gt; pdp.Bin({'speed': [0,5,8]}, drop=False).apply(df)
+1     -3        &lt;5
+2      4        &lt;5
+3      5        5≤
+4      9        5≤
+&gt;&gt;&gt; pdp.Bin({'speed': [0,5,8]}, drop=False).apply(df)
    speed speed_bin
-</code></pre>
-<p>1
--3
-&lt;0
-2
-4
-0-5
-3
-5
-5-8
-4
-9
-8≤</p></section>
+1     -3        &lt;0
+2      4       0-5
+3      5       5-8
+4      9        8≤
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/col_generation.py#L16-L131" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Bin(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that adds a binned version of a column or columns.
@@ -1693,20 +1650,20 @@ list [0, 5, 8] is interpreted as the bins (-∞, 0),
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-    &gt;&gt;&gt; df = pd.DataFrame([[-3],[4],[5], [9]], [1,2,3, 4], [&#39;speed&#39;])
-    &gt;&gt;&gt; pdp.Bin({&#39;speed&#39;: [5]}, drop=False).apply(df)
-       speed speed_bin
-    1     -3        &lt;5
-    2      4        &lt;5
-    3      5        5≤
-    4      9        5≤
-    &gt;&gt;&gt; pdp.Bin({&#39;speed&#39;: [0,5,8]}, drop=False).apply(df)
-       speed speed_bin
-    1     -3        &lt;0
-    2      4       0-5
-    3      5       5-8
-    4      9        8≤
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[-3],[4],[5], [9]], [1,2,3, 4], [&#39;speed&#39;])
+        &gt;&gt;&gt; pdp.Bin({&#39;speed&#39;: [5]}, drop=False).apply(df)
+           speed speed_bin
+        1     -3        &lt;5
+        2      4        &lt;5
+        3      5        5≤
+        4      9        5≤
+        &gt;&gt;&gt; pdp.Bin({&#39;speed&#39;: [0,5,8]}, drop=False).apply(df)
+           speed speed_bin
+        1     -3        &lt;0
+        2      4       0-5
+        3      5       5-8
+        4      9        8≤
     &#34;&#34;&#34;
 
     _DEF_BIN_EXC_MSG = (
@@ -1859,22 +1816,14 @@ by company size'. A default description is used if None is given.</dd>
 &gt;&gt;&gt; add_equal = pdp.ColByFrameFunc("A==B", func)
 &gt;&gt;&gt; add_equal(df)
    A  B   A==B
-</code></pre>
-<p>1
-3
-3
-True
-2
-2
-4
-False
-3
-1
-5
-False</p></section>
+1  3  3   True
+2  2  4  False
+3  1  5  False
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/col_generation.py#L637-L714" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ColByFrameFunc(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage adding a column by applying a dataframw-wide function.
@@ -1896,16 +1845,16 @@ False</p></section>
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-    &gt;&gt;&gt; data = [[3, 3], [2, 4], [1, 5]]
-    &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#34;A&#34;,&#34;B&#34;])
-    &gt;&gt;&gt; func = lambda df: df[&#39;A&#39;] == df[&#39;B&#39;]
-    &gt;&gt;&gt; add_equal = pdp.ColByFrameFunc(&#34;A==B&#34;, func)
-    &gt;&gt;&gt; add_equal(df)
-       A  B   A==B
-    1  3  3   True
-    2  2  4  False
-    3  1  5  False
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; data = [[3, 3], [2, 4], [1, 5]]
+        &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#34;A&#34;,&#34;B&#34;])
+        &gt;&gt;&gt; func = lambda df: df[&#39;A&#39;] == df[&#39;B&#39;]
+        &gt;&gt;&gt; add_equal = pdp.ColByFrameFunc(&#34;A==B&#34;, func)
+        &gt;&gt;&gt; add_equal(df)
+           A  B   A==B
+        1  3  3   True
+        2  2  4  False
+        3  1  5  False
     &#34;&#34;&#34;
 
     _BASE_STR = &#34;Applying a function{} to column {}&#34;
@@ -2033,19 +1982,14 @@ then is the column shifted by this constant.</dd>
 &gt;&gt;&gt; log_stage = pdp.Log("ph", drop=True)
 &gt;&gt;&gt; log_stage(df)
          ph  lbl
-</code></pre>
-<p>1
-1.163151
-acd
-2
-1.974081
-alk
-3
-2.493205
-alk</p></section>
+1  1.163151  acd
+2  1.974081  alk
+3  2.493205  alk
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/col_generation.py#L823-L962" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Log(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that log-transforms numeric data.
@@ -2074,15 +2018,15 @@ alk</p></section>
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-    &gt;&gt;&gt; data = [[3.2, &#34;acd&#34;], [7.2, &#34;alk&#34;], [12.1, &#34;alk&#34;]]
-    &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#34;ph&#34;,&#34;lbl&#34;])
-    &gt;&gt;&gt; log_stage = pdp.Log(&#34;ph&#34;, drop=True)
-    &gt;&gt;&gt; log_stage(df)
-             ph  lbl
-    1  1.163151  acd
-    2  1.974081  alk
-    3  2.493205  alk
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; data = [[3.2, &#34;acd&#34;], [7.2, &#34;alk&#34;], [12.1, &#34;alk&#34;]]
+        &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#34;ph&#34;,&#34;lbl&#34;])
+        &gt;&gt;&gt; log_stage = pdp.Log(&#34;ph&#34;, drop=True)
+        &gt;&gt;&gt; log_stage(df)
+                 ph  lbl
+        1  1.163151  acd
+        2  1.974081  alk
+        3  2.493205  alk
     &#34;&#34;&#34;
 
     _DEF_LOG_EXC_MSG = (
@@ -2263,16 +2207,14 @@ used; otherwise, the label of the source column is used with the suffix
 &gt;&gt;&gt; value_map = {1: 'Gold', 2: 'Silver', 3: 'Bronze'}
 &gt;&gt;&gt; pdp.MapColVals('Medal', value_map).apply(df)
        Medal
-</code></pre>
-<p>UK
-Gold
-USSR
-Bronze
-US
-Silver</p></section>
+UK      Gold
+USSR  Bronze
+US    Silver
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/col_generation.py#L311-L413" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class MapColVals(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that replaces the values of a column by a map.
@@ -2299,14 +2241,14 @@ Silver</p></section>
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-    &gt;&gt;&gt; df = pd.DataFrame([[1], [3], [2]], [&#39;UK&#39;, &#39;USSR&#39;, &#39;US&#39;], [&#39;Medal&#39;])
-    &gt;&gt;&gt; value_map = {1: &#39;Gold&#39;, 2: &#39;Silver&#39;, 3: &#39;Bronze&#39;}
-    &gt;&gt;&gt; pdp.MapColVals(&#39;Medal&#39;, value_map).apply(df)
-           Medal
-    UK      Gold
-    USSR  Bronze
-    US    Silver
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[1], [3], [2]], [&#39;UK&#39;, &#39;USSR&#39;, &#39;US&#39;], [&#39;Medal&#39;])
+        &gt;&gt;&gt; value_map = {1: &#39;Gold&#39;, 2: &#39;Silver&#39;, 3: &#39;Bronze&#39;}
+        &gt;&gt;&gt; pdp.MapColVals(&#39;Medal&#39;, value_map).apply(df)
+               Medal
+        UK      Gold
+        USSR  Bronze
+        US    Silver
     &#34;&#34;&#34;
 
     _DEF_MAP_COLVAL_EXC_MSG = (
@@ -2469,19 +2411,14 @@ category will still be dropped.</dd>
 &gt;&gt;&gt; df = pd.DataFrame([['USA'], ['UK'], ['Greece']], [1,2,3], ['Born'])
 &gt;&gt;&gt; pdp.OneHotEncode().apply(df)
    Born_UK  Born_USA
-</code></pre>
-<p>1
-0
-1
-2
-1
-0
-3
-0
-0</p></section>
+1        0         1
+2        1         0
+3        0         0
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/col_generation.py#L134-L308" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class OneHotEncode(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that one-hot-encodes categorical columns.
@@ -2519,13 +2456,13 @@ category will still be dropped.</dd>
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-    &gt;&gt;&gt; df = pd.DataFrame([[&#39;USA&#39;], [&#39;UK&#39;], [&#39;Greece&#39;]], [1,2,3], [&#39;Born&#39;])
-    &gt;&gt;&gt; pdp.OneHotEncode().apply(df)
-       Born_UK  Born_USA
-    1        0         1
-    2        1         0
-    3        0         0
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[&#39;USA&#39;], [&#39;UK&#39;], [&#39;Greece&#39;]], [1,2,3], [&#39;Born&#39;])
+        &gt;&gt;&gt; pdp.OneHotEncode().apply(df)
+           Born_UK  Born_USA
+        1        0         1
+        2        1         0
+        3        0         0
     &#34;&#34;&#34;
 
     _DEF_1HENCODE_EXC_MSG = (
@@ -2706,6 +2643,11 @@ category will still be dropped.</dd>
 </section>
 </article>
 <nav id="sidebar">
+<header>
+<a class="homelink" rel="home" title="pdpipe Home" href="https://pdpipe.github.io/pdpipe/">
+<img src="https://pdpipe.github.io/pdpipe/logo.png" alt=""> pdpipe
+</a>
+</header>
 <h1>Index</h1>
 <div class="toc">
 <ul></ul>
@@ -2748,6 +2690,7 @@ category will still be dropped.</dd>
 </nav>
 </main>
 <footer id="footer">
+<p><span style="color:#ddd">&#21328;</span></p>
 <p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.2</a>.</p>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>

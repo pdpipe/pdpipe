@@ -13,6 +13,9 @@ pipelines that have pre-conditions, are verbose, support the …" />
 <style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<style>.homelink{display:block;font-size:2em;font-weight:bold;color:#555;padding-bottom:.5em;border-bottom:1px solid silver}.homelink:hover{color:inherit}.homelink img{max-width:20%;max-height:5em;margin:auto;margin-bottom:.3em}</style>
+<link rel="canonical" href="https://pdpipe.github.io/pdpipe/doc/pdpipe/">
+<link rel="icon" href="https://pdpipe.github.io/pdpipe/logo.png">
 </head>
 <body>
 <main>
@@ -49,24 +52,15 @@ mixed-type data.</p>
 <h1 id="basic-use">Basic Use</h1>
 <p>The awesome Tirthajyoti Sarkar wrote <a href="https://towardsdatascience.com/https-medium-com-tirthajyoti-build-pipelines-with-pandas-using-pdpipe-cade6128cd31">an excellent practical introduction on how to use pdpipe</a>. Read it now <a href="https://towardsdatascience.com/https-medium-com-tirthajyoti-build-pipelines-with-pandas-using-pdpipe-cade6128cd31">on Towards Data Science</a>!</p>
 <h2 id="pipeline-stages">Pipeline Stages</h2>
-<p>Creating Pipeline Stages</p>
-<pre><code>
-You can create stages with the following syntax:
-
-```python
-  import pdpipe as pdp
+<h3 id="creating-pipeline-stages">Creating Pipeline Stages</h3>
+<p>You can create stages with the following syntax:</p>
+<pre><code class="python">  import pdpipe as pdp
   drop_name = pdp.ColDrop(&quot;Name&quot;)
-```
-
-All pipeline stages have a predefined precondition function that returns True for dataframes to which the stage can be applied. By default, pipeline stages raise an exception if a DataFrame not meeting their precondition is piped through. This behaviour can be set per-stage by assigning `exraise` with a bool in the constructor call. If `exraise` is set to `False` the input DataFrame is instead returned without change:
-
-```python
-  drop_name = pdp.ColDrop(&quot;Name&quot;, exraise=False)
-```
-
-
-Applying Pipeline Stages
 </code></pre>
+<p>All pipeline stages have a predefined precondition function that returns True for dataframes to which the stage can be applied. By default, pipeline stages raise an exception if a DataFrame not meeting their precondition is piped through. This behaviour can be set per-stage by assigning <code>exraise</code> with a bool in the constructor call. If <code>exraise</code> is set to <code>False</code> the input DataFrame is instead returned without change:</p>
+<pre><code class="python">  drop_name = pdp.ColDrop(&quot;Name&quot;, exraise=False)
+</code></pre>
+<h3 id="applying-pipeline-stages">Applying Pipeline Stages</h3>
 <p>You can apply a pipeline stage to a DataFrame using its <code>apply</code> method:</p>
 <pre><code class="python">  res_df = pdp.ColDrop(&quot;Name&quot;).apply(df)
 </code></pre>
@@ -82,8 +76,7 @@ Applying Pipeline Stages
 <pre><code class="python">  res_df = drop_name(df, verbose=True)
 </code></pre>
 <p>All pipeline stages also adhere to the <code>scikit-learn</code> transformer API, and so have <code>fit_transform</code> and <code>transform</code> methods; these behave exactly like <code>apply</code>, and accept the input dataframe as parameter <code>X</code>. For the same reason, pipeline stages also have a <code>fit</code> method, which applies them but returns the input dataframe unchanged.</p>
-<p>Fittable Pipeline Stages
-~~~~~~~~~~~~~~~~~~~~~~~~</p>
+<h3 id="fittable-pipeline-stages">Fittable Pipeline Stages</h3>
 <p>Some pipeline stages can be fitted, meaning that some transformation parameters are set the first time a dataframe is piped through the stage, while later applications of the stage use these now-set parameters without changing them; the <code>Encode</code> scikit-learn-dependent stage is a good example.</p>
 <p>For these type of stages the first call to <code>apply</code> will both fit the stage and transform the input dataframe, while subsequent calls to <code>apply</code> will transform input dataframes according to the already-fitted transformation parameters.</p>
 <p>Additionally, for fittable stages the <code>scikit-learn</code> transformer API methods behave as expected:</p>
@@ -95,23 +88,15 @@ Applying Pipeline Stages
 <p>Again, <code>apply</code>, <code>fit_transform</code> and
 are all of equivalent for non-fittable pipeline stages. And in all cases the <code>y</code> parameter of these methods is ignored.</p>
 <h2 id="pipelines">Pipelines</h2>
-<p>Creating Pipelines</p>
-<pre><code>
-Pipelines can be created by supplying a list of pipeline stages:
-
-```python
-    pipeline = pdp.PdPipeline([pdp.ColDrop(&quot;Name&quot;), pdp.OneHotEncode(&quot;Label&quot;)]
-```
-
-Additionally, the  method can be used to give stages as positional arguments.
-
-```python
-    pipeline = pdp.make_pdpipeline(pdp.ColDrop(&quot;Name&quot;), pdp.OneHotEncode(&quot;Label&quot;))
-```
-
-
-Printing Pipelines
+<h3 id="creating-pipelines">Creating Pipelines</h3>
+<p>Pipelines can be created by supplying a list of pipeline stages:</p>
+<pre><code class="python">    pipeline = pdp.PdPipeline([pdp.ColDrop(&quot;Name&quot;), pdp.OneHotEncode(&quot;Label&quot;)]
 </code></pre>
+<p>Additionally, the
+method can be used to give stages as positional arguments.</p>
+<pre><code class="python">    pipeline = pdp.make_pdpipeline(pdp.ColDrop(&quot;Name&quot;), pdp.OneHotEncode(&quot;Label&quot;))
+</code></pre>
+<h3 id="printing-pipelines">Printing Pipelines</h3>
 <p>A pipeline structre can be clearly displayed by printing the object:</p>
 <pre><code class="python">  &gt;&gt;&gt; drop_name = pdp.ColDrop(&quot;Name&quot;)
   &gt;&gt;&gt; binar_label = pdp.OneHotEncode(&quot;Label&quot;)
@@ -123,8 +108,7 @@ Printing Pipelines
   [ 1]  OneHotEncode Label
   [ 2]  Map values of column Job with {'Part': True, 'Full': True, 'No': False}.
 </code></pre>
-<p>Pipeline Arithmetics
-~~~~~~~~~~~~~~~~~~~~</p>
+<h3 id="pipeline-arithmetics">Pipeline Arithmetics</h3>
 <p>Alternatively, you can create pipelines by adding pipeline stages together:</p>
 <pre><code class="python">  pipeline = pdp.ColDrop(&quot;Name&quot;) + pdp.OneHotEncode(&quot;Label&quot;)
 </code></pre>
@@ -133,13 +117,11 @@ Printing Pipelines
   pipeline += pdp.MapColVals(&quot;Job&quot;, {&quot;Part&quot;: True, &quot;Full&quot;:True, &quot;No&quot;: False})
   pipeline += pdp.PdPipeline([pdp.ColRename({&quot;Job&quot;: &quot;Employed&quot;})])
 </code></pre>
-<p>Pipeline Chaining
-~~~~~~~~~~~~~~~~~</p>
+<h3 id="pipeline-chaining">Pipeline Chaining</h3>
 <p>Pipeline stages can also be chained to other stages to create pipelines:</p>
 <pre><code class="python">  pipeline = pdp.ColDrop(&quot;Name&quot;).OneHotEncode(&quot;Label&quot;).ValDrop([-1], &quot;Children&quot;)
 </code></pre>
-<p>Pipeline Slicing
-~~~~~~~~~~~~~~~~</p>
+<h3 id="pipeline-slicing">Pipeline Slicing</h3>
 <p>Pipelines are Python Sequence objects, and as such can be sliced using Python's slicing notation, just like lists:</p>
 <pre><code class="python">  &gt;&gt;&gt; pipeline = pdp.ColDrop(&quot;Name&quot;).OneHotEncode(&quot;Label&quot;).ValDrop([-1], &quot;Children&quot;).ApplyByCols(&quot;height&quot;, math.ceil)
   &gt;&gt;&gt; pipeline[0]
@@ -148,8 +130,7 @@ Printing Pipelines
   A pdpipe pipeline:
   [ 0] OneHotEncode Label
 </code></pre>
-<p>Applying Pipelines
-~~~~~~~~~~~~~~~~~~</p>
+<h3 id="applying-pipelines">Applying Pipelines</h3>
 <p>Pipelines are pipeline stages themselves, and can be applied to a DataFrame using the same syntax, applying each of the stages making them up, in order:</p>
 <pre><code class="python">  pipeline = pdp.ColDrop(&quot;Name&quot;) + pdp.OneHotEncode(&quot;Label&quot;)
   res_df = pipeline(df)
@@ -213,6 +194,7 @@ class which takes a function in its <code>transform</code> constructor parameter
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/__init__.py#L0-L112" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;
 The `pdpipe` Python package provides a concise interface for building `pandas`
@@ -321,7 +303,12 @@ for name in [
 try:
     del name  # pylint: disable=W0631
 except NameError:
-    pass</code></pre>
+    pass
+
+# this dictates which modules are skipped on pdoc documentation generation
+__pdoc__ = {
+    &#39;shared&#39;: False,
+}</code></pre>
 </details>
 </section>
 <section>
@@ -365,6 +352,11 @@ except NameError:
 </section>
 </article>
 <nav id="sidebar">
+<header>
+<a class="homelink" rel="home" title="pdpipe Home" href="https://pdpipe.github.io/pdpipe/">
+<img src="https://pdpipe.github.io/pdpipe/logo.png" alt=""> pdpipe
+</a>
+</header>
 <h1>Index</h1>
 <div class="toc">
 <ul>
@@ -373,8 +365,21 @@ except NameError:
 </ul>
 </li>
 <li><a href="#basic-use">Basic Use</a><ul>
-<li><a href="#pipeline-stages">Pipeline Stages</a></li>
-<li><a href="#pipelines">Pipelines</a></li>
+<li><a href="#pipeline-stages">Pipeline Stages</a><ul>
+<li><a href="#creating-pipeline-stages">Creating Pipeline Stages</a></li>
+<li><a href="#applying-pipeline-stages">Applying Pipeline Stages</a></li>
+<li><a href="#fittable-pipeline-stages">Fittable Pipeline Stages</a></li>
+</ul>
+</li>
+<li><a href="#pipelines">Pipelines</a><ul>
+<li><a href="#creating-pipelines">Creating Pipelines</a></li>
+<li><a href="#printing-pipelines">Printing Pipelines</a></li>
+<li><a href="#pipeline-arithmetics">Pipeline Arithmetics</a></li>
+<li><a href="#pipeline-chaining">Pipeline Chaining</a></li>
+<li><a href="#pipeline-slicing">Pipeline Slicing</a></li>
+<li><a href="#applying-pipelines">Applying Pipelines</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="#types-of-pipeline-stages">Types of Pipeline Stages</a><ul>
@@ -407,6 +412,7 @@ except NameError:
 </nav>
 </main>
 <footer id="footer">
+<p><span style="color:#ddd">&#21328;</span></p>
 <p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.2</a>.</p>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>

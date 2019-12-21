@@ -12,6 +12,9 @@
 <style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<style>.homelink{display:block;font-size:2em;font-weight:bold;color:#555;padding-bottom:.5em;border-bottom:1px solid silver}.homelink:hover{color:inherit}.homelink img{max-width:20%;max-height:5em;margin:auto;margin-bottom:.3em}</style>
+<link rel="canonical" href="https://pdpipe.github.io/pdpipe/doc/pdpipe/core.html">
+<link rel="icon" href="https://pdpipe.github.io/pdpipe/logo.png">
 </head>
 <body>
 <main>
@@ -28,6 +31,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L0-L570" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Defines pipelines for processing Pandas.DataFrame-based datasets.
 
@@ -554,6 +558,20 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         return res
 
     def get_transformer(self):
+        &#34;&#34;&#34;Return the transformer induced by this fitted pipeline.
+
+           This transformer is a `pdpipe` pipeline that transforms input data
+           in a way corresponding to this pipline after it has been fitted. By
+           default this is the pipeline itself, but the `transform_getter`
+           constructor parameter can be used to return a sub-pipeline of the
+           fitted pipeline instead, for cases where some stages should only be
+           applied when fitting this pipeline to data.
+
+        Returns
+        -------
+        pdpipe.PdPipeline
+            The corresponding transformer pipeline induced by this pipeline.
+        &#34;&#34;&#34;
         try:
             return self._trans_getter(self)
         except TypeError:  # pragma: no cover
@@ -617,6 +635,7 @@ make_pdpipeline(pdp.ColDrop('a'), pdp.Bin('speed'))</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L553-L571" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def make_pdpipeline(*stages):
     &#34;&#34;&#34;Constructs a PdPipeline from the given pipeline stages.
@@ -662,6 +681,7 @@ dataframe. If None is given, set to a function always returning True.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L304-L331" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class AdHocStage(PdPipelineStage):
     &#34;&#34;&#34;An ad-hoc stage of a pandas DataFrame-processing pipeline.
@@ -758,6 +778,7 @@ entirely.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L334-L543" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class PdPipeline(PdPipelineStage, collections.abc.Sequence):
     &#34;&#34;&#34;A pipeline for processing pandas DataFrame objects.
@@ -951,6 +972,20 @@ entirely.</dd>
         return res
 
     def get_transformer(self):
+        &#34;&#34;&#34;Return the transformer induced by this fitted pipeline.
+
+           This transformer is a `pdpipe` pipeline that transforms input data
+           in a way corresponding to this pipline after it has been fitted. By
+           default this is the pipeline itself, but the `transform_getter`
+           constructor parameter can be used to return a sub-pipeline of the
+           fitted pipeline instead, for cases where some stages should only be
+           applied when fitting this pipeline to data.
+
+        Returns
+        -------
+        pdpipe.PdPipeline
+            The corresponding transformer pipeline induced by this pipeline.
+        &#34;&#34;&#34;
         try:
             return self._trans_getter(self)
         except TypeError:  # pragma: no cover
@@ -1000,6 +1035,7 @@ messages are printed.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L428-L460" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def fit(self, X, y=None, exraise=None, verbose=None):
     &#34;&#34;&#34;Fits this pipeline without transforming the input dataframe.
@@ -1067,6 +1103,7 @@ messages are printed.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L392-L426" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def fit_transform(self, X, y=None, exraise=None, verbose=None):
     &#34;&#34;&#34;Fits this pipeline and transforms the input dataframe.
@@ -1109,12 +1146,38 @@ messages are printed.</dd>
 <span>def <span class="ident">get_transformer</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<section class="desc"></section>
+<section class="desc"><p>Return the transformer induced by this fitted pipeline.</p>
+<p>This transformer is a <a title="pdpipe" href="index.html"><code>pdpipe</code></a> pipeline that transforms input data
+in a way corresponding to this pipline after it has been fitted. By
+default this is the pipeline itself, but the <code>transform_getter</code>
+constructor parameter can be used to return a sub-pipeline of the
+fitted pipeline instead, for cases where some stages should only be
+applied when fitting this pipeline to data.</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pdpipe.PdPipeline</code></dt>
+<dd>The corresponding transformer pipeline induced by this pipeline.</dd>
+</dl></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L525-L543" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_transformer(self):
+    &#34;&#34;&#34;Return the transformer induced by this fitted pipeline.
+
+       This transformer is a `pdpipe` pipeline that transforms input data
+       in a way corresponding to this pipline after it has been fitted. By
+       default this is the pipeline itself, but the `transform_getter`
+       constructor parameter can be used to return a sub-pipeline of the
+       fitted pipeline instead, for cases where some stages should only be
+       applied when fitting this pipeline to data.
+
+    Returns
+    -------
+    pdpipe.PdPipeline
+        The corresponding transformer pipeline induced by this pipeline.
+    &#34;&#34;&#34;
     try:
         return self._trans_getter(self)
     except TypeError:  # pragma: no cover
@@ -1154,6 +1217,7 @@ messages are printed.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L462-L504" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def transform(self, X, y=None, exraise=None, verbose=None):
     &#34;&#34;&#34;Transforms the given dataframe without fitting this pipeline.
@@ -1262,6 +1326,7 @@ A default description is used if None is given.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L61-L297" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class PdPipelineStage(abc.ABC):
     &#34;&#34;&#34;A stage of a pandas DataFrame-processing pipeline.
@@ -1548,6 +1613,7 @@ dataframe. If None is given, set to a function always returning True.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1586,19 +1652,14 @@ is None and drop is set to False. Of not given, defaults to '_agg'.</dd>
 &gt;&gt;&gt; log_ph = pdp.ApplyByCols("ph", np.log)
 &gt;&gt;&gt; log_ph(df)
          ph  lbl
-</code></pre>
-<p>1
-1.163151
-acd
-2
-1.974081
-alk
-3
-2.493205
-alk</p></section>
+1  1.163151  acd
+2  1.974081  alk
+3  2.493205  alk
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1635,19 +1696,14 @@ by company size'. A default description is used if None is given.</dd>
 &gt;&gt;&gt; round_ph = pdp.ApplyByCols("ph", math.ceil)
 &gt;&gt;&gt; round_ph(df)
    ph  lbl
-</code></pre>
-<p>1
-4
-acd
-2
-8
-alk
-3
-13
-alk</p></section>
+1   4  acd
+2   8  alk
+3  13  alk
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1687,44 +1743,23 @@ returning True is used.</dd>
 &gt;&gt;&gt; add_total_rev = pdp.ApplyToRows(total_rev, 'total_revenue')
 &gt;&gt;&gt; add_total_rev(df)
    years  avg_revenue  total_revenue
-</code></pre>
-<p>1
-3
-2143
-6429
-2
-10
-1321
-13210
-3
-7
-1255
-8785</p>
-<pre><code>&gt;&gt;&gt; def halfer(row):
+1      3         2143           6429
+2     10         1321          13210
+3      7         1255           8785
+&gt;&gt;&gt; def halfer(row):
 ...     new = {'year/2': row['years']/2, 'rev/2': row['avg_revenue']/2}
 ...     return pd.Series(new)
 &gt;&gt;&gt; half_cols = pdp.ApplyToRows(halfer, follow_column='years')
 &gt;&gt;&gt; half_cols(df)
    years   rev/2  year/2  avg_revenue
-</code></pre>
-<p>1
-3
-1071.5
-1.5
-2143
-2
-10
-660.5
-5.0
-1321
-3
-7
-627.5
-3.5
-1255</p></section>
+1      3  1071.5     1.5         2143
+2     10   660.5     5.0         1321
+3      7   627.5     3.5         1255
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1757,37 +1792,21 @@ list [0, 5, 8] is interpreted as the bins (-∞, 0),
 &gt;&gt;&gt; df = pd.DataFrame([[-3],[4],[5], [9]], [1,2,3, 4], ['speed'])
 &gt;&gt;&gt; pdp.Bin({'speed': [5]}, drop=False).apply(df)
    speed speed_bin
-</code></pre>
-<p>1
--3
-&lt;5
-2
-4
-&lt;5
-3
-5
-5≤
-4
-9
-5≤</p>
-<pre><code>&gt;&gt;&gt; pdp.Bin({'speed': [0,5,8]}, drop=False).apply(df)
+1     -3        &lt;5
+2      4        &lt;5
+3      5        5≤
+4      9        5≤
+&gt;&gt;&gt; pdp.Bin({'speed': [0,5,8]}, drop=False).apply(df)
    speed speed_bin
-</code></pre>
-<p>1
--3
-&lt;0
-2
-4
-0-5
-3
-5
-5-8
-4
-9
-8≤</p></section>
+1     -3        &lt;0
+2      4       0-5
+3      5       5-8
+4      9        8≤
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1821,22 +1840,14 @@ by company size'. A default description is used if None is given.</dd>
 &gt;&gt;&gt; add_equal = pdp.ColByFrameFunc("A==B", func)
 &gt;&gt;&gt; add_equal(df)
    A  B   A==B
-</code></pre>
-<p>1
-3
-3
-True
-2
-2
-4
-False
-3
-1
-5
-False</p></section>
+1  3  3   True
+2  2  4  False
+3  1  5  False
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1863,14 +1874,13 @@ return True will be dropped.</dd>
 &gt;&gt;&gt; df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'char'])
 &gt;&gt;&gt; pdp.ColDrop('num').apply(df)
   char
-</code></pre>
-<p>1
-a
-2
-b</p></section>
+1    a
+2    b
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1892,16 +1902,13 @@ b</p></section>
 &gt;&gt;&gt; df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'char'])
 &gt;&gt;&gt; pdp.ColRename({'num': 'len', 'char': 'initial'}).apply(df)
    len initial
-</code></pre>
-<p>1
-8
-a
-2
-5
-b</p></section>
+1    8       a
+2    5       b
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1925,15 +1932,12 @@ positions over the non-mapped colums.</dd>
 &gt;&gt;&gt; df = pd.DataFrame([[8,4,3,7]], columns=['a', 'b', 'c', 'd'])
 &gt;&gt;&gt; pdp.ColReorder({'b': 0, 'c': 3}).apply(df)
    b  a  d  c
-</code></pre>
-<p>0
-4
-8
-7
-3</p></section>
+0  4  8  7  3
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1951,16 +1955,13 @@ positions over the non-mapped colums.</dd>
 &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,None],[1,11]], [1,2,3], ['a','b'])
 &gt;&gt;&gt; pdp.DropNa().apply(df)
    a     b
-</code></pre>
-<p>1
-1
-4.0
-3
-1
-11.0</p></section>
+1  1   4.0
+3  1  11.0
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1991,16 +1992,13 @@ Otherwise, the new columns gain the suffix '_norare'.</dd>
 &gt;&gt;&gt; rare_dropper = pdp.DropRareTokens('chars', 1)
 &gt;&gt;&gt; rare_dropper(df)
    num      chars
-</code></pre>
-<p>0
-7
-[a, a, b]
-1
-3
-[b]</p></section>
+0    7  [a, a, b]
+1    3        [b]
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2037,22 +2035,16 @@ columns. Otherwise, encoded columns gain the suffix '_enc'.</dd>
 &gt;&gt;&gt; encode_stage = pdp.Encode("lbl")
 &gt;&gt;&gt; encode_stage(df)
      ph  lbl
-</code></pre>
-<p>1
-3.2
-0
-2
-7.2
-1
-3
-12.1
-1</p>
-<pre><code>&gt;&gt;&gt; encode_stage.encoders["lbl"].inverse_transform([0,1,1])
+1   3.2    0
+2   7.2    1
+3  12.1    1
+&gt;&gt;&gt; encode_stage.encoders["lbl"].inverse_transform([0,1,1])
 array(['acd', 'alk', 'alk'], dtype=object)
 </code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2076,16 +2068,13 @@ array(['acd', 'alk', 'alk'], dtype=object)
 &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,5],[1,11]], [1,2,3], ['a','b'])
 &gt;&gt;&gt; pdp.FreqDrop(2, 'a').apply(df)
    a   b
-</code></pre>
-<p>1
-1
-4
-3
-1
-11</p></section>
+1  1   4
+3  1  11
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2126,19 +2115,14 @@ then is the column shifted by this constant.</dd>
 &gt;&gt;&gt; log_stage = pdp.Log("ph", drop=True)
 &gt;&gt;&gt; log_stage(df)
          ph  lbl
-</code></pre>
-<p>1
-1.163151
-acd
-2
-1.974081
-alk
-3
-2.493205
-alk</p></section>
+1  1.163151  acd
+2  1.974081  alk
+3  2.493205  alk
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2176,16 +2160,14 @@ used; otherwise, the label of the source column is used with the suffix
 &gt;&gt;&gt; value_map = {1: 'Gold', 2: 'Silver', 3: 'Bronze'}
 &gt;&gt;&gt; pdp.MapColVals('Medal', value_map).apply(df)
        Medal
-</code></pre>
-<p>UK
-Gold
-USSR
-Bronze
-US
-Silver</p></section>
+UK      Gold
+USSR  Bronze
+US    Silver
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2232,19 +2214,14 @@ category will still be dropped.</dd>
 &gt;&gt;&gt; df = pd.DataFrame([['USA'], ['UK'], ['Greece']], [1,2,3], ['Born'])
 &gt;&gt;&gt; pdp.OneHotEncode().apply(df)
    Born_UK  Born_USA
-</code></pre>
-<p>1
-0
-1
-2
-1
-0
-3
-0
-0</p></section>
+1        0         1
+2        1         0
+3        0         0
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2273,6 +2250,7 @@ entirely.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2299,23 +2277,18 @@ and the resulting columns retain the names of the source columns.
 Otherwise, resulting columns gain the suffix '_nostop'.</dd>
 </dl>
 <h2 id="example">Example</h2>
-<blockquote>
-<blockquote>
-<p>import pandas as pd; import pdpipe as pdp;
-data = [[3.2, ['kick', 'the', 'baby']]]
-df = pd.DataFrame(data, [1], ['freq', 'content'])
-remove_stopwords = pdp.RemoveStopwords('english', 'content')
-remove_stopwords(df)
-freq
-content
-1
-3.2
-[kick, baby]</p>
-</blockquote>
-</blockquote></section>
+<pre><code>&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt; data = [[3.2, ['kick', 'the', 'baby']]]
+&gt;&gt; df = pd.DataFrame(data, [1], ['freq', 'content'])
+&gt;&gt; remove_stopwords = pdp.RemoveStopwords('english', 'content')
+&gt;&gt; remove_stopwords(df)
+   freq       content
+1   3.2  [kick, baby]
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2352,25 +2325,17 @@ these columns to determine which rows to drop.</dd>
 &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], ['a','b'])
 &gt;&gt;&gt; pdp.RowDrop([lambda x: x &lt; 2]).apply(df)
    a   b
-</code></pre>
-<p>2
-4
-5
-3
-5
-11</p>
-<pre><code>&gt;&gt;&gt; pdp.RowDrop({'a': lambda x: x == 4}).apply(df)
+2  4   5
+3  5  11
+&gt;&gt;&gt; pdp.RowDrop({'a': lambda x: x == 4}).apply(df)
    a   b
-</code></pre>
-<p>1
-1
-4
-3
-5
-11</p></section>
+1  1   4
+3  5  11
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2407,15 +2372,14 @@ to override Scale class defaults.</dd>
 &gt;&gt;&gt; scale_stage = pdp.Scale("StandardScaler")
 &gt;&gt;&gt; scale_stage(df)
          ph        gt
-</code></pre>
-<p>1 -1.181449 -0.508001
-2 -0.082427
-1.397001
-3
-1.263876 -0.889001</p></section>
+1 -1.181449 -0.508001
+2 -0.082427  1.397001
+3  1.263876 -0.889001
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2446,13 +2410,12 @@ resulting columns gain the suffix '_stem'.</dd>
 &gt;&gt;&gt; remove_stopwords = pdp.SnowballStem('EnglishStemmer', 'content')
 &gt;&gt;&gt; remove_stopwords(df)
    freq       content
-</code></pre>
-<p>1
-3.2
-[kick, boat]</p></section>
+1   3.2  [kick, boat]
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2475,17 +2438,17 @@ columns. Otherwise, tokenized columns gain the suffix '_tok'.</dd>
 </dl>
 <h2 id="example">Example</h2>
 <pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-&gt;&gt;&gt; df = pd.DataFrame([[3.2, "Kick the baby!"]], [1], ['freq', 'content'])
+&gt;&gt;&gt; df = pd.DataFrame(
+...     [[3.2, "Kick the baby!"]], [1], ['freq', 'content'])
 &gt;&gt;&gt; tokenize_stage = pdp.TokenizeWords('content')
 &gt;&gt;&gt; tokenize_stage(df)
    freq               content
-</code></pre>
-<p>1
-3.2
-[Kick, the, baby, !]</p></section>
+1   3.2  [Kick, the, baby, !]
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2513,13 +2476,12 @@ Otherwise, untokenized columns gain the suffix '_untok'.</dd>
 &gt;&gt;&gt; untokenize_stage = pdp.UntokenizeWords('content')
 &gt;&gt;&gt; untokenize_stage(df)
    freq          content
-</code></pre>
-<p>1
-3.2
-Shake and bake!</p></section>
+1   3.2  Shake and bake!
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2544,22 +2506,16 @@ values. If set to None, all columns are checked.</dd>
 &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,5],[18,11]], [1,2,3], ['a','b'])
 &gt;&gt;&gt; pdp.ValDrop([4], 'a').apply(df)
     a   b
-</code></pre>
-<p>1
-1
-4
-3
-18
-11</p>
-<pre><code>&gt;&gt;&gt; pdp.ValDrop([4]).apply(df)
+1   1   4
+3  18  11
+&gt;&gt;&gt; pdp.ValDrop([4]).apply(df)
     a   b
-</code></pre>
-<p>3
-18
-11</p></section>
+3  18  11
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2584,22 +2540,16 @@ values. If set to None, all columns are checked.</dd>
 &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], ['a','b'])
 &gt;&gt;&gt; pdp.ValKeep([4, 5], 'a').apply(df)
    a   b
-</code></pre>
-<p>2
-4
-5
-3
-5
-11</p>
-<pre><code>&gt;&gt;&gt; pdp.ValKeep([4, 5]).apply(df)
+2  4   5
+3  5  11
+&gt;&gt;&gt; pdp.ValKeep([4, 5]).apply(df)
    a  b
-</code></pre>
-<p>2
-4
-5</p></section>
+2  4  5
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2636,6 +2586,7 @@ Defaults to False.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L123-L160" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def apply(self, df, exraise=None, verbose=False):
     &#34;&#34;&#34;Applies this pipeline stage to the given dataframe.
@@ -2685,6 +2636,7 @@ Defaults to False.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L295-L297" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def description(self):
     &#34;&#34;&#34;Returns the description of this pipeline stage&#34;&#34;&#34;
@@ -2721,6 +2673,7 @@ Defaults to False.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L200-L235" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def fit(self, X, y=None, exraise=None, verbose=False):
     &#34;&#34;&#34;Fits this stage without transforming the given dataframe.
@@ -2790,6 +2743,7 @@ Defaults to False.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L164-L198" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def fit_transform(self, X, y=None, exraise=None, verbose=False):
     &#34;&#34;&#34;Fits this stage and transforms the given dataframe.
@@ -2860,6 +2814,7 @@ Defaults to False.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L237-L279" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def transform(self, X, y=None, exraise=None, verbose=False):
     &#34;&#34;&#34;Transforms the given dataframe without fitting this stage.
@@ -2912,6 +2867,11 @@ Defaults to False.</dd>
 </section>
 </article>
 <nav id="sidebar">
+<header>
+<a class="homelink" rel="home" title="pdpipe Home" href="https://pdpipe.github.io/pdpipe/">
+<img src="https://pdpipe.github.io/pdpipe/logo.png" alt=""> pdpipe
+</a>
+</header>
 <h1>Index</h1>
 <div class="toc">
 <ul></ul>
@@ -2982,6 +2942,7 @@ Defaults to False.</dd>
 </nav>
 </main>
 <footer id="footer">
+<p><span style="color:#ddd">&#21328;</span></p>
 <p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.2</a>.</p>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>

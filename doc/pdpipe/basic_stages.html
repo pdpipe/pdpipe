@@ -12,6 +12,9 @@
 <style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
 <style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<style>.homelink{display:block;font-size:2em;font-weight:bold;color:#555;padding-bottom:.5em;border-bottom:1px solid silver}.homelink:hover{color:inherit}.homelink img{max-width:20%;max-height:5em;margin:auto;margin-bottom:.3em}</style>
+<link rel="canonical" href="https://pdpipe.github.io/pdpipe/doc/pdpipe/basic_stages.html">
+<link rel="icon" href="https://pdpipe.github.io/pdpipe/logo.png">
 </head>
 <body>
 <main>
@@ -24,6 +27,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/basic_stages.py#L0-L526" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Basic pdpipe PdPipelineStages.&#34;&#34;&#34;
 
@@ -55,12 +59,12 @@ class ColDrop(PdPipelineStage):
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-    &gt;&gt;&gt; df = pd.DataFrame([[8,&#39;a&#39;],[5,&#39;b&#39;]], [1,2], [&#39;num&#39;, &#39;char&#39;])
-    &gt;&gt;&gt; pdp.ColDrop(&#39;num&#39;).apply(df)
-      char
-    1    a
-    2    b
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[8,&#39;a&#39;],[5,&#39;b&#39;]], [1,2], [&#39;num&#39;, &#39;char&#39;])
+        &gt;&gt;&gt; pdp.ColDrop(&#39;num&#39;).apply(df)
+          char
+        1    a
+        2    b
     &#34;&#34;&#34;
 
     _DEF_COLDROP_EXC_MSG = (&#34;ColDrop stage failed because not all columns {}&#34;
@@ -117,15 +121,15 @@ class ValDrop(PdPipelineStage):
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-    &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,5],[18,11]], [1,2,3], [&#39;a&#39;,&#39;b&#39;])
-    &gt;&gt;&gt; pdp.ValDrop([4], &#39;a&#39;).apply(df)
-        a   b
-    1   1   4
-    3  18  11
-    &gt;&gt;&gt; pdp.ValDrop([4]).apply(df)
-        a   b
-    3  18  11
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,5],[18,11]], [1,2,3], [&#39;a&#39;,&#39;b&#39;])
+        &gt;&gt;&gt; pdp.ValDrop([4], &#39;a&#39;).apply(df)
+            a   b
+        1   1   4
+        3  18  11
+        &gt;&gt;&gt; pdp.ValDrop([4]).apply(df)
+            a   b
+        3  18  11
     &#34;&#34;&#34;
 
     _DEF_VALDROP_EXC_MSG = (&#34;ValDrop stage failed because not all columns {}&#34;
@@ -189,15 +193,15 @@ class ValKeep(PdPipelineStage):
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-    &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], [&#39;a&#39;,&#39;b&#39;])
-    &gt;&gt;&gt; pdp.ValKeep([4, 5], &#39;a&#39;).apply(df)
-       a   b
-    2  4   5
-    3  5  11
-    &gt;&gt;&gt; pdp.ValKeep([4, 5]).apply(df)
-       a  b
-    2  4  5
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], [&#39;a&#39;,&#39;b&#39;])
+        &gt;&gt;&gt; pdp.ValKeep([4, 5], &#39;a&#39;).apply(df)
+           a   b
+        2  4   5
+        3  5  11
+        &gt;&gt;&gt; pdp.ValKeep([4, 5]).apply(df)
+           a  b
+        2  4  5
     &#34;&#34;&#34;
 
     _DEF_VALKEEP_EXC_MSG = (&#34;ValKeep stage failed because not all columns {}&#34;
@@ -258,12 +262,12 @@ class ColRename(PdPipelineStage):
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-    &gt;&gt;&gt; df = pd.DataFrame([[8,&#39;a&#39;],[5,&#39;b&#39;]], [1,2], [&#39;num&#39;, &#39;char&#39;])
-    &gt;&gt;&gt; pdp.ColRename({&#39;num&#39;: &#39;len&#39;, &#39;char&#39;: &#39;initial&#39;}).apply(df)
-       len initial
-    1    8       a
-    2    5       b
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[8,&#39;a&#39;],[5,&#39;b&#39;]], [1,2], [&#39;num&#39;, &#39;char&#39;])
+        &gt;&gt;&gt; pdp.ColRename({&#39;num&#39;: &#39;len&#39;, &#39;char&#39;: &#39;initial&#39;}).apply(df)
+           len initial
+        1    8       a
+        2    5       b
     &#34;&#34;&#34;
 
     _DEF_COLDRENAME_EXC_MSG = (&#34;ColRename stage failed because not all columns&#34;
@@ -297,12 +301,12 @@ class DropNa(PdPipelineStage):
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-    &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,None],[1,11]], [1,2,3], [&#39;a&#39;,&#39;b&#39;])
-    &gt;&gt;&gt; pdp.DropNa().apply(df)
-       a     b
-    1  1   4.0
-    3  1  11.0
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,None],[1,11]], [1,2,3], [&#39;a&#39;,&#39;b&#39;])
+        &gt;&gt;&gt; pdp.DropNa().apply(df)
+           a     b
+        1  1   4.0
+        3  1  11.0
     &#34;&#34;&#34;
 
     _DEF_DROPNA_EXC_MSG = &#34;DropNa stage failed.&#34;
@@ -347,12 +351,12 @@ class FreqDrop(PdPipelineStage):
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-    &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,5],[1,11]], [1,2,3], [&#39;a&#39;,&#39;b&#39;])
-    &gt;&gt;&gt; pdp.FreqDrop(2, &#39;a&#39;).apply(df)
-       a   b
-    1  1   4
-    3  1  11
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,5],[1,11]], [1,2,3], [&#39;a&#39;,&#39;b&#39;])
+        &gt;&gt;&gt; pdp.FreqDrop(2, &#39;a&#39;).apply(df)
+           a   b
+        1  1   4
+        3  1  11
     &#34;&#34;&#34;
 
     _DEF_FREQDROP_EXC_MSG = (&#34;FreqDrop stage failed because column {} was not&#34;
@@ -401,11 +405,11 @@ class ColReorder(PdPipelineStage):
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-    &gt;&gt;&gt; df = pd.DataFrame([[8,4,3,7]], columns=[&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;])
-    &gt;&gt;&gt; pdp.ColReorder({&#39;b&#39;: 0, &#39;c&#39;: 3}).apply(df)
-       b  a  d  c
-    0  4  8  7  3
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[8,4,3,7]], columns=[&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;])
+        &gt;&gt;&gt; pdp.ColReorder({&#39;b&#39;: 0, &#39;c&#39;: 3}).apply(df)
+           b  a  d  c
+        0  4  8  7  3
     &#34;&#34;&#34;
 
     _DEF_ORD_EXC_MSG = (&#34;ColReorder stage failed because not all columns in {}&#34;
@@ -467,16 +471,16 @@ class RowDrop(PdPipelineStage):
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-    &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], [&#39;a&#39;,&#39;b&#39;])
-    &gt;&gt;&gt; pdp.RowDrop([lambda x: x &lt; 2]).apply(df)
-       a   b
-    2  4   5
-    3  5  11
-    &gt;&gt;&gt; pdp.RowDrop({&#39;a&#39;: lambda x: x == 4}).apply(df)
-       a   b
-    1  1   4
-    3  5  11
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], [&#39;a&#39;,&#39;b&#39;])
+        &gt;&gt;&gt; pdp.RowDrop([lambda x: x &lt; 2]).apply(df)
+           a   b
+        2  4   5
+        3  5  11
+        &gt;&gt;&gt; pdp.RowDrop({&#39;a&#39;: lambda x: x == 4}).apply(df)
+           a   b
+        1  1   4
+        3  5  11
     &#34;&#34;&#34;
 
     _DEF_ROWDROP_EXC_MSG = (&#34;RowDrop stage failed because not all columns {}&#34;
@@ -584,14 +588,13 @@ return True will be dropped.</dd>
 &gt;&gt;&gt; df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'char'])
 &gt;&gt;&gt; pdp.ColDrop('num').apply(df)
   char
-</code></pre>
-<p>1
-a
-2
-b</p></section>
+1    a
+2    b
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/basic_stages.py#L16-L77" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ColDrop(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that drops columns by name.
@@ -608,12 +611,12 @@ b</p></section>
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-    &gt;&gt;&gt; df = pd.DataFrame([[8,&#39;a&#39;],[5,&#39;b&#39;]], [1,2], [&#39;num&#39;, &#39;char&#39;])
-    &gt;&gt;&gt; pdp.ColDrop(&#39;num&#39;).apply(df)
-      char
-    1    a
-    2    b
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[8,&#39;a&#39;],[5,&#39;b&#39;]], [1,2], [&#39;num&#39;, &#39;char&#39;])
+        &gt;&gt;&gt; pdp.ColDrop(&#39;num&#39;).apply(df)
+          char
+        1    a
+        2    b
     &#34;&#34;&#34;
 
     _DEF_COLDROP_EXC_MSG = (&#34;ColDrop stage failed because not all columns {}&#34;
@@ -715,16 +718,13 @@ b</p></section>
 &gt;&gt;&gt; df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'char'])
 &gt;&gt;&gt; pdp.ColRename({'num': 'len', 'char': 'initial'}).apply(df)
    len initial
-</code></pre>
-<p>1
-8
-a
-2
-5
-b</p></section>
+1    8       a
+2    5       b
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/basic_stages.py#L224-L263" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ColRename(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that renames a column or columns.
@@ -736,12 +736,12 @@ b</p></section>
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-    &gt;&gt;&gt; df = pd.DataFrame([[8,&#39;a&#39;],[5,&#39;b&#39;]], [1,2], [&#39;num&#39;, &#39;char&#39;])
-    &gt;&gt;&gt; pdp.ColRename({&#39;num&#39;: &#39;len&#39;, &#39;char&#39;: &#39;initial&#39;}).apply(df)
-       len initial
-    1    8       a
-    2    5       b
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[8,&#39;a&#39;],[5,&#39;b&#39;]], [1,2], [&#39;num&#39;, &#39;char&#39;])
+        &gt;&gt;&gt; pdp.ColRename({&#39;num&#39;: &#39;len&#39;, &#39;char&#39;: &#39;initial&#39;}).apply(df)
+           len initial
+        1    8       a
+        2    5       b
     &#34;&#34;&#34;
 
     _DEF_COLDRENAME_EXC_MSG = (&#34;ColRename stage failed because not all columns&#34;
@@ -828,15 +828,12 @@ positions over the non-mapped colums.</dd>
 &gt;&gt;&gt; df = pd.DataFrame([[8,4,3,7]], columns=['a', 'b', 'c', 'd'])
 &gt;&gt;&gt; pdp.ColReorder({'b': 0, 'c': 3}).apply(df)
    b  a  d  c
-</code></pre>
-<p>0
-4
-8
-7
-3</p></section>
+0  4  8  7  3
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/basic_stages.py#L365-L415" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ColReorder(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that reorders columns.
@@ -850,11 +847,11 @@ positions over the non-mapped colums.</dd>
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-    &gt;&gt;&gt; df = pd.DataFrame([[8,4,3,7]], columns=[&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;])
-    &gt;&gt;&gt; pdp.ColReorder({&#39;b&#39;: 0, &#39;c&#39;: 3}).apply(df)
-       b  a  d  c
-    0  4  8  7  3
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[8,4,3,7]], columns=[&#39;a&#39;, &#39;b&#39;, &#39;c&#39;, &#39;d&#39;])
+        &gt;&gt;&gt; pdp.ColReorder({&#39;b&#39;: 0, &#39;c&#39;: 3}).apply(df)
+           b  a  d  c
+        0  4  8  7  3
     &#34;&#34;&#34;
 
     _DEF_ORD_EXC_MSG = (&#34;ColReorder stage failed because not all columns in {}&#34;
@@ -945,16 +942,13 @@ positions over the non-mapped colums.</dd>
 &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,None],[1,11]], [1,2,3], ['a','b'])
 &gt;&gt;&gt; pdp.DropNa().apply(df)
    a     b
-</code></pre>
-<p>1
-1
-4.0
-3
-1
-11.0</p></section>
+1  1   4.0
+3  1  11.0
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/basic_stages.py#L266-L308" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class DropNa(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that drops null values.
@@ -963,12 +957,12 @@ positions over the non-mapped colums.</dd>
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-    &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,None],[1,11]], [1,2,3], [&#39;a&#39;,&#39;b&#39;])
-    &gt;&gt;&gt; pdp.DropNa().apply(df)
-       a     b
-    1  1   4.0
-    3  1  11.0
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,None],[1,11]], [1,2,3], [&#39;a&#39;,&#39;b&#39;])
+        &gt;&gt;&gt; pdp.DropNa().apply(df)
+           a     b
+        1  1   4.0
+        3  1  11.0
     &#34;&#34;&#34;
 
     _DEF_DROPNA_EXC_MSG = &#34;DropNa stage failed.&#34;
@@ -1061,16 +1055,13 @@ positions over the non-mapped colums.</dd>
 &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,5],[1,11]], [1,2,3], ['a','b'])
 &gt;&gt;&gt; pdp.FreqDrop(2, 'a').apply(df)
    a   b
-</code></pre>
-<p>1
-1
-4
-3
-1
-11</p></section>
+1  1   4
+3  1  11
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/basic_stages.py#L311-L362" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class FreqDrop(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that drops rows by value frequency.
@@ -1084,12 +1075,12 @@ positions over the non-mapped colums.</dd>
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-    &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,5],[1,11]], [1,2,3], [&#39;a&#39;,&#39;b&#39;])
-    &gt;&gt;&gt; pdp.FreqDrop(2, &#39;a&#39;).apply(df)
-       a   b
-    1  1   4
-    3  1  11
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,5],[1,11]], [1,2,3], [&#39;a&#39;,&#39;b&#39;])
+        &gt;&gt;&gt; pdp.FreqDrop(2, &#39;a&#39;).apply(df)
+           a   b
+        1  1   4
+        3  1  11
     &#34;&#34;&#34;
 
     _DEF_FREQDROP_EXC_MSG = (&#34;FreqDrop stage failed because column {} was not&#34;
@@ -1199,25 +1190,17 @@ these columns to determine which rows to drop.</dd>
 &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], ['a','b'])
 &gt;&gt;&gt; pdp.RowDrop([lambda x: x &lt; 2]).apply(df)
    a   b
-</code></pre>
-<p>2
-4
-5
-3
-5
-11</p>
-<pre><code>&gt;&gt;&gt; pdp.RowDrop({'a': lambda x: x == 4}).apply(df)
+2  4   5
+3  5  11
+&gt;&gt;&gt; pdp.RowDrop({'a': lambda x: x == 4}).apply(df)
    a   b
-</code></pre>
-<p>1
-1
-4
-3
-5
-11</p></section>
+1  1   4
+3  5  11
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/basic_stages.py#L418-L527" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class RowDrop(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that drop rows by callable conditions.
@@ -1244,16 +1227,16 @@ these columns to determine which rows to drop.</dd>
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-    &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], [&#39;a&#39;,&#39;b&#39;])
-    &gt;&gt;&gt; pdp.RowDrop([lambda x: x &lt; 2]).apply(df)
-       a   b
-    2  4   5
-    3  5  11
-    &gt;&gt;&gt; pdp.RowDrop({&#39;a&#39;: lambda x: x == 4}).apply(df)
-       a   b
-    1  1   4
-    3  5  11
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], [&#39;a&#39;,&#39;b&#39;])
+        &gt;&gt;&gt; pdp.RowDrop([lambda x: x &lt; 2]).apply(df)
+           a   b
+        2  4   5
+        3  5  11
+        &gt;&gt;&gt; pdp.RowDrop({&#39;a&#39;: lambda x: x == 4}).apply(df)
+           a   b
+        1  1   4
+        3  5  11
     &#34;&#34;&#34;
 
     _DEF_ROWDROP_EXC_MSG = (&#34;RowDrop stage failed because not all columns {}&#34;
@@ -1392,22 +1375,16 @@ values. If set to None, all columns are checked.</dd>
 &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,5],[18,11]], [1,2,3], ['a','b'])
 &gt;&gt;&gt; pdp.ValDrop([4], 'a').apply(df)
     a   b
-</code></pre>
-<p>1
-1
-4
-3
-18
-11</p>
-<pre><code>&gt;&gt;&gt; pdp.ValDrop([4]).apply(df)
+1   1   4
+3  18  11
+&gt;&gt;&gt; pdp.ValDrop([4]).apply(df)
     a   b
-</code></pre>
-<p>3
-18
-11</p></section>
+3  18  11
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/basic_stages.py#L80-L149" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ValDrop(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that drops rows by value.
@@ -1422,15 +1399,15 @@ values. If set to None, all columns are checked.</dd>
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-    &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,5],[18,11]], [1,2,3], [&#39;a&#39;,&#39;b&#39;])
-    &gt;&gt;&gt; pdp.ValDrop([4], &#39;a&#39;).apply(df)
-        a   b
-    1   1   4
-    3  18  11
-    &gt;&gt;&gt; pdp.ValDrop([4]).apply(df)
-        a   b
-    3  18  11
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,5],[18,11]], [1,2,3], [&#39;a&#39;,&#39;b&#39;])
+        &gt;&gt;&gt; pdp.ValDrop([4], &#39;a&#39;).apply(df)
+            a   b
+        1   1   4
+        3  18  11
+        &gt;&gt;&gt; pdp.ValDrop([4]).apply(df)
+            a   b
+        3  18  11
     &#34;&#34;&#34;
 
     _DEF_VALDROP_EXC_MSG = (&#34;ValDrop stage failed because not all columns {}&#34;
@@ -1542,22 +1519,16 @@ values. If set to None, all columns are checked.</dd>
 &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], ['a','b'])
 &gt;&gt;&gt; pdp.ValKeep([4, 5], 'a').apply(df)
    a   b
-</code></pre>
-<p>2
-4
-5
-3
-5
-11</p>
-<pre><code>&gt;&gt;&gt; pdp.ValKeep([4, 5]).apply(df)
+2  4   5
+3  5  11
+&gt;&gt;&gt; pdp.ValKeep([4, 5]).apply(df)
    a  b
-</code></pre>
-<p>2
-4
-5</p></section>
+2  4  5
+</code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/basic_stages.py#L152-L221" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ValKeep(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that keeps rows by value.
@@ -1572,15 +1543,15 @@ values. If set to None, all columns are checked.</dd>
 
     Example
     -------
-    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-    &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], [&#39;a&#39;,&#39;b&#39;])
-    &gt;&gt;&gt; pdp.ValKeep([4, 5], &#39;a&#39;).apply(df)
-       a   b
-    2  4   5
-    3  5  11
-    &gt;&gt;&gt; pdp.ValKeep([4, 5]).apply(df)
-       a  b
-    2  4  5
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], [&#39;a&#39;,&#39;b&#39;])
+        &gt;&gt;&gt; pdp.ValKeep([4, 5], &#39;a&#39;).apply(df)
+           a   b
+        2  4   5
+        3  5  11
+        &gt;&gt;&gt; pdp.ValKeep([4, 5]).apply(df)
+           a  b
+        2  4  5
     &#34;&#34;&#34;
 
     _DEF_VALKEEP_EXC_MSG = (&#34;ValKeep stage failed because not all columns {}&#34;
@@ -1677,6 +1648,11 @@ values. If set to None, all columns are checked.</dd>
 </section>
 </article>
 <nav id="sidebar">
+<header>
+<a class="homelink" rel="home" title="pdpipe Home" href="https://pdpipe.github.io/pdpipe/">
+<img src="https://pdpipe.github.io/pdpipe/logo.png" alt=""> pdpipe
+</a>
+</header>
 <h1>Index</h1>
 <div class="toc">
 <ul></ul>
@@ -1719,6 +1695,7 @@ values. If set to None, all columns are checked.</dd>
 </nav>
 </main>
 <footer id="footer">
+<p><span style="color:#ddd">&#21328;</span></p>
 <p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.2</a>.</p>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
