@@ -6,7 +6,7 @@
 
     <meta name="description" content="Easy pipelines for pandas DataFrames" itemprop="description">
     <meta name="keywords" content="python, documentation, generator, api, docstrings, numpydoc, markdown">
-    <title>pdpipe – Easy pipelines for pandas DataFrames</title>
+    <title>pdpipe – Easy pipelines for pandas dataframes</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.1/css/all.min.css">
@@ -58,42 +58,14 @@
 
         <div class="content">
             <p>
-                Ever finished a neat Python script only to see it later lay unused by anyone else
-                because the only documenting effort you gave it was the petty README.md?
-
-                Ever found Sphinx too cumbersome to use for the small project on your hands or
-                have repeatedly found <abbr title="reStructuredText">reST</abbr> syntax for links
-                too volatile to touch-type, whereas you had always loved and adored markdown?
-
-                Many have.
-
-                Documentation is a <abbr title="pain in the ass">PITA</abbr> to maintain.
-                Real programmers don't document their programs —
-                documentation is for simpletons who can't read object code from memory dumps.
-                Right?
+                Ever written a preprocessing pipeline for pandas dataframes and had trouble serializing it for later depoloyment on a different machine? Ever needed fit-able preprocessing transformations, that have tunable paramaters that are inffered from training data, to be used later to transform input data? Ever struggled with preprocessing different types of data in the same pandas dataframe?
             </p>
 
-            <div class="columns container is-centered" style="margin-top:2em; margin-bottom:2em;">
-                <blockquote class="media is-half-desktop is-two-thirds-tablet 1is-one-third-widescreen">
-                    <div class="media-left"><span class="icon is-medium"><i class="fa fa-2x fa-quote-left"></i></span></div>
-                    <div class="media-content">
-                        <p>
-                            You ever seen a panda goes straight through a pipeline? You did?
-                            <br>Well, must have been a big 'un!
-                        </p>
-                        <i class="is-pulled-right">— Herbert J.</i>
-                    </div>
-                </blockquote>
-            </div>
-
             <p>
-                Enter <b itemprop="name">pdoc</b>, the perfect <span itemprop="applicationSubCategory">documentation generator</span>
-                for small-to-medium-sized, tidy Python projects.
-                It generates <b>documentation simply from your project's already-existing public modules' and objects' docstrings</b>,
-                like <cite>sphinx-apidoc</cite> or <cite>sphinx.ext.autodoc</cite>,
-                but without the hassle of these tools.
-                Minimal and lightweight.
-                Guaranteed 99% correct magic out of the box!
+                Enter <b itemprop="name">pdpipe</b>, a simple framework for <b>serializable, chainable and verbose</b> pandas pipelines.
+                Its intuitive API enables you to generate, using only a few lines, complex pandas processing pipelines that can easily be
+                broken down or composed together, examined and debugged, and that <b>adhere to scikit-learn's Transformer API</b>.
+                Stop writing the same preprocessing boilerplate code again and again!
             </p>
         </div>
 
@@ -106,21 +78,21 @@
                     <div class="media-left"><span class="icon is-medium"><i class="fab fa-2x fa-python"></i></span></div>
                     <div class="media-content">
                         <p><b>Compatible with <span itemprop="softwareRequirements">Python</span> 3+</b></p>
-                        <p>Python 3.5 and up. Best choice for new or forward-looking projects.</p>
+                        <p>Python 3.5 and up. Crucial for new or forward-looking projects.</p>
                     </div>
                 </li>
                 <li class="media">
                    <div class="media-left"><span class="icon is-medium"><i class="fa fa-2x fa-scroll"></i></span></div>
                    <div class="media-content">
-                       <p><b>Common docstring formats</b></p>
-                       <p>Out-of-the-box support for markdown, numpydoc, Google-style docstrings, Napoleon, and some common reST directives.</p>
+                       <p><b>Fully documented</b></p>
+                       <p>Every pipeline stage and parameter are meticulously documented and accompanied by working code examples.</p>
                    </div>
                 </li>
                 <li class="media">
                    <div class="media-left"><span class="icon is-medium"><i class="fa fa-2x fa-magic "></i></span></div>
                    <div class="media-content">
                        <p><b>Zero configuration</b></p>
-                       <p>Pdoc works automatically, following common Python programming conventions. Simply run the command line script, ecstatically nodding in agreement.</p>
+                       <p>Pdpipe stages use sensible defaults for everything. Get things going immediately, tune only what you need.</p>
                    </div>
                 </li>
             </ul>
@@ -129,22 +101,22 @@
                 <li class="media">
                     <div class="media-left"><span class="icon is-medium"><i class="fa fa-2x fa-sitemap"></i></span></div>
                     <div class="media-content">
-                        <p><b>Docs hieararchy follows module hierarchy</b></p>
-                        <p>Use modules docstrings to introduce topics. Literate programming exactly as Guido intended it.</p>
+                        <p><b>Handle mixed-type data</b></p>
+                        <p>Easily create pipelines that process diffe types of data separately without breaking, enabling easier use of stacking-based ensemble models down the pipeline.</p>
                     </div>
                 </li>
                 <li class="media">
                     <div class="media-left"><span class="icon is-medium"><i class="fa fa-2x fa-cogs"></i></span></div>
                     <div class="media-content">
-                        <p><b>Customizable templates</b></p>
-                        <p>Pdoc uses fast mako templating engine. The default templates should suit most cases, but they can easily be extended or overridden.</p>
+                        <p><b>Customizable stages</b></p>
+                        <p>Pipeline stages are highly configurable, and creating new custom stages is easy.</p>
                     </div>
                 </li>
                 <li class="media">
                     <div class="media-left"><span class="icon is-medium"><i class="fa fa-2x fa-link"></i></span></div>
                     <div class="media-content">
-                        <p><b>Easy cross-linking of identifiers</b></p>
-                        <p>Simply wrap object references in backticks and let the technology do all the rest.</p>
+                        <p><b>Chainable constructors & pipeline arithmetics</b></p>
+                        <p>Chaining pipeline stages constructor calls for easy, one-liners creating comples pipelines. Supports pipeline arithmetics.</p>
                     </div>
                 </li>
             </ul>
@@ -152,22 +124,22 @@
                 <li class="media">
                     <div class="media-left"><span class="icon is-medium"><i class="fa fa-2x fa-laptop-code"></i></span></div>
                     <div class="media-content">
-                        <p><b>Integrated dev web server</b></p>
-                        <p>Instant feedback on your doc writing skills — see it as you write it.</p>
+                        <p><b>Built for productization</b></p>
+                        <p>Pipelines and stages are written with productization in mind; fit on training data, transform in production.</p>
                     </div>
                 </li>
                 <li class="media">
                     <div class="media-left"><span class="icon is-medium"><i class="fa fa-2x fa-check-square"></i></span></div>
                     <div class="media-content">
-                        <p><b>Dependable</b></p>
-                        <p>Unmatched identifiers and source errors raise loud warnings. Reliably build documentation in your <abbr title="continuous integration">CI</abbr> pipeline.</p>
+                        <p><b>Fully teseted</b></p>
+                        <p>Pdpipe is <a href="https://travis-ci.org/pdpipe/pdpipe" target="_blank">thoroughly tested on Linux, macOS and Windows systems, as well as all Python development branches,</a> and boasts full test coverage.</p>
                     </div>
                 </li>
                 <li class="media">
                     <div class="media-left"><span class="icon is-medium"><i class="fa fa-2x fa-eye"></i></span></div>
                     <div class="media-content">
                         <p><b>Verbose</b></p>
-                        <p>Informative prints and errors on pipeline application..</p>
+                        <p>Informative prints and errors on pipeline application, including smart pre-conditions before application.</p>
                     </div>
                 </li>
             </ul>
@@ -195,13 +167,13 @@
 
             <div class="column is-narrow has-text-centered buttons">
                 <a class="button is-success is-large"
-                   title="pdoc on PyPI" href="https://pypi.org/project/pdpipe/" style="margin-right:.8em;"
+                   title="pdpipe on PyPI" href="https://pypi.org/project/pdpipe/" style="margin-right:.8em;"
                    itemprop="downloadUrl" data-ga-event-category="PyPI">
                     <span class="icon"><i class="fa fa-download"></i></span>
                     <span>PyPI</span>
                 </a>
                 <a class="button is-large has-background-white-ter"
-                   title="pdoc on GitHub" href="https://github.com/pdpipe/pdpipe"
+                   title="pdpipe on GitHub" href="https://github.com/pdpipe/pdpipe"
                    data-ga-event-category="GitHub">
                     <span class="icon"><i class="fab fa-github"></i></span>
                     <span>GitHub</span>
@@ -231,7 +203,7 @@
                     <input class="input is-large is-dark" readonly disabled value="import pdpipe as pdp"
                            style="cursor:default; caret-color:transparent; font-family:monospace; pointer-events:none; user-select:none;"
                            tabindex="-1"
-                           data-ga-on="click" data-ga-event-action="select" data-ga-event-category="pdoc line">
+                           data-ga-on="click" data-ga-event-action="select" data-ga-event-category="pdpipe line">
                     <span class="icon is-left has-text-grey" ><i class="fa fa-dollar-sign"></i></span>
                 </div>
             </div>
@@ -252,9 +224,30 @@
         <!-- </p> -->
     </div>
 
-    <ins class="adsbygoogle has-text-centered is-block" data-ad-client="ca-pub-2900001379782823" data-ad-slot="1430886616" data-ad-format="auto" data-full-width-responsive="true"></ins>
-    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+
+
+    <!-- <ins class="adsbygoogle has&#45;text&#45;centered is&#45;block" data&#45;ad&#45;client="ca&#45;pub&#45;2900001379782823" data&#45;ad&#45;slot="1430886616" data&#45;ad&#45;format="auto" data&#45;full&#45;width&#45;responsive="true"></ins> -->
+    <!-- <script>(adsbygoogle = window.adsbygoogle || []).push({});</script> -->
 </section>
+<!-- <section class="section no&#45;ads"> -->
+<!--     <div class="container"> -->
+<!--         <div class="content"> -->
+<!--             <div class="columns container is&#45;centered" style="margin&#45;top:2em; margin&#45;bottom:2em;"> -->
+<!--                 <blockquote class="media is&#45;half&#45;desktop is&#45;two&#45;thirds&#45;tablet 1is&#45;one&#45;third&#45;widescreen"> -->
+<!--                     <div class="media&#45;left"><span class="icon is&#45;medium"><i class="fa fa&#45;2x fa&#45;quote&#45;left"></i></span></div> -->
+<!--                     <div class="media&#45;content"> -->
+<!--                         <p> -->
+<!--                             You ever seen a panda goes straight through a pipeline? You did? -->
+<!--                             <br>Well, must have been a big 'un! -->
+<!--                         </p> -->
+<!--                         <i class="is&#45;pulled&#45;right">— Herbert J.</i> -->
+<!--                     </div> -->
+<!--                 </blockquote> -->
+<!--             </div> -->
+<!--         </div> -->
+<!--     </div> -->
+<!-- </section> -->
+
 
 <!--<section class="section no-ads">
     <div class="container">
@@ -322,12 +315,12 @@
     </div>
     <div class="container">
         <blockquote class="content is-clearfix has-text-centered has-text-grey">
-            <p>I just wanted pandas pipelines that are bit more informative.&ensp;<i>—&nbsp;<a href="http://www.shaypalachy.com/" target="_blank">Shay Palachy</a></i></p>
+            <p>"I just wanted pandas pipelines that are bit more informative."&ensp;<i>—&nbsp;<a href="https://www.shaypalachy.com/" target="_blank">Shay Palachy</a></i></p>
         </blockquote>
     </div>
 </footer>
 
-<a href="https://github.com/pdoc3/pdoc" class="github-corner" aria-label="View source on Github"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+<a href="https://github.com/pdpipe/pdpipe" class="github-corner" aria-label="View source on Github"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/typogr/0.6.8/typogr.min.js"></script>
 <script>document.body.innerHTML = typogr.widont(document.body.innerHTML);
