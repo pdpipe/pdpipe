@@ -11,6 +11,8 @@ matrix:
     - python: "3.7-dev"
     - python: "3.8-dev"
     - name: "Docs"
+    - stage: "Deploy"
+    - stage: "Python dev branches"
   include:
     - stage: "Python on Ubuntu Xenial Tests"
       python: 3.5
@@ -79,7 +81,7 @@ matrix:
       name: 'Docs'
       stage: deploy
       before_script:
-        - pip install pydoc3
+        - pip install pdoc3
       script:
         - doc/build.sh
       after_success:
