@@ -36,7 +36,7 @@ setup(
     author_email="shaypal5@gmail.com",
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
-    url='https://github.com/shaypal5/pdpipe',
+    url='https://pdpipe.github.io/pdpipe/',
     license="MIT",
     packages=['pdpipe'],
     install_requires=INSTALL_REQUIRES,
