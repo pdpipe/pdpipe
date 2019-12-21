@@ -1,22 +1,23 @@
 language: python
 # ===== Linux =====
 dist: xenial
-python:
-  - 3.5
-  - 3.6
-  - 3.7
-  - 3.8
-  - "3.6-dev"
-  - "3.7-dev"
-  - "3.8-dev"
+cache:
+  pip: true
 matrix:
   fast_finish: true
   allow_failures:
-    - python: 3.8
     - python: "3.6-dev"
     - python: "3.7-dev"
     - python: "3.8-dev"
+    - name: "Docs"
+    - stage: "Deploy"
+    - stage: "Python dev branches"
   include:
+    - stage: "Python on Ubuntu Xenial Tests"
+      python: 3.5
+    - python: 3.6
+    - python: 3.7
+    - python: 3.8
     # ======= OSX ========
     - name: "Python 3.6.5 on macOS 10.13"
       os: osx
@@ -60,6 +61,30 @@ matrix:
       script: python -m pytest
       after_success: python -m codecov
       env: PATH=/c/Python37:/c/Python37/Scripts:$PATH
+    # ==== Testing on Python dev branches === 
+    - stage: "Python dev branches"
+      python: "3.6-dev"
+    - python: "3.7-dev"
+    - python: "3.8-dev"
+    # ==== Linting checked on Python 3.7 ====
+    - stage: "Linting"
+      python: 3.7
+      name: "Code linting with Python 3.7"
+      before_script:
+        - pip install flake8
+      script:
+        # - find -name '*.md' | xargs .github/lint-markdown.sh
+        - flake8
+    # ==== Docs built on a designated Python 3.6 job ====
+    - python: 3.6
+      name: 'Docs'
+      stage: deploy
+      before_script:
+        - pip install pdoc3
+      script:
+        - doc/build.sh
+      after_success:
+        - if [ "$TRAVIS_BRANCH" = "$TRAVIS_TAG" ]; then bash .github/deploy-gh-pages.sh; fi
 before_install:
   - pip3 install -U pip
 install:

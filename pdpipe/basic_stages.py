@@ -28,12 +28,12 @@ class ColDrop(PdPipelineStage):
 
     Example
     -------
-    >>> import pandas as pd; import pdpipe as pdp;
-    >>> df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'char'])
-    >>> pdp.ColDrop('num').apply(df)
-      char
-    1    a
-    2    b
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'char'])
+        >>> pdp.ColDrop('num').apply(df)
+          char
+        1    a
+        2    b
     """
 
     _DEF_COLDROP_EXC_MSG = ("ColDrop stage failed because not all columns {}"
@@ -90,15 +90,15 @@ class ValDrop(PdPipelineStage):
 
     Example
     -------
-    >>> import pandas as pd; import pdpipe as pdp;
-    >>> df = pd.DataFrame([[1,4],[4,5],[18,11]], [1,2,3], ['a','b'])
-    >>> pdp.ValDrop([4], 'a').apply(df)
-        a   b
-    1   1   4
-    3  18  11
-    >>> pdp.ValDrop([4]).apply(df)
-        a   b
-    3  18  11
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> df = pd.DataFrame([[1,4],[4,5],[18,11]], [1,2,3], ['a','b'])
+        >>> pdp.ValDrop([4], 'a').apply(df)
+            a   b
+        1   1   4
+        3  18  11
+        >>> pdp.ValDrop([4]).apply(df)
+            a   b
+        3  18  11
     """
 
     _DEF_VALDROP_EXC_MSG = ("ValDrop stage failed because not all columns {}"
@@ -162,15 +162,15 @@ class ValKeep(PdPipelineStage):
 
     Example
     -------
-    >>> import pandas as pd; import pdpipe as pdp;
-    >>> df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], ['a','b'])
-    >>> pdp.ValKeep([4, 5], 'a').apply(df)
-       a   b
-    2  4   5
-    3  5  11
-    >>> pdp.ValKeep([4, 5]).apply(df)
-       a  b
-    2  4  5
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], ['a','b'])
+        >>> pdp.ValKeep([4, 5], 'a').apply(df)
+           a   b
+        2  4   5
+        3  5  11
+        >>> pdp.ValKeep([4, 5]).apply(df)
+           a  b
+        2  4  5
     """
 
     _DEF_VALKEEP_EXC_MSG = ("ValKeep stage failed because not all columns {}"
@@ -231,12 +231,12 @@ class ColRename(PdPipelineStage):
 
     Example
     -------
-    >>> import pandas as pd; import pdpipe as pdp;
-    >>> df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'char'])
-    >>> pdp.ColRename({'num': 'len', 'char': 'initial'}).apply(df)
-       len initial
-    1    8       a
-    2    5       b
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'char'])
+        >>> pdp.ColRename({'num': 'len', 'char': 'initial'}).apply(df)
+           len initial
+        1    8       a
+        2    5       b
     """
 
     _DEF_COLDRENAME_EXC_MSG = ("ColRename stage failed because not all columns"
@@ -270,12 +270,12 @@ class DropNa(PdPipelineStage):
 
     Example
     -------
-    >>> import pandas as pd; import pdpipe as pdp;
-    >>> df = pd.DataFrame([[1,4],[4,None],[1,11]], [1,2,3], ['a','b'])
-    >>> pdp.DropNa().apply(df)
-       a     b
-    1  1   4.0
-    3  1  11.0
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> df = pd.DataFrame([[1,4],[4,None],[1,11]], [1,2,3], ['a','b'])
+        >>> pdp.DropNa().apply(df)
+           a     b
+        1  1   4.0
+        3  1  11.0
     """
 
     _DEF_DROPNA_EXC_MSG = "DropNa stage failed."
@@ -320,12 +320,12 @@ class FreqDrop(PdPipelineStage):
 
     Example
     -------
-    >>> import pandas as pd; import pdpipe as pdp;
-    >>> df = pd.DataFrame([[1,4],[4,5],[1,11]], [1,2,3], ['a','b'])
-    >>> pdp.FreqDrop(2, 'a').apply(df)
-       a   b
-    1  1   4
-    3  1  11
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> df = pd.DataFrame([[1,4],[4,5],[1,11]], [1,2,3], ['a','b'])
+        >>> pdp.FreqDrop(2, 'a').apply(df)
+           a   b
+        1  1   4
+        3  1  11
     """
 
     _DEF_FREQDROP_EXC_MSG = ("FreqDrop stage failed because column {} was not"
@@ -374,11 +374,11 @@ class ColReorder(PdPipelineStage):
 
     Example
     -------
-    >>> import pandas as pd; import pdpipe as pdp;
-    >>> df = pd.DataFrame([[8,4,3,7]], columns=['a', 'b', 'c', 'd'])
-    >>> pdp.ColReorder({'b': 0, 'c': 3}).apply(df)
-       b  a  d  c
-    0  4  8  7  3
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> df = pd.DataFrame([[8,4,3,7]], columns=['a', 'b', 'c', 'd'])
+        >>> pdp.ColReorder({'b': 0, 'c': 3}).apply(df)
+           b  a  d  c
+        0  4  8  7  3
     """
 
     _DEF_ORD_EXC_MSG = ("ColReorder stage failed because not all columns in {}"
@@ -440,21 +440,21 @@ class RowDrop(PdPipelineStage):
 
     Example
     -------
-    >>> import pandas as pd; import pdpipe as pdp;
-    >>> df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], ['a','b'])
-    >>> pdp.RowDrop([lambda x: x < 2]).apply(df)
-       a   b
-    2  4   5
-    3  5  11
-    >>> pdp.RowDrop({'a': lambda x: x == 4}).apply(df)
-       a   b
-    1  1   4
-    3  5  11
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], ['a','b'])
+        >>> pdp.RowDrop([lambda x: x < 2]).apply(df)
+           a   b
+        2  4   5
+        3  5  11
+        >>> pdp.RowDrop({'a': lambda x: x == 4}).apply(df)
+           a   b
+        1  1   4
+        3  5  11
     """
 
     _DEF_ROWDROP_EXC_MSG = ("RowDrop stage failed because not all columns {}"
                             " were found in input dataframe.")
-    _DEF_ROWDROP_APPLY_MSG = "Dropping rows by conditions: {}..."
+    _DEF_ROWDROP_APPLY_MSG = "Dropping rows by conditions on columns {}..."
 
     _REDUCERS = {
         'all': all,

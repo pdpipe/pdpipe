@@ -60,7 +60,6 @@ def test_mapcolvals_with_res_name_no_drop():
 
 def test_mapcolvals_bad_res_name_len():
     """Testing MapColVals pipeline stages."""
-    df = _test_df()
     value_map = {1: 'Gold', 2: 'Silver', 3: 'Bronze'}
     with pytest.raises(ValueError):
         map_stage = MapColVals('Medal', value_map, result_columns=['A', 'B'])

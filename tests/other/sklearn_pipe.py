@@ -38,7 +38,7 @@ def _test_df():
 
 def check_sk_pipeline():
     pline = pdp.make_pdpipeline(
-        pdp.ApplyByCols("ph", lambda x: x-1),
+        pdp.ApplyByCols("ph", lambda x: x - 1),
         # pdp.Bin({"ph": [0, 3, 5, 12]}),
         pdp.Encode(["type", "lbl"]),
     )
