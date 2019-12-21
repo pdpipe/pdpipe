@@ -4,9 +4,11 @@ pdpipe ˨
 |PyPI-Status| |Downloads| |PyPI-Versions| |Build-Status| |Codecov| |Codefactor| |LICENCE|
 
 
-  | Easy pipelines for pandas DataFrames (`learn how! <https://towardsdatascience.com/https-medium-com-tirthajyoti-build-pipelines-with-pandas-using-pdpipe-cade6128cd31>`_).
-  | Website: `https://pdpipe.github.io/pdpipe/ <https://pdpipe.github.io/pdpipe/>`_
-  | Documentation: `https://pdpipe.github.io/pdpipe/doc/pdpipe/ <https://pdpipe.github.io/pdpipe/doc/pdpipe/>`_
+Easy pipelines for pandas DataFrames (`learn how! <https://towardsdatascience.com/https-medium-com-tirthajyoti-build-pipelines-with-pandas-using-pdpipe-cade6128cd31>`_).
+
+Website: `https://pdpipe.github.io/pdpipe/ <https://pdpipe.github.io/pdpipe/>`_
+
+Documentation: `https://pdpipe.github.io/pdpipe/doc/pdpipe/ <https://pdpipe.github.io/pdpipe/doc/pdpipe/>`_
 
 .. code-block:: python
 
