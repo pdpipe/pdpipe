@@ -36,7 +36,7 @@ Documentation
 
 This is the repository of the `pdpipe <https://pdpipe.github.io/pdpipe/>`_ package. This document is aimed to help potential contributors to the project.
 
-To learn more about how to use ``pdpipe``, either `visit pdpipe's homepage <https://pdpipe.github.io/pdpipe/>`_ or read the `online documentation of pdpipe <https://pdpipe.github.io/pdpipe/doc/pdpipe/`_.
+To learn more about how to use ``pdpipe``, either `visit pdpipe's homepage <https://pdpipe.github.io/pdpipe/>`_ or read the `online documentation of pdpipe <https://pdpipe.github.io/pdpipe/doc/pdpipe/>`_.
 
 
 Installation
