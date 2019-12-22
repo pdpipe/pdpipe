@@ -58,7 +58,7 @@ Similarly, some pipeline stages require ``nltk``; they will simply not be loaded
 Contributing
 ============
 
-Package author and current maintainer is Shay Palachy (shay.palachy@gmail.com); You are more than welcome to approach him for help. Contributions are very welcomed, especially since this package is very much in its infancy and many other pipeline stages can be added. Intuit are nice.
+Package author and current maintainer is Shay Palachy (shay.palachy@gmail.com); You are more than welcome to approach him for help. Contributions are very welcomed, especially since this package is very much in its infancy and many other pipeline stages can be added.
 
 Installing for development
 --------------------------
