@@ -102,7 +102,7 @@ Additionally, if you update this ``README.rst`` file,  use ``python setup.py che
 Adding doctests
 ---------------
 
-Please notice that for ``pdoc3`` - the used the generate documentation for ``pdpipe`` - to successfully include doctest in the generated documentation, the whole doctest must be indented in relation to the opening multi-string indentation:
+Please notice that for ``pdoc3`` - the Python package used the generate documentation for ``pdpipe`` - to successfully include doctests in the generated documentation, the whole doctest must be indented in relation to the opening multi-string indentation:
 
 .. code-block:: python
 
