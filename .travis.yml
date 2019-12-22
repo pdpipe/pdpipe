@@ -13,7 +13,7 @@ matrix:
     - stage: "Deploy"
     - stage: "Python dev branches"
   include:
-    - stage: "Python on Ubuntu Xenial Tests"
+    - stage: "Core testing"
       python: 3.5
     - python: 3.6
     - python: 3.7
