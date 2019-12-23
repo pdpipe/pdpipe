@@ -32,9 +32,9 @@ Documentation: `https://pdpipe.github.io/pdpipe/doc/pdpipe/ <https://pdpipe.gith
 .. section-numbering::
 
 Documentation
-=============
+============ =
 
-This is the repository of the ``pdpipe`` package. This readme is aimed to help potential contributors to the project.
+This is the repository of the ``pdpipe`` package, and this readme file is aimed to help potential contributors to the project.
 
 To learn more about how to use ``pdpipe``, either `visit pdpipe's homepage <https://pdpipe.github.io/pdpipe/>`_ or read the `online documentation of pdpipe <https://pdpipe.github.io/pdpipe/doc/pdpipe/>`_.
 
@@ -85,7 +85,18 @@ To run the tests, use:
 
 .. code-block:: bash
 
-  python -m pytest --cov=pdpipe
+  python -m pytest
+
+
+Notice ``pytest`` runs are configured by the ``pytest.ini`` file. Read it to understand the exact ``pytest`` arguments used.
+
+
+Adding tests
+------------
+
+At the time of writing, ``pdpipe`` is maintained with a test coverage of 100%. Although challenging, I hope to maintain this status. If you add code to the package, please make sure you thoroughly test it. Codecov automatically reports changes in coverage on each PR, and so PR reducing test coverage will not be examined before that is fixed.
+
+Tests reside under the ``tests`` directory in the root of the repository. Each model has a separate test folder, with each class - usually a pipeline stage - having a dedicated file (always starting with the string "test_") containing several tests (each a global function starting with the string "test_"). Please adhere to this structure, and try to separate tests cases to different test functions; this allows us to quickly focus on problem areas and use cases. Thank you! :)
 
 
 Adding documentation
@@ -102,7 +113,7 @@ Additionally, if you update this ``README.rst`` file,  use ``python setup.py che
 Adding doctests
 ---------------
 
-Please notice that for ``pdoc3`` - the Python package used the generate documentation for ``pdpipe`` - to successfully include doctests in the generated documentation, the whole doctest must be indented in relation to the opening multi-string indentation:
+Please notice that for ``pdoc3`` - the Python package used to generate the html documentation files for ``pdpipe`` - to successfully include doctests in the generated documentation files, the whole doctest must be indented in relation to the opening multi-string indentation, like so:
 
 .. code-block:: python
 
