@@ -32,7 +32,7 @@ Documentation: `https://pdpipe.github.io/pdpipe/doc/pdpipe/ <https://pdpipe.gith
 .. section-numbering::
 
 Documentation
-============ =
+=============
 
 This is the repository of the ``pdpipe`` package, and this readme file is aimed to help potential contributors to the project.
 
