@@ -1,0 +1,8 @@
+# allow loops over constant values
+disable=SC2043
+
+# allow * only glob pattern
+disable=SC2035
+
+# Allow argument mixes string and array
+disable=SC2145
