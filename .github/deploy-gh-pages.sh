@@ -10,7 +10,7 @@ fi
 
 sitemap() {
     WEBSITE='https://pdpipe.github.io/pdpipe'
-    find -name '*.html' |
+    find . -name '*.html' |
         sed "s,^\.,$WEBSITE," |
         sed 's/index.html$//' |
         grep -v '/google.*\.html$' |

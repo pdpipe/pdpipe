@@ -1,6 +1,6 @@
 #!/bin/bash
 set -eu
-IS_RELEASE=${TRAVIS_TAG+1}
+# IS_RELEASE=${TRAVIS_TAG+1}
 
 die () { echo "ERROR: $*" >&2; exit 2; }
 
