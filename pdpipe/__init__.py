@@ -44,9 +44,17 @@ from .col_generation import (
     ColByFrameFunc,
     AggByCols,
     Log,
+    RegexReplace,
 )
 
 core.__load_stage_attributes_from_module__("pdpipe.col_generation")
+
+from . import text_stages
+from .text_stages import (
+    RegexReplace,
+)
+
+core.__load_stage_attributes_from_module__("pdpipe.text_stages")
 
 try:
     from . import sklearn_stages
