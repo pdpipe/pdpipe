@@ -1,4 +1,13 @@
-"""PdPipeline stages dependent on the scikit-learn Python library."""
+"""PdPipeline stages dependent on the nltk Python library.
+
+Please note that the nltk Python package must be installed for the stages in
+this module to work.
+
+When attempting to load stages from this module, pdpipe will first attempt to
+import nltk. If it fails, it will issue a warning, will not import any of the
+pipeline stages that make up this module, and continue to load other pipeline
+stages.
+"""
 
 import os
 import importlib
@@ -18,6 +27,8 @@ from pdpipe.shared import (
 
 class TokenizeWords(MapColVals):
     """A pipeline stage that tokenize a sentence into words by whitespaces.
+
+    Note: The nltk package must be installed for this pipeline stage to work.
 
     Parameters
     ----------
@@ -80,6 +91,8 @@ class TokenizeWords(MapColVals):
 class UntokenizeWords(MapColVals):
     """A pipeline stage that joins token lists to whitespace-seperated strings.
 
+    Note: The nltk package must be installed for this pipeline stage to work.
+
     Parameters
     ----------
     columns : str or list-like
@@ -130,6 +143,8 @@ class UntokenizeWords(MapColVals):
 
 class RemoveStopwords(MapColVals):
     """A pipeline stage that removes stopwords from a tokenized list.
+
+    Note: The nltk package must be installed for this pipeline stage to work.
 
     Parameters
     ----------
@@ -216,6 +231,8 @@ class RemoveStopwords(MapColVals):
 class SnowballStem(MapColVals):
     """A pipeline stage that stems words in a list using the Snowball stemmer.
 
+    Note: The nltk package must be installed for this pipeline stage to work.
+
     Parameters
     ----------
     stemmer_name : str
@@ -292,6 +309,8 @@ class SnowballStem(MapColVals):
 
 class DropRareTokens(PdPipelineStage):
     """A pipeline stage that drop rare tokens from token lists.
+
+    Note: The nltk package must be installed for this pipeline stage to work.
 
     Parameters
     ----------

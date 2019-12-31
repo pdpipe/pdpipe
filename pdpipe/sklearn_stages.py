@@ -1,4 +1,13 @@
-"""PdPipeline stages dependent on the scikit-learn Python library."""
+"""PdPipeline stages dependent on the scikit-learn Python library.
+
+Please note that the scikit-learn Python package must be installed for the
+stages in this module to work.
+
+When attempting to load stages from this module, pdpipe will first attempt to
+import sklearn. If it fails, it will issue a warning, will not import any of
+the pipeline stages that make up this module, and continue to load other
+pipeline stages.
+"""
 
 import pandas as pd
 import sklearn.preprocessing
