@@ -31,7 +31,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L0-L570" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L0-L570" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Defines pipelines for processing Pandas.DataFrame-based datasets.
 
@@ -635,7 +635,7 @@ make_pdpipeline(pdp.ColDrop('a'), pdp.Bin('speed'))</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L553-L571" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L553-L571" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def make_pdpipeline(*stages):
     &#34;&#34;&#34;Constructs a PdPipeline from the given pipeline stages.
@@ -681,7 +681,7 @@ dataframe. If None is given, set to a function always returning True.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L304-L331" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L304-L331" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class AdHocStage(PdPipelineStage):
     &#34;&#34;&#34;An ad-hoc stage of a pandas DataFrame-processing pipeline.
@@ -778,7 +778,7 @@ entirely.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L334-L543" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L334-L543" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class PdPipeline(PdPipelineStage, collections.abc.Sequence):
     &#34;&#34;&#34;A pipeline for processing pandas DataFrame objects.
@@ -1035,7 +1035,7 @@ messages are printed.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L428-L460" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L428-L460" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def fit(self, X, y=None, exraise=None, verbose=None):
     &#34;&#34;&#34;Fits this pipeline without transforming the input dataframe.
@@ -1103,7 +1103,7 @@ messages are printed.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L392-L426" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L392-L426" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def fit_transform(self, X, y=None, exraise=None, verbose=None):
     &#34;&#34;&#34;Fits this pipeline and transforms the input dataframe.
@@ -1161,7 +1161,7 @@ applied when fitting this pipeline to data.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L525-L543" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L525-L543" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_transformer(self):
     &#34;&#34;&#34;Return the transformer induced by this fitted pipeline.
@@ -1217,7 +1217,7 @@ messages are printed.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L462-L504" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L462-L504" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def transform(self, X, y=None, exraise=None, verbose=None):
     &#34;&#34;&#34;Transforms the given dataframe without fitting this pipeline.
@@ -1326,7 +1326,7 @@ A default description is used if None is given.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L61-L297" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L61-L297" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class PdPipelineStage(abc.ABC):
     &#34;&#34;&#34;A stage of a pandas DataFrame-processing pipeline.
@@ -1613,7 +1613,7 @@ dataframe. If None is given, set to a function always returning True.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1659,7 +1659,7 @@ is None and drop is set to False. Of not given, defaults to '_agg'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1703,7 +1703,7 @@ by company size'. A default description is used if None is given.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1759,7 +1759,7 @@ returning True is used.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1806,7 +1806,7 @@ list [0, 5, 8] is interpreted as the bins (-∞, 0),
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1847,7 +1847,7 @@ by company size'. A default description is used if None is given.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1880,7 +1880,7 @@ return True will be dropped.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1908,7 +1908,7 @@ return True will be dropped.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1937,7 +1937,7 @@ positions over the non-mapped colums.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1961,7 +1961,7 @@ positions over the non-mapped colums.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1973,6 +1973,7 @@ positions over the non-mapped colums.</dd>
 </code></dt>
 <dd>
 <section class="desc"><p>Creates and adds a pipeline stage that drop rare tokens from token lists to this pipeline stage.</p>
+<p>Note: The nltk package must be installed for this pipeline stage to work.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code></dt>
@@ -1998,7 +1999,7 @@ Otherwise, the new columns gain the suffix '_norare'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2044,7 +2045,7 @@ array(['acd', 'alk', 'alk'], dtype=object)
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2074,7 +2075,7 @@ array(['acd', 'alk', 'alk'], dtype=object)
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2122,7 +2123,7 @@ then is the column shifted by this constant.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2167,7 +2168,7 @@ US    Silver
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2221,7 +2222,7 @@ category will still be dropped.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2250,7 +2251,7 @@ entirely.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2262,6 +2263,7 @@ entirely.</dd>
 </code></dt>
 <dd>
 <section class="desc"><p>Creates and adds a pipeline stage that removes stopwords from a tokenized list to this pipeline stage.</p>
+<p>Note: The nltk package must be installed for this pipeline stage to work.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>langugae</code></strong> :&ensp;<code>str</code> or <code>array</code>-<code>like</code></dt>
@@ -2288,7 +2290,7 @@ Otherwise, resulting columns gain the suffix '_nostop'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2335,7 +2337,7 @@ these columns to determine which rows to drop.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2379,7 +2381,7 @@ to override Scale class defaults.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2391,6 +2393,7 @@ to override Scale class defaults.</dd>
 </code></dt>
 <dd>
 <section class="desc"><p>Creates and adds a pipeline stage that stems words in a list using the Snowball stemmer to this pipeline stage.</p>
+<p>Note: The nltk package must be installed for this pipeline stage to work.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>stemmer_name</code></strong> :&ensp;<code>str</code></dt>
@@ -2415,7 +2418,7 @@ resulting columns gain the suffix '_stem'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2427,6 +2430,7 @@ resulting columns gain the suffix '_stem'.</dd>
 </code></dt>
 <dd>
 <section class="desc"><p>Creates and adds a pipeline stage that tokenize a sentence into words by whitespaces to this pipeline stage.</p>
+<p>Note: The nltk package must be installed for this pipeline stage to work.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code></dt>
@@ -2448,7 +2452,7 @@ columns. Otherwise, tokenized columns gain the suffix '_tok'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2460,6 +2464,7 @@ columns. Otherwise, tokenized columns gain the suffix '_tok'.</dd>
 </code></dt>
 <dd>
 <section class="desc"><p>Creates and adds a pipeline stage that joins token lists to whitespace-seperated strings to this pipeline stage.</p>
+<p>Note: The nltk package must be installed for this pipeline stage to work.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code></dt>
@@ -2481,7 +2486,7 @@ Otherwise, untokenized columns gain the suffix '_untok'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2515,7 +2520,7 @@ values. If set to None, all columns are checked.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2549,7 +2554,7 @@ values. If set to None, all columns are checked.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2586,7 +2591,7 @@ Defaults to False.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L123-L160" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L123-L160" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def apply(self, df, exraise=None, verbose=False):
     &#34;&#34;&#34;Applies this pipeline stage to the given dataframe.
@@ -2636,7 +2641,7 @@ Defaults to False.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L295-L297" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L295-L297" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def description(self):
     &#34;&#34;&#34;Returns the description of this pipeline stage&#34;&#34;&#34;
@@ -2673,7 +2678,7 @@ Defaults to False.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L200-L235" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L200-L235" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def fit(self, X, y=None, exraise=None, verbose=False):
     &#34;&#34;&#34;Fits this stage without transforming the given dataframe.
@@ -2743,7 +2748,7 @@ Defaults to False.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L164-L198" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L164-L198" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def fit_transform(self, X, y=None, exraise=None, verbose=False):
     &#34;&#34;&#34;Fits this stage and transforms the given dataframe.
@@ -2814,7 +2819,7 @@ Defaults to False.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/core.py#L237-L279" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/core.py#L237-L279" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def transform(self, X, y=None, exraise=None, verbose=False):
     &#34;&#34;&#34;Transforms the given dataframe without fitting this stage.

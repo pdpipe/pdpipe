@@ -49,8 +49,15 @@ mixed-type data.</p>
 <li><strong>Opinionated operations:</strong> Help novices avoid mistake by default appliance of good practices; e.g., one-hot-encoding (creating dummy variables) a column will drop one of the resulting columns by default, to avoid <a href="http://www.algosome.com/articles/dummy-variable-trap-regression.html">the dummy variable trap</a> (perfect <a href="https://en.wikipedia.org/wiki/Multicollinearity">multicollinearity</a>).</li>
 <li><strong>Machine learning-oriented:</strong> The target use case is transforming tabular data into a vectorized dataset on which a machine learning model will be trained; e.g., column transformations will drop the source columns to avoid strong linear dependence.</li>
 </ul>
+<h1 id="installation">Installation</h1>
+<p>Install <a title="pdpipe" href="#pdpipe"><code>pdpipe</code></a> with:</p>
+<pre><code class="python">  pip install pdpipe
+</code></pre>
+<p>Some pipeline stages require <code>scikit-learn</code>; they will simply not be loaded if <code>scikit-learn</code> is not found on the system, and <code>pdpipe</code> will issue a warning. To use them you must also <a href="http://scikit-learn.org/stable/install.html">install scikit-learn</a>.</p>
+<p>Similarly, some pipeline stages require <code>nltk</code>; they will not be loaded if <code>nltk</code> is not found on your system, and <code>pdpipe</code> will issue a warning. To use them you must additionally <a href="http://www.nltk.org/install.html">install nltk</a>.</p>
 <h1 id="basic-use">Basic Use</h1>
-<p>The awesome Tirthajyoti Sarkar wrote <a href="https://tirthajyoti.github.io/Notebooks/Pandas-pipeline-with-pdpipe" target="_blank">an excellent practical introduction on how to use pdpipe</a>. Read it now <a href="https://tirthajyoti.github.io/Notebooks/Pandas-pipeline-with-pdpipe" target="_blank">on his homepage</a>!</p>
+<p>The awesome Tirthajyoti Sarkar wrote <a href="https://tirthajyoti.github.io/Notebooks/Pandas-pipeline-with-pdpipe">an excellent practical introduction on how to use pdpipe</a>. Read it now <a href="https://tirthajyoti.github.io/Notebooks/Pandas-pipeline-with-pdpipe">on his website</a>!</p>
+<p>For a thorough overview of all the capabilities of <code>pdpipe</code>, continue below:</p>
 <h2 id="pipeline-stages">Pipeline Stages</h2>
 <h3 id="creating-pipeline-stages">Creating Pipeline Stages</h3>
 <p>You can create stages with the following syntax:</p>
@@ -154,7 +161,7 @@ parameter to a pipeline apply call with a bool sets or unsets exception raising 
 <li>ValKeep - Keep rows by by their value in specific or all columns.</li>
 <li>ColRename - Rename columns.</li>
 <li>DropNa - Drop null values. Supports all parameter supported by pandas.dropna function. </li>
-<li>FreqDrop - Drop rows by value frequency threshold on a specific column </li>
+<li>FreqDrop - Drop rows by value frequency threshold on a specific column.</li>
 <li>ColReorder - Reorder columns.</li>
 <li>RowDrop - Drop rows by callable conditions.</li>
 </ul>
@@ -172,7 +179,7 @@ parameter to a pipeline apply call with a bool sets or unsets exception raising 
 <h2 id="scikit-learn-dependent-stages">Scikit-learn-dependent Stages</h2>
 <ul>
 <li>Encode - Encode a categorical column to corresponding number values.</li>
-<li>Scale - Scale data with any of the sklearn scalers. </li>
+<li>Scale - Scale data with any of the sklearn scalers.</li>
 </ul>
 <h2 id="nltk-dependent-stages">nltk-dependent Stages</h2>
 <ul>
@@ -187,14 +194,14 @@ parameter to a pipeline apply call with a bool sets or unsets exception raising 
 <p>To use other stages than the built-in ones (see <a href="#types-of-pipeline-stages">Types of Pipeline Stages</a> you can extend the
 class. The constructor must pass the <code>PdPipelineStage</code> constructor the <code>exmsg</code>, <code>appmsg</code> and <code>desc</code> keyword arguments to set the exception message, application message and description for the pipeline stage, respectively. Additionally, the <code>_prec</code> and <code>_transform</code> abstract methods must be implemented to define the precondition and the effect of the new pipeline stage, respectively.</p>
 <p>Fittable custom pipeline stages should implement, additionally to the
-method, the <code>_fit_transform</code> method, which should both fit pipeline stage by the input dataframe and transform transform the dataframe, while also setting <code>self.is_fitted = True</code>. </p>
+method, the <code>_fit_transform</code> method, which should both fit pipeline stage by the input dataframe and transform transform the dataframe, while also setting <code>self.is_fitted = True</code>.</p>
 <h2 id="ad-hoc-pipeline-stages">Ad-Hoc Pipeline Stages</h2>
 <p>To create a custom pipeline stage without creating a proper new class, you can instantiate the
 class which takes a function in its <code>transform</code> constructor parameter to define the stage's operation, and the optional <code>prec</code> parameter to define a precondition (an always-true function is the default).</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/__init__.py#L0-L112" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/__init__.py#L0-L112" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;
 The `pdpipe` Python package provides a concise interface for building `pandas`
@@ -332,11 +339,11 @@ __pdoc__ = {
 </dd>
 <dt><code class="name"><a title="pdpipe.nltk_stages" href="nltk_stages.html">pdpipe.nltk_stages</a></code></dt>
 <dd>
-<section class="desc"><p>PdPipeline stages dependent on the scikit-learn Python library.</p></section>
+<section class="desc"><p>PdPipeline stages dependent on the nltk Python library …</p></section>
 </dd>
 <dt><code class="name"><a title="pdpipe.sklearn_stages" href="sklearn_stages.html">pdpipe.sklearn_stages</a></code></dt>
 <dd>
-<section class="desc"><p>PdPipeline stages dependent on the scikit-learn Python library.</p></section>
+<section class="desc"><p>PdPipeline stages dependent on the scikit-learn Python library …</p></section>
 </dd>
 <dt><code class="name"><a title="pdpipe.util" href="util.html">pdpipe.util</a></code></dt>
 <dd>
@@ -364,6 +371,7 @@ __pdoc__ = {
 <li><a href="#design-decisions">Design Decisions</a></li>
 </ul>
 </li>
+<li><a href="#installation">Installation</a></li>
 <li><a href="#basic-use">Basic Use</a><ul>
 <li><a href="#pipeline-stages">Pipeline Stages</a><ul>
 <li><a href="#creating-pipeline-stages">Creating Pipeline Stages</a></li>

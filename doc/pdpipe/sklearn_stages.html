@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.7.2" />
 <title>pdpipe.sklearn_stages API documentation</title>
-<meta name="description" content="PdPipeline stages dependent on the scikit-learn Python library." />
+<meta name="description" content="PdPipeline stages dependent on the scikit-learn Python library …" />
 <link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
 <link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
@@ -24,12 +24,27 @@
 </header>
 <section id="section-intro">
 <p>PdPipeline stages dependent on the scikit-learn Python library.</p>
+<p>Please note that the scikit-learn Python package must be installed for the
+stages in this module to work.</p>
+<p>When attempting to load stages from this module, pdpipe will first attempt to
+import sklearn. If it fails, it will issue a warning, will not import any of
+the pipeline stages that make up this module, and continue to load other
+pipeline stages.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/sklearn_stages.py#L0-L264" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/sklearn_stages.py#L0-L273" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">&#34;&#34;&#34;PdPipeline stages dependent on the scikit-learn Python library.&#34;&#34;&#34;
+<pre><code class="python">&#34;&#34;&#34;PdPipeline stages dependent on the scikit-learn Python library.
+
+Please note that the scikit-learn Python package must be installed for the
+stages in this module to work.
+
+When attempting to load stages from this module, pdpipe will first attempt to
+import sklearn. If it fails, it will issue a warning, will not import any of
+the pipeline stages that make up this module, and continue to load other
+pipeline stages.
+&#34;&#34;&#34;
 
 import pandas as pd
 import sklearn.preprocessing
@@ -345,7 +360,7 @@ array(['acd', 'alk', 'alk'], dtype=object)
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/sklearn_stages.py#L15-L131" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/sklearn_stages.py#L24-L140" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Encode(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that encodes categorical columns to integer values.
@@ -546,7 +561,7 @@ to override Scale class defaults.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/87f5beeeedf7a016794d8caa3298e345cd87b965/pdpipe/sklearn_stages.py#L134-L265" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/sklearn_stages.py#L143-L274" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Scale(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that scales data.
