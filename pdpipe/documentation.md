@@ -16,15 +16,14 @@ Features
 Design Decisions
 ----------------
 
-* **Extra infromative naming:** Meant to make pipelines very readable, understanding their entire flow by pipeline stages names; e.g. ColDrop vs. ValDrop instead of an all-encompassing Drop stage emulating the ``pandas.DataFrame.drop`` method.
+* **Extra infromative naming:** Meant to make pipelines very readable, understanding their entire flow by pipeline stages names; e.g. ColDrop vs. ValDrop instead of an all-encompassing Drop stage emulating the `pandas.DataFrame.drop` method.
 * **Data science-oriented naming** (rather than statistics).
 * **A functional approach:** Pipelines never change input DataFrames. Nothing is done "in place".
 * **Opinionated operations:** Help novices avoid mistake by default appliance of good practices; e.g., one-hot-encoding (creating dummy variables) a column will drop one of the resulting columns by default, to avoid [the dummy variable trap](http://www.algosome.com/articles/dummy-variable-trap-regression.html) (perfect [multicollinearity](https://en.wikipedia.org/wiki/Multicollinearity)).
 * **Machine learning-oriented:** The target use case is transforming tabular data into a vectorized dataset on which a machine learning model will be trained; e.g., column transformations will drop the source columns to avoid strong linear dependence.
 
 
-Installation
-============
+# Installation
 
 Install `pdpipe` with:
 
@@ -42,6 +41,8 @@ Basic Use
 =========
 
 The awesome Tirthajyoti Sarkar wrote [an excellent practical introduction on how to use pdpipe](https://tirthajyoti.github.io/Notebooks/Pandas-pipeline-with-pdpipe). Read it now [on his website](https://tirthajyoti.github.io/Notebooks/Pandas-pipeline-with-pdpipe)!
+
+For a thorough overview of all the capabilities of `pdpipe`, continue below:
 
 Pipeline Stages
 ---------------
@@ -218,7 +219,7 @@ Basic Stages
 * ValKeep - Keep rows by by their value in specific or all columns.
 * ColRename - Rename columns.
 * DropNa - Drop null values. Supports all parameter supported by pandas.dropna function. 
-* FreqDrop - Drop rows by value frequency threshold on a specific column 
+* FreqDrop - Drop rows by value frequency threshold on a specific column.
 * ColReorder - Reorder columns.
 * RowDrop - Drop rows by callable conditions.
 
@@ -238,7 +239,7 @@ Scikit-learn-dependent Stages
 -----------------------------
 
 * Encode - Encode a categorical column to corresponding number values.
-* Scale - Scale data with any of the sklearn scalers. 
+* Scale - Scale data with any of the sklearn scalers.
   
 
 nltk-dependent Stages
@@ -259,10 +260,11 @@ Extending PdPipelineStage
 
 To use other stages than the built-in ones (see [Types of Pipeline Stages](#types-of-pipeline-stages) you can extend the  class. The constructor must pass the `PdPipelineStage` constructor the `exmsg`, `appmsg` and `desc` keyword arguments to set the exception message, application message and description for the pipeline stage, respectively. Additionally, the `_prec` and `_transform` abstract methods must be implemented to define the precondition and the effect of the new pipeline stage, respectively.
 
-Fittable custom pipeline stages should implement, additionally to the  method, the `_fit_transform` method, which should both fit pipeline stage by the input dataframe and transform transform the dataframe, while also setting `self.is_fitted = True`. 
+Fittable custom pipeline stages should implement, additionally to the  method, the `_fit_transform` method, which should both fit pipeline stage by the input dataframe and transform transform the dataframe, while also setting `self.is_fitted = True`.
 
 
 Ad-Hoc Pipeline Stages
 ----------------------
 
 To create a custom pipeline stage without creating a proper new class, you can instantiate the  class which takes a function in its `transform` constructor parameter to define the stage's operation, and the optional `prec` parameter to define a precondition (an always-true function is the default).
+
