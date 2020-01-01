@@ -272,3 +272,21 @@ class Scale(PdPipelineStage):
             res = pd.concat([res, excluded], axis=1)
             res = res[self._col_order]
         return res
+
+
+class CountVectorizeTokenLists(PdPipelineStage):
+    """A pipeline stage that count-vectorizes a single token-list column.
+
+    Every cell in the input columns is assumed to be a list of strings, each
+    representing a single token.
+
+    Parameters
+    ----------
+    column : str
+        The label of the token-list column to count-vectorize.
+    result_column : str, default None
+        The name of the new column resulting from the count-vectorization. If
+        None, behavior depends on the drop parameter: If drop is True, the name
+        of the source column is used...
+    """
+    pass

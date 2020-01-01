@@ -44,7 +44,6 @@ from .col_generation import (
     ColByFrameFunc,
     AggByCols,
     Log,
-    RegexReplace,
 )
 
 core.__load_stage_attributes_from_module__("pdpipe.col_generation")
