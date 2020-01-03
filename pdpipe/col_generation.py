@@ -28,8 +28,8 @@ class Bin(PdPipelineStage):
         bin array implicitly projects a left-most bin containing all elements
         smaller than the left-most end point and a right-most bin containing
         all elements larger that the right-most end point. For example, the
-        list [0, 5, 8] is interpreted as the bins (-∞, 0),
-        [0-5), [5-8) and [8, ∞).
+        list [0, 5, 8] is interpreted as the bins (-∞, 0), [0-5), [5-8) and
+        [8, ∞).
     drop : bool, default True
         If set to True, the source columns are dropped after being binned.
 

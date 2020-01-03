@@ -57,7 +57,11 @@ core.__load_stage_attributes_from_module__("pdpipe.text_stages")
 
 try:
     from . import sklearn_stages
-    from .sklearn_stages import Encode, Scale
+    from .sklearn_stages import (
+        Encode,
+        Scale,
+        TfidfVectorizeTokenLists,
+    )
 
     core.__load_stage_attributes_from_module__("pdpipe.sklearn_stages")
 except ImportError:

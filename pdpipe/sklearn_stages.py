@@ -13,10 +13,17 @@ import pandas as pd
 import sklearn.preprocessing
 import tqdm
 from skutil.preprocessing import scaler_by_params
+from sklearn.feature_extraction.text import (
+    TfidfVectorizer,
+)
 
 from pdpipe.core import PdPipelineStage
 from pdpipe.util import out_of_place_col_insert
-from pdpipe.shared import _interpret_columns_param, _list_str
+from pdpipe.shared import (
+    _interpret_columns_param,
+    _list_str,
+    _get_args_list,
+)
 
 from .exceptions import PipelineApplicationError
 
@@ -274,19 +281,76 @@ class Scale(PdPipelineStage):
         return res
 
 
-class CountVectorizeTokenLists(PdPipelineStage):
-    """A pipeline stage that count-vectorizes a single token-list column.
+class TfidfVectorizeTokenLists(PdPipelineStage):
+    """A pipeline stage TFIDF-vectorizing a token-list column to count columns.
 
     Every cell in the input columns is assumed to be a list of strings, each
-    representing a single token.
+    representing a single token. The resulting TF-IDF vector is exploded into
+    individual columns, each with the label 'lbl_i' where lbl is the original
+    column label and i is the index of column in the count vector.
+
+    The resulting columns are concatenated to the end of the dataframe.
 
     Parameters
     ----------
     column : str
-        The label of the token-list column to count-vectorize.
-    result_column : str, default None
-        The name of the new column resulting from the count-vectorization. If
-        None, behavior depends on the drop parameter: If drop is True, the name
-        of the source column is used...
+        The label of the token-list column to TfIdf-vectorize.
+    drop : bool, default True
+        If set to True, the source column is dropped after being transformed.
     """
-    pass
+
+    _DEF_CNTVEC_MSG = "Count-vectorizing column {}."
+
+    def __init__(self, column, drop=True, **kwargs):
+        self._column = column
+        self._drop = drop
+        msg = TfidfVectorizeTokenLists._DEF_CNTVEC_MSG.format(column)
+        super_kwargs = {
+            "exmsg": ("TfIdfVectorizeTokenLists precondition not met:"
+                      "{} column not found.".format(column)),
+            "appmsg": "{}..".format(msg),
+            "desc": msg,
+        }
+        valid_vectorizer_args = _get_args_list(TfidfVectorizer.__init__)
+        self._vectorizer_args = {
+            k: kwargs[k] for k in kwargs
+            if k in valid_vectorizer_args and k not in ['input', 'analyzer']
+        }
+        pipeline_stage_args = {
+            k: kwargs[k] for k in kwargs
+            if k not in valid_vectorizer_args
+        }
+        super_kwargs.update(**pipeline_stage_args)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        return self._column in df.columns
+
+    def _fit_transform(self, df, verbose):
+        self._tfidf_vectorizer = TfidfVectorizer(
+            input='content',
+            analyzer=lambda x: x,
+            **self._vectorizer_args,
+        )
+        vectorized = self._tfidf_vectorizer.fit_transform(df[self._column])
+        self._n_features = vectorized.shape[1]
+        self._res_col_names = [
+            '{}_{}'.format(self._column, i)
+            for i in range(self._n_features)
+        ]
+        vec_df = pd.DataFrame.sparse.from_spmatrix(
+            data=vectorized, columns=self._res_col_names)
+        inter_df = pd.concat([df, vec_df], axis=1)
+        self.is_fitted = True
+        if self._drop:
+            return inter_df.drop(self._column, axis=1)
+        return inter_df
+
+    def _transform(self, df, verbose):
+        vectorized = self._tfidf_vectorizer.transform(df[self._column])
+        vec_df = pd.DataFrame.sparse.from_spmatrix(
+            data=vectorized, columns=self._res_col_names)
+        inter_df = pd.concat([df, vec_df], axis=1)
+        if self._drop:
+            return inter_df.drop(self._column, axis=1)
+        return inter_df
