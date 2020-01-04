@@ -297,6 +297,17 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
         The label of the token-list column to TfIdf-vectorize.
     drop : bool, default True
         If set to True, the source column is dropped after being transformed.
+
+    Example
+    -------
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> data = [[2, ['hovercraft', 'eels']], [5, ['eels', 'urethra']]]
+        >>> df = pd.DataFrame(data, [1, 2], ['Age', 'tokens'])
+        >>> tfvectorizer = pdp.TfidfVectorizeTokenLists('tokens')
+        >>> tfvectorizer(df)
+           Age  tokens_0  tokens_1  tokens_2
+        1    2  0.579739  0.814802  0.000000
+        2    5  0.579739  0.000000  0.814802
     """
 
     _DEF_CNTVEC_MSG = "Count-vectorizing column {}."
@@ -339,7 +350,7 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
             for i in range(self._n_features)
         ]
         vec_df = pd.DataFrame.sparse.from_spmatrix(
-            data=vectorized, columns=self._res_col_names)
+            data=vectorized, index=df.index, columns=self._res_col_names)
         inter_df = pd.concat([df, vec_df], axis=1)
         self.is_fitted = True
         if self._drop:

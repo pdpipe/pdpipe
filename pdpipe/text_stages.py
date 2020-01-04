@@ -3,7 +3,6 @@
 import re
 
 from pdpipe.col_generation import ApplyByCols
-from pdpipe.util import out_of_place_col_insert
 from pdpipe.shared import (
     _list_str
 )
@@ -66,29 +65,11 @@ class RegexReplace(ApplyByCols):
         super_kwargs = {
             'columns': columns,
             'func': lambda x: self._pattern_obj.sub(self._replace, x),
+            'colbl_sfx': '_regex',
+            'drop': drop,
             'exmsg': base_str + ApplyByCols._DEF_EXC_MSG_SUFFIX,
             'appmsg': base_str + ApplyByCols._DEF_APP_MSG_SUFFIX,
             'desc': base_str + ApplyByCols._DEF_DESCRIPTION_SUFFIX,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
-
-    def _transform(self, df, verbose):
-        inter_df = df
-        for i, colname in enumerate(self._columns):
-            source_col = df[colname]
-            loc = df.columns.get_loc(colname) + 1
-            new_name = self._result_columns[i]
-            if self._drop:
-                inter_df = inter_df.drop(colname, axis=1)
-                loc -= 1
-            inter_df = out_of_place_col_insert(
-                df=inter_df,
-                series=source_col.apply(self._func),
-                loc=loc,
-                column_name=new_name,
-            )
-        return inter_df
-
-
-# class

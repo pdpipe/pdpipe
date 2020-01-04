@@ -555,6 +555,9 @@ class ApplyByCols(PdPipelineStage):
     func_desc : str, default None
         A function description of the given function; e.g. 'normalizing revenue
         by company size'. A default description is used if None is given.
+    colbl_sfx : str, default None
+        If provided, this string is concated to resulting column labels instead
+        of '_app'.
 
 
     Example
@@ -582,15 +585,20 @@ class ApplyByCols(PdPipelineStage):
         result_columns=None,
         drop=True,
         func_desc=None,
+        colbl_sfx=None,
         **kwargs
     ):
         self._columns = _interpret_columns_param(columns)
         self._func = func
+        self._colbl_sfx = "_app"
+        if colbl_sfx:
+            self._colbl_sfx = colbl_sfx
         if result_columns is None:
             if drop:
                 self._result_columns = self._columns
             else:
-                self._result_columns = [col + "_app" for col in self._columns]
+                self._result_columns = [
+                    col + self._colbl_sfx for col in self._columns]
         else:
             self._result_columns = _interpret_columns_param(result_columns)
             if len(self._result_columns) != len(self._columns):
