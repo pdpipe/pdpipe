@@ -291,6 +291,11 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
 
     The resulting columns are concatenated to the end of the dataframe.
 
+    All valid sklearn.TfidfVectorizer keyword arguemnts can be provided as
+    keyword arguments to the constructor, except 'input' and 'analyzer', which
+    will be ignored. As usual, all valid PdPipelineStage constructor parameters
+    can also be provided as keyword arguments.
+
     Parameters
     ----------
     column : str

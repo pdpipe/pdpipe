@@ -75,8 +75,8 @@ except ImportError:
 try:
     from . import nltk_stages
     from .nltk_stages import (
-        TokenizeWords,
-        UntokenizeWords,
+        TokenizeText,
+        UntokenizeText,
         RemoveStopwords,
         SnowballStem,
         DropRareTokens,
