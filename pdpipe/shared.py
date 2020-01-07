@@ -6,7 +6,7 @@ import inspect
 def _interpret_columns_param(columns):
     if isinstance(columns, str):
         return [columns]
-    elif hasattr(columns, '__iter__'):
+    if hasattr(columns, '__iter__'):
         return columns
     return [columns]
 

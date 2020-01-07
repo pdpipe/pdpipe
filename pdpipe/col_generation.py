@@ -510,7 +510,7 @@ class ApplyToRows(PdPipelineStage):
             return out_of_place_col_insert(
                 df=df, series=new_cols, loc=loc, column_name=self._colname
             )
-        elif isinstance(new_cols, pd.DataFrame):
+        if isinstance(new_cols, pd.DataFrame):
             sorted_cols = sorted(list(new_cols.columns))
             new_cols = new_cols[sorted_cols]
             if self._follow_column:

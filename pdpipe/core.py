@@ -281,10 +281,9 @@ class PdPipelineStage(abc.ABC):
     def __add__(self, other):
         if isinstance(other, PdPipeline):
             return PdPipeline([self, *other._stages])
-        elif isinstance(other, PdPipelineStage):
+        if isinstance(other, PdPipelineStage):
             return PdPipeline([self, other])
-        else:
-            return NotImplemented
+        return NotImplemented
 
     def __str__(self):
         return "PdPipelineStage: {}".format(self._desc)
@@ -508,10 +507,9 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
     def __add__(self, other):
         if isinstance(other, PdPipeline):
             return PdPipeline([*self._stages, *other._stages])
-        elif isinstance(other, PdPipelineStage):
+        if isinstance(other, PdPipelineStage):
             return PdPipeline([*self._stages, other])
-        else:
-            return NotImplemented
+        return NotImplemented
 
     def __str__(self):
         res = "A pdpipe pipeline:\n"
