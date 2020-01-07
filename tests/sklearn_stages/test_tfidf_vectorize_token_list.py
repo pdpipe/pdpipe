@@ -37,7 +37,7 @@ def test_tfidf_vec(drop):
         res_df.drop('Quote', axis=1, errors='ignore') > 0
     ).T.sum().values
     for i, row in DF.iterrows():
-        len(row['Quote']) == non_zeros[i] - 1
+        assert len(row['Quote']) == non_zeros[i] - 1
     if not drop:
         assert 'Quote' in res_df.columns
 
