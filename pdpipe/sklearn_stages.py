@@ -330,7 +330,9 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
         valid_vectorizer_args = _get_args_list(TfidfVectorizer.__init__)
         self._vectorizer_args = {
             k: kwargs[k] for k in kwargs
-            if k in valid_vectorizer_args and k not in ['input', 'analyzer']
+            if k in valid_vectorizer_args and k not in [
+                'input', 'analyzer', 'self',
+            ]
         }
         pipeline_stage_args = {
             k: kwargs[k] for k in kwargs
