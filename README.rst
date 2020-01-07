@@ -98,6 +98,13 @@ At the time of writing, ``pdpipe`` is maintained with a test coverage of 100%. A
 
 Tests reside under the ``tests`` directory in the root of the repository. Each model has a separate test folder, with each class - usually a pipeline stage - having a dedicated file (always starting with the string "test_") containing several tests (each a global function starting with the string "test_"). Please adhere to this structure, and try to separate tests cases to different test functions; this allows us to quickly focus on problem areas and use cases. Thank you! :)
 
+Code style
+----------
+
+``pdpip`` code is written to adhere to the coding style dictated by `flake8 <http://flake8.pycqa.org/en/latest/>`_. Practically, this means that one of the jobs that runs on `the project's Travis <https://travis-ci.org/pdpipe/pdpipe>`_ for each commit and pull request checks for a successfull run of the ``flake8`` CLI command in the repository's root. Which means pull requests will be flagged red by the Travis bot if non-flake8-compliant code was added.
+
+To solve this, please run ``flake8`` on your code (whether through your text editor/IDE or using the command line) and fix all resulting errors. Thank you! :)
+
 
 Adding documentation
 --------------------
