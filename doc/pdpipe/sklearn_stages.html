@@ -33,7 +33,7 @@ pipeline stages.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/sklearn_stages.py#L0-L273" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/sklearn_stages.py#L0-L373" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;PdPipeline stages dependent on the scikit-learn Python library.
 
@@ -50,10 +50,17 @@ import pandas as pd
 import sklearn.preprocessing
 import tqdm
 from skutil.preprocessing import scaler_by_params
+from sklearn.feature_extraction.text import (
+    TfidfVectorizer,
+)
 
 from pdpipe.core import PdPipelineStage
 from pdpipe.util import out_of_place_col_insert
-from pdpipe.shared import _interpret_columns_param, _list_str
+from pdpipe.shared import (
+    _interpret_columns_param,
+    _list_str,
+    _get_args_list,
+)
 
 from .exceptions import PipelineApplicationError
 
@@ -308,7 +315,100 @@ class Scale(PdPipelineStage):
         if cols_to_exclude:
             res = pd.concat([res, excluded], axis=1)
             res = res[self._col_order]
-        return res</code></pre>
+        return res
+
+
+class TfidfVectorizeTokenLists(PdPipelineStage):
+    &#34;&#34;&#34;A pipeline stage TFIDF-vectorizing a token-list column to count columns.
+
+    Every cell in the input columns is assumed to be a list of strings, each
+    representing a single token. The resulting TF-IDF vector is exploded into
+    individual columns, each with the label &#39;lbl_i&#39; where lbl is the original
+    column label and i is the index of column in the count vector.
+
+    The resulting columns are concatenated to the end of the dataframe.
+
+    All valid sklearn.TfidfVectorizer keyword arguemnts can be provided as
+    keyword arguments to the constructor, except &#39;input&#39; and &#39;analyzer&#39;, which
+    will be ignored. As usual, all valid PdPipelineStage constructor parameters
+    can also be provided as keyword arguments.
+
+    Parameters
+    ----------
+    column : str
+        The label of the token-list column to TfIdf-vectorize.
+    drop : bool, default True
+        If set to True, the source column is dropped after being transformed.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; data = [[2, [&#39;hovercraft&#39;, &#39;eels&#39;]], [5, [&#39;eels&#39;, &#39;urethra&#39;]]]
+        &gt;&gt;&gt; df = pd.DataFrame(data, [1, 2], [&#39;Age&#39;, &#39;tokens&#39;])
+        &gt;&gt;&gt; tfvectorizer = pdp.TfidfVectorizeTokenLists(&#39;tokens&#39;)
+        &gt;&gt;&gt; tfvectorizer(df)
+           Age  tokens_0  tokens_1  tokens_2
+        1    2  0.579739  0.814802  0.000000
+        2    5  0.579739  0.000000  0.814802
+    &#34;&#34;&#34;
+
+    _DEF_CNTVEC_MSG = &#34;Count-vectorizing column {}.&#34;
+
+    def __init__(self, column, drop=True, **kwargs):
+        self._column = column
+        self._drop = drop
+        msg = TfidfVectorizeTokenLists._DEF_CNTVEC_MSG.format(column)
+        super_kwargs = {
+            &#34;exmsg&#34;: (&#34;TfIdfVectorizeTokenLists precondition not met:&#34;
+                      &#34;{} column not found.&#34;.format(column)),
+            &#34;appmsg&#34;: &#34;{}..&#34;.format(msg),
+            &#34;desc&#34;: msg,
+        }
+        valid_vectorizer_args = _get_args_list(TfidfVectorizer.__init__)
+        self._vectorizer_args = {
+            k: kwargs[k] for k in kwargs
+            if k in valid_vectorizer_args and k not in [
+                &#39;input&#39;, &#39;analyzer&#39;, &#39;self&#39;,
+            ]
+        }
+        pipeline_stage_args = {
+            k: kwargs[k] for k in kwargs
+            if k not in valid_vectorizer_args
+        }
+        super_kwargs.update(**pipeline_stage_args)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        return self._column in df.columns
+
+    def _fit_transform(self, df, verbose):
+        self._tfidf_vectorizer = TfidfVectorizer(
+            input=&#39;content&#39;,
+            analyzer=lambda x: x,
+            **self._vectorizer_args,
+        )
+        vectorized = self._tfidf_vectorizer.fit_transform(df[self._column])
+        self._n_features = vectorized.shape[1]
+        self._res_col_names = [
+            &#39;{}_{}&#39;.format(self._column, i)
+            for i in range(self._n_features)
+        ]
+        vec_df = pd.DataFrame.sparse.from_spmatrix(
+            data=vectorized, index=df.index, columns=self._res_col_names)
+        inter_df = pd.concat([df, vec_df], axis=1)
+        self.is_fitted = True
+        if self._drop:
+            return inter_df.drop(self._column, axis=1)
+        return inter_df
+
+    def _transform(self, df, verbose):
+        vectorized = self._tfidf_vectorizer.transform(df[self._column])
+        vec_df = pd.DataFrame.sparse.from_spmatrix(
+            data=vectorized, columns=self._res_col_names)
+        inter_df = pd.concat([df, vec_df], axis=1)
+        if self._drop:
+            return inter_df.drop(self._column, axis=1)
+        return inter_df</code></pre>
 </details>
 </section>
 <section>
@@ -360,7 +460,7 @@ array(['acd', 'alk', 'alk'], dtype=object)
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/sklearn_stages.py#L24-L140" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/sklearn_stages.py#L31-L147" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Encode(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that encodes categorical columns to integer values.
@@ -500,18 +600,22 @@ array(['acd', 'alk', 'alk'], dtype=object)
 <li><code><a title="pdpipe.core.PdPipelineStage.ColReorder" href="core.html#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByLength" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByList" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.Encode" href="core.html#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.FreqDrop" href="core.html#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.Log" href="core.html#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.MapColVals" href="core.html#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.OneHotEncode" href="core.html#pdpipe.core.PdPipelineStage.OneHotEncode">OneHotEncode</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.PdPipeline" href="core.html#pdpipe.core.PdPipelineStage.PdPipeline">PdPipeline</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RegexReplace" href="core.html#pdpipe.core.PdPipelineStage.RegexReplace">RegexReplace</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.RemoveStopwords" href="core.html#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.RowDrop" href="core.html#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.Scale" href="core.html#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.SnowballStem" href="core.html#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.TokenizeWords" href="core.html#pdpipe.core.PdPipelineStage.TokenizeWords">TokenizeWords</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.UntokenizeWords" href="core.html#pdpipe.core.PdPipelineStage.UntokenizeWords">UntokenizeWords</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists" href="core.html#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.TokenizeText" href="core.html#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.UntokenizeText" href="core.html#pdpipe.core.PdPipelineStage.UntokenizeText">UntokenizeText</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ValDrop" href="core.html#pdpipe.core.PdPipelineStage.ValDrop">ValDrop</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ValKeep" href="core.html#pdpipe.core.PdPipelineStage.ValKeep">ValKeep</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.apply" href="core.html#pdpipe.core.PdPipelineStage.apply">apply</a></code></li>
@@ -561,7 +665,7 @@ to override Scale class defaults.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/sklearn_stages.py#L143-L274" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/sklearn_stages.py#L150-L281" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Scale(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that scales data.
@@ -716,18 +820,198 @@ to override Scale class defaults.</dd>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColReorder" href="core.html#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByLength" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByList" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.Encode" href="core.html#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.FreqDrop" href="core.html#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.Log" href="core.html#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.MapColVals" href="core.html#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.OneHotEncode" href="core.html#pdpipe.core.PdPipelineStage.OneHotEncode">OneHotEncode</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.PdPipeline" href="core.html#pdpipe.core.PdPipelineStage.PdPipeline">PdPipeline</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RegexReplace" href="core.html#pdpipe.core.PdPipelineStage.RegexReplace">RegexReplace</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.RemoveStopwords" href="core.html#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.RowDrop" href="core.html#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.Scale" href="core.html#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.SnowballStem" href="core.html#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.TokenizeWords" href="core.html#pdpipe.core.PdPipelineStage.TokenizeWords">TokenizeWords</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.UntokenizeWords" href="core.html#pdpipe.core.PdPipelineStage.UntokenizeWords">UntokenizeWords</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists" href="core.html#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.TokenizeText" href="core.html#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.UntokenizeText" href="core.html#pdpipe.core.PdPipelineStage.UntokenizeText">UntokenizeText</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ValDrop" href="core.html#pdpipe.core.PdPipelineStage.ValDrop">ValDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ValKeep" href="core.html#pdpipe.core.PdPipelineStage.ValKeep">ValKeep</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.apply" href="core.html#pdpipe.core.PdPipelineStage.apply">apply</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.description" href="core.html#pdpipe.core.PdPipelineStage.description">description</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.fit" href="core.html#pdpipe.core.PdPipelineStage.fit">fit</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.fit_transform" href="core.html#pdpipe.core.PdPipelineStage.fit_transform">fit_transform</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.transform" href="core.html#pdpipe.core.PdPipelineStage.transform">transform</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pdpipe.sklearn_stages.TfidfVectorizeTokenLists"><code class="flex name class">
+<span>class <span class="ident">TfidfVectorizeTokenLists</span></span>
+<span>(</span><span>column, drop=True, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>A pipeline stage TFIDF-vectorizing a token-list column to count columns.</p>
+<p>Every cell in the input columns is assumed to be a list of strings, each
+representing a single token. The resulting TF-IDF vector is exploded into
+individual columns, each with the label 'lbl_i' where lbl is the original
+column label and i is the index of column in the count vector.</p>
+<p>The resulting columns are concatenated to the end of the dataframe.</p>
+<p>All valid sklearn.TfidfVectorizer keyword arguemnts can be provided as
+keyword arguments to the constructor, except 'input' and 'analyzer', which
+will be ignored. As usual, all valid PdPipelineStage constructor parameters
+can also be provided as keyword arguments.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>column</code></strong> :&ensp;<code>str</code></dt>
+<dd>The label of the token-list column to TfIdf-vectorize.</dd>
+<dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
+<dd>If set to True, the source column is dropped after being transformed.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; data = [[2, ['hovercraft', 'eels']], [5, ['eels', 'urethra']]]
+&gt;&gt;&gt; df = pd.DataFrame(data, [1, 2], ['Age', 'tokens'])
+&gt;&gt;&gt; tfvectorizer = pdp.TfidfVectorizeTokenLists('tokens')
+&gt;&gt;&gt; tfvectorizer(df)
+   Age  tokens_0  tokens_1  tokens_2
+1    2  0.579739  0.814802  0.000000
+2    5  0.579739  0.000000  0.814802
+</code></pre></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/sklearn_stages.py#L284-L374" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class TfidfVectorizeTokenLists(PdPipelineStage):
+    &#34;&#34;&#34;A pipeline stage TFIDF-vectorizing a token-list column to count columns.
+
+    Every cell in the input columns is assumed to be a list of strings, each
+    representing a single token. The resulting TF-IDF vector is exploded into
+    individual columns, each with the label &#39;lbl_i&#39; where lbl is the original
+    column label and i is the index of column in the count vector.
+
+    The resulting columns are concatenated to the end of the dataframe.
+
+    All valid sklearn.TfidfVectorizer keyword arguemnts can be provided as
+    keyword arguments to the constructor, except &#39;input&#39; and &#39;analyzer&#39;, which
+    will be ignored. As usual, all valid PdPipelineStage constructor parameters
+    can also be provided as keyword arguments.
+
+    Parameters
+    ----------
+    column : str
+        The label of the token-list column to TfIdf-vectorize.
+    drop : bool, default True
+        If set to True, the source column is dropped after being transformed.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; data = [[2, [&#39;hovercraft&#39;, &#39;eels&#39;]], [5, [&#39;eels&#39;, &#39;urethra&#39;]]]
+        &gt;&gt;&gt; df = pd.DataFrame(data, [1, 2], [&#39;Age&#39;, &#39;tokens&#39;])
+        &gt;&gt;&gt; tfvectorizer = pdp.TfidfVectorizeTokenLists(&#39;tokens&#39;)
+        &gt;&gt;&gt; tfvectorizer(df)
+           Age  tokens_0  tokens_1  tokens_2
+        1    2  0.579739  0.814802  0.000000
+        2    5  0.579739  0.000000  0.814802
+    &#34;&#34;&#34;
+
+    _DEF_CNTVEC_MSG = &#34;Count-vectorizing column {}.&#34;
+
+    def __init__(self, column, drop=True, **kwargs):
+        self._column = column
+        self._drop = drop
+        msg = TfidfVectorizeTokenLists._DEF_CNTVEC_MSG.format(column)
+        super_kwargs = {
+            &#34;exmsg&#34;: (&#34;TfIdfVectorizeTokenLists precondition not met:&#34;
+                      &#34;{} column not found.&#34;.format(column)),
+            &#34;appmsg&#34;: &#34;{}..&#34;.format(msg),
+            &#34;desc&#34;: msg,
+        }
+        valid_vectorizer_args = _get_args_list(TfidfVectorizer.__init__)
+        self._vectorizer_args = {
+            k: kwargs[k] for k in kwargs
+            if k in valid_vectorizer_args and k not in [
+                &#39;input&#39;, &#39;analyzer&#39;, &#39;self&#39;,
+            ]
+        }
+        pipeline_stage_args = {
+            k: kwargs[k] for k in kwargs
+            if k not in valid_vectorizer_args
+        }
+        super_kwargs.update(**pipeline_stage_args)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        return self._column in df.columns
+
+    def _fit_transform(self, df, verbose):
+        self._tfidf_vectorizer = TfidfVectorizer(
+            input=&#39;content&#39;,
+            analyzer=lambda x: x,
+            **self._vectorizer_args,
+        )
+        vectorized = self._tfidf_vectorizer.fit_transform(df[self._column])
+        self._n_features = vectorized.shape[1]
+        self._res_col_names = [
+            &#39;{}_{}&#39;.format(self._column, i)
+            for i in range(self._n_features)
+        ]
+        vec_df = pd.DataFrame.sparse.from_spmatrix(
+            data=vectorized, index=df.index, columns=self._res_col_names)
+        inter_df = pd.concat([df, vec_df], axis=1)
+        self.is_fitted = True
+        if self._drop:
+            return inter_df.drop(self._column, axis=1)
+        return inter_df
+
+    def _transform(self, df, verbose):
+        vectorized = self._tfidf_vectorizer.transform(df[self._column])
+        vec_df = pd.DataFrame.sparse.from_spmatrix(
+            data=vectorized, columns=self._res_col_names)
+        inter_df = pd.concat([df, vec_df], axis=1)
+        if self._drop:
+            return inter_df.drop(self._column, axis=1)
+        return inter_df</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pdpipe.core.PdPipelineStage.AdHocStage" href="core.html#pdpipe.core.PdPipelineStage.AdHocStage">AdHocStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.AggByCols" href="core.html#pdpipe.core.PdPipelineStage.AggByCols">AggByCols</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ApplyByCols" href="core.html#pdpipe.core.PdPipelineStage.ApplyByCols">ApplyByCols</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ApplyToRows" href="core.html#pdpipe.core.PdPipelineStage.ApplyToRows">ApplyToRows</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Bin" href="core.html#pdpipe.core.PdPipelineStage.Bin">Bin</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColByFrameFunc" href="core.html#pdpipe.core.PdPipelineStage.ColByFrameFunc">ColByFrameFunc</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColDrop" href="core.html#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColRename" href="core.html#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColReorder" href="core.html#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByLength" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByList" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Encode" href="core.html#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.FreqDrop" href="core.html#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Log" href="core.html#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.MapColVals" href="core.html#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.OneHotEncode" href="core.html#pdpipe.core.PdPipelineStage.OneHotEncode">OneHotEncode</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.PdPipeline" href="core.html#pdpipe.core.PdPipelineStage.PdPipeline">PdPipeline</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RegexReplace" href="core.html#pdpipe.core.PdPipelineStage.RegexReplace">RegexReplace</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RemoveStopwords" href="core.html#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RowDrop" href="core.html#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Scale" href="core.html#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.SnowballStem" href="core.html#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists" href="core.html#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.TokenizeText" href="core.html#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.UntokenizeText" href="core.html#pdpipe.core.PdPipelineStage.UntokenizeText">UntokenizeText</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ValDrop" href="core.html#pdpipe.core.PdPipelineStage.ValDrop">ValDrop</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ValKeep" href="core.html#pdpipe.core.PdPipelineStage.ValKeep">ValKeep</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.apply" href="core.html#pdpipe.core.PdPipelineStage.apply">apply</a></code></li>
@@ -765,6 +1049,9 @@ to override Scale class defaults.</dd>
 </li>
 <li>
 <h4><code><a title="pdpipe.sklearn_stages.Scale" href="#pdpipe.sklearn_stages.Scale">Scale</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pdpipe.sklearn_stages.TfidfVectorizeTokenLists" href="#pdpipe.sklearn_stages.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></h4>
 </li>
 </ul>
 </li>

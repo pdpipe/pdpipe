@@ -201,7 +201,7 @@ class which takes a function in its <code>transform</code> constructor parameter
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/d60a9a6c9c26e3a706aa0dc85e01821457183d4b/pdpipe/__init__.py#L0-L112" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/__init__.py#L0-L125" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;
 The `pdpipe` Python package provides a concise interface for building `pandas`
@@ -253,9 +253,22 @@ from .col_generation import (
 
 core.__load_stage_attributes_from_module__(&#34;pdpipe.col_generation&#34;)
 
+from . import text_stages
+from .text_stages import (
+    RegexReplace,
+    DropTokensByLength,
+    DropTokensByList,
+)
+
+core.__load_stage_attributes_from_module__(&#34;pdpipe.text_stages&#34;)
+
 try:
     from . import sklearn_stages
-    from .sklearn_stages import Encode, Scale
+    from .sklearn_stages import (
+        Encode,
+        Scale,
+        TfidfVectorizeTokenLists,
+    )
 
     core.__load_stage_attributes_from_module__(&#34;pdpipe.sklearn_stages&#34;)
 except ImportError:
@@ -269,8 +282,8 @@ except ImportError:
 try:
     from . import nltk_stages
     from .nltk_stages import (
-        TokenizeWords,
-        UntokenizeWords,
+        TokenizeText,
+        UntokenizeText,
         RemoveStopwords,
         SnowballStem,
         DropRareTokens,
@@ -345,6 +358,10 @@ __pdoc__ = {
 <dd>
 <section class="desc"><p>PdPipeline stages dependent on the scikit-learn Python library …</p></section>
 </dd>
+<dt><code class="name"><a title="pdpipe.text_stages" href="text_stages.html">pdpipe.text_stages</a></code></dt>
+<dd>
+<section class="desc"><p>Text processing pdpipe pipeline stages.</p></section>
+</dd>
 <dt><code class="name"><a title="pdpipe.util" href="util.html">pdpipe.util</a></code></dt>
 <dd>
 <section class="desc"><p>Utility methods for pdpipe.</p></section>
@@ -413,6 +430,7 @@ __pdoc__ = {
 <li><code><a title="pdpipe.exceptions" href="exceptions.html">pdpipe.exceptions</a></code></li>
 <li><code><a title="pdpipe.nltk_stages" href="nltk_stages.html">pdpipe.nltk_stages</a></code></li>
 <li><code><a title="pdpipe.sklearn_stages" href="sklearn_stages.html">pdpipe.sklearn_stages</a></code></li>
+<li><code><a title="pdpipe.text_stages" href="text_stages.html">pdpipe.text_stages</a></code></li>
 <li><code><a title="pdpipe.util" href="util.html">pdpipe.util</a></code></li>
 </ul>
 </li>
