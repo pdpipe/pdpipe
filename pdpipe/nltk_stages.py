@@ -25,8 +25,8 @@ from pdpipe.shared import (
 )
 
 
-class TokenizeWords(MapColVals):
-    """A pipeline stage that tokenize a sentence into words by whitespaces.
+class TokenizeText(MapColVals):
+    """A pipeline stage that tokenize a text column into token lists.
 
     Note: The nltk package must be installed for this pipeline stage to work.
 
@@ -44,7 +44,7 @@ class TokenizeWords(MapColVals):
         >>> import pandas as pd; import pdpipe as pdp;
         >>> df = pd.DataFrame(
         ...     [[3.2, "Kick the baby!"]], [1], ['freq', 'content'])
-        >>> tokenize_stage = pdp.TokenizeWords('content')
+        >>> tokenize_stage = pdp.TokenizeText('content')
         >>> tokenize_stage(df)
            freq               content
         1   3.2  [Kick, the, baby, !]
@@ -76,8 +76,8 @@ class TokenizeWords(MapColVals):
             'value_map': nltk.word_tokenize,
             'drop': drop,
             'suffix': '_tok',
-            'exmsg': TokenizeWords._DEF_TOKENIZE_EXC_MSG.format(col_str),
-            'appmsg': TokenizeWords._DEF_TOKENIZE_APP_MSG.format(col_str),
+            'exmsg': TokenizeText._DEF_TOKENIZE_EXC_MSG.format(col_str),
+            'appmsg': TokenizeText._DEF_TOKENIZE_APP_MSG.format(col_str),
             'desc': "Tokenize {}".format(col_str),
         }
         super_kwargs.update(**kwargs)
@@ -88,7 +88,7 @@ class TokenizeWords(MapColVals):
             col_type == object for col_type in df.dtypes[self._columns])
 
 
-class UntokenizeWords(MapColVals):
+class UntokenizeText(MapColVals):
     """A pipeline stage that joins token lists to whitespace-seperated strings.
 
     Note: The nltk package must be installed for this pipeline stage to work.
@@ -107,7 +107,7 @@ class UntokenizeWords(MapColVals):
         >>> import pandas as pd; import pdpipe as pdp;
         >>> data = [[3.2, ['Shake', 'and', 'bake!']]]
         >>> df = pd.DataFrame(data, [1], ['freq', 'content'])
-        >>> untokenize_stage = pdp.UntokenizeWords('content')
+        >>> untokenize_stage = pdp.UntokenizeText('content')
         >>> untokenize_stage(df)
            freq          content
         1   3.2  Shake and bake!
@@ -126,10 +126,10 @@ class UntokenizeWords(MapColVals):
         col_str = _list_str(self._columns)
         super_kwargs = {
             'columns': columns,
-            'value_map': UntokenizeWords._untokenize_list,
+            'value_map': UntokenizeText._untokenize_list,
             'drop': drop,
             'suffix': '_untok',
-            'exmsg': UntokenizeWords._DEF_UNTOKENIZE_EXC_MSG.format(col_str),
+            'exmsg': UntokenizeText._DEF_UNTOKENIZE_EXC_MSG.format(col_str),
             'appmsg': "Untokenizing {}".format(col_str),
             'desc': "Untokenize {}".format(col_str),
         }
@@ -229,7 +229,7 @@ class RemoveStopwords(MapColVals):
 
 
 class SnowballStem(MapColVals):
-    """A pipeline stage that stems words in a list using the Snowball stemmer.
+    """A pipeline stage that stems tokens in a list using the Snowball stemmer.
 
     Note: The nltk package must be installed for this pipeline stage to work.
 
@@ -244,6 +244,10 @@ class SnowballStem(MapColVals):
         If set to True, the source columns are dropped after stemming, and the
         resulting columns retain the names of the source columns. Otherwise,
         resulting columns gain the suffix '_stem'.
+    min_len : int, optional
+        If provided, tokens shorter than this length are not stemmed.
+    max_len : int, optional
+        If provided, tokens longer than this length are not stemmed.
 
     Example
     -------
@@ -259,14 +263,35 @@ class SnowballStem(MapColVals):
     _DEF_STEM_EXC_MSG = ("SnowballStem stage failed because not all "
                          "columns {} are present in input dataframe and "
                          "are of dtype object.")
-    _DEF_STEM_APP_MSG = "Stemming tokens in {}..."
+    _DEF_STEM_APP_MSG = "Stemming tokens{} in {}..."
 
     class _TokenListStemmer(object):
-        def __init__(self, stemmer):
+        def __init__(self, stemmer, min_len=None, max_len=None):
             self.stemmer = stemmer
+            self.cond = None
+            if min_len:
+                if max_len:
+                    self.cond = lambda x: (
+                        len(x) >= min_len) and (len(x) <= max_len)
+                else:
+                    self.cond = lambda x: len(x) >= min_len
+            elif max_len:
+                self.cond = lambda x: len(x) <= max_len
+            self.__stem__ = self.__uncond_stem__
+            if self.cond:
+                self.__stem__ = self.__cond_stem__
 
         def __call__(self, token_list):
+            return self.__stem__(token_list)
+
+        def __uncond_stem__(self, token_list):
             return [self.stemmer.stem(w) for w in token_list]
+
+        def __cond_stem__(self, token_list):
+            return [
+                self.stemmer.stem(w) if self.cond(w) else w
+                for w in token_list
+            ]
 
     @staticmethod
     def __stemmer_by_name(stemmer_name):
@@ -284,20 +309,28 @@ class SnowballStem(MapColVals):
             nltk.download('snowball_data')
             return SnowballStem.__stemmer_by_name(stemmer_name)
 
-    def __init__(self, stemmer_name, columns, drop=True, **kwargs):
+    def __init__(self, stemmer_name, columns, drop=True, min_len=None,
+                 max_len=None, **kwargs):
         self.stemmer_name = stemmer_name
         self.stemmer = SnowballStem.__safe_stemmer_by_name(stemmer_name)
-        self.list_stemmer = SnowballStem._TokenListStemmer(self.stemmer)
+        self.list_stemmer = SnowballStem._TokenListStemmer(
+            stemmer=self.stemmer, min_len=min_len, max_len=max_len)
         self._columns = _interpret_columns_param(columns)
         col_str = _list_str(self._columns)
+        cond_str = ''
+        if min_len:
+            cond_str += ' >= {}'.format(min_len)
+        if max_len:
+            cond_str += ' <= {}'.format(max_len)
+        appmsg = SnowballStem._DEF_STEM_APP_MSG.format(cond_str, col_str)
         super_kwargs = {
             'columns': columns,
             'value_map': self.list_stemmer,
             'drop': drop,
             'suffix': '_stem',
             'exmsg': SnowballStem._DEF_STEM_EXC_MSG.format(col_str),
-            'appmsg': SnowballStem._DEF_STEM_APP_MSG.format(col_str),
-            'desc': "Stem tokens in {}".format(col_str),
+            'appmsg': appmsg,
+            'desc': appmsg,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)

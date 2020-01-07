@@ -1,5 +1,7 @@
 """Shared inner functionalities for pdpipe."""
 
+import inspect
+
 
 def _interpret_columns_param(columns):
     if isinstance(columns, str):
@@ -15,3 +17,8 @@ def _list_str(listi):
     if isinstance(listi, (list, tuple)):
         return ', '.join([str(elem) for elem in listi])
     return listi
+
+
+def _get_args_list(func):
+    args, varargs, varkw, defaults = inspect.getargspec(func)
+    return args

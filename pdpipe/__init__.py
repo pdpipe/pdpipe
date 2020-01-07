@@ -48,9 +48,22 @@ from .col_generation import (
 
 core.__load_stage_attributes_from_module__("pdpipe.col_generation")
 
+from . import text_stages
+from .text_stages import (
+    RegexReplace,
+    DropTokensByLength,
+    DropTokensByList,
+)
+
+core.__load_stage_attributes_from_module__("pdpipe.text_stages")
+
 try:
     from . import sklearn_stages
-    from .sklearn_stages import Encode, Scale
+    from .sklearn_stages import (
+        Encode,
+        Scale,
+        TfidfVectorizeTokenLists,
+    )
 
     core.__load_stage_attributes_from_module__("pdpipe.sklearn_stages")
 except ImportError:
@@ -64,8 +77,8 @@ except ImportError:
 try:
     from . import nltk_stages
     from .nltk_stages import (
-        TokenizeWords,
-        UntokenizeWords,
+        TokenizeText,
+        UntokenizeText,
         RemoveStopwords,
         SnowballStem,
         DropRareTokens,

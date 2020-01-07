@@ -18,6 +18,14 @@ matrix:
     - python: 3.6
     - python: 3.7
     - python: 3.8
+    # ==== Linting checked on Python 3.7 ====
+    - python: 3.7
+      name: "Code linting with Python 3.7"
+      before_script:
+        - pip install flake8
+      script:
+        # - find -name '*.md' | xargs .github/lint-markdown.sh
+        - flake8
     # ======= OSX ========
     - name: "Python 3.6.5 on macOS 10.13"
       os: osx
@@ -66,15 +74,6 @@ matrix:
       python: "3.6-dev"
     - python: "3.7-dev"
     - python: "3.8-dev"
-    # ==== Linting checked on Python 3.7 ====
-    - stage: "Linting"
-      python: 3.7
-      name: "Code linting with Python 3.7"
-      before_script:
-        - pip install flake8
-      script:
-        # - find -name '*.md' | xargs .github/lint-markdown.sh
-        - flake8
     # ==== Docs built on a designated Python 3.6 job ====
     # - python: 3.6
     #   name: 'Docs'
