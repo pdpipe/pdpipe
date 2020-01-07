@@ -87,11 +87,11 @@ class RegexReplace(ApplyByCols):
 #     replace : str
 #         The replacement string to use.
 #     result_columns : str or list-like, default None
-#         The names of the new columns resulting from the mapping operation. Must
-#         be of the same length as columns. If None, behavior depends on the
-#         drop parameter: If drop is True, the name of the source column is used;
-#         otherwise, the name of the source column is used with the suffix
-#         '_reg'.
+#         The names of the new columns resulting from the mapping operation.
+#         Must be of the same length as columns. If None, behavior depends on
+#         the drop parameter: If drop is True, the name of the source column
+#         is used; otherwise, the name of the source column is used with the
+#         suffix '_reg'.
 #     drop : bool, default True
 #         If set to True, source columns are dropped after being transformed.
 #
