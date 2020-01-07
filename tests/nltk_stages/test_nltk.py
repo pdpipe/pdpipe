@@ -71,20 +71,3 @@ def test_remove_stopwords():
 
     with pytest.raises(TypeError):
         pdp.RemoveStopwords(34, 'txt')
-
-
-@pytest.mark.first
-def test_snowball_stem():
-    df = pd.DataFrame([[3.2, ['kicking', 'boats']]], [1], ['freq', 'txt'])
-    stem = pdp.SnowballStem('EnglishStemmer', 'txt')
-    res_df = stem(df)
-    assert 'txt' in res_df.columns
-    assert 'txt_stem' not in res_df.columns
-    assert res_df['txt'][1] == ['kick', 'boat']
-
-    stem = pdp.SnowballStem('EnglishStemmer', 'txt', drop=False)
-    res_df = stem(df)
-    assert 'txt' in res_df.columns
-    assert 'txt_stem' in res_df.columns
-    assert res_df['txt'][1] == ['kicking', 'boats']
-    assert res_df['txt_stem'][1] == ['kick', 'boat']

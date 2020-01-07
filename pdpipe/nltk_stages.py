@@ -271,11 +271,12 @@ class SnowballStem(MapColVals):
             self.cond = None
             if min_len:
                 if max_len:
-                    self.cond = lambda x: (x >= min_len) and (x <= max_len)
+                    self.cond = lambda x: (
+                        len(x) >= min_len) and (len(x) <= max_len)
                 else:
-                    self.cond = lambda x: x >= min_len
+                    self.cond = lambda x: len(x) >= min_len
             elif max_len:
-                self.cond = lambda x: x <= max_len
+                self.cond = lambda x: len(x) <= max_len
             self.__stem__ = self.__uncond_stem__
             if self.cond:
                 self.__stem__ = self.__cond_stem__
@@ -288,8 +289,8 @@ class SnowballStem(MapColVals):
 
         def __cond_stem__(self, token_list):
             return [
-                self.stemmer.stem(w) for w in token_list
-                if self.cond(w)
+                self.stemmer.stem(w) if self.cond(w) else w
+                for w in token_list
             ]
 
     @staticmethod
