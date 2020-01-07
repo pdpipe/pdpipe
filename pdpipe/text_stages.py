@@ -93,7 +93,7 @@ class DropTokensByLength(ApplyByCols):
         Must be of the same length as columns. If None, behavior depends on
         the drop parameter: If drop is True, the name of the source column
         is used; otherwise, the name of the source column is used with the
-        suffix '_reg'.
+        suffix '_filtered'.
     drop : bool, default True
         If set to True, source columns are dropped after being transformed.
 
@@ -165,7 +165,7 @@ class DropTokensByList(ApplyByCols):
         Must be of the same length as columns. If None, behavior depends on
         the drop parameter: If drop is True, the name of the source column
         is used; otherwise, the name of the source column is used with the
-        suffix '_reg'.
+        suffix '_filtered'.
     drop : bool, default True
         If set to True, source columns are dropped after being transformed.
 
