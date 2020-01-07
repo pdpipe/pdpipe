@@ -177,7 +177,7 @@ Created by Shay Palachy  (shay.palachy@gmail.com).
 .. |Build-Status| image:: https://travis-ci.org/pdpipe/pdpipe.svg?branch=master
   :target: https://travis-ci.org/pdpipe/pdpipe
 
-.. |LICENCE| image:: https://img.shields.io/badge/License-MIT-yellow.svg
+.. |LICENCE| image:: https://img.shields.io/badge/License-MIT-ff69b4.svg
   :target: https://pypi.python.org/pypi/pdpipe
   
 .. .. |LICENCE| image:: https://github.com/shaypal5/pdpipe/blob/master/mit_license_badge.svg
