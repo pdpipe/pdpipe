@@ -149,3 +149,66 @@ class DropTokensByLength(ApplyByCols):
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
+
+
+class DropTokensByList(ApplyByCols):
+    """A pipeline stage removing specific tokens in string-token list columns.
+
+    Parameters
+    ----------
+    columns : str or list-like
+        Names of token list columns on which to apply token filtering.
+    bad_tokens : list of str
+        The list of string tokens to remove from all token lists.
+    result_columns : str or list-like, default None
+        The names of the new columns resulting from the mapping operation.
+        Must be of the same length as columns. If None, behavior depends on
+        the drop parameter: If drop is True, the name of the source column
+        is used; otherwise, the name of the source column is used with the
+        suffix '_reg'.
+    drop : bool, default True
+        If set to True, source columns are dropped after being transformed.
+
+    Example
+    -------
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> data = [[4, ["a", "bad", "cat"]], [5, ["bad", "not", "good"]]]
+        >>> df = pd.DataFrame(data, [1,2], ["age","text"])
+        >>> filter_tokens = pdp.DropTokensByList('text', ['bad'])
+        >>> filter_tokens(df)
+           age         text
+        1    4     [a, cat]
+        2    5  [not, good]
+    """  # noqa: W605
+
+    _BASE_STR = "Filtering out tokens{} in column{} {}"
+    _DEF_EXC_MSG_SUFFIX = " failed."
+    _DEF_APP_MSG_SUFFIX = "..."
+    _DEF_DESCRIPTION_SUFFIX = "."
+
+    def __init__(
+        self, columns, bad_tokens, result_columns=None, drop=True,
+        **kwargs
+    ):
+        self._bad_tokens = bad_tokens
+        col_str = _list_str(columns)
+        sfx = "s" if len(columns) > 1 else ""
+        cond_str = ""
+        if len(bad_tokens) < 10:
+            cond_str = "in list [" + " ".join(bad_tokens) + "]"
+        base_str = DropTokensByList._BASE_STR.format(cond_str, sfx, col_str)
+
+        def _token_filter(token_list):
+            return [x for x in token_list if x not in bad_tokens]
+
+        super_kwargs = {
+            "columns": columns,
+            "func": _token_filter,
+            "colbl_sfx": "_filtered",
+            "drop": drop,
+            "exmsg": base_str + DropTokensByLength._DEF_EXC_MSG_SUFFIX,
+            "appmsg": base_str + DropTokensByLength._DEF_APP_MSG_SUFFIX,
+            "desc": base_str + DropTokensByLength._DEF_DESCRIPTION_SUFFIX,
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)

@@ -52,6 +52,7 @@ from . import text_stages
 from .text_stages import (
     RegexReplace,
     DropTokensByLength,
+    DropTokensByList,
 )
 
 core.__load_stage_attributes_from_module__("pdpipe.text_stages")
