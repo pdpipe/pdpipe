@@ -67,7 +67,7 @@ Clone:
 
 .. code-block:: bash
 
-  git clone git@github.com:shaypal5/pdpipe.git
+  git clone git@github.com:pdpipe/pdpipe.git
 
 
 Install in development mode with test dependencies:
