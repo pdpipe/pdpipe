@@ -464,8 +464,8 @@ class ApplyToRows(PdPipelineStage):
         3      7   627.5     3.5         1255
     """
 
-    _DEF_APPLYTOROWS_EXC_MSG = "Applying function {} failed."
-    _DEF_APPLYTOROWS_APP_MSG = "Applying function {}..."
+    _DEF_APPLYTOROWS_EXC_MSG = "Applying a function {} failed."
+    _DEF_APPLYTOROWS_APP_MSG = "Applying a function {}..."
     _DEF_COLNAME = "new_col"
 
     def __init__(

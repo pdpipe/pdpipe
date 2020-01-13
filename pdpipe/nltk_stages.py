@@ -319,8 +319,10 @@ class SnowballStem(MapColVals):
         col_str = _list_str(self._columns)
         cond_str = ''
         if min_len:
-            cond_str += ' >= {}'.format(min_len)
+            cond_str += ' of length >= {}'.format(min_len)
         if max_len:
+            if not min_len:
+                cond_str += ' of length'
             cond_str += ' <= {}'.format(max_len)
         appmsg = SnowballStem._DEF_STEM_APP_MSG.format(cond_str, col_str)
         super_kwargs = {

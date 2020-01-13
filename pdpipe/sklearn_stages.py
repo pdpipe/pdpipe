@@ -302,6 +302,14 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
         The label of the token-list column to TfIdf-vectorize.
     drop : bool, default True
         If set to True, the source column is dropped after being transformed.
+    hierarchical_labels : bool, default False
+        If set to True, the labels of resulting columns are of the form 'P_F'
+        where P is the label of the original token-list column and F is the
+        feature name (i.e. the string token it corresponds to). Otherwise, it
+        is simply the feature name itself. If you plan to have two different
+        TfidfVectorizeTokenLists pipeline stages vectorizing two different
+        token-list columns, you should set this to true, so tf-idf features
+        originating in different text columns do not overwrite one another.
 
     Example
     -------
@@ -310,16 +318,18 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
         >>> df = pd.DataFrame(data, [1, 2], ['Age', 'tokens'])
         >>> tfvectorizer = pdp.TfidfVectorizeTokenLists('tokens')
         >>> tfvectorizer(df)
-           Age  tokens_0  tokens_1  tokens_2
-        1    2  0.579739  0.814802  0.000000
-        2    5  0.579739  0.000000  0.814802
+           Age      eels  hovercraft   urethra
+        1    2  0.579739    0.814802  0.000000
+        2    5  0.579739    0.000000  0.814802
     """
 
     _DEF_CNTVEC_MSG = "Count-vectorizing column {}."
 
-    def __init__(self, column, drop=True, **kwargs):
+    def __init__(self, column, drop=True, hierarchical_labels=False,
+                 **kwargs):
         self._column = column
         self._drop = drop
+        self._hierarchical_labels = hierarchical_labels
         msg = TfidfVectorizeTokenLists._DEF_CNTVEC_MSG.format(column)
         super_kwargs = {
             "exmsg": ("TfIdfVectorizeTokenLists precondition not met:"
@@ -352,10 +362,13 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
         )
         vectorized = self._tfidf_vectorizer.fit_transform(df[self._column])
         self._n_features = vectorized.shape[1]
-        self._res_col_names = [
-            '{}_{}'.format(self._column, i)
-            for i in range(self._n_features)
-        ]
+        if self._hierarchical_labels:
+            self._res_col_names = [
+                '{}_{}'.format(self._column, f)
+                for f in self._tfidf_vectorizer.get_feature_names()
+            ]
+        else:
+            self._res_col_names = self._tfidf_vectorizer.get_feature_names()
         vec_df = pd.DataFrame.sparse.from_spmatrix(
             data=vectorized, index=df.index, columns=self._res_col_names)
         inter_df = pd.concat([df, vec_df], axis=1)

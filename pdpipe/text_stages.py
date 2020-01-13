@@ -41,7 +41,7 @@ class RegexReplace(ApplyByCols):
     """  # noqa: W605
 
     _BASE_STR = "Replacing appearances of {} with '{}' in column{} {}"
-    _DEF_EXC_MSG_SUFFIX = " failed."
+    _DEF_EXC_MSG_SUFFIX = " failed. Column{} {} not found in dataframe."
     _DEF_APP_MSG_SUFFIX = "..."
     _DEF_DESCRIPTION_SUFFIX = "."
 
@@ -66,8 +66,10 @@ class RegexReplace(ApplyByCols):
             'columns': columns,
             'func': lambda x: self._pattern_obj.sub(self._replace, x),
             'colbl_sfx': '_regex',
+            'result_columns': result_columns,
             'drop': drop,
-            'exmsg': base_str + ApplyByCols._DEF_EXC_MSG_SUFFIX,
+            'exmsg': base_str + ApplyByCols._DEF_EXC_MSG_SUFFIX.format(
+                sfx, col_str),
             'appmsg': base_str + ApplyByCols._DEF_APP_MSG_SUFFIX,
             'desc': base_str + ApplyByCols._DEF_DESCRIPTION_SUFFIX,
         }
@@ -109,7 +111,7 @@ class DropTokensByLength(ApplyByCols):
         2    5       [good]
     """  # noqa: W605
 
-    _BASE_STR = "Filtering out tokens of length{} with in column{} {}"
+    _BASE_STR = "Filtering out tokens of length{} in column{} {}"
     _DEF_EXC_MSG_SUFFIX = " failed."
     _DEF_APP_MSG_SUFFIX = "..."
     _DEF_DESCRIPTION_SUFFIX = "."
@@ -122,9 +124,9 @@ class DropTokensByLength(ApplyByCols):
         self._max_len = max_len
         col_str = _list_str(columns)
         sfx = "s" if len(columns) > 1 else ""
-        cond_str = " > {}".format(min_len)
+        cond_str = " < {}".format(min_len)
         if max_len:
-            cond_str += " < {}".format(max_len)
+            cond_str += " > {}".format(max_len)
         base_str = DropTokensByLength._BASE_STR.format(cond_str, sfx, col_str)
 
         def _token_filter(token_list):

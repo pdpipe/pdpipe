@@ -31,8 +31,8 @@ def test_tfidf_vec(drop):
     for i, row in DF.iterrows():
         words.extend(row['Quote'])
     uwords = set(words)
-    for i in range(len(uwords)):
-        assert 'Quote_{}'.format(i) in res_df.columns
+    for w in uwords:
+        assert w in res_df.columns
     non_zeros = (
         res_df.drop('Quote', axis=1, errors='ignore') > 0
     ).T.sum().values
@@ -49,3 +49,20 @@ def test_tfidf_vec(drop):
         res_df2.drop('Quote', axis=1, errors='ignore') > 0
     ).T.sum().values
     assert non_zeros2[0] - 1 == 2
+
+
+def test_tfidf_vec_hierarchical_labels():
+    tf = pdp.TfidfVectorizeTokenLists('Quote', hierarchical_labels=True)
+    res_df = tf(DF)
+    assert 'Age' in res_df.columns
+    words = []
+    for i, row in DF.iterrows():
+        words.extend(row['Quote'])
+    uwords = set(words)
+    for w in uwords:
+        assert 'Quote_{}'.format(w) in res_df.columns
+    non_zeros = (
+        res_df.drop('Quote', axis=1, errors='ignore') > 0
+    ).T.sum().values
+    for i, row in DF.iterrows():
+        assert len(row['Quote']) == non_zeros[i] - 1
