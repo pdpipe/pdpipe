@@ -64,9 +64,12 @@ pipeline += pdp.ColDrop(columns=pdp.cq.ColumnQualifier(lambda df: [
 
 ColumnQualifier objects also support the &, ^ and | binary boolean operators -
 representing boolean and, xor and or, respectively - and the ~ unary boolean
-operator - representing the boolean not operator. So for example, to get a
-qualifier that qualifies all columns that have AT LEAST two missing values, one
-can use:
+operator - representing the boolean not operator. Finally, the - binary
+operator is implemented to represent the NOT IN non-symetric binary relation
+between two qualifiers.
+
+So for example, to get a qualifier that qualifies all columns that have AT
+LEAST two missing values, one can use:
 
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame(
@@ -84,6 +87,16 @@ AND starting with 'gr' one can use:
     >>> cq = pdp.cq.WithAtMostMissingValues(1) & pdp.cq.StartWith('gr')
     >>> cq(df)
     ['grade']
+
+And a qualifier that qualifies all columns with no missing values except those
+that start with 'b' can be generated with:
+
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> df = pd.DataFrame(
+    ...    [[1, 2, 3, 4],[5, 6, 7, None]], [1,2], ['abe', 'bee', 'cry', 'no'])
+    >>> cq = pdp.cq.WithoutMissingValues() - pdp.cq.StartWith('b')
+    >>> cq(df)
+    ['abe', 'cry']
 """
 
 
@@ -207,6 +220,20 @@ class ColumnQualifier(object):
             def _cqfunc(df):  # noqa: E306
                 return list(set(self._cqfunc(df)).union(ofunc(df)))
             _cqfunc.__doc__ = '{} OR {}'.format(
+                self._cqfunc.__doc__ or 'Anonymous qualifier 1',
+                other._cqfunc.__doc__ or 'Anonymous qualifier 2',
+            )
+            return ColumnQualifier(func=_cqfunc)
+        except AttributeError:
+            return NotImplemented
+
+    def __sub__(self, other):
+        try:
+            ofunc = other._cqfunc
+            def _cqfunc(df):  # noqa: E306
+                return sorted(list(
+                    set(self._cqfunc(df)).difference(ofunc(df))))
+            _cqfunc.__doc__ = '{} NOT IN {}'.format(
                 self._cqfunc.__doc__ or 'Anonymous qualifier 1',
                 other._cqfunc.__doc__ or 'Anonymous qualifier 2',
             )
