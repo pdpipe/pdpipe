@@ -300,6 +300,33 @@ def _always_true(x):
     return True
 
 
+class ColumnsBasedPipelineStage(PdPipelineStage):
+    """A pipeline stage that operates on a subset of dataframe columns.
+
+    Parameters
+    ---------
+    columns : object, iterable or callable
+        The label, or an iterable of labels, of columns to drop. Alternatively,
+        this parameter can be assigned a callable returning an iterable of
+        labels from an input pandas.DataFrame.
+    exraise : bool, default True
+        If true, a pdpipe.FailedPreconditionError is raised when this
+        stage is applied to a dataframe for which the precondition does
+        not hold. Otherwise the stage is skipped.
+    exmsg : str, default None
+        The message of the exception that is raised on a failed
+        precondition if exraise is set to True. A default message is used
+        if None is given.
+    appmsg : str, default None
+        The message printed when this stage is applied with verbose=True.
+        A default message is used if None is given.
+    desc : str, default None
+        A short description of this stage, used as its string representation.
+        A default description is used if None is given.
+    """
+    pass
+
+
 class AdHocStage(PdPipelineStage):
     """An ad-hoc stage of a pandas DataFrame-processing pipeline.
 
