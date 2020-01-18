@@ -187,11 +187,18 @@ class ColumnQualifier(object):
 
     # --- overriding boolean operators ---
 
+    @staticmethod
+    def _x_inorderof_y(x, y):
+        return [i for i in y if i in x]
+
     def __and__(self, other):
         try:
             ofunc = other._cqfunc
             def _cqfunc(df):  # noqa: E306
-                return list(set(self._cqfunc(df)).intersection(ofunc(df)))
+                return ColumnQualifier._x_inorderof_y(
+                    x=set(self._cqfunc(df)).intersection(ofunc(df)),
+                    y=df.columns,
+                )
             _cqfunc.__doc__ = '{} AND {}'.format(
                 self._cqfunc.__doc__ or 'Anonymous qualifier 1',
                 other._cqfunc.__doc__ or 'Anonymous qualifier 2',
@@ -204,8 +211,10 @@ class ColumnQualifier(object):
         try:
             ofunc = other._cqfunc
             def _cqfunc(df):  # noqa: E306
-                return list(
-                    set(self._cqfunc(df)).symmetric_difference(ofunc(df)))
+                return ColumnQualifier._x_inorderof_y(
+                    x=set(self._cqfunc(df)).symmetric_difference(ofunc(df)),
+                    y=df.columns,
+                )
             _cqfunc.__doc__ = '{} XOR {}'.format(
                 self._cqfunc.__doc__ or 'Anonymous qualifier 1',
                 other._cqfunc.__doc__ or 'Anonymous qualifier 2',
@@ -218,7 +227,10 @@ class ColumnQualifier(object):
         try:
             ofunc = other._cqfunc
             def _cqfunc(df):  # noqa: E306
-                return list(set(self._cqfunc(df)).union(ofunc(df)))
+                return ColumnQualifier._x_inorderof_y(
+                    x=set(self._cqfunc(df)).union(ofunc(df)),
+                    y=df.columns,
+                )
             _cqfunc.__doc__ = '{} OR {}'.format(
                 self._cqfunc.__doc__ or 'Anonymous qualifier 1',
                 other._cqfunc.__doc__ or 'Anonymous qualifier 2',
@@ -231,8 +243,10 @@ class ColumnQualifier(object):
         try:
             ofunc = other._cqfunc
             def _cqfunc(df):  # noqa: E306
-                return sorted(list(
-                    set(self._cqfunc(df)).difference(ofunc(df))))
+                return ColumnQualifier._x_inorderof_y(
+                    x=set(self._cqfunc(df)).difference(ofunc(df)),
+                    y=df.columns,
+                )
             _cqfunc.__doc__ = '{} NOT IN {}'.format(
                 self._cqfunc.__doc__ or 'Anonymous qualifier 1',
                 other._cqfunc.__doc__ or 'Anonymous qualifier 2',
@@ -243,7 +257,10 @@ class ColumnQualifier(object):
 
     def __invert__(self):
         def _cqfunc(df):  # noqa: E306
-            return list(set(df.columns).difference(self._cqfunc(df)))
+            return ColumnQualifier._x_inorderof_y(
+                x=set(df.columns).difference(self._cqfunc(df)),
+                y=df.columns,
+            )
         _cqfunc.__doc__ = 'NOT {}'.format(
             self._cqfunc.__doc__ or 'Anonymous qualifier'
         )

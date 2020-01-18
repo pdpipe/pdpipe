@@ -1,5 +1,6 @@
 """Unit test for column qualifiers."""
 
+import pytest
 import numpy as np
 import pandas as pd
 import pdpipe as pdp
@@ -16,6 +17,11 @@ def test_with_at_most_missing_values():
     cq = pdp.cq.WithAtMostMissingValues(1)
     assert cq(NA_DF) == ['grade', 'age']
     assert cq(NA_DF2) == ['grade', 'age']
+    assert cq.fit_transform(NA_DF2) == ['ph', 'grade', 'age']
+    # test fit
+    assert cq.fit_transform(NA_DF) == ['grade', 'age']
+    cq.fit(NA_DF2)
+    assert cq(NA_DF) == ['ph', 'grade', 'age']
 
 
 def test_unfittable_with_at_most_missing_values():
@@ -36,6 +42,16 @@ NA_GLBL_DF = pd.DataFrame(
 def test_and_operator():
     cq = pdp.cq.WithAtMostMissingValues(1) & pdp.cq.StartWith('gr')
     assert cq(NA_GLBL_DF) == ['grade']
+
+
+def test_xor_operator():
+    cq = pdp.cq.WithAtMostMissingValues(1) ^ pdp.cq.StartWith('gr')
+    assert cq(NA_GLBL_DF) == ['grep', 'age']
+
+
+def test_or_operator():
+    cq = pdp.cq.WithAtMostMissingValues(1) | pdp.cq.StartWith('gr')
+    assert cq(NA_GLBL_DF) == ['grep', 'grade', 'age']
 
 
 NA_VARIOUS_FIRST_CHAR_DF = pd.DataFrame(
@@ -59,5 +75,26 @@ def test_by_column_condition():
 def test_of_dtype():
     cq = pdp.cq.OfDtypes(np.number)
     assert cq(MIXED_DTYPES_DF) == ['int', 'float']
-    cq = pdp.cq.OfDtypes([np.number, str])
-    assert cq(MIXED_DTYPES_DF) == ['char', 'int', 'float']
+    cq = pdp.cq.OfDtypes([np.number, object])
+    assert cq(MIXED_DTYPES_DF) == ['str', 'int', 'float']
+
+
+def test_operator_attribute_errors():
+    cq = pdp.cq.WithAtMostMissingValues(1)
+    with pytest.raises(TypeError):
+        cq & 'ad'
+    with pytest.raises(TypeError):
+        cq | 4
+    with pytest.raises(TypeError):
+        cq ^ (lambda x: ['a'])
+    with pytest.raises(TypeError):
+        cq - 32
+
+
+MIXED_LABELS_DF = pd.DataFrame(
+    [[8, 1, 2], [1, 2, 5]], [1, 2], ['ph', 'grad', 48])
+
+
+def test_start_with():
+    cq = pdp.cq.StartWith('g')
+    assert cq(MIXED_LABELS_DF) == ['grad']
