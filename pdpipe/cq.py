@@ -267,6 +267,23 @@ class ColumnQualifier(object):
         return ColumnQualifier(func=_cqfunc)
 
 
+def is_fittable_column_qualifier(obj):
+    """Returns True if for objects that are fittable ColumnQualifier objects.
+
+    Parameters
+    ----------
+    obj : object
+        The object to examine.
+
+    Returns
+    -------
+    bool
+        True if the given object is an instance of ColumnQualifier and
+        fittable, False otherwise.
+    """
+    return isinstance(obj, ColumnQualifier) and obj._fittable
+
+
 class ByColumnCondition(ColumnQualifier):
     """A fittable column qualifier based on a per-column condition.
 

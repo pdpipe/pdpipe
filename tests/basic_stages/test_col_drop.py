@@ -3,6 +3,7 @@
 import pandas as pd
 import pytest
 
+import pdpipe as pdp
 from pdpipe import ColDrop
 from pdpipe.exceptions import FailedPreconditionError
 
@@ -129,12 +130,12 @@ def test_coldrop_multi_col():
     assert 'char' in res_df.columns
 
 
-def test_coldrop_lambda():
+def test_coldrop_col_qualifier():
     """Testing the ColDrop pipeline stage."""
     df = _test_df()
     assert 'num1' in df.columns
     assert 'num2' in df.columns
-    stage = ColDrop(lambda col: 'num' in col.name)
+    stage = ColDrop(pdp.cq.StartWith('num'))
     res_df = stage.apply(df)
     assert 'num1' not in res_df.columns
     assert 'num2' not in res_df.columns

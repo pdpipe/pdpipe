@@ -71,30 +71,24 @@ class PdPipelineStage(abc.ABC):
         The message of the exception that is raised on a failed
         precondition if exraise is set to True. A default message is used
         if None is given.
-    appmsg : str, default None
-        The message printed when this stage is applied with verbose=True.
-        A default message is used if None is given.
     desc : str, default None
         A short description of this stage, used as its string representation.
         A default description is used if None is given.
     """
 
     _DEF_EXC_MSG = 'Precondition failed!'
-    _DEF_APPLY_MSG = 'Applying a pipeline stage...'
     _DEF_DESCRIPTION = 'A pipeline stage.'
-    _INIT_KWARGS = ['exraise', 'exmsg', 'appmsg', 'desc']
+    _INIT_KWARGS = ['exraise', 'exmsg', 'desc']
 
     def __init__(self, exraise=True, exmsg=None, appmsg=None, desc=None):
         if exmsg is None:
             exmsg = PdPipelineStage._DEF_EXC_MSG
-        if appmsg is None:
-            appmsg = PdPipelineStage._DEF_APPLY_MSG
         if desc is None:
             desc = PdPipelineStage._DEF_DESCRIPTION
         self._exraise = exraise
         self._exmsg = exmsg
-        self._appmsg = appmsg
         self._desc = desc
+        self._appmsg = '{}..'.format(desc)
         self.is_fitted = False
 
     @classmethod
@@ -148,7 +142,7 @@ class PdPipelineStage(abc.ABC):
         """
         if exraise is None:
             exraise = self._exraise
-        if self._prec(df):
+        if self._prec(df=df):
             if verbose:
                 msg = '- ' + '\n  '.join(textwrap.wrap(self._appmsg))
                 print(msg, flush=True)
@@ -296,19 +290,20 @@ class PdPipelineStage(abc.ABC):
         return self._desc
 
 
-def _always_true(x):
-    return True
-
-
 class ColumnsBasedPipelineStage(PdPipelineStage):
     """A pipeline stage that operates on a subset of dataframe columns.
 
     Parameters
     ---------
     columns : object, iterable or callable
-        The label, or an iterable of labels, of columns to drop. Alternatively,
+        The label, or an iterable of labels, of columns to use. Alternatively,
         this parameter can be assigned a callable returning an iterable of
         labels from an input pandas.DataFrame.
+    desc_temp : str, optional
+        If given, assumed to be a format string, and every appearance of {} in
+        it is replaced with an appropriate string representation of the columns
+        parameter, and is used as the pipeline description. Ignored if `desc`
+        is provided.
     exraise : bool, default True
         If true, a pdpipe.FailedPreconditionError is raised when this
         stage is applied to a dataframe for which the precondition does
@@ -317,14 +312,62 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
         The message of the exception that is raised on a failed
         precondition if exraise is set to True. A default message is used
         if None is given.
-    appmsg : str, default None
-        The message printed when this stage is applied with verbose=True.
-        A default message is used if None is given.
     desc : str, default None
         A short description of this stage, used as its string representation.
         A default description is used if None is given.
     """
-    pass
+
+    def __init__(
+            self, columns, desc_temp=None, exraise=True, exmsg=None,
+            desc=None):
+        self._col_arg = columns
+        if isinstance(columns, str):
+            self._col_arg = [columns]
+        if callable(self._col_arg):
+            self._col_str = self._col_arg.__doc__ or ''
+        # if it was a single string it was already made a list, and it's not a
+        # callable, so it's either a single non-string label or an iterable of
+        # objects...
+        else:
+            if not hasattr(self._col_arg, '__iter__'):
+                self._col_arg = [columns]
+            # by now self._col_arg should always be callable
+            self._col_str = ', '.join(str(elem) for elem in self._col_arg)
+        if (desc is None) and desc_temp:
+            desc = desc_temp.format(self._col_str)
+        if exmsg is None:
+            exmsg = (
+                'Pipeline stage failed because not all columns {} '
+                'were found in the input dataframe.'
+            ).format(self._col_str)
+        super().__init__(
+            exraise=exraise,
+            exmsg=exmsg,
+            desc=desc,
+        )
+
+    def _get_columns(self, df, fit=False):
+        try:
+            if fit:
+                return self._col_arg.fit_transform(df)
+            else:
+                return self._col_arg(df)
+        except AttributeError:
+            try:
+                return self._col_arg(df)
+            except TypeError:
+                return self._col_arg
+        except TypeError:
+            return self._col_arg
+
+    def _prec(self, df):
+        if self._errors != 'ignore':
+            return set(self._get_columns(df=df)).issubset(df.columns)
+        return True
+
+
+def _always_true(x):
+    return True
 
 
 class AdHocStage(PdPipelineStage):
@@ -377,7 +420,6 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
     """
 
     _DEF_EXC_MSG = 'Pipeline precondition failed!'
-    _DEF_APP_MSG = 'Applying a pipeline...'
 
     def __init__(self, stages, transformer_getter=None, **kwargs):
         self._stages = stages
@@ -386,7 +428,6 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         super_kwargs = {
             'exraise': False,
             'exmsg': PdPipeline._DEF_EXC_MSG,
-            'appmsg': PdPipeline._DEF_APP_MSG
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)

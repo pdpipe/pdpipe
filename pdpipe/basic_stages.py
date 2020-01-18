@@ -1,11 +1,11 @@
 """Basic pdpipe PdPipelineStages."""
 
-import types
 from collections import deque
 
 from strct.dicts import reverse_dict_partial
 
-from pdpipe.core import PdPipelineStage
+from pdpipe.core import PdPipelineStage, ColumnsBasedPipelineStage
+from pdpipe.cq import is_fittable_column_qualifier
 # from pdpipe.util import out_of_place_col_insert
 from pdpipe.shared import (
     _interpret_columns_param,
@@ -13,16 +13,15 @@ from pdpipe.shared import (
 )
 
 
-class ColDrop(PdPipelineStage):
+class ColDrop(ColumnsBasedPipelineStage):
     """A pipeline stage that drops columns by name.
 
     Parameters
     ----------
     columns : str, iterable or callable
         The label, or an iterable of labels, of columns to drop. Alternatively,
-        columns can be assigned a callable returning bool values for
-        pandas.Series objects; if this is the case, every column for which it
-        return True will be dropped.
+        this parameter can be assigned a callable returning an iterable of
+        labels from an input pandas.DataFrame.
     errors : {‘ignore’, ‘raise’}, default ‘raise’
         If ‘ignore’, suppress error and existing labels are dropped.
 
@@ -36,45 +35,25 @@ class ColDrop(PdPipelineStage):
         2    b
     """
 
-    _DEF_COLDROP_EXC_MSG = ("ColDrop stage failed because not all columns {}"
-                            " were found in input dataframe.")
-    _DEF_COLDROP_APPLY_MSG = 'Dropping columns {}...'
-
-    def _default_desc(self):
-        if isinstance(self._columns, types.FunctionType):
-            return "Drop columns by lambda."
-        return "Drop column{} {}".format(
-            's' if len(self._columns) > 1 else '', self._columns_str)
-
     def __init__(self, columns, errors=None, **kwargs):
-        self._columns = columns
         self._errors = errors
-        self._columns_str = _list_str(self._columns)
-        if not callable(columns):
-            self._columns = _interpret_columns_param(columns)
         super_kwargs = {
-            'exmsg': ColDrop._DEF_COLDROP_EXC_MSG.format(self._columns_str),
-            'appmsg': ColDrop._DEF_COLDROP_APPLY_MSG.format(self._columns_str),
-            'desc': self._default_desc()
+            'columns': columns,
+            'desc_temp': 'Drop columns {}',
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
-        if callable(self._columns):
-            return True
-        if self._errors != 'ignore':
-            return set(self._columns).issubset(df.columns)
-        return True
+    def _is_fittable(self):
+        return is_fittable_column_qualifier(self._col_arg)
+
+    def _fit_transform(self, df, verbose):
+        return df.drop(
+            self._get_columns(df, fit=True), axis=1, errors=self._errors)
 
     def _transform(self, df, verbose):
-        if callable(self._columns):
-            cols_to_drop = [
-                col for col in df.columns
-                if self._columns(df[col])
-            ]
-            return df.drop(cols_to_drop, axis=1, errors=self._errors)
-        return df.drop(self._columns, axis=1, errors=self._errors)
+        return df.drop(
+            self._get_columns(df, fit=False), axis=1, errors=self._errors)
 
 
 class ValDrop(PdPipelineStage):
