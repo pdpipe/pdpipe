@@ -66,7 +66,7 @@ ColumnQualifier objects also support the &, ^ and | binary boolean operators -
 representing boolean and, xor and or, respectively - and the ~ unary boolean
 operator - representing the boolean not operator. Finally, the - binary
 operator is implemented to represent the NOT IN non-symetric binary relation
-between two qualifiers.
+between two qualifiers (the difference operator on the resulting sets).
 
 So for example, to get a qualifier that qualifies all columns that have AT
 LEAST two missing values, one can use:
@@ -248,6 +248,50 @@ class ColumnQualifier(object):
             self._cqfunc.__doc__ or 'Anonymous qualifier'
         )
         return ColumnQualifier(func=_cqfunc)
+
+
+class ByColumnCondition(ColumnQualifier):
+    """A fittable column qualifier based on a per-column condition.
+
+    Parameters
+    ----------
+    cond : callable
+        A callaable that given an input pandas.Series object returns a boolean
+        value.
+    fittable : bool, default True
+        If set to false, this qualifier becomes unfittable, and `func` is
+        called on every call to transform. True by default.
+    safe : bool, default False
+        If set to True, every call to given condition `cond` is is wrapped in
+        a way that interprets every raised exception as a returned False value.
+        This is useful when generating qualifiers based on conditions that
+        assume a specific datatype for the checked column.
+
+    Example
+    -------
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> df = pd.DataFrame(
+        ...    [[1, 2, 'A'],[4, 1, 'C']], [1,2], ['age', 'count', 'grade'])
+        >>> cq = pdp.cq.ByColumnCondition(lambda s: s.sum() > 3, safe=True)
+        >>> cq(df)
+        ['age']
+    """
+
+    def __init__(self, cond, fittable=True, safe=False):
+        self._cond = cond
+        if safe:
+            def _safe_cond(series):
+                try:
+                    return cond(series)
+                except Exception:
+                    return False
+            self._cond = _safe_cond
+        def _cqfunc(df):  # noqa: E306
+            return list([
+                lbl for lbl, series in df.iteritems()
+                if self._cond(series)
+            ])
+        super().__init__(func=_cqfunc, fittable=fittable)
 
 
 class StartWith(ColumnQualifier):
