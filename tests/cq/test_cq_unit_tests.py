@@ -1,5 +1,6 @@
 """Unit test for column qualifiers."""
 
+import numpy as np
 import pandas as pd
 import pdpipe as pdp
 
@@ -47,6 +48,9 @@ def test_difference_operator():
 
 
 MIXED_DTYPES_DF = pd.DataFrame(
-    [['a', 2], ['b', 5]], [1, 2], ['char', 'init'])
+    [['a', 2], ['b', 5]], [1, 2], ['char', 'int'])
 
-# def test_
+
+def test_by_column_condition():
+    cq = pdp.cq.ByColumnCondition(lambda x: x.dtype == np.int64)
+    assert cq(MIXED_DTYPES_DF) == ['int']
