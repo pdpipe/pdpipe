@@ -380,7 +380,7 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
     def _transform(self, df, verbose):
         vectorized = self._tfidf_vectorizer.transform(df[self._column])
         vec_df = pd.DataFrame.sparse.from_spmatrix(
-            data=vectorized, columns=self._res_col_names)
+            data=vectorized, index=df.index, columns=self._res_col_names)
         inter_df = pd.concat([df, vec_df], axis=1)
         if self._drop:
             return inter_df.drop(self._column, axis=1)
