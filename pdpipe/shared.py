@@ -22,3 +22,7 @@ def _list_str(listi):
 def _get_args_list(func):
     args, varargs, varkw, defaults = inspect.getargspec(func)
     return args
+
+
+def _identity_function(x):
+    return x

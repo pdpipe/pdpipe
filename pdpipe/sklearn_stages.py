@@ -23,6 +23,7 @@ from pdpipe.shared import (
     _interpret_columns_param,
     _list_str,
     _get_args_list,
+    _identity_function,
 )
 
 from .exceptions import PipelineApplicationError
@@ -357,7 +358,7 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
     def _fit_transform(self, df, verbose):
         self._tfidf_vectorizer = TfidfVectorizer(
             input='content',
-            analyzer=lambda x: x,
+            analyzer=_identity_function,
             **self._vectorizer_args,
         )
         vectorized = self._tfidf_vectorizer.fit_transform(df[self._column])
@@ -380,7 +381,7 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
     def _transform(self, df, verbose):
         vectorized = self._tfidf_vectorizer.transform(df[self._column])
         vec_df = pd.DataFrame.sparse.from_spmatrix(
-            data=vectorized, columns=self._res_col_names)
+            data=vectorized, index=df.index, columns=self._res_col_names)
         inter_df = pd.concat([df, vec_df], axis=1)
         if self._drop:
             return inter_df.drop(self._column, axis=1)

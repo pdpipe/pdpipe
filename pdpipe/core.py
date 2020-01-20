@@ -79,18 +79,18 @@ class PdPipelineStage(abc.ABC):
         A default description is used if None is given.
     """
 
-    _DEF_EXC_MSG = 'Precondition failed!'
+    _DEF_EXC_MSG = 'Precondition failed in stage {}!'
     _DEF_APPLY_MSG = 'Applying a pipeline stage...'
     _DEF_DESCRIPTION = 'A pipeline stage.'
     _INIT_KWARGS = ['exraise', 'exmsg', 'appmsg', 'desc']
 
     def __init__(self, exraise=True, exmsg=None, appmsg=None, desc=None):
-        if exmsg is None:
-            exmsg = PdPipelineStage._DEF_EXC_MSG
         if appmsg is None:
             appmsg = PdPipelineStage._DEF_APPLY_MSG
         if desc is None:
             desc = PdPipelineStage._DEF_DESCRIPTION
+        if exmsg is None:
+            exmsg = PdPipelineStage._DEF_EXC_MSG.format(desc)
         self._exraise = exraise
         self._exmsg = exmsg
         self._appmsg = appmsg

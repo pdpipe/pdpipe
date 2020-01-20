@@ -465,17 +465,40 @@ class RowDrop(PdPipelineStage):
     def _default_desc(self):
         return "Drop rows by conditions: {}".format(self._conditions)
 
+    class DictRowCond(object):
+        """Filter rows by a dict of conditions."""
+
+        def __init__(self, conditions, reducer):
+            self.conditions = conditions
+            self.reducer = reducer
+
+        def __call__(self, row):
+            res = [cond(row[lbl]) for lbl, cond in self.conditions.items()]
+            return self.reducer(res)
+
+    class ListRowCond(object):
+        """Filter rows by a list of conditions."""
+
+        def __init__(self, conditions, reducer):
+            self.conditions = conditions
+            self.reducer = reducer
+
+        def __call__(self, row):
+            res = [self.reducer(row.apply(cond)) for cond in self.conditions]
+            return self.reducer(res)
+
     def _row_condition_builder(self, conditions, reduce):
         reducer = RowDrop._REDUCERS[reduce]
         if self._cond_is_dict:
-            def _row_cond(row):
-                res = [cond(row[lbl]) for lbl, cond in conditions.items()]
-                return reducer(res)
+            row_cond = RowDrop.DictRowCond(
+                conditions=conditions, reducer=reducer)
+            # def _row_cond(row):
+            #     res = [cond(row[lbl]) for lbl, cond in conditions.items()]
+            #     return reducer(res)
         else:
-            def _row_cond(row):
-                res = [reducer(row.apply(cond)) for cond in conditions]
-                return reducer(res)
-        return _row_cond
+            row_cond = RowDrop.ListRowCond(
+                conditions=conditions, reducer=reducer)
+        return row_cond
 
     def __init__(self, conditions, reduce=None, columns=None, **kwargs):
         self._conditions = conditions
