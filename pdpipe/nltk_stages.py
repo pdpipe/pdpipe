@@ -265,18 +265,43 @@ class SnowballStem(MapColVals):
                          "are of dtype object.")
     _DEF_STEM_APP_MSG = "Stemming tokens{} in {}..."
 
+    class MinLenStemCondition(object):
+
+        def __init__(self, min_len):
+            self.min_len = min_len
+
+        def __call__(self, x):
+            return len(x) >= self.min_len
+
+    class MaxLenStemCondition(object):
+
+        def __init__(self, max_len):
+            self.max_len = max_len
+
+        def __call__(self, x):
+            return len(x) <= self.max_len
+
+    class MinMaxLenStemCondition(object):
+
+        def __init__(self, min_len, max_len):
+            self.min_len = min_len
+            self.max_len = max_len
+
+        def __call__(self, x):
+            return (len(x) >= self.min_len) and (len(x) <= self.max_len)
+
     class _TokenListStemmer(object):
         def __init__(self, stemmer, min_len=None, max_len=None):
             self.stemmer = stemmer
             self.cond = None
             if min_len:
                 if max_len:
-                    self.cond = lambda x: (
-                        len(x) >= min_len) and (len(x) <= max_len)
+                    self.cond = SnowballStem.MinMaxLenStemCondition(
+                        min_len=min_len, max_len=max_len)
                 else:
-                    self.cond = lambda x: len(x) >= min_len
+                    self.cond = SnowballStem.MinLenStemCondition(min_len)
             elif max_len:
-                self.cond = lambda x: len(x) <= max_len
+                self.cond = SnowballStem.MaxLenStemCondition(max_len)
             self.__stem__ = self.__uncond_stem__
             if self.cond:
                 self.__stem__ = self.__cond_stem__
