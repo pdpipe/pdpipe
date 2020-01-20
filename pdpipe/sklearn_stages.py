@@ -23,6 +23,7 @@ from pdpipe.shared import (
     _interpret_columns_param,
     _list_str,
     _get_args_list,
+    _identity_function,
 )
 
 from .exceptions import PipelineApplicationError
@@ -357,7 +358,7 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
     def _fit_transform(self, df, verbose):
         self._tfidf_vectorizer = TfidfVectorizer(
             input='content',
-            analyzer=lambda x: x,
+            analyzer=_identity_function,
             **self._vectorizer_args,
         )
         vectorized = self._tfidf_vectorizer.fit_transform(df[self._column])
