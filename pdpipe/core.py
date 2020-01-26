@@ -383,10 +383,9 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         raise NotImplementedError
 
     def apply(self, df, exraise=None, verbose=False):
-        inter_df = df
-        for stage in self._stages:
-            inter_df = stage.apply(inter_df, exraise, verbose)
-        return inter_df
+        if self.is_fitted:
+            return self.transform(X=df, exraise=None, verbose=verbose)
+        return self.fit_transform(X=df, exraise=exraise, verbose=verbose)
 
     def fit_transform(self, X, y=None, exraise=None, verbose=None):
         """Fits this pipeline and transforms the input dataframe.
@@ -412,7 +411,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         Returns
         -------
         pandas.DataFrame
-            The resulting dataframe.
+            The resulting dacaframe.
         """
         inter_x = X
         for stage in self._stages:
@@ -422,6 +421,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                 exraise=exraise,
                 verbose=verbose,
             )
+        self.is_fitted = True
         return inter_x
 
     def fit(self, X, y=None, exraise=None, verbose=None):
