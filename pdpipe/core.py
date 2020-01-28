@@ -384,7 +384,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
 
     def apply(self, df, exraise=None, verbose=False):
         if self.is_fitted:
-            return self.transform(X=df, exraise=None, verbose=verbose)
+            return self.transform(X=df, exraise=exraise, verbose=verbose)
         return self.fit_transform(X=df, exraise=exraise, verbose=verbose)
 
     def fit_transform(self, X, y=None, exraise=None, verbose=None):
