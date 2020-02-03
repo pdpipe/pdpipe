@@ -58,6 +58,13 @@ from .text_stages import (
 
 core.__load_stage_attributes_from_module__("pdpipe.text_stages")
 
+from . import wrappers
+from .wrappers import (
+    FitOnly,
+)
+
+core.__load_stage_attributes_from_module__("pdpipe.wrappers")
+
 try:
     from . import sklearn_stages
     from .sklearn_stages import (
