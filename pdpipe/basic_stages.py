@@ -607,7 +607,7 @@ class DropDuplicates(PdPipelineStage):
     Examples
     --------
         >>> import pandas as pd; import pdpipe as pdp;
-        >>> df = pd.DataFrame([[8, 1],[8, 2]], [9, 2]], [1,2,3], ['a', 'b'])
+        >>> df = pd.DataFrame([[8, 1],[8, 2], [9, 2]], [1,2,3], ['a', 'b'])
         >>> pdp.DropDuplicates('a').apply(df)
            a  b
         1  8  1

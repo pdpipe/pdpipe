@@ -31,6 +31,7 @@ from .basic_stages import (
     ColReorder,
     RowDrop,
     Schematize,
+    DropDuplicates,
 )
 
 core.__load_stage_attributes_from_module__("pdpipe.basic_stages")
