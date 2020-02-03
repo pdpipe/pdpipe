@@ -31,9 +31,10 @@ class FitOnly(PdPipelineStage):
 
     def __init__(self, stage, **kwargs):
         self._stage = stage
+        desc = FitOnly._FITONLY_DESC.format(stage.description())
         super_kwargs = {
-            'appmsg': FitOnly._FITONLY_DESC.format(stage) + '...',
-            'desc': FitOnly._FITONLY_DESC.format(stage),
+            'appmsg': desc + '...',
+            'desc': desc,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -48,5 +49,5 @@ class FitOnly(PdPipelineStage):
     def _transform(self, df, verbose):
         if verbose:
             print("Skipping, because not in fit, the stage: {}".format(
-                self._stage))
+                self._stage.description()))
         return df
