@@ -572,17 +572,76 @@ class Schematize(PdPipelineStage):
         2  9  6
     """
 
-    def __init__(self, columns):
-        self._columns = columns
+    def __init__(self, columns, **kwargs):
+        self._columns = _interpret_columns_param(columns)
+        self._columns_str = _list_str(self._columns)
         desc = "Transform input dataframes to the following schema: {}".format(
-            columns)
+            self._columns_str)
         appmsg = desc + '..'
         exmsg = "Not all required columns {} found in input dataframe!".format(
-            columns)
-        super().__init__(appmsg=appmsg, exmsg=exmsg, desc=desc)
+            self._columns_str)
+        super_kwargs = {
+            'exmsg': exmsg,
+            'appmsg': appmsg,
+            'desc': desc,
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
 
     def _prec(self, df):
         return set(self._columns).issubset(df.columns)
 
     def _transform(self, df, verbose=None):
         return df[self._columns]
+
+
+class DropDuplicates(PdPipelineStage):
+    """Drop duplicates in the given columns.
+
+    Parameters
+    ----------
+    columns: column label or sequence of labels, optional
+        The labels of the columns to consider for duplication drop. If not
+        populated, duplicates are dropped from all columns.
+
+    Examples
+    --------
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> df = pd.DataFrame([[8, 1],[8, 2], [9, 2]], [1,2,3], ['a', 'b'])
+        >>> pdp.DropDuplicates('a').apply(df)
+           a  b
+        1  8  1
+        3  9  2
+    """
+
+    def __init__(self, columns=None, **kwargs):
+        self._columns = columns
+        self._columns_str = "all columns"
+        if columns is not None:
+            self._columns = _interpret_columns_param(columns)
+            self._columns_str = _list_str(self._columns)
+        desc = "Drop duplicates in columns {}.".format(self._columns_str)
+        if columns is None:
+            desc = "Drop duplicated."
+        appmsg = desc + '..'
+        exmsg = "Not all required columns {} found in input dataframe!".format(
+            self._columns_str)
+        super_kwargs = {
+            'exmsg': exmsg,
+            'appmsg': appmsg,
+            'desc': desc,
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        try:
+            return set(self._columns).issubset(df.columns)
+        except TypeError:
+            return True
+
+    def _transform(self, df, verbose=None):
+        inter_df = df.drop_duplicates(subset=self._columns)
+        if verbose:
+            print("{} rows dropped.".format(len(df) - len(inter_df)))
+        return inter_df
