@@ -29,7 +29,8 @@ from .basic_stages import (
     DropNa,
     FreqDrop,
     ColReorder,
-    RowDrop
+    RowDrop,
+    Schematize,
 )
 
 core.__load_stage_attributes_from_module__("pdpipe.basic_stages")
