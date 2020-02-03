@@ -27,7 +27,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/text_stages.py#L0-L241" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/text_stages.py#L0-L241" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Text processing pdpipe pipeline stages.&#34;&#34;&#34;
 
@@ -320,7 +320,7 @@ suffix '_filtered'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/text_stages.py#L91-L175" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/text_stages.py#L91-L175" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class DropTokensByLength(ApplyByCols):
     &#34;&#34;&#34;A pipeline stage removing tokens by length in string-token list columns.
@@ -422,7 +422,7 @@ suffix '_filtered'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/text_stages.py#L125-L131" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/text_stages.py#L125-L131" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class MinLengthTokenFilter(object):
 
@@ -439,7 +439,7 @@ suffix '_filtered'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/text_stages.py#L133-L143" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/text_stages.py#L133-L143" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class MinMaxLengthTokenFilter(object):
 
@@ -482,6 +482,7 @@ suffix '_filtered'.</dd>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.RemoveStopwords" href="core.html#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.RowDrop" href="core.html#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.Scale" href="core.html#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
+<li><code><a title="pdpipe.col_generation.ApplyByCols.Schematize" href="core.html#pdpipe.core.PdPipelineStage.Schematize">Schematize</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.SnowballStem" href="core.html#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.TfidfVectorizeTokenLists" href="core.html#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.TokenizeText" href="core.html#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>
@@ -531,7 +532,7 @@ suffix '_filtered'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/text_stages.py#L178-L242" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/text_stages.py#L178-L242" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class DropTokensByList(ApplyByCols):
     &#34;&#34;&#34;A pipeline stage removing specific tokens in string-token list columns.
@@ -613,7 +614,7 @@ suffix '_filtered'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/text_stages.py#L208-L214" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/text_stages.py#L208-L214" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ListTokenFilter(object):
 
@@ -652,6 +653,7 @@ suffix '_filtered'.</dd>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.RemoveStopwords" href="core.html#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.RowDrop" href="core.html#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.Scale" href="core.html#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
+<li><code><a title="pdpipe.col_generation.ApplyByCols.Schematize" href="core.html#pdpipe.core.PdPipelineStage.Schematize">Schematize</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.SnowballStem" href="core.html#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.TfidfVectorizeTokenLists" href="core.html#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.TokenizeText" href="core.html#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>
@@ -703,7 +705,7 @@ otherwise, the name of the source column is used with the suffix
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/text_stages.py#L11-L88" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/text_stages.py#L11-L88" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class RegexReplace(ApplyByCols):
     &#34;&#34;&#34;A pipeline stage replacing regex occurences in a text column.
@@ -798,7 +800,7 @@ otherwise, the name of the source column is used with the suffix
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/text_stages.py#L48-L56" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/text_stages.py#L48-L56" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class RegexReplacer(object):
     &#34;&#34;&#34;A pickle-able regex replacement function.&#34;&#34;&#34;
@@ -839,6 +841,7 @@ otherwise, the name of the source column is used with the suffix
 <li><code><a title="pdpipe.col_generation.ApplyByCols.RemoveStopwords" href="core.html#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.RowDrop" href="core.html#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.Scale" href="core.html#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
+<li><code><a title="pdpipe.col_generation.ApplyByCols.Schematize" href="core.html#pdpipe.core.PdPipelineStage.Schematize">Schematize</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.SnowballStem" href="core.html#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.TfidfVectorizeTokenLists" href="core.html#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.TokenizeText" href="core.html#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>

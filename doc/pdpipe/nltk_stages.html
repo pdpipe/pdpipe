@@ -33,7 +33,7 @@ stages.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/nltk_stages.py#L0-L470" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/nltk_stages.py#L0-L470" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;PdPipeline stages dependent on the nltk Python library.
 
@@ -549,7 +549,7 @@ Otherwise, the new columns gain the suffix '_norare'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/nltk_stages.py#L370-L471" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/nltk_stages.py#L370-L471" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class DropRareTokens(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that drop rare tokens from token lists.
@@ -686,6 +686,7 @@ Otherwise, the new columns gain the suffix '_norare'.</dd>
 <li><code><a title="pdpipe.core.PdPipelineStage.RemoveStopwords" href="core.html#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.RowDrop" href="core.html#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.Scale" href="core.html#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Schematize" href="core.html#pdpipe.core.PdPipelineStage.Schematize">Schematize</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.SnowballStem" href="core.html#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists" href="core.html#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.TokenizeText" href="core.html#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>
@@ -734,7 +735,7 @@ Otherwise, resulting columns gain the suffix '_nostop'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/nltk_stages.py#L144-L228" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/nltk_stages.py#L144-L228" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class RemoveStopwords(MapColVals):
     &#34;&#34;&#34;A pipeline stage that removes stopwords from a tokenized list.
@@ -855,6 +856,7 @@ Otherwise, resulting columns gain the suffix '_nostop'.</dd>
 <li><code><a title="pdpipe.col_generation.MapColVals.RemoveStopwords" href="core.html#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.RowDrop" href="core.html#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.Scale" href="core.html#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
+<li><code><a title="pdpipe.col_generation.MapColVals.Schematize" href="core.html#pdpipe.core.PdPipelineStage.Schematize">Schematize</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.SnowballStem" href="core.html#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.TfidfVectorizeTokenLists" href="core.html#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.TokenizeText" href="core.html#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>
@@ -905,7 +907,7 @@ resulting columns gain the suffix '_stem'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/nltk_stages.py#L231-L367" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/nltk_stages.py#L231-L367" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class SnowballStem(MapColVals):
     &#34;&#34;&#34;A pipeline stage that stems tokens in a list using the Snowball stemmer.
@@ -1059,7 +1061,7 @@ resulting columns gain the suffix '_stem'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/nltk_stages.py#L276-L282" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/nltk_stages.py#L276-L282" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class MaxLenStemCondition(object):
 
@@ -1076,7 +1078,7 @@ resulting columns gain the suffix '_stem'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/nltk_stages.py#L268-L274" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/nltk_stages.py#L268-L274" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class MinLenStemCondition(object):
 
@@ -1093,7 +1095,7 @@ resulting columns gain the suffix '_stem'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/nltk_stages.py#L284-L291" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/nltk_stages.py#L284-L291" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class MinMaxLenStemCondition(object):
 
@@ -1133,6 +1135,7 @@ resulting columns gain the suffix '_stem'.</dd>
 <li><code><a title="pdpipe.col_generation.MapColVals.RemoveStopwords" href="core.html#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.RowDrop" href="core.html#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.Scale" href="core.html#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
+<li><code><a title="pdpipe.col_generation.MapColVals.Schematize" href="core.html#pdpipe.core.PdPipelineStage.Schematize">Schematize</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.SnowballStem" href="core.html#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.TfidfVectorizeTokenLists" href="core.html#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.TokenizeText" href="core.html#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>
@@ -1176,7 +1179,7 @@ columns. Otherwise, tokenized columns gain the suffix '_tok'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/nltk_stages.py#L28-L88" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/nltk_stages.py#L28-L88" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class TokenizeText(MapColVals):
     &#34;&#34;&#34;A pipeline stage that tokenize a text column into token lists.
@@ -1273,6 +1276,7 @@ columns. Otherwise, tokenized columns gain the suffix '_tok'.</dd>
 <li><code><a title="pdpipe.col_generation.MapColVals.RemoveStopwords" href="core.html#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.RowDrop" href="core.html#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.Scale" href="core.html#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
+<li><code><a title="pdpipe.col_generation.MapColVals.Schematize" href="core.html#pdpipe.core.PdPipelineStage.Schematize">Schematize</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.SnowballStem" href="core.html#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.TfidfVectorizeTokenLists" href="core.html#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.TokenizeText" href="core.html#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>
@@ -1316,7 +1320,7 @@ Otherwise, untokenized columns gain the suffix '_untok'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/nltk_stages.py#L91-L141" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/nltk_stages.py#L91-L141" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class UntokenizeText(MapColVals):
     &#34;&#34;&#34;A pipeline stage that joins token lists to whitespace-seperated strings.
@@ -1403,6 +1407,7 @@ Otherwise, untokenized columns gain the suffix '_untok'.</dd>
 <li><code><a title="pdpipe.col_generation.MapColVals.RemoveStopwords" href="core.html#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.RowDrop" href="core.html#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.Scale" href="core.html#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
+<li><code><a title="pdpipe.col_generation.MapColVals.Schematize" href="core.html#pdpipe.core.PdPipelineStage.Schematize">Schematize</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.SnowballStem" href="core.html#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.TfidfVectorizeTokenLists" href="core.html#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.TokenizeText" href="core.html#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>
