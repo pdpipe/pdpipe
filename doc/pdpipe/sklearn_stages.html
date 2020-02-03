@@ -33,7 +33,7 @@ pipeline stages.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/sklearn_stages.py#L0-L373" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/sklearn_stages.py#L0-L387" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;PdPipeline stages dependent on the scikit-learn Python library.
 
@@ -60,6 +60,7 @@ from pdpipe.shared import (
     _interpret_columns_param,
     _list_str,
     _get_args_list,
+    _identity_function,
 )
 
 from .exceptions import PipelineApplicationError
@@ -339,6 +340,14 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
         The label of the token-list column to TfIdf-vectorize.
     drop : bool, default True
         If set to True, the source column is dropped after being transformed.
+    hierarchical_labels : bool, default False
+        If set to True, the labels of resulting columns are of the form &#39;P_F&#39;
+        where P is the label of the original token-list column and F is the
+        feature name (i.e. the string token it corresponds to). Otherwise, it
+        is simply the feature name itself. If you plan to have two different
+        TfidfVectorizeTokenLists pipeline stages vectorizing two different
+        token-list columns, you should set this to true, so tf-idf features
+        originating in different text columns do not overwrite one another.
 
     Example
     -------
@@ -347,16 +356,18 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
         &gt;&gt;&gt; df = pd.DataFrame(data, [1, 2], [&#39;Age&#39;, &#39;tokens&#39;])
         &gt;&gt;&gt; tfvectorizer = pdp.TfidfVectorizeTokenLists(&#39;tokens&#39;)
         &gt;&gt;&gt; tfvectorizer(df)
-           Age  tokens_0  tokens_1  tokens_2
-        1    2  0.579739  0.814802  0.000000
-        2    5  0.579739  0.000000  0.814802
+           Age      eels  hovercraft   urethra
+        1    2  0.579739    0.814802  0.000000
+        2    5  0.579739    0.000000  0.814802
     &#34;&#34;&#34;
 
     _DEF_CNTVEC_MSG = &#34;Count-vectorizing column {}.&#34;
 
-    def __init__(self, column, drop=True, **kwargs):
+    def __init__(self, column, drop=True, hierarchical_labels=False,
+                 **kwargs):
         self._column = column
         self._drop = drop
+        self._hierarchical_labels = hierarchical_labels
         msg = TfidfVectorizeTokenLists._DEF_CNTVEC_MSG.format(column)
         super_kwargs = {
             &#34;exmsg&#34;: (&#34;TfIdfVectorizeTokenLists precondition not met:&#34;
@@ -384,15 +395,18 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
     def _fit_transform(self, df, verbose):
         self._tfidf_vectorizer = TfidfVectorizer(
             input=&#39;content&#39;,
-            analyzer=lambda x: x,
+            analyzer=_identity_function,
             **self._vectorizer_args,
         )
         vectorized = self._tfidf_vectorizer.fit_transform(df[self._column])
         self._n_features = vectorized.shape[1]
-        self._res_col_names = [
-            &#39;{}_{}&#39;.format(self._column, i)
-            for i in range(self._n_features)
-        ]
+        if self._hierarchical_labels:
+            self._res_col_names = [
+                &#39;{}_{}&#39;.format(self._column, f)
+                for f in self._tfidf_vectorizer.get_feature_names()
+            ]
+        else:
+            self._res_col_names = self._tfidf_vectorizer.get_feature_names()
         vec_df = pd.DataFrame.sparse.from_spmatrix(
             data=vectorized, index=df.index, columns=self._res_col_names)
         inter_df = pd.concat([df, vec_df], axis=1)
@@ -404,7 +418,7 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
     def _transform(self, df, verbose):
         vectorized = self._tfidf_vectorizer.transform(df[self._column])
         vec_df = pd.DataFrame.sparse.from_spmatrix(
-            data=vectorized, columns=self._res_col_names)
+            data=vectorized, index=df.index, columns=self._res_col_names)
         inter_df = pd.concat([df, vec_df], axis=1)
         if self._drop:
             return inter_df.drop(self._column, axis=1)
@@ -460,7 +474,7 @@ array(['acd', 'alk', 'alk'], dtype=object)
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/sklearn_stages.py#L31-L147" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/sklearn_stages.py#L32-L148" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Encode(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that encodes categorical columns to integer values.
@@ -665,7 +679,7 @@ to override Scale class defaults.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/sklearn_stages.py#L150-L281" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/sklearn_stages.py#L151-L282" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Scale(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that scales data.
@@ -849,7 +863,7 @@ to override Scale class defaults.</dd>
 </dd>
 <dt id="pdpipe.sklearn_stages.TfidfVectorizeTokenLists"><code class="flex name class">
 <span>class <span class="ident">TfidfVectorizeTokenLists</span></span>
-<span>(</span><span>column, drop=True, **kwargs)</span>
+<span>(</span><span>column, drop=True, hierarchical_labels=False, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>A pipeline stage TFIDF-vectorizing a token-list column to count columns.</p>
@@ -868,6 +882,14 @@ can also be provided as keyword arguments.</p>
 <dd>The label of the token-list column to TfIdf-vectorize.</dd>
 <dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
 <dd>If set to True, the source column is dropped after being transformed.</dd>
+<dt><strong><code>hierarchical_labels</code></strong> :&ensp;<code>bool</code>, default <code>False</code></dt>
+<dd>If set to True, the labels of resulting columns are of the form 'P_F'
+where P is the label of the original token-list column and F is the
+feature name (i.e. the string token it corresponds to). Otherwise, it
+is simply the feature name itself. If you plan to have two different
+TfidfVectorizeTokenLists pipeline stages vectorizing two different
+token-list columns, you should set this to true, so tf-idf features
+originating in different text columns do not overwrite one another.</dd>
 </dl>
 <h2 id="example">Example</h2>
 <pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
@@ -875,14 +897,14 @@ can also be provided as keyword arguments.</p>
 &gt;&gt;&gt; df = pd.DataFrame(data, [1, 2], ['Age', 'tokens'])
 &gt;&gt;&gt; tfvectorizer = pdp.TfidfVectorizeTokenLists('tokens')
 &gt;&gt;&gt; tfvectorizer(df)
-   Age  tokens_0  tokens_1  tokens_2
-1    2  0.579739  0.814802  0.000000
-2    5  0.579739  0.000000  0.814802
+   Age      eels  hovercraft   urethra
+1    2  0.579739    0.814802  0.000000
+2    5  0.579739    0.000000  0.814802
 </code></pre></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/sklearn_stages.py#L284-L374" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/sklearn_stages.py#L285-L388" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class TfidfVectorizeTokenLists(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage TFIDF-vectorizing a token-list column to count columns.
@@ -905,6 +927,14 @@ can also be provided as keyword arguments.</p>
         The label of the token-list column to TfIdf-vectorize.
     drop : bool, default True
         If set to True, the source column is dropped after being transformed.
+    hierarchical_labels : bool, default False
+        If set to True, the labels of resulting columns are of the form &#39;P_F&#39;
+        where P is the label of the original token-list column and F is the
+        feature name (i.e. the string token it corresponds to). Otherwise, it
+        is simply the feature name itself. If you plan to have two different
+        TfidfVectorizeTokenLists pipeline stages vectorizing two different
+        token-list columns, you should set this to true, so tf-idf features
+        originating in different text columns do not overwrite one another.
 
     Example
     -------
@@ -913,16 +943,18 @@ can also be provided as keyword arguments.</p>
         &gt;&gt;&gt; df = pd.DataFrame(data, [1, 2], [&#39;Age&#39;, &#39;tokens&#39;])
         &gt;&gt;&gt; tfvectorizer = pdp.TfidfVectorizeTokenLists(&#39;tokens&#39;)
         &gt;&gt;&gt; tfvectorizer(df)
-           Age  tokens_0  tokens_1  tokens_2
-        1    2  0.579739  0.814802  0.000000
-        2    5  0.579739  0.000000  0.814802
+           Age      eels  hovercraft   urethra
+        1    2  0.579739    0.814802  0.000000
+        2    5  0.579739    0.000000  0.814802
     &#34;&#34;&#34;
 
     _DEF_CNTVEC_MSG = &#34;Count-vectorizing column {}.&#34;
 
-    def __init__(self, column, drop=True, **kwargs):
+    def __init__(self, column, drop=True, hierarchical_labels=False,
+                 **kwargs):
         self._column = column
         self._drop = drop
+        self._hierarchical_labels = hierarchical_labels
         msg = TfidfVectorizeTokenLists._DEF_CNTVEC_MSG.format(column)
         super_kwargs = {
             &#34;exmsg&#34;: (&#34;TfIdfVectorizeTokenLists precondition not met:&#34;
@@ -950,15 +982,18 @@ can also be provided as keyword arguments.</p>
     def _fit_transform(self, df, verbose):
         self._tfidf_vectorizer = TfidfVectorizer(
             input=&#39;content&#39;,
-            analyzer=lambda x: x,
+            analyzer=_identity_function,
             **self._vectorizer_args,
         )
         vectorized = self._tfidf_vectorizer.fit_transform(df[self._column])
         self._n_features = vectorized.shape[1]
-        self._res_col_names = [
-            &#39;{}_{}&#39;.format(self._column, i)
-            for i in range(self._n_features)
-        ]
+        if self._hierarchical_labels:
+            self._res_col_names = [
+                &#39;{}_{}&#39;.format(self._column, f)
+                for f in self._tfidf_vectorizer.get_feature_names()
+            ]
+        else:
+            self._res_col_names = self._tfidf_vectorizer.get_feature_names()
         vec_df = pd.DataFrame.sparse.from_spmatrix(
             data=vectorized, index=df.index, columns=self._res_col_names)
         inter_df = pd.concat([df, vec_df], axis=1)
@@ -970,7 +1005,7 @@ can also be provided as keyword arguments.</p>
     def _transform(self, df, verbose):
         vectorized = self._tfidf_vectorizer.transform(df[self._column])
         vec_df = pd.DataFrame.sparse.from_spmatrix(
-            data=vectorized, columns=self._res_col_names)
+            data=vectorized, index=df.index, columns=self._res_col_names)
         inter_df = pd.concat([df, vec_df], axis=1)
         if self._drop:
             return inter_df.drop(self._column, axis=1)

@@ -33,7 +33,7 @@ stages.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/nltk_stages.py#L0-L443" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/nltk_stages.py#L0-L470" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;PdPipeline stages dependent on the nltk Python library.
 
@@ -302,18 +302,43 @@ class SnowballStem(MapColVals):
                          &#34;are of dtype object.&#34;)
     _DEF_STEM_APP_MSG = &#34;Stemming tokens{} in {}...&#34;
 
+    class MinLenStemCondition(object):
+
+        def __init__(self, min_len):
+            self.min_len = min_len
+
+        def __call__(self, x):
+            return len(x) &gt;= self.min_len
+
+    class MaxLenStemCondition(object):
+
+        def __init__(self, max_len):
+            self.max_len = max_len
+
+        def __call__(self, x):
+            return len(x) &lt;= self.max_len
+
+    class MinMaxLenStemCondition(object):
+
+        def __init__(self, min_len, max_len):
+            self.min_len = min_len
+            self.max_len = max_len
+
+        def __call__(self, x):
+            return (len(x) &gt;= self.min_len) and (len(x) &lt;= self.max_len)
+
     class _TokenListStemmer(object):
         def __init__(self, stemmer, min_len=None, max_len=None):
             self.stemmer = stemmer
             self.cond = None
             if min_len:
                 if max_len:
-                    self.cond = lambda x: (
-                        len(x) &gt;= min_len) and (len(x) &lt;= max_len)
+                    self.cond = SnowballStem.MinMaxLenStemCondition(
+                        min_len=min_len, max_len=max_len)
                 else:
-                    self.cond = lambda x: len(x) &gt;= min_len
+                    self.cond = SnowballStem.MinLenStemCondition(min_len)
             elif max_len:
-                self.cond = lambda x: len(x) &lt;= max_len
+                self.cond = SnowballStem.MaxLenStemCondition(max_len)
             self.__stem__ = self.__uncond_stem__
             if self.cond:
                 self.__stem__ = self.__cond_stem__
@@ -356,8 +381,10 @@ class SnowballStem(MapColVals):
         col_str = _list_str(self._columns)
         cond_str = &#39;&#39;
         if min_len:
-            cond_str += &#39; &gt;= {}&#39;.format(min_len)
+            cond_str += &#39; of length &gt;= {}&#39;.format(min_len)
         if max_len:
+            if not min_len:
+                cond_str += &#39; of length&#39;
             cond_str += &#39; &lt;= {}&#39;.format(max_len)
         appmsg = SnowballStem._DEF_STEM_APP_MSG.format(cond_str, col_str)
         super_kwargs = {
@@ -522,7 +549,7 @@ Otherwise, the new columns gain the suffix '_norare'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/nltk_stages.py#L343-L444" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/nltk_stages.py#L370-L471" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class DropRareTokens(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that drop rare tokens from token lists.
@@ -707,7 +734,7 @@ Otherwise, resulting columns gain the suffix '_nostop'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/nltk_stages.py#L144-L228" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/nltk_stages.py#L144-L228" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class RemoveStopwords(MapColVals):
     &#34;&#34;&#34;A pipeline stage that removes stopwords from a tokenized list.
@@ -878,7 +905,7 @@ resulting columns gain the suffix '_stem'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/nltk_stages.py#L231-L340" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/nltk_stages.py#L231-L367" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class SnowballStem(MapColVals):
     &#34;&#34;&#34;A pipeline stage that stems tokens in a list using the Snowball stemmer.
@@ -917,18 +944,43 @@ resulting columns gain the suffix '_stem'.</dd>
                          &#34;are of dtype object.&#34;)
     _DEF_STEM_APP_MSG = &#34;Stemming tokens{} in {}...&#34;
 
+    class MinLenStemCondition(object):
+
+        def __init__(self, min_len):
+            self.min_len = min_len
+
+        def __call__(self, x):
+            return len(x) &gt;= self.min_len
+
+    class MaxLenStemCondition(object):
+
+        def __init__(self, max_len):
+            self.max_len = max_len
+
+        def __call__(self, x):
+            return len(x) &lt;= self.max_len
+
+    class MinMaxLenStemCondition(object):
+
+        def __init__(self, min_len, max_len):
+            self.min_len = min_len
+            self.max_len = max_len
+
+        def __call__(self, x):
+            return (len(x) &gt;= self.min_len) and (len(x) &lt;= self.max_len)
+
     class _TokenListStemmer(object):
         def __init__(self, stemmer, min_len=None, max_len=None):
             self.stemmer = stemmer
             self.cond = None
             if min_len:
                 if max_len:
-                    self.cond = lambda x: (
-                        len(x) &gt;= min_len) and (len(x) &lt;= max_len)
+                    self.cond = SnowballStem.MinMaxLenStemCondition(
+                        min_len=min_len, max_len=max_len)
                 else:
-                    self.cond = lambda x: len(x) &gt;= min_len
+                    self.cond = SnowballStem.MinLenStemCondition(min_len)
             elif max_len:
-                self.cond = lambda x: len(x) &lt;= max_len
+                self.cond = SnowballStem.MaxLenStemCondition(max_len)
             self.__stem__ = self.__uncond_stem__
             if self.cond:
                 self.__stem__ = self.__cond_stem__
@@ -971,8 +1023,10 @@ resulting columns gain the suffix '_stem'.</dd>
         col_str = _list_str(self._columns)
         cond_str = &#39;&#39;
         if min_len:
-            cond_str += &#39; &gt;= {}&#39;.format(min_len)
+            cond_str += &#39; of length &gt;= {}&#39;.format(min_len)
         if max_len:
+            if not min_len:
+                cond_str += &#39; of length&#39;
             cond_str += &#39; &lt;= {}&#39;.format(max_len)
         appmsg = SnowballStem._DEF_STEM_APP_MSG.format(cond_str, col_str)
         super_kwargs = {
@@ -997,6 +1051,61 @@ resulting columns gain the suffix '_stem'.</dd>
 <li><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></li>
 <li>abc.ABC</li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pdpipe.nltk_stages.SnowballStem.MaxLenStemCondition"><code class="name">var <span class="ident">MaxLenStemCondition</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/nltk_stages.py#L276-L282" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class MaxLenStemCondition(object):
+
+    def __init__(self, max_len):
+        self.max_len = max_len
+
+    def __call__(self, x):
+        return len(x) &lt;= self.max_len</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.nltk_stages.SnowballStem.MinLenStemCondition"><code class="name">var <span class="ident">MinLenStemCondition</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/nltk_stages.py#L268-L274" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class MinLenStemCondition(object):
+
+    def __init__(self, min_len):
+        self.min_len = min_len
+
+    def __call__(self, x):
+        return len(x) &gt;= self.min_len</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.nltk_stages.SnowballStem.MinMaxLenStemCondition"><code class="name">var <span class="ident">MinMaxLenStemCondition</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/nltk_stages.py#L284-L291" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class MinMaxLenStemCondition(object):
+
+    def __init__(self, min_len, max_len):
+        self.min_len = min_len
+        self.max_len = max_len
+
+    def __call__(self, x):
+        return (len(x) &gt;= self.min_len) and (len(x) &lt;= self.max_len)</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="pdpipe.col_generation.MapColVals" href="col_generation.html#pdpipe.col_generation.MapColVals">MapColVals</a></b></code>:
@@ -1067,7 +1176,7 @@ columns. Otherwise, tokenized columns gain the suffix '_tok'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/nltk_stages.py#L28-L88" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/nltk_stages.py#L28-L88" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class TokenizeText(MapColVals):
     &#34;&#34;&#34;A pipeline stage that tokenize a text column into token lists.
@@ -1207,7 +1316,7 @@ Otherwise, untokenized columns gain the suffix '_untok'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/nltk_stages.py#L91-L141" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/nltk_stages.py#L91-L141" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class UntokenizeText(MapColVals):
     &#34;&#34;&#34;A pipeline stage that joins token lists to whitespace-seperated strings.
@@ -1338,6 +1447,11 @@ Otherwise, untokenized columns gain the suffix '_untok'.</dd>
 </li>
 <li>
 <h4><code><a title="pdpipe.nltk_stages.SnowballStem" href="#pdpipe.nltk_stages.SnowballStem">SnowballStem</a></code></h4>
+<ul class="">
+<li><code><a title="pdpipe.nltk_stages.SnowballStem.MaxLenStemCondition" href="#pdpipe.nltk_stages.SnowballStem.MaxLenStemCondition">MaxLenStemCondition</a></code></li>
+<li><code><a title="pdpipe.nltk_stages.SnowballStem.MinLenStemCondition" href="#pdpipe.nltk_stages.SnowballStem.MinLenStemCondition">MinLenStemCondition</a></code></li>
+<li><code><a title="pdpipe.nltk_stages.SnowballStem.MinMaxLenStemCondition" href="#pdpipe.nltk_stages.SnowballStem.MinMaxLenStemCondition">MinMaxLenStemCondition</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="pdpipe.nltk_stages.TokenizeText" href="#pdpipe.nltk_stages.TokenizeText">TokenizeText</a></code></h4>

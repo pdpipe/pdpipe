@@ -27,7 +27,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/basic_stages.py#L0-L526" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/basic_stages.py#L0-L549" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Basic pdpipe PdPipelineStages.&#34;&#34;&#34;
 
@@ -496,17 +496,40 @@ class RowDrop(PdPipelineStage):
     def _default_desc(self):
         return &#34;Drop rows by conditions: {}&#34;.format(self._conditions)
 
+    class DictRowCond(object):
+        &#34;&#34;&#34;Filter rows by a dict of conditions.&#34;&#34;&#34;
+
+        def __init__(self, conditions, reducer):
+            self.conditions = conditions
+            self.reducer = reducer
+
+        def __call__(self, row):
+            res = [cond(row[lbl]) for lbl, cond in self.conditions.items()]
+            return self.reducer(res)
+
+    class ListRowCond(object):
+        &#34;&#34;&#34;Filter rows by a list of conditions.&#34;&#34;&#34;
+
+        def __init__(self, conditions, reducer):
+            self.conditions = conditions
+            self.reducer = reducer
+
+        def __call__(self, row):
+            res = [self.reducer(row.apply(cond)) for cond in self.conditions]
+            return self.reducer(res)
+
     def _row_condition_builder(self, conditions, reduce):
         reducer = RowDrop._REDUCERS[reduce]
         if self._cond_is_dict:
-            def _row_cond(row):
-                res = [cond(row[lbl]) for lbl, cond in conditions.items()]
-                return reducer(res)
+            row_cond = RowDrop.DictRowCond(
+                conditions=conditions, reducer=reducer)
+            # def _row_cond(row):
+            #     res = [cond(row[lbl]) for lbl, cond in conditions.items()]
+            #     return reducer(res)
         else:
-            def _row_cond(row):
-                res = [reducer(row.apply(cond)) for cond in conditions]
-                return reducer(res)
-        return _row_cond
+            row_cond = RowDrop.ListRowCond(
+                conditions=conditions, reducer=reducer)
+        return row_cond
 
     def __init__(self, conditions, reduce=None, columns=None, **kwargs):
         self._conditions = conditions
@@ -594,7 +617,7 @@ return True will be dropped.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/basic_stages.py#L16-L77" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/basic_stages.py#L16-L77" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ColDrop(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that drops columns by name.
@@ -728,7 +751,7 @@ return True will be dropped.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/basic_stages.py#L224-L263" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/basic_stages.py#L224-L263" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ColRename(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that renames a column or columns.
@@ -841,7 +864,7 @@ positions over the non-mapped colums.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/basic_stages.py#L365-L415" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/basic_stages.py#L365-L415" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ColReorder(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that reorders columns.
@@ -960,7 +983,7 @@ positions over the non-mapped colums.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/basic_stages.py#L266-L308" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/basic_stages.py#L266-L308" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class DropNa(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that drops null values.
@@ -1077,7 +1100,7 @@ positions over the non-mapped colums.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/basic_stages.py#L311-L362" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/basic_stages.py#L311-L362" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class FreqDrop(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that drops rows by value frequency.
@@ -1220,7 +1243,7 @@ these columns to determine which rows to drop.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/basic_stages.py#L418-L527" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/basic_stages.py#L418-L550" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class RowDrop(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that drop rows by callable conditions.
@@ -1272,17 +1295,40 @@ these columns to determine which rows to drop.</dd>
     def _default_desc(self):
         return &#34;Drop rows by conditions: {}&#34;.format(self._conditions)
 
+    class DictRowCond(object):
+        &#34;&#34;&#34;Filter rows by a dict of conditions.&#34;&#34;&#34;
+
+        def __init__(self, conditions, reducer):
+            self.conditions = conditions
+            self.reducer = reducer
+
+        def __call__(self, row):
+            res = [cond(row[lbl]) for lbl, cond in self.conditions.items()]
+            return self.reducer(res)
+
+    class ListRowCond(object):
+        &#34;&#34;&#34;Filter rows by a list of conditions.&#34;&#34;&#34;
+
+        def __init__(self, conditions, reducer):
+            self.conditions = conditions
+            self.reducer = reducer
+
+        def __call__(self, row):
+            res = [self.reducer(row.apply(cond)) for cond in self.conditions]
+            return self.reducer(res)
+
     def _row_condition_builder(self, conditions, reduce):
         reducer = RowDrop._REDUCERS[reduce]
         if self._cond_is_dict:
-            def _row_cond(row):
-                res = [cond(row[lbl]) for lbl, cond in conditions.items()]
-                return reducer(res)
+            row_cond = RowDrop.DictRowCond(
+                conditions=conditions, reducer=reducer)
+            # def _row_cond(row):
+            #     res = [cond(row[lbl]) for lbl, cond in conditions.items()]
+            #     return reducer(res)
         else:
-            def _row_cond(row):
-                res = [reducer(row.apply(cond)) for cond in conditions]
-                return reducer(res)
-        return _row_cond
+            row_cond = RowDrop.ListRowCond(
+                conditions=conditions, reducer=reducer)
+        return row_cond
 
     def __init__(self, conditions, reduce=None, columns=None, **kwargs):
         self._conditions = conditions
@@ -1338,6 +1384,49 @@ these columns to determine which rows to drop.</dd>
 <li><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></li>
 <li>abc.ABC</li>
 </ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pdpipe.basic_stages.RowDrop.DictRowCond"><code class="name">var <span class="ident">DictRowCond</span></code></dt>
+<dd>
+<section class="desc"><p>Filter rows by a dict of conditions.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/basic_stages.py#L468-L477" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class DictRowCond(object):
+    &#34;&#34;&#34;Filter rows by a dict of conditions.&#34;&#34;&#34;
+
+    def __init__(self, conditions, reducer):
+        self.conditions = conditions
+        self.reducer = reducer
+
+    def __call__(self, row):
+        res = [cond(row[lbl]) for lbl, cond in self.conditions.items()]
+        return self.reducer(res)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.basic_stages.RowDrop.ListRowCond"><code class="name">var <span class="ident">ListRowCond</span></code></dt>
+<dd>
+<section class="desc"><p>Filter rows by a list of conditions.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/basic_stages.py#L479-L488" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class ListRowCond(object):
+    &#34;&#34;&#34;Filter rows by a list of conditions.&#34;&#34;&#34;
+
+    def __init__(self, conditions, reducer):
+        self.conditions = conditions
+        self.reducer = reducer
+
+    def __call__(self, row):
+        res = [self.reducer(row.apply(cond)) for cond in self.conditions]
+        return self.reducer(res)</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></b></code>:
@@ -1408,7 +1497,7 @@ values. If set to None, all columns are checked.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/basic_stages.py#L80-L149" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/basic_stages.py#L80-L149" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ValDrop(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that drops rows by value.
@@ -1556,7 +1645,7 @@ values. If set to None, all columns are checked.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/basic_stages.py#L152-L221" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/basic_stages.py#L152-L221" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ValKeep(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that keeps rows by value.
@@ -1714,6 +1803,10 @@ values. If set to None, all columns are checked.</dd>
 </li>
 <li>
 <h4><code><a title="pdpipe.basic_stages.RowDrop" href="#pdpipe.basic_stages.RowDrop">RowDrop</a></code></h4>
+<ul class="">
+<li><code><a title="pdpipe.basic_stages.RowDrop.DictRowCond" href="#pdpipe.basic_stages.RowDrop.DictRowCond">DictRowCond</a></code></li>
+<li><code><a title="pdpipe.basic_stages.RowDrop.ListRowCond" href="#pdpipe.basic_stages.RowDrop.ListRowCond">ListRowCond</a></code></li>
+</ul>
 </li>
 <li>
 <h4><code><a title="pdpipe.basic_stages.ValDrop" href="#pdpipe.basic_stages.ValDrop">ValDrop</a></code></h4>

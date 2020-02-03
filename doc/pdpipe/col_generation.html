@@ -27,7 +27,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/col_generation.py#L0-L969" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/col_generation.py#L0-L969" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Basic pdpipe PdPipelineStages.&#34;&#34;&#34;
 
@@ -495,8 +495,8 @@ class ApplyToRows(PdPipelineStage):
         3      7   627.5     3.5         1255
     &#34;&#34;&#34;
 
-    _DEF_APPLYTOROWS_EXC_MSG = &#34;Applying function {} failed.&#34;
-    _DEF_APPLYTOROWS_APP_MSG = &#34;Applying function {}...&#34;
+    _DEF_APPLYTOROWS_EXC_MSG = &#34;Applying a function {} failed.&#34;
+    _DEF_APPLYTOROWS_APP_MSG = &#34;Applying a function {}...&#34;
     _DEF_COLNAME = &#34;new_col&#34;
 
     def __init__(
@@ -1050,7 +1050,7 @@ is None and drop is set to False. Of not given, defaults to '_agg'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/col_generation.py#L725-L828" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/col_generation.py#L725-L828" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class AggByCols(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage applying a series-wise function to columns.
@@ -1245,7 +1245,7 @@ of '_app'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/col_generation.py#L538-L642" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/col_generation.py#L538-L642" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ApplyByCols(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage applying an element-wise function to columns.
@@ -1456,7 +1456,7 @@ returning True is used.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/col_generation.py#L420-L535" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/col_generation.py#L420-L535" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ApplyToRows(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage generating columns by applying a function to each row.
@@ -1505,8 +1505,8 @@ returning True is used.</dd>
         3      7   627.5     3.5         1255
     &#34;&#34;&#34;
 
-    _DEF_APPLYTOROWS_EXC_MSG = &#34;Applying function {} failed.&#34;
-    _DEF_APPLYTOROWS_APP_MSG = &#34;Applying function {}...&#34;
+    _DEF_APPLYTOROWS_EXC_MSG = &#34;Applying a function {} failed.&#34;
+    _DEF_APPLYTOROWS_APP_MSG = &#34;Applying a function {}...&#34;
     _DEF_COLNAME = &#34;new_col&#34;
 
     def __init__(
@@ -1663,7 +1663,7 @@ list [0, 5, 8] is interpreted as the bins (-∞, 0), [0-5), [5-8) and
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/col_generation.py#L16-L131" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/col_generation.py#L16-L131" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Bin(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that adds a binned version of a column or columns.
@@ -1864,7 +1864,7 @@ by company size'. A default description is used if None is given.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/col_generation.py#L645-L722" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/col_generation.py#L645-L722" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ColByFrameFunc(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage adding a column by applying a dataframw-wide function.
@@ -2034,7 +2034,7 @@ then is the column shifted by this constant.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/col_generation.py#L831-L970" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/col_generation.py#L831-L970" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Log(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that log-transforms numeric data.
@@ -2263,7 +2263,7 @@ US    Silver
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/col_generation.py#L311-L413" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/col_generation.py#L311-L413" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class MapColVals(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that replaces the values of a column by a map.
@@ -2471,7 +2471,7 @@ category will still be dropped.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/f532f7441381b6348c8f0ec1877e7d7fb07a3205/pdpipe/col_generation.py#L134-L308" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/f82812cd6dbc975d30a24a531e3b06315509c70c/pdpipe/col_generation.py#L134-L308" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class OneHotEncode(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that one-hot-encodes categorical columns.
