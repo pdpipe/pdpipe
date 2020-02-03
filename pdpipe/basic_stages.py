@@ -548,3 +548,41 @@ class RowDrop(PdPipelineStage):
         if verbose:
             print("{} rows dropped.".format(before_count - len(inter_df)))
         return inter_df
+
+
+class Schematize(PdPipelineStage):
+    """Enforces a column schema on input dataframes.
+
+    Parameters
+    ----------
+    columns: sequence of labels
+        The dataframe schema to enfore on input dataframes.
+
+    Example
+    -------
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> df = pd.DataFrame([[2, 4, 8],[3, 6, 9]], [1, 2], ['a', 'b', 'c'])
+        >>> pdp.Schematize(['a', 'c']).apply(df)
+           a  c
+        1  2  8
+        2  3  9
+        >>> pdp.Schematize(['c', 'b']).apply(df)
+           c  b
+        1  8  4
+        2  9  6
+    """
+
+    def __init__(self, columns):
+        self._columns = columns
+        desc = "Transform input dataframes to the following schema: {}".format(
+            columns)
+        appmsg = desc + '..'
+        exmsg = "Not all required columns {} found in input dataframe!".format(
+            columns)
+        super().__init__(appmsg=appmsg, exmsg=exmsg, desc=desc)
+
+    def _prec(self, df):
+        return set(self._columns).issubset(df.columns)
+
+    def _transform(self, df, verbose=None):
+        return df[self._columns]
