@@ -79,6 +79,9 @@ def test_columns_based_stage():
     with pytest.raises(FailedPreconditionError):
         stage(df1)
 
+    with pytest.raises(ValueError):
+        Drop(None)
+
 
 class Drop2(ColumnsBasedPipelineStage):
     """A pipeline stage for testing"""
@@ -108,3 +111,47 @@ def test_columns_based_stage2():
     assert 'num' not in res.columns
     assert 'char' in res.columns
     assert 4 in res.columns
+
+
+class Double(ColumnsBasedPipelineStage):
+    """A pipeline stage for testing"""
+
+    def __init__(self, columns, errors=None, **kwargs):
+        self._errors = errors
+        super_kwargs = {
+            'columns': columns,
+            'desc_temp': 'Drop columns {}',
+        }
+        super_kwargs.update(**kwargs)
+        super_kwargs['none_columns'] = 'all'
+        super().__init__(**super_kwargs)
+
+    def _transform(self, df, verbose):
+        inter_df = df
+        for col in self._get_columns(df):
+            inter_df[col] = inter_df[col] * 2
+        return inter_df
+
+
+def _df_d():
+    return pd.DataFrame(
+        data=[[1, 2, 3]],
+        index=[1],
+        columns=['num', 'char', 4]
+    )
+
+
+def test_columns_based_stage_none():
+    df = _df_d()
+    stage = Double(None)
+    res = stage(df)
+    assert res.iloc[0, 0] == 2
+    assert res.iloc[0, 1] == 4
+    assert res.iloc[0, 2] == 6
+
+    stage = Double('num')
+    df = _df_d()
+    res = stage(df)
+    assert res.iloc[0, 0] == 2
+    assert res.iloc[0, 1] == 2
+    assert res.iloc[0, 2] == 3

@@ -317,13 +317,23 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
     desc : str, default None
         A short description of this stage, used as its string representation.
         A default description is used if None is given.
+    none_columns : str, default 'error'
+        Determines how None values supplied to the 'columns' parameter should
+        be handled. If set to 'error', the default, a ValueError is raised if
+        None is encountered. If set to 'all', it is interpreted to mean all
+        columns of input dataframes should be operated on.
     """
 
-    @staticmethod
-    def _interpret_columns_param(columns):
+    def _interpret_columns_param(self, columns):
         """Interprets the value provided to the columns parameter and returns
         a list version of it - if needed - a string representation of it.
         """
+        if columns is None:
+            if self._none_is_all:
+                return None, 'all columns'
+            raise ValueError((
+                'None is not a valid argument for the columns parameter of '
+                'this pipeline stage.'))
         if isinstance(columns, str):
             # always check str first, because it has __iter__
             return [columns], columns
@@ -338,9 +348,11 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
 
     def __init__(
             self, columns, desc_temp=None, exraise=True, exmsg=None,
-            desc=None):
-        self._col_arg, self._col_str = \
-            ColumnsBasedPipelineStage._interpret_columns_param(columns)
+            desc=None, none_columns='error'):
+        self._none_is_all = True
+        if none_columns == 'error':
+            self._none_is_all = False
+        self._col_arg, self._col_str = self._interpret_columns_param(columns)
         if (desc is None) and desc_temp:
             desc = desc_temp.format(self._col_str)
         if exmsg is None:
@@ -358,6 +370,8 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
         return is_fittable_column_qualifier(self._col_arg)
 
     def _get_columns(self, df, fit=False):
+        if self._none_is_all and self._col_arg is None:
+            return df.columns
         try:
             if fit:
                 # try to treat _col_arg as a fittable column qualifier

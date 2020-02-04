@@ -17,7 +17,7 @@ class ColDrop(ColumnsBasedPipelineStage):
 
     Parameters
     ----------
-    columns : str, iterable or callable
+    columns : single label, list-like or callable
         The label, or an iterable of labels, of columns to drop. Alternatively,
         this parameter can be assigned a callable returning an iterable of
         labels from an input pandas.DataFrame.
