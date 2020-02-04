@@ -45,6 +45,16 @@ class RegexReplace(ApplyByCols):
     _DEF_APP_MSG_SUFFIX = "..."
     _DEF_DESCRIPTION_SUFFIX = "."
 
+    class RegexReplacer(object):
+        """A pickle-able regex replacement function."""
+
+        def __init__(self, pattern_obj, replace_text):
+            self.pattern_obj = pattern_obj
+            self.replace_text = replace_text
+
+        def __call__(self, x):
+            return self.pattern_obj.sub(self.replace_text, x)
+
     def __init__(
         self,
         columns,
@@ -64,7 +74,8 @@ class RegexReplace(ApplyByCols):
             pattern, replace, sfx, col_str)
         super_kwargs = {
             'columns': columns,
-            'func': lambda x: self._pattern_obj.sub(self._replace, x),
+            'func': RegexReplace.RegexReplacer(
+                self._pattern_obj, self._replace),
             'colbl_sfx': '_regex',
             'result_columns': result_columns,
             'drop': drop,
@@ -111,6 +122,26 @@ class DropTokensByLength(ApplyByCols):
         2    5       [good]
     """  # noqa: W605
 
+    class MinLengthTokenFilter(object):
+
+        def __init__(self, min_len):
+            self.min_len = min_len
+
+        def __call__(self, token_list):
+            return [x for x in token_list if len(x) >= self.min_len]
+
+    class MinMaxLengthTokenFilter(object):
+
+        def __init__(self, min_len, max_len):
+            self.min_len = min_len
+            self.max_len = max_len
+
+        def __call__(self, token_list):
+            return [
+                x for x in token_list
+                if len(x) >= self.min_len and len(x) <= self.max_len
+            ]
+
     _BASE_STR = "Filtering out tokens of length{} in column{} {}"
     _DEF_EXC_MSG_SUFFIX = " failed."
     _DEF_APP_MSG_SUFFIX = "..."
@@ -124,25 +155,16 @@ class DropTokensByLength(ApplyByCols):
         self._max_len = max_len
         col_str = _list_str(columns)
         sfx = "s" if len(columns) > 1 else ""
-        cond_str = " < {}".format(min_len)
+        token_filter = DropTokensByLength.MinLengthTokenFilter(min_len)
+        cond_str = " > {}".format(min_len)
         if max_len:
-            cond_str += " > {}".format(max_len)
+            token_filter = DropTokensByLength.MinMaxLengthTokenFilter(
+                min_len=min_len, max_len=max_len)
+            cond_str += " < {}".format(max_len)
         base_str = DropTokensByLength._BASE_STR.format(cond_str, sfx, col_str)
-
-        def _token_filter(token_list):
-            return [x for x in token_list if len(x) >= min_len]
-
-        if max_len:
-
-            def _token_filter(token_list):  # noqa: F811
-                return [
-                    x for x in token_list
-                    if len(x) >= min_len and len(x) <= max_len
-                ]
-
         super_kwargs = {
             "columns": columns,
-            "func": _token_filter,
+            "func": token_filter,
             "colbl_sfx": "_filtered",
             "drop": drop,
             "exmsg": base_str + DropTokensByLength._DEF_EXC_MSG_SUFFIX,
@@ -183,6 +205,14 @@ class DropTokensByList(ApplyByCols):
         2    5  [not, good]
     """  # noqa: W605
 
+    class ListTokenFilter(object):
+
+        def __init__(self, bad_tokens):
+            self.bad_tokens = bad_tokens
+
+        def __call__(self, token_list):
+            return [x for x in token_list if x not in self.bad_tokens]
+
     _BASE_STR = "Filtering out tokens{} in column{} {}"
     _DEF_EXC_MSG_SUFFIX = " failed."
     _DEF_APP_MSG_SUFFIX = "..."
@@ -199,18 +229,14 @@ class DropTokensByList(ApplyByCols):
         if len(bad_tokens) < 10:
             cond_str = "in list [" + " ".join(bad_tokens) + "]"
         base_str = DropTokensByList._BASE_STR.format(cond_str, sfx, col_str)
-
-        def _token_filter(token_list):
-            return [x for x in token_list if x not in bad_tokens]
-
         super_kwargs = {
             "columns": columns,
-            "func": _token_filter,
+            "func": DropTokensByList.ListTokenFilter(bad_tokens),
             "colbl_sfx": "_filtered",
             "drop": drop,
-            "exmsg": base_str + DropTokensByLength._DEF_EXC_MSG_SUFFIX,
-            "appmsg": base_str + DropTokensByLength._DEF_APP_MSG_SUFFIX,
-            "desc": base_str + DropTokensByLength._DEF_DESCRIPTION_SUFFIX,
+            "exmsg": base_str + DropTokensByList._DEF_EXC_MSG_SUFFIX,
+            "appmsg": base_str + DropTokensByList._DEF_APP_MSG_SUFFIX,
+            "desc": base_str + DropTokensByList._DEF_DESCRIPTION_SUFFIX,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)

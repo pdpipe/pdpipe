@@ -76,15 +76,15 @@ class PdPipelineStage(abc.ABC):
         A default description is used if None is given.
     """
 
-    _DEF_EXC_MSG = 'Precondition failed!'
+    _DEF_EXC_MSG = 'Precondition failed in stage {}!'
     _DEF_DESCRIPTION = 'A pipeline stage.'
     _INIT_KWARGS = ['exraise', 'exmsg', 'desc']
 
     def __init__(self, exraise=True, exmsg=None, appmsg=None, desc=None):
-        if exmsg is None:
-            exmsg = PdPipelineStage._DEF_EXC_MSG
         if desc is None:
             desc = PdPipelineStage._DEF_DESCRIPTION
+        if exmsg is None:
+            exmsg = PdPipelineStage._DEF_EXC_MSG.format(desc)
         self._exraise = exraise
         self._exmsg = exmsg
         self._desc = desc
@@ -451,10 +451,9 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         raise NotImplementedError
 
     def apply(self, df, exraise=None, verbose=False):
-        inter_df = df
-        for stage in self._stages:
-            inter_df = stage.apply(inter_df, exraise, verbose)
-        return inter_df
+        if self.is_fitted:
+            return self.transform(X=df, exraise=exraise, verbose=verbose)
+        return self.fit_transform(X=df, exraise=exraise, verbose=verbose)
 
     def fit_transform(self, X, y=None, exraise=None, verbose=None):
         """Fits this pipeline and transforms the input dataframe.
@@ -480,7 +479,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         Returns
         -------
         pandas.DataFrame
-            The resulting dataframe.
+            The resulting dacaframe.
         """
         inter_x = X
         for stage in self._stages:
@@ -490,6 +489,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                 exraise=exraise,
                 verbose=verbose,
             )
+        self.is_fitted = True
         return inter_x
 
     def fit(self, X, y=None, exraise=None, verbose=None):

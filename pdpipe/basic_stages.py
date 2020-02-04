@@ -444,17 +444,40 @@ class RowDrop(PdPipelineStage):
     def _default_desc(self):
         return "Drop rows by conditions: {}".format(self._conditions)
 
+    class DictRowCond(object):
+        """Filter rows by a dict of conditions."""
+
+        def __init__(self, conditions, reducer):
+            self.conditions = conditions
+            self.reducer = reducer
+
+        def __call__(self, row):
+            res = [cond(row[lbl]) for lbl, cond in self.conditions.items()]
+            return self.reducer(res)
+
+    class ListRowCond(object):
+        """Filter rows by a list of conditions."""
+
+        def __init__(self, conditions, reducer):
+            self.conditions = conditions
+            self.reducer = reducer
+
+        def __call__(self, row):
+            res = [self.reducer(row.apply(cond)) for cond in self.conditions]
+            return self.reducer(res)
+
     def _row_condition_builder(self, conditions, reduce):
         reducer = RowDrop._REDUCERS[reduce]
         if self._cond_is_dict:
-            def _row_cond(row):
-                res = [cond(row[lbl]) for lbl, cond in conditions.items()]
-                return reducer(res)
+            row_cond = RowDrop.DictRowCond(
+                conditions=conditions, reducer=reducer)
+            # def _row_cond(row):
+            #     res = [cond(row[lbl]) for lbl, cond in conditions.items()]
+            #     return reducer(res)
         else:
-            def _row_cond(row):
-                res = [reducer(row.apply(cond)) for cond in conditions]
-                return reducer(res)
-        return _row_cond
+            row_cond = RowDrop.ListRowCond(
+                conditions=conditions, reducer=reducer)
+        return row_cond
 
     def __init__(self, conditions, reduce=None, columns=None, **kwargs):
         self._conditions = conditions
@@ -503,4 +526,101 @@ class RowDrop(PdPipelineStage):
         inter_df = df[drop_index]
         if verbose:
             print("{} rows dropped.".format(before_count - len(inter_df)))
+        return inter_df
+
+
+class Schematize(PdPipelineStage):
+    """Enforces a column schema on input dataframes.
+
+    Parameters
+    ----------
+    columns: sequence of labels
+        The dataframe schema to enfore on input dataframes.
+
+    Example
+    -------
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> df = pd.DataFrame([[2, 4, 8],[3, 6, 9]], [1, 2], ['a', 'b', 'c'])
+        >>> pdp.Schematize(['a', 'c']).apply(df)
+           a  c
+        1  2  8
+        2  3  9
+        >>> pdp.Schematize(['c', 'b']).apply(df)
+           c  b
+        1  8  4
+        2  9  6
+    """
+
+    def __init__(self, columns, **kwargs):
+        self._columns = _interpret_columns_param(columns)
+        self._columns_str = _list_str(self._columns)
+        desc = "Transform input dataframes to the following schema: {}".format(
+            self._columns_str)
+        appmsg = desc + '..'
+        exmsg = "Not all required columns {} found in input dataframe!".format(
+            self._columns_str)
+        super_kwargs = {
+            'exmsg': exmsg,
+            'appmsg': appmsg,
+            'desc': desc,
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        return set(self._columns).issubset(df.columns)
+
+    def _transform(self, df, verbose=None):
+        return df[self._columns]
+
+
+class DropDuplicates(PdPipelineStage):
+    """Drop duplicates in the given columns.
+
+    Parameters
+    ----------
+    columns: column label or sequence of labels, optional
+        The labels of the columns to consider for duplication drop. If not
+        populated, duplicates are dropped from all columns.
+
+    Examples
+    --------
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> df = pd.DataFrame([[8, 1],[8, 2], [9, 2]], [1,2,3], ['a', 'b'])
+        >>> pdp.DropDuplicates('a').apply(df)
+           a  b
+        1  8  1
+        3  9  2
+    """
+
+    def __init__(self, columns=None, **kwargs):
+        self._columns = columns
+        self._columns_str = "all columns"
+        if columns is not None:
+            self._columns = _interpret_columns_param(columns)
+            self._columns_str = _list_str(self._columns)
+        desc = "Drop duplicates in columns {}.".format(self._columns_str)
+        if columns is None:
+            desc = "Drop duplicated."
+        appmsg = desc + '..'
+        exmsg = "Not all required columns {} found in input dataframe!".format(
+            self._columns_str)
+        super_kwargs = {
+            'exmsg': exmsg,
+            'appmsg': appmsg,
+            'desc': desc,
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        try:
+            return set(self._columns).issubset(df.columns)
+        except TypeError:
+            return True
+
+    def _transform(self, df, verbose=None):
+        inter_df = df.drop_duplicates(subset=self._columns)
+        if verbose:
+            print("{} rows dropped.".format(len(df) - len(inter_df)))
         return inter_df
