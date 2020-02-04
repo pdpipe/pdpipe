@@ -11,6 +11,8 @@ import abc
 import collections
 import textwrap
 
+from .cq import is_fittable_column_qualifier
+
 from .exceptions import (
     FailedPreconditionError,
     UnfittedPipelineStageError,
@@ -317,22 +319,28 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
         A default description is used if None is given.
     """
 
+    @staticmethod
+    def _interpret_columns_param(columns):
+        """Interprets the value provided to the columns parameter and returns
+        a list version of it - if needed - a string representation of it.
+        """
+        if isinstance(columns, str):
+            # always check str first, because it has __iter__
+            return [columns], columns
+        if callable(columns):
+            return columns, columns.__doc__ or ''
+        # if it was a single string it was already made a list, and it's not a
+        # callable, so it's either an iterable of labels... or
+        if hasattr(columns, '__iter__'):
+            return columns, ', '.join(str(elem) for elem in columns)
+        # a single non-string label.
+        return [columns], str(columns)
+
     def __init__(
             self, columns, desc_temp=None, exraise=True, exmsg=None,
             desc=None):
-        self._col_arg = columns
-        if isinstance(columns, str):
-            self._col_arg = [columns]
-        if callable(self._col_arg):
-            self._col_str = self._col_arg.__doc__ or ''
-        # if it was a single string it was already made a list, and it's not a
-        # callable, so it's either a single non-string label or an iterable of
-        # objects...
-        else:
-            if not hasattr(self._col_arg, '__iter__'):
-                self._col_arg = [columns]
-            # by now self._col_arg should always be callable
-            self._col_str = ', '.join(str(elem) for elem in self._col_arg)
+        self._col_arg, self._col_str = \
+            ColumnsBasedPipelineStage._interpret_columns_param(columns)
         if (desc is None) and desc_temp:
             desc = desc_temp.format(self._col_str)
         if exmsg is None:
@@ -346,18 +354,27 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
             desc=desc,
         )
 
+    def _is_fittable(self):
+        return is_fittable_column_qualifier(self._col_arg)
+
     def _get_columns(self, df, fit=False):
         try:
             if fit:
+                # try to treat _col_arg as a fittable column qualifier
                 return self._col_arg.fit_transform(df)
             else:
+                # no need to fit, so try to treat _col_arg as a callable
                 return self._col_arg(df)
         except AttributeError:
+            # got here cause _col_arg has no fit_transform method...
             try:
+                # so try and treat it as a callable again
                 return self._col_arg(df)
             except TypeError:
+                # calling _col_arg 2 lines before failed; its a list of labels
                 return self._col_arg
         except TypeError:
+            # calling _col_arg 10 lines before failed; its a list of labels
             return self._col_arg
 
     def _prec(self, df):

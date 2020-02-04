@@ -5,7 +5,6 @@ from collections import deque
 from strct.dicts import reverse_dict_partial
 
 from pdpipe.core import PdPipelineStage, ColumnsBasedPipelineStage
-from pdpipe.cq import is_fittable_column_qualifier
 # from pdpipe.util import out_of_place_col_insert
 from pdpipe.shared import (
     _interpret_columns_param,
@@ -43,9 +42,6 @@ class ColDrop(ColumnsBasedPipelineStage):
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
-
-    def _is_fittable(self):
-        return is_fittable_column_qualifier(self._col_arg)
 
     def _fit_transform(self, df, verbose):
         return df.drop(
