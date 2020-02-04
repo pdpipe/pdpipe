@@ -1,14 +1,14 @@
 """Column qualifiers for pdpipe.
 
 Most pipeline stages in pdpipe can accept three types of variables as arguments
-for the `columns` parameter of their constructor: a string, a list of strings
-or a callable. The first is interpreted as the label of the single column on
-which the pipeline stage should operate and the second as a list of such
-labels, while the a callable is assumed to determine dynamically what columns
-should the stage be applied to. It is thus supplied with the entire input
-dataframe, and is expected to return a list of column labels. This is true for
-every application of the pipeline stage, both in fit time and in any future
-transform.
+for the `columns` parameter of their constructor: a single column label, a list
+of column labels, or a callable. The first is interpreted as the label of the
+single column on which the pipeline stage should operate and the second as a
+list of such labels, while the a callable is assumed to determine dynamically
+what columns should the stage be applied to. It is thus supplied with the
+entire input dataframe, and is expected to return a list of column labels. This
+is true for every application of the pipeline stage, both in fit time and in
+any future transform.
 
 A naive callable, such as `lambda df: [lbl for lbl in df.columns if lbl[0] ==
 'a']`, meant to cause the pipeline stage to operate on any column with a label
@@ -36,7 +36,7 @@ form and semantics of input vectors to our models down the pipeline.
 
 To enable this more sophicticated behaviour this module - `pdpipe.cq` - exposes
 a way to easily generate `ColumnQualifier` objects, which are callables that do
-exactly what we described above: Apply some criteria to determine a set of
+exactly what was described above: Apply some criteria to determine a set of
 input columns when a pipeline is being fitted, but fixing it afterwards, on
 future calls.
 
