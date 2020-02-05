@@ -392,9 +392,7 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
             return self._col_arg
 
     def _prec(self, df):
-        if self._errors != 'ignore':
-            return set(self._get_columns(df=df)).issubset(df.columns)
-        return True
+        return set(self._get_columns(df=df)).issubset(df.columns)
 
 
 def _always_true(x):

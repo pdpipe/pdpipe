@@ -20,7 +20,7 @@ class ColDrop(ColumnsBasedPipelineStage):
     columns : single label, list-like or callable
         The label, or an iterable of labels, of columns to drop. Alternatively,
         this parameter can be assigned a callable returning an iterable of
-        labels from an input pandas.DataFrame.
+        labels from an input pandas.DataFrame. See pdpipe.cq.
     errors : {‘ignore’, ‘raise’}, default ‘raise’
         If ‘ignore’, suppress error and existing labels are dropped.
 
@@ -41,27 +41,37 @@ class ColDrop(ColumnsBasedPipelineStage):
             'desc_temp': 'Drop columns {}',
         }
         super_kwargs.update(**kwargs)
+        super_kwargs['none_columns'] = 'error'
         super().__init__(**super_kwargs)
 
-    def _fit_transform(self, df, verbose):
+    def _prec(self, df):
+        if self._errors != 'ignore':
+            return set(self._get_columns(df=df)).issubset(df.columns)
+        return True
+
+    def _call_helper(self, df, verbose, fit):
         return df.drop(
-            self._get_columns(df, fit=True), axis=1, errors=self._errors)
+            self._get_columns(df, fit=fit), axis=1, errors=self._errors)
+
+    def _fit_transform(self, df, verbose):
+        return self._call_helper(df, verbose, fit=True)
 
     def _transform(self, df, verbose):
-        return df.drop(
-            self._get_columns(df, fit=False), axis=1, errors=self._errors)
+        return self._call_helper(df, verbose, fit=False)
 
 
-class ValDrop(PdPipelineStage):
+class ValDrop(ColumnsBasedPipelineStage):
     """A pipeline stage that drops rows by value.
 
     Parameters
     ----------
     values : list-like
         A list of the values to drop.
-    columns : str or list-like, default None
-        The name, or an iterable of names, of columns to check for the given
-        values. If set to None, all columns are checked.
+    columns : single label, list-like or callable, default None
+        The label, or an iterable of labels, of columns to check for the given
+        values. Alternatively, this parameter can be assigned a callable
+        returning an iterable of labels from an input pandas.DataFrame. See
+        pdpipe.cq. If set to None, all columns are checked.
 
     Example
     -------
@@ -76,52 +86,33 @@ class ValDrop(PdPipelineStage):
         3  18  11
     """
 
-    _DEF_VALDROP_EXC_MSG = ("ValDrop stage failed because not all columns {}"
-                            " were found in input dataframe.")
-    _DEF_VALDROP_APPLY_MSG = "Dropping values {}..."
-
-    def _default_desc(self):
-        if self._columns:
-            return "Drop values {} in column{} {}".format(
-                self._values_str, 's' if len(self._columns) > 1 else '',
-                self._columns_str)
-        return "Drop values {}".format(self._values_str)
-
     def __init__(self, values, columns=None, **kwargs):
         self._values = values
         self._values_str = _list_str(self._values)
-        self._columns_str = _list_str(columns)
-        if columns is None:
-            self._columns = None
-            apply_msg = ValDrop._DEF_VALDROP_APPLY_MSG.format(
-                self._values_str)
-        else:
-            self._columns = _interpret_columns_param(columns)
-            apply_msg = ValDrop._DEF_VALDROP_APPLY_MSG.format(
-                "{} in {}".format(
-                    self._values_str, self._columns_str))
         super_kwargs = {
-            'exmsg': ValDrop._DEF_VALDROP_EXC_MSG.format(self._columns_str),
-            'appmsg': apply_msg,
-            'desc': self._default_desc()
+            'columns': columns,
+            'desc_temp': 'Drop values {} in columns {{}}'.format(
+                self._values_str),
         }
         super_kwargs.update(**kwargs)
+        super_kwargs['none_columns'] = 'all'
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
-        return set(self._columns or []).issubset(df.columns)
-
-    def _transform(self, df, verbose):
+    def _call_helper(self, df, verbose, fit):
         inter_df = df
         before_count = len(inter_df)
-        columns_to_check = self._columns
-        if self._columns is None:
-            columns_to_check = df.columns
+        columns_to_check = self._get_columns(df, fit=fit)
         for col in columns_to_check:
             inter_df = inter_df[~inter_df[col].isin(self._values)]
         if verbose:
             print("{} rows dropped.".format(before_count - len(inter_df)))
         return inter_df
+
+    def _fit_transform(self, df, verbose):
+        return self._call_helper(df, verbose, fit=True)
+
+    def _transform(self, df, verbose):
+        return self._call_helper(df, verbose, fit=False)
 
 
 class ValKeep(PdPipelineStage):
