@@ -73,10 +73,14 @@ def test_by_column_condition():
 
 
 def test_of_dtype():
+    print(MIXED_DTYPES_DF)
+    print(MIXED_DTYPES_DF.dtypes)
     cq = pdp.cq.OfDtypes(np.number)
     assert cq(MIXED_DTYPES_DF) == ['int', 'float']
     cq = pdp.cq.OfDtypes([np.number, object])
     assert cq(MIXED_DTYPES_DF) == ['str', 'int', 'float']
+    cq = pdp.cq.OfDtypes(int)
+    assert cq(MIXED_DTYPES_DF) == ['int']
 
 
 def test_operator_attribute_errors():
