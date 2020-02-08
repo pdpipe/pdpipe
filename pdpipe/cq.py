@@ -387,7 +387,7 @@ class OfDtypes(ColumnQualifier):
         >>> cq = pdp.cq.OfDtypes([np.number, object])
         >>> cq(df)
         ['ph', 'grade', 'age']
-        >>> cq = pdp.cq.OfDtypes(int)
+        >>> cq = pdp.cq.OfDtypes(np.int64)
         >>> cq(df)
         ['age']
     """

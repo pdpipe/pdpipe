@@ -79,7 +79,7 @@ def test_of_dtype():
     assert cq(MIXED_DTYPES_DF) == ['int', 'float']
     cq = pdp.cq.OfDtypes([np.number, object])
     assert cq(MIXED_DTYPES_DF) == ['str', 'int', 'float']
-    cq = pdp.cq.OfDtypes(int)
+    cq = pdp.cq.OfDtypes(np.int64)
     assert cq(MIXED_DTYPES_DF) == ['int']
 
 
