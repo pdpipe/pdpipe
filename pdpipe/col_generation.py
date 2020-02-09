@@ -728,7 +728,7 @@ class ColByFrameFunc(PdPipelineStage):
         return inter_df
 
 
-class AggByCols(PdPipelineStage):
+class AggByCols(ColumnTransformer):
     """A pipeline stage applying a series-wise function to columns.
 
     Parameters
@@ -736,7 +736,7 @@ class AggByCols(PdPipelineStage):
     columns : str or list-like
         Names of columns on which to apply the given function.
     func : function
-        The function to be applied to each element of the given columns.
+        The function to be applied to each of the given columns.
     result_columns : str or list-like, default None
         The names of the new columns resulting from the mapping operation. Must
         be of the same length as columns. If None, behavior depends on the
@@ -765,12 +765,6 @@ class AggByCols(PdPipelineStage):
         3  2.493205  alk
     """
 
-    _BASE_STR = "Applying a function {} to column{} {}"
-    _DEF_EXC_MSG_SUFFIX = " failed."
-    _DEF_APP_MSG_SUFFIX = "..."
-    _DEF_DESCRIPTION_SUFFIX = "."
-    _DEF_COLNAME_SUFFIX = "_agg"
-
     def __init__(
         self,
         columns,
@@ -781,57 +775,26 @@ class AggByCols(PdPipelineStage):
         suffix=None,
         **kwargs
     ):
-        if suffix is None:
-            suffix = AggByCols._DEF_COLNAME_SUFFIX
-        self._suffix = suffix
-        self._columns = _interpret_columns_param(columns)
         self._func = func
-        if result_columns is None:
-            if drop:
-                self._result_columns = self._columns
-            else:
-                self._result_columns = [col + suffix for col in self._columns]
-        else:
-            self._result_columns = _interpret_columns_param(result_columns)
-            if len(self._result_columns) != len(self._columns):
-                raise ValueError(
-                    "columns and result_columns parameters must"
-                    " be string lists of the same length!"
-                )
-        self._drop = drop
+        if suffix is None:
+            suffix = "_agg"
         if func_desc is None:
             func_desc = ""
         self._func_desc = func_desc
-        col_str = _list_str(self._columns)
-        sfx = "s" if len(self._columns) > 1 else ""
-        base_str = AggByCols._BASE_STR.format(self._func_desc, sfx, col_str)
         super_kwargs = {
-            "exmsg": base_str + AggByCols._DEF_EXC_MSG_SUFFIX,
-            "appmsg": base_str + AggByCols._DEF_APP_MSG_SUFFIX,
-            "desc": base_str + AggByCols._DEF_DESCRIPTION_SUFFIX,
+            'columns': columns,
+            'result_columns': result_columns,
+            'drop': drop,
+            'suffix': suffix,
+            'desc_temp': (
+                'Apply an aggregation function {} to columns {{}}'.format(
+                    func_desc)),
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
-        return set(self._columns).issubset(df.columns)
-
-    def _transform(self, df, verbose):
-        inter_df = df
-        for i, colname in enumerate(self._columns):
-            source_col = df[colname]
-            loc = df.columns.get_loc(colname) + 1
-            new_name = self._result_columns[i]
-            if self._drop:
-                inter_df = inter_df.drop(colname, axis=1)
-                loc -= 1
-            inter_df = out_of_place_col_insert(
-                df=inter_df,
-                series=source_col.agg(self._func),
-                loc=loc,
-                column_name=new_name,
-            )
-        return inter_df
+    def _col_transform(self, series):
+        return series.agg(self._func)
 
 
 class Log(PdPipelineStage):
