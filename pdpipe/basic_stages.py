@@ -109,6 +109,7 @@ class ValDrop(ColumnsBasedPipelineStage):
         return inter_df
 
     def _fit_transform(self, df, verbose):
+        self.is_fitted = True
         return self._call_helper(df, verbose, fit=True)
 
     def _transform(self, df, verbose):
