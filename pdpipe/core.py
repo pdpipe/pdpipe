@@ -3,6 +3,66 @@
 >>> import pdpipe as pdp
 >>> pipeline = pdp.ColDrop('Name') + pdp.Bin({'Speed': [0,5]})
 >>> pipeline = pdp.ColDrop('Name').Bin({'Speed': [0,5]}, drop=True)
+
+## Creating pipeline stages that operate on column subsets
+
+Many pipeline stages in pdpipe operate on a subset of columns, allowing the
+caller to deteremine this subset by either providing a fixed set of column
+labels or by providing a callable that determines the column subset dynamically
+from input dataframes. The `pdpipe.cq` module addresses a unique but important
+use case of fittable column qualifier, which dynamically extract a column
+subset on stage fit time, but keep it fixed for future transformations.
+
+As a general rule, every pipeline stage in pdpipe that supports the `columns`
+parameter should inherently support fittable column qualifier, and generally
+the correct interpretation of both single and multiple labels as arguments. To
+unify the implementation of such functionality, and ease of creation of new
+pipeline stages, such columns shoul be created by extending the
+ColumnsBasedPipelineStage base class, found in this module (`pdpipe.core`).
+
+The main interface of sub-classes of this base class with it is through the
+`columns` constructor argument and the "private" `_get_columns(df, fit)`
+method:
+
+    * Any extending subclass should accept the `columns` constructor parameter
+      and forward it, without transforming it, to the constructor of
+      ColumnsBasedPipelineStage. E.g.
+      `super().__init__(columns=columns, **kwargs)`. See the implementation of
+      any such extending class for a more complete example.
+
+    * When wishing to get the subset of columns to operate on, in
+      `fit_transform` or `transform` time, it is attained by calling
+      `self._get_columns(df, fit=True)` (or with `fit=False` if just
+      transforming), providing it the input dataframe.
+
+    * Additionally, to get a description and application message with a nice
+      string representation of the list of columns to operate on, the
+      `desc_temp` constructor parameter of ColumnsBasedPipelineStage can be
+      provided with a format string with a place holder where the column list
+      should go. E.g. `"Drop columns {}"` for the DropCol pipeline stage.
+
+There are two correct ways to extend it, depending on whether the pipeline
+stage you're creating is inherently fittable or not:
+
+    1. If the stage is NOT inherently fittable, then the ability to accept
+       fittable column qualifier objects makes it so. However, to enable
+       extending subclasses to implement their transformation using a single
+       method, they can simply implement the abstract method
+       `_transformation(self, df, verbose, fit)`. It should treat the `df` and
+       `verbose` parameters normally, but forward the `fit` parameter to the
+       `_get_columns` method when calling it. This is enough to get a pipeline
+       stage with the desired behavior, with the super-class handling all the
+       fit/transform functionality.
+
+    2. If the stage IS inherently fittable, then ignore the existence of the
+       `_transformation` abstract method. Simply override the `_fit_transform`
+       and `_transform` method of ColumnsBasedPipelineStage, calling the
+       `fit` parameter of the `_get_columns` method with the correct arguement:
+       `True` when fit-transforming and `False` when transforming.
+
+Again, taking a look at the VERY concise implementation of simple columns-based
+stages, like ColDrop or ValDrop, will probably make things clearer, and you can
+use those implementations as a template for yours.
 """
 
 import sys
