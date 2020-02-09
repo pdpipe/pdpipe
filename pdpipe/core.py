@@ -394,6 +394,19 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
     def _prec(self, df):
         return set(self._get_columns(df=df)).issubset(df.columns)
 
+    @abc.abstractmethod
+    def _transformation(self, df, verbose, fit):
+        raise NotImplementedError((
+            "Classes extending ColumnsBasedPipelineStage must implement the "
+            "_transformation method!"))
+
+    def _fit_transform(self, df, verbose):
+        self.is_fitted = True
+        return self._transformation(df, verbose, fit=True)
+
+    def _transform(self, df, verbose):
+        return self._transformation(df, verbose, fit=False)
+
 
 def _always_true(x):
     return True

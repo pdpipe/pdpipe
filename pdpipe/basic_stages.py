@@ -49,15 +49,9 @@ class ColDrop(ColumnsBasedPipelineStage):
             return set(self._get_columns(df=df)).issubset(df.columns)
         return True
 
-    def _call_helper(self, df, verbose, fit):
+    def _transformation(self, df, verbose, fit):
         return df.drop(
             self._get_columns(df, fit=fit), axis=1, errors=self._errors)
-
-    def _fit_transform(self, df, verbose):
-        return self._call_helper(df, verbose, fit=True)
-
-    def _transform(self, df, verbose):
-        return self._call_helper(df, verbose, fit=False)
 
 
 class ValDrop(ColumnsBasedPipelineStage):
@@ -98,7 +92,7 @@ class ValDrop(ColumnsBasedPipelineStage):
         super_kwargs['none_columns'] = 'all'
         super().__init__(**super_kwargs)
 
-    def _call_helper(self, df, verbose, fit):
+    def _transformation(self, df, verbose, fit):
         inter_df = df
         before_count = len(inter_df)
         columns_to_check = self._get_columns(df, fit=fit)
@@ -107,13 +101,6 @@ class ValDrop(ColumnsBasedPipelineStage):
         if verbose:
             print("{} rows dropped.".format(before_count - len(inter_df)))
         return inter_df
-
-    def _fit_transform(self, df, verbose):
-        self.is_fitted = True
-        return self._call_helper(df, verbose, fit=True)
-
-    def _transform(self, df, verbose):
-        return self._call_helper(df, verbose, fit=False)
 
 
 class ValKeep(PdPipelineStage):

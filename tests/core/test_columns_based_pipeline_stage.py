@@ -21,13 +21,9 @@ class Drop(ColumnsBasedPipelineStage):
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
-    def _fit_transform(self, df, verbose):
+    def _transformation(self, df, verbose, fit):
         return df.drop(
-            self._get_columns(df, fit=True), axis=1, errors=self._errors)
-
-    def _transform(self, df, verbose):
-        return df.drop(
-            self._get_columns(df, fit=False), axis=1, errors=self._errors)
+            self._get_columns(df, fit=fit), axis=1, errors=self._errors)
 
 
 def _df1():
@@ -95,13 +91,9 @@ class Drop2(ColumnsBasedPipelineStage):
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
-    def _fit_transform(self, df, verbose):
+    def _transformation(self, df, verbose, fit):
         return df.drop(
-            self._get_columns(df, fit=True), axis=1, errors=self._errors)
-
-    def _transform(self, df, verbose):
-        return df.drop(
-            self._get_columns(df, fit=False), axis=1, errors=self._errors)
+            self._get_columns(df, fit=fit), axis=1, errors=self._errors)
 
 
 def test_columns_based_stage2():
@@ -126,9 +118,9 @@ class Double(ColumnsBasedPipelineStage):
         super_kwargs['none_columns'] = 'all'
         super().__init__(**super_kwargs)
 
-    def _transform(self, df, verbose):
+    def _transformation(self, df, verbose, fit):
         inter_df = df
-        for col in self._get_columns(df):
+        for col in self._get_columns(df, fit=fit):
             inter_df[col] = inter_df[col] * 2
         return inter_df
 
