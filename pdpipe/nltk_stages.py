@@ -77,7 +77,6 @@ class TokenizeText(MapColVals):
             'drop': drop,
             'suffix': '_tok',
             'exmsg': TokenizeText._DEF_TOKENIZE_EXC_MSG.format(col_str),
-            'appmsg': TokenizeText._DEF_TOKENIZE_APP_MSG.format(col_str),
             'desc': "Tokenize {}".format(col_str),
         }
         super_kwargs.update(**kwargs)
@@ -130,7 +129,6 @@ class UntokenizeText(MapColVals):
             'drop': drop,
             'suffix': '_untok',
             'exmsg': UntokenizeText._DEF_UNTOKENIZE_EXC_MSG.format(col_str),
-            'appmsg': "Untokenizing {}".format(col_str),
             'desc': "Untokenize {}".format(col_str),
         }
         super_kwargs.update(**kwargs)
@@ -217,7 +215,6 @@ class RemoveStopwords(MapColVals):
             'drop': drop,
             'suffix': '_nostop',
             'exmsg': RemoveStopwords._DEF_STOPWORDS_EXC_MSG.format(col_str),
-            'appmsg': RemoveStopwords._DEF_STOPWORDS_APP_MSG.format(col_str),
             'desc': "Remove stopwords from {}".format(col_str),
         }
         super_kwargs.update(**kwargs)
@@ -356,7 +353,6 @@ class SnowballStem(MapColVals):
             'drop': drop,
             'suffix': '_stem',
             'exmsg': SnowballStem._DEF_STEM_EXC_MSG.format(col_str),
-            'appmsg': appmsg,
             'desc': appmsg,
         }
         super_kwargs.update(**kwargs)

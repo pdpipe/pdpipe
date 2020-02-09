@@ -182,6 +182,7 @@ def test_onehotencode_one_with_exclude():
     """Basic binning test."""
     df = _two_categ_df()
     onehotencode = OneHotEncode(exclude_columns=["Name"])
+    print(onehotencode._col_arg)
     res_df = onehotencode(df)
     assert "Born" not in res_df.columns
     assert "Name" in res_df.columns

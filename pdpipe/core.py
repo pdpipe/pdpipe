@@ -54,11 +54,13 @@ stage you're creating is inherently fittable or not:
        stage with the desired behavior, with the super-class handling all the
        fit/transform functionality.
 
-    2. If the stage IS inherently fittable, then ignore the existence of the
-       `_transformation` abstract method. Simply override the `_fit_transform`
-       and `_transform` method of ColumnsBasedPipelineStage, calling the
-       `fit` parameter of the `_get_columns` method with the correct arguement:
-       `True` when fit-transforming and `False` when transforming.
+    2. If the stage IS inherently fittable, then do not use the
+       `_transformation` abstract method (it has to be implemented, so just
+       have it raise a NotImplementedError). Instead, simply override the
+       `_fit_transform` and `_transform` method of ColumnsBasedPipelineStage,
+       calling the `fit` parameter of the `_get_columns` method with the
+       correct arguement: `True` when fit-transforming and `False` when
+       transforming.
 
 Again, taking a look at the VERY concise implementation of simple columns-based
 stages, like ColDrop or ValDrop, will probably make things clearer, and you can
@@ -384,12 +386,13 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
         columns of input dataframes should be operated on.
     """
 
-    def _interpret_columns_param(self, columns):
+    @staticmethod
+    def _interpret_columns_param(columns, none_is_all=False):
         """Interprets the value provided to the columns parameter and returns
         a list version of it - if needed - a string representation of it.
         """
         if columns is None:
-            if self._none_is_all:
+            if none_is_all:
                 return None, 'all columns'
             raise ValueError((
                 'None is not a valid argument for the columns parameter of '
@@ -412,7 +415,8 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
         self._none_is_all = True
         if none_columns == 'error':
             self._none_is_all = False
-        self._col_arg, self._col_str = self._interpret_columns_param(columns)
+        self._col_arg, self._col_str = self._interpret_columns_param(
+            columns, self._none_is_all)
         if (desc is None) and desc_temp:
             desc = desc_temp.format(self._col_str)
         if exmsg is None:

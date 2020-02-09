@@ -99,6 +99,8 @@ that start with 'b' can be generated with:
     ['abe', 'cry']
 """
 
+from .shared import _list_str
+
 
 class UnfittedColumnQualifierError(Exception):
     """An exception raised when a (non-fit) transform is attempted with an
@@ -121,10 +123,13 @@ class ColumnQualifier(object):
     Example
     -------
         >>> import numpy as np; import pdpipe as pdp;
-        >>> cq = pdp.ColDrop(pdp.cq.ColumnQualifier(lambda df: [
+        >>> cq = pdp.cq.ColumnQualifier(lambda df: [
         ...    l for l, s in df.iteritems()
-        ...    if s.dtype == np.int64
-        ... ]))
+        ...    if s.dtype == np.int64 and l in ['a', 'b', 5]
+        ... ])
+        >>> cq
+        <ColumnQualifier: Qualify columns by function>
+        >>> col_drop = pdp.ColDrop(columns=cq)
     """
 
     def __init__(self, func, fittable=True):
@@ -184,6 +189,12 @@ class ColumnQualifier(object):
             return self._columns
         except AttributeError:
             raise UnfittedColumnQualifierError
+
+    def __repr__(self):
+        fstr = ''
+        if self._cqfunc.__doc__:
+            fstr = ' - {}'.format(self._cqfunc.__doc__)
+        return "<ColumnQualifier: Qualify columns by function{}>".format(fstr)
 
     # --- overriding boolean operators ---
 
@@ -328,6 +339,77 @@ class ByColumnCondition(ColumnQualifier):
         super().__init__(func=_cqfunc, fittable=fittable)
 
 
+class ByLabels(ColumnQualifier):
+    """Selectes all columns with the given label or labels.
+
+    Parameters
+    ----------
+    labels : single label or list-like
+        Columns labels which qualify.
+
+    Example
+    -------
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> df = pd.DataFrame(
+        ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
+        >>> cq = pdp.cq.ByLabels('num')
+        >>> cq(df)
+        ['num']
+        >>> cq = pdp.cq.ByLabels(['chr', 'nur'])
+        >>> cq(df)
+        ['chr', 'nur']
+    """
+
+    def __init__(self, labels, **kwargs):
+        if isinstance(labels, str) or not hasattr(labels, '__iter__'):
+            labels = [labels]
+        self._labels = labels
+        self._labels_str = _list_str(self._labels)
+        def _cqfunc(df):  # noqa: E306
+            return [
+                lbl for lbl in df.columns
+                if lbl in self._labels
+            ]
+        _cqfunc.__doc__ = "Columns with labels in {}".format(self._labels_str)
+        kwargs['func'] = _cqfunc
+        super().__init__(**kwargs)
+
+    def __repr__(self):
+        return "<ColumnQualifier: By labels in {}>".format(self._labels_str)
+
+
+def columns_to_qualifier(columns):
+    """Converts the given columns parameter to an equivalent column qualifier.
+
+    Parameters
+    ----------
+    columns : single label, list-like or callable
+        The label, or an iterable of labels, of columns. Alternatively,
+        this parameter can be assigned a callable returning an iterable of
+        labels from an input pandas.DataFrame. See pdpipe.cq.
+
+    Returns
+    -------
+    qualifier : ColumnQualifier
+        The equivalent ColumnQualifier object.
+
+    Example
+    -------
+        >>> import pdpipe as pdp;
+        >>> pdp.cq.columns_to_qualifier('nu')
+        <ColumnQualifier: By labels in nu>
+        >>> pdp.cq.columns_to_qualifier(['nu', 'bu'])
+        <ColumnQualifier: By labels in nu, bu>
+        >>> pdp.cq.columns_to_qualifier(lambda df: [l for l in df.columns])
+        <ColumnQualifier: Qualify columns by function>
+    """
+    if callable(columns):
+        if isinstance(columns, ColumnQualifier):
+            return columns
+        return ColumnQualifier(columns, fittable=False)
+    return ByLabels(columns)
+
+
 class StartWith(ColumnQualifier):
     """Selectes all columns that start with the given string.
 
@@ -342,6 +424,8 @@ class StartWith(ColumnQualifier):
         >>> df = pd.DataFrame(
         ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
         >>> cq = pdp.cq.StartWith('nu')
+        >>> cq
+        <ColumnQualifier: Columns starting with nu>
         >>> cq(df)
         ['num', 'nur']
     """
@@ -363,6 +447,10 @@ class StartWith(ColumnQualifier):
         _cqfunc.__doc__ = "Columns that start with {}".format(self._prefix)
         kwargs['func'] = _cqfunc
         super().__init__(**kwargs)
+
+    def __repr__(self):
+        return "<ColumnQualifier: Columns starting with {}>".format(
+            self._prefix)
 
 
 class OfDtypes(ColumnQualifier):
@@ -388,17 +476,23 @@ class OfDtypes(ColumnQualifier):
         >>> cq(df)
         ['ph', 'grade', 'age']
         >>> cq = pdp.cq.OfDtypes(np.int64)
+        >>> cq
+        <ColumnQualifier: With dtypes in <class 'numpy.int64'>>
         >>> cq(df)
         ['age']
     """
 
     def __init__(self, dtypes, **kwargs):
         self._dtypes = dtypes
+        self._dtypes_str = _list_str(self._dtypes)
         def _cqfunc(df):  # noqa: E306
             return list(df.select_dtypes(include=self._dtypes).columns)
-        _cqfunc.__doc__ = "Columns of dtypes {}".format(self._dtypes)
+        _cqfunc.__doc__ = "Columns of dtypes {}".format(self._dtypes_str)
         kwargs['func'] = _cqfunc
         super().__init__(**kwargs)
+
+    def __repr__(self):
+        return "<ColumnQualifier: With dtypes in {}>".format(self._dtypes_str)
 
 
 class WithAtMostMissingValues(ColumnQualifier):
@@ -416,6 +510,8 @@ class WithAtMostMissingValues(ColumnQualifier):
         >>> df = pd.DataFrame(
         ...    [[None, 1, 2],[None, None, 5]], [1,2], ['ph', 'grade', 'age'])
         >>> cq = pdp.cq.WithAtMostMissingValues(1)
+        >>> cq
+        <ColumnQualifier: With at most 1 missing values>
         >>> cq(df)
         ['grade', 'age']
     """
@@ -429,6 +525,10 @@ class WithAtMostMissingValues(ColumnQualifier):
         kwargs['func'] = _cqfunc
         super().__init__(**kwargs)
 
+    def __repr__(self):
+        return "<ColumnQualifier: With at most {} missing values>".format(
+            self._n_missing)
+
 
 class WithoutMissingValues(WithAtMostMissingValues):
     """Selectes all columns with no missing values.
@@ -439,6 +539,8 @@ class WithoutMissingValues(WithAtMostMissingValues):
         >>> df = pd.DataFrame(
         ...    [[None, 1, 2],[None, None, 5]], [1,2], ['ph', 'grade', 'age'])
         >>> cq = pdp.cq.WithoutMissingValues()
+        >>> cq
+        <ColumnQualifier: Without missing values>
         >>> cq(df)
         ['age']
     """
@@ -446,3 +548,6 @@ class WithoutMissingValues(WithAtMostMissingValues):
     def __init__(self, **kwargs):
         kwargs['n_missing'] = 0
         super().__init__(**kwargs)
+
+    def __repr__(self):
+        return "<ColumnQualifier: Without missing values>"

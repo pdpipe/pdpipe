@@ -102,3 +102,9 @@ MIXED_LABELS_DF = pd.DataFrame(
 def test_start_with():
     cq = pdp.cq.StartWith('g')
     assert cq(MIXED_LABELS_DF) == ['grad']
+
+
+def test_columns_to_qualifier():
+    cq = pdp.cq.StartWith('g')
+    b = pdp.cq.columns_to_qualifier(cq)
+    assert b == cq
