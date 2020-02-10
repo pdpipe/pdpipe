@@ -21,14 +21,31 @@ pipeline stages, such columns shoul be created by extending the
 ColumnsBasedPipelineStage base class, found in this module (`pdpipe.core`).
 
 The main interface of sub-classes of this base class with it is through the
-`columns` constructor argument and the "private" `_get_columns(df, fit)`
-method:
+`columns`, `exclude_columns` and `none_columns` constructor arguments, and the
+"private" `_get_columns(df, fit)` method:
 
     * Any extending subclass should accept the `columns` constructor parameter
       and forward it, without transforming it, to the constructor of
       ColumnsBasedPipelineStage. E.g.
       `super().__init__(columns=columns, **kwargs)`. See the implementation of
       any such extending class for a more complete example.
+
+    * Extending subclasses can decide if they want to expose the
+      `exclude_columns` parameter or not. Note that most of its functionality
+      can anyway be gained by providing the `columns` parameter with a column
+      qualifier object that is a difference between two column qualifiers; e.g.
+      `columns=cq.OfDtype(np.number) - cq.OfDtype(np.int64)` is equivalent to
+      providing `columns=cq.OfDtype(np.number),
+      exclude_columns=cq.OfDtype(np.int64)`. However, exposing the
+      `exclude_columns` parameter can allow for specific unique behaviours; for
+      example, if the `none_columns` parametet - which configures the behavior
+      when `columns` is provided with `None` - is set with
+      a `cq.OfDtypes('category')` column qualifier, which means that all
+      categorical columns are selected when `columns=None`, then exposing
+      `exclude_columns` allows easy specification of the "all categorical
+      columns except X" by just giving a column qualifier capturing X to
+      `exclude_columns`, instead of having to reconstruct the default column
+      qualifier by hand and substract from it the one representing X.
 
     * When wishing to get the subset of columns to operate on, in
       `fit_transform` or `transform` time, it is attained by calling
@@ -73,7 +90,7 @@ import abc
 import collections
 import textwrap
 
-from .cq import is_fittable_column_qualifier
+from .cq import is_fittable_column_qualifier, AllColumns
 
 from .exceptions import (
     FailedPreconditionError,
@@ -362,7 +379,12 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
     columns : object, iterable or callable
         The label, or an iterable of labels, of columns to use. Alternatively,
         this parameter can be assigned a callable returning an iterable of
-        labels from an input pandas.DataFrame.
+        labels from an input pandas.DataFrame. See pdpipe.cq.
+    exclude_columns : object, iterable or callable, optional
+        The label, or an iterable of labels, of columns to exclude, given the
+        `columns` parameter. Alternatively, this parameter can be assigned a
+        callable returning a labels iterable from an input pandas.DataFrame.
+        See pdpipe.cq. Optional. By default no columns are excluded.
     desc_temp : str, optional
         If given, assumed to be a format string, and every appearance of {} in
         it is replaced with an appropriate string representation of the columns
@@ -379,11 +401,15 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
     desc : str, default None
         A short description of this stage, used as its string representation.
         A default description is used if None is given.
-    none_columns : str, default 'error'
+    none_columns : iterable, callable or str, default 'error'
         Determines how None values supplied to the 'columns' parameter should
         be handled. If set to 'error', the default, a ValueError is raised if
         None is encountered. If set to 'all', it is interpreted to mean all
-        columns of input dataframes should be operated on.
+        columns of input dataframes should be operated on. If an iterable is
+        provided it is interpreted as the default list of columns to operate on
+        when `columns=None`. If a callable is provided, it is interpreted as
+        the default column qualifier that determines input columns when
+        `columns=None`.
     """
 
     @staticmethod
@@ -410,11 +436,32 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
         return [columns], str(columns)
 
     def __init__(
-            self, columns, desc_temp=None, exraise=True, exmsg=None,
-            desc=None, none_columns='error'):
-        self._none_is_all = True
-        if none_columns == 'error':
-            self._none_is_all = False
+            self, columns, exclude_columns=None, desc_temp=None, exraise=True,
+            exmsg=None, desc=None, none_columns='error'):
+        self._exclude_columns = exclude_columns
+        if exclude_columns:
+            self._exclude_columns = self._interpret_columns_param(
+                exclude_columns)
+        self._none_error = False
+        if none_columns:
+            if isinstance(none_columns, str):
+                if none_columns == 'error':
+                    self._none_error = True
+                elif none_columns == 'all':
+                    self._none_cols = AllColumns()
+                else:
+                    raise ValueError((
+                        "'error' and 'all' are the only valid string arguments"
+                        " to the none_columns constructor parameter!"))
+            elif hasattr(none_columns, '__iter__'):
+                self._none_cols = none_columns
+            elif callable(none_columns):
+                self._none_cols = none_columns
+            else:
+                raise ValueError((
+                    "Valid arguments to the none_columns constructor parameter"
+                    " are 'error', 'all', an iterable of labels or a callable!"
+                ))
         self._col_arg, self._col_str = self._interpret_columns_param(
             columns, self._none_is_all)
         if (desc is None) and desc_temp:

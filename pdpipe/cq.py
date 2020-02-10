@@ -119,6 +119,15 @@ class ColumnQualifier(object):
     fittable : bool, default True
         If set to false, this qualifier becomes unfittable, and `func` is
         called on every call to transform. True by default.
+    subset : bool, default False
+        If set to true, fitted qualifiers return the subset of fitted columns
+        found in input dataframes during transform, in the order they appeared
+        when fitted (NOT in the order they appear in the input dataframe of the
+        transform). False by default, which means fitted qualifiers return the
+        FULL list of fitted columns, ignoring input dataframes completely on
+        transforms. When combined with most pipeline stages, this means the
+        stage will fail on its precondition if trying to transform with it a
+        dataframe that is missing some values in the fitted qualifier.
 
     Example
     -------
@@ -132,9 +141,12 @@ class ColumnQualifier(object):
         >>> col_drop = pdp.ColDrop(columns=cq)
     """
 
-    def __init__(self, func, fittable=True):
+    def __init__(self, func, fittable=None, subset=None):
+        if fittable is None:
+            fittable = True
         self._cqfunc = func
         self._fittable = fittable
+        self._subset = subset
 
     def __call__(self, df):
         """Returns column labels of qualified columns from an input dataframe.
@@ -186,6 +198,8 @@ class ColumnQualifier(object):
         if not self._fittable:
             return self._cqfunc(df)
         try:
+            if self._subset:
+                return [x for x in self._columns if x in df.columns]
             return self._columns
         except AttributeError:
             raise UnfittedColumnQualifierError
@@ -293,6 +307,52 @@ def is_fittable_column_qualifier(obj):
         fittable, False otherwise.
     """
     return isinstance(obj, ColumnQualifier) and obj._fittable
+
+
+class AllColumns(ColumnQualifier):
+    """Selectes all columns in input dataframes..
+
+    Parameters
+    ----------
+    fittable : bool, default True
+        If set to false, this qualifier becomes unfittable, and `func` is
+        called on every call to transform. True by default.
+    subset : bool, default False
+        If set to true, fitted qualifiers return the subset of fitted columns
+        found in input dataframes during transform, in the order they appeared
+        when fitted (NOT in the order they appear in the input dataframe of the
+        transform). False by default, which means fitted qualifiers return the
+        FULL list of fitted columns, ignoring input dataframes completely on
+        transforms. When combined with most pipeline stages, this means the
+        stage will fail on its precondition if trying to transform with it a
+        dataframe that is missing some values in the fitted qualifier.
+
+    Example
+    -------
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> df = pd.DataFrame([[8,1],[5,2]], [1,2], ['a', 'b'])
+        >>> cq
+        <ColumnQualifier: Qualifies all columns>
+        >>> cq = pdp.cq.AllColumns()
+        >>> cq(df)
+        ['a', 'b']
+        >>> df2 = pd.DataFrame([[8,1],[5,2]], [1,2], ['b', 'c'])
+        >>> cq(df2)
+        ['a', 'b']
+        >>> cq = pdp.cq.AllColumns(fittable=False)
+        >>> cq(df)
+        ['a', 'b']
+        >>> cq(df2)
+        ['b', 'c']
+    """
+
+    def __init__(self, fittable=None, subset=None):
+        def _cqfunc(df):  # noqa: E306
+            return df.columns
+        super().__init__(func=_cqfunc, fittable=fittable)
+
+    def __repr__(self):
+        return "<ColumnQualifier: Qualify all columns>"
 
 
 class ByColumnCondition(ColumnQualifier):
