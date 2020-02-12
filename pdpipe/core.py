@@ -413,16 +413,17 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
     """
 
     @staticmethod
-    def _interpret_columns_param(columns, none_is_all=False):
+    def _interpret_columns_param(columns, none_error=False, none_columns=None):
         """Interprets the value provided to the columns parameter and returns
         a list version of it - if needed - a string representation of it.
         """
         if columns is None:
-            if none_is_all:
-                return None, 'all columns'
-            raise ValueError((
-                'None is not a valid argument for the columns parameter of '
-                'this pipeline stage.'))
+            if none_error:
+                raise ValueError((
+                    'None is not a valid argument for the columns parameter of'
+                    ' this pipeline stage.'))
+            return ColumnsBasedPipelineStage._interpret_columns_param(
+                columns=none_columns)
         if isinstance(columns, str):
             # always check str first, because it has __iter__
             return [columns], columns
@@ -443,6 +444,7 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
             self._exclude_columns = self._interpret_columns_param(
                 exclude_columns)
         self._none_error = False
+        self._none_cols = None
         if none_columns:
             if isinstance(none_columns, str):
                 if none_columns == 'error':
@@ -463,7 +465,7 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
                     " are 'error', 'all', an iterable of labels or a callable!"
                 ))
         self._col_arg, self._col_str = self._interpret_columns_param(
-            columns, self._none_is_all)
+            columns, self._none_error, none_columns=self._none_cols)
         if (desc is None) and desc_temp:
             desc = desc_temp.format(self._col_str)
         if exmsg is None:
@@ -480,27 +482,35 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
     def _is_fittable(self):
         return is_fittable_column_qualifier(self._col_arg)
 
-    def _get_columns(self, df, fit=False):
-        if self._none_is_all and self._col_arg is None:
-            return df.columns
+    @staticmethod
+    def __get_cols_by_arg(col_arg, df, fit=False):
         try:
             if fit:
-                # try to treat _col_arg as a fittable column qualifier
-                return self._col_arg.fit_transform(df)
+                # try to treat col_arg as a fittable column qualifier
+                return col_arg.fit_transform(df)
             else:
                 # no need to fit, so try to treat _col_arg as a callable
-                return self._col_arg(df)
+                return col_arg(df)
         except AttributeError:
-            # got here cause _col_arg has no fit_transform method...
+            # got here cause col_arg has no fit_transform method...
             try:
                 # so try and treat it as a callable again
-                return self._col_arg(df)
+                return col_arg(df)
             except TypeError:
-                # calling _col_arg 2 lines before failed; its a list of labels
-                return self._col_arg
+                # calling col_arg 2 lines above failed; its a list of labels
+                return col_arg
         except TypeError:
-            # calling _col_arg 10 lines before failed; its a list of labels
-            return self._col_arg
+            # calling _col_arg 10 lines above failed; its a list of labels
+            return col_arg
+
+    def _get_columns(self, df, fit=False):
+        cols = ColumnsBasedPipelineStage.__get_cols_by_arg(
+            self._col_arg, df, fit=fit)
+        if self._exclude_columns:
+            exc_cols = ColumnsBasedPipelineStage.__get_cols_by_arg(
+                self._exclude_columns, df, fit=fit)
+            return [x for x in cols if x not in exc_cols]
+        return cols
 
     def _prec(self, df):
         return set(self._get_columns(df=df)).issubset(df.columns)

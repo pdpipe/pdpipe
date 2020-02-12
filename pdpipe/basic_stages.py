@@ -21,6 +21,11 @@ class ColDrop(ColumnsBasedPipelineStage):
         The label, or an iterable of labels, of columns to drop. Alternatively,
         this parameter can be assigned a callable returning an iterable of
         labels from an input pandas.DataFrame. See pdpipe.cq.
+    exclude_columns : object, iterable or callable, optional
+        The label, or an iterable of labels, of columns to exclude, given the
+        `columns` parameter. Alternatively, this parameter can be assigned a
+        callable returning a labels iterable from an input pandas.DataFrame.
+        See pdpipe.cq. Optional. By default no columns are excluded.
     errors : {‘ignore’, ‘raise’}, default ‘raise’
         If ‘ignore’, suppress error and existing labels are dropped.
 
@@ -66,6 +71,11 @@ class ValDrop(ColumnsBasedPipelineStage):
         values. Alternatively, this parameter can be assigned a callable
         returning an iterable of labels from an input pandas.DataFrame. See
         pdpipe.cq. If set to None, all columns are checked.
+    exclude_columns : object, iterable or callable, optional
+        The label, or an iterable of labels, of columns to exclude, given the
+        `columns` parameter. Alternatively, this parameter can be assigned a
+        callable returning a labels iterable from an input pandas.DataFrame.
+        See pdpipe.cq. Optional. By default no columns are excluded.
 
     Example
     -------
@@ -115,6 +125,11 @@ class ValKeep(ColumnsBasedPipelineStage):
         values. Alternatively, this parameter can be assigned a callable
         returning an iterable of labels from an input pandas.DataFrame. See
         pdpipe.cq. If set to None, all columns are checked.
+    exclude_columns : object, iterable or callable, optional
+        The label, or an iterable of labels, of columns to exclude, given the
+        `columns` parameter. Alternatively, this parameter can be assigned a
+        callable returning a labels iterable from an input pandas.DataFrame.
+        See pdpipe.cq. Optional. By default no columns are excluded.
 
     Example
     -------
@@ -365,10 +380,19 @@ class RowDrop(ColumnsBasedPipelineStage):
         rows satisfying exactly one of the conditions will be dropped. Set to
         'any' by default.
     columns : str or iterable, optional
-        The label, or an iterable of labels, of columns. Optional. If given,
+        The label, or an iterable of labels, of columns. Alternatively,
+        this parameter can be assigned a callable returning an iterable of
+        labels from an input pandas.DataFrame. See pdpipe.cq. If given,
         input conditions will be applied to the sub-dataframe made up of
         these columns to determine which rows to drop. Ignored if `conditions`
-        is provided with a dict object.
+        is provided with a dict object. If `conditions` is a list and this
+        parameter is not provided, all columns are checked (unless
+        `exclude_columns` is additionally provided)
+    exclude_columns : object, iterable or callable, optional
+        The label, or an iterable of labels, of columns to exclude, given the
+        `columns` parameter. Alternatively, this parameter can be assigned a
+        callable returning a labels iterable from an input pandas.DataFrame.
+        See pdpipe.cq. Optional. By default no columns are excluded.
 
     Example
     -------
@@ -516,6 +540,11 @@ class DropDuplicates(ColumnsBasedPipelineStage):
     columns: column label or sequence of labels, optional
         The labels of the columns to consider for duplication drop. If not
         populated, duplicates are dropped from all columns.
+    exclude_columns : object, iterable or callable, optional
+        The label, or an iterable of labels, of columns to exclude, given the
+        `columns` parameter. Alternatively, this parameter can be assigned a
+        callable returning a labels iterable from an input pandas.DataFrame.
+        See pdpipe.cq. Optional. By default no columns are excluded.
 
     Examples
     --------

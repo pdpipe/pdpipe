@@ -314,26 +314,17 @@ class AllColumns(ColumnQualifier):
 
     Parameters
     ----------
-    fittable : bool, default True
-        If set to false, this qualifier becomes unfittable, and `func` is
-        called on every call to transform. True by default.
-    subset : bool, default False
-        If set to true, fitted qualifiers return the subset of fitted columns
-        found in input dataframes during transform, in the order they appeared
-        when fitted (NOT in the order they appear in the input dataframe of the
-        transform). False by default, which means fitted qualifiers return the
-        FULL list of fitted columns, ignoring input dataframes completely on
-        transforms. When combined with most pipeline stages, this means the
-        stage will fail on its precondition if trying to transform with it a
-        dataframe that is missing some values in the fitted qualifier.
+    **kwargs
+        Accepts all keyword arguments of the constructor of
+        ColumnQualifier. See the documentation of ColumnQualifier for details.
 
     Example
     -------
         >>> import pandas as pd; import pdpipe as pdp;
         >>> df = pd.DataFrame([[8,1],[5,2]], [1,2], ['a', 'b'])
-        >>> cq
-        <ColumnQualifier: Qualifies all columns>
         >>> cq = pdp.cq.AllColumns()
+        >>> cq
+        <ColumnQualifier: Qualify all columns>
         >>> cq(df)
         ['a', 'b']
         >>> df2 = pd.DataFrame([[8,1],[5,2]], [1,2], ['b', 'c'])
@@ -344,12 +335,18 @@ class AllColumns(ColumnQualifier):
         ['a', 'b']
         >>> cq(df2)
         ['b', 'c']
+        >>> cq = pdp.cq.AllColumns(subset=True)
+        >>> cq(df)
+        ['a', 'b']
+        >>> cq(df2)
+        ['b']
     """
 
-    def __init__(self, fittable=None, subset=None):
+    def __init__(self, **kwargs):
         def _cqfunc(df):  # noqa: E306
-            return df.columns
-        super().__init__(func=_cqfunc, fittable=fittable)
+            return list(df.columns)
+        kwargs['func'] = _cqfunc
+        super().__init__(**kwargs)
 
     def __repr__(self):
         return "<ColumnQualifier: Qualify all columns>"
@@ -363,14 +360,14 @@ class ByColumnCondition(ColumnQualifier):
     cond : callable
         A callaable that given an input pandas.Series object returns a boolean
         value.
-    fittable : bool, default True
-        If set to false, this qualifier becomes unfittable, and `func` is
-        called on every call to transform. True by default.
     safe : bool, default False
         If set to True, every call to given condition `cond` is is wrapped in
         a way that interprets every raised exception as a returned False value.
         This is useful when generating qualifiers based on conditions that
         assume a specific datatype for the checked column.
+    **kwargs
+        Additionaly accepts all keyword arguments of the constructor of
+        ColumnQualifier. See the documentation of ColumnQualifier for details.
 
     Example
     -------
@@ -382,7 +379,7 @@ class ByColumnCondition(ColumnQualifier):
         ['age']
     """
 
-    def __init__(self, cond, fittable=True, safe=False):
+    def __init__(self, cond, safe=False, **kwargs):
         self._cond = cond
         if safe:
             def _safe_cond(series):
@@ -396,7 +393,8 @@ class ByColumnCondition(ColumnQualifier):
                 lbl for lbl, series in df.iteritems()
                 if self._cond(series)
             ])
-        super().__init__(func=_cqfunc, fittable=fittable)
+        kwargs['func'] = _cqfunc
+        super().__init__(**kwargs)
 
 
 class ByLabels(ColumnQualifier):
@@ -406,6 +404,9 @@ class ByLabels(ColumnQualifier):
     ----------
     labels : single label or list-like
         Columns labels which qualify.
+    **kwargs
+        Additionaly accepts all keyword arguments of the constructor of
+        ColumnQualifier. See the documentation of ColumnQualifier for details.
 
     Example
     -------
@@ -430,7 +431,8 @@ class ByLabels(ColumnQualifier):
                 lbl for lbl in df.columns
                 if lbl in self._labels
             ]
-        _cqfunc.__doc__ = "Columns with labels in {}".format(self._labels_str)
+        _cqfunc.__doc__ = "Columns  wwith labels in {}".format(
+            self._labels_str)
         kwargs['func'] = _cqfunc
         super().__init__(**kwargs)
 
@@ -477,6 +479,9 @@ class StartWith(ColumnQualifier):
     ----------
     prefix : str
         The prefix which qualifies columns.
+    **kwargs
+        Additionaly accepts all keyword arguments of the constructor of
+        ColumnQualifier. See the documentation of ColumnQualifier for details.
 
     Example
     -------
@@ -523,6 +528,9 @@ class OfDtypes(ColumnQualifier):
     dtypes : object or list of objects
         The dtype or dtypes which qualify columns. Support all valid arguments
         to the `include` parameter of pandas.DataFrame.select_dtypes().
+    **kwargs
+        Additionaly accepts all keyword arguments of the constructor of
+        ColumnQualifier. See the documentation of ColumnQualifier for details.
 
     Example
     -------
@@ -563,6 +571,9 @@ class WithAtMostMissingValues(ColumnQualifier):
     n_missing : int
         The maximum number of missing values with which columns can still
         qualify.
+    **kwargs
+        Additionaly accepts all keyword arguments of the constructor of
+        ColumnQualifier. See the documentation of ColumnQualifier for details.
 
     Example
     -------
@@ -592,6 +603,12 @@ class WithAtMostMissingValues(ColumnQualifier):
 
 class WithoutMissingValues(WithAtMostMissingValues):
     """Selectes all columns with no missing values.
+
+    Parameters
+    ----------
+    **kwargs
+        Accepts all keyword arguments of the constructor of ColumnQualifier.
+        See the documentation of ColumnQualifier for details.
 
     Example
     -------
