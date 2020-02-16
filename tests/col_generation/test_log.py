@@ -1,9 +1,9 @@
 """Testing basic pipeline stages."""
 
+import pytest
 import numpy as np
 import pandas as pd
 from numpy.testing import assert_approx_equal
-import pytest
 
 from pdpipe import Log
 
@@ -198,7 +198,7 @@ def test_log_non_neg_n_const_shift():
 @pytest.mark.log
 def test_log_with_exclude():
     df = _some_df()
-    log_stage = Log(exclude='lbl')
+    log_stage = Log(exclude_columns='lbl')
     res_df = log_stage(df)
     assert 'lbl' in res_df.columns
     assert 'rank' in res_df.columns

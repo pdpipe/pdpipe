@@ -8,8 +8,8 @@ import sortedcontainers as sc
 import tqdm
 
 from pdpipe.core import PdPipelineStage, ColumnsBasedPipelineStage
-from pdpipe.util import out_of_place_col_insert, get_numeric_column_names
-from pdpipe.cq import OfDtypes, columns_to_qualifier
+from pdpipe.util import out_of_place_col_insert
+from pdpipe.cq import OfDtypes
 
 from pdpipe.shared import _interpret_columns_param, _list_str
 
@@ -156,12 +156,7 @@ class OneHotEncode(ColumnsBasedPipelineStage):
         Label or labels of columns to be excluded from encoding. If None then
         no column is excluded. Alternatively, this parameter can be assigned a
         callable returning an iterable of labels from an input
-        pandas.DataFrame. See pdpipe.cq.
-    col_subset : bool, default False
-        If set to True, and only a subset of given columns is found, they are
-        encoded (if the missing columns are encoutered after the stage is
-        fitted they will be ignored). Otherwise, the stage will fail on the
-        precondition requiring all given columns are in input dataframes.
+        pandas.DataFrame. See pdpipe.cq. Optional.
     drop_first : bool or single label, default True
         Whether to get k-1 dummies out of k categorical levels by removing the
         first level. If a non bool argument matching one of the categories is
@@ -181,8 +176,6 @@ class OneHotEncode(ColumnsBasedPipelineStage):
         2        1         0
         3        0         0
     """
-
-    _DEF_1HENCODE_APP_MSG = "One-hot encoding {}..."
 
     class _FitterEncoder(object):
         def __init__(self, col_name, dummy_columns):
@@ -204,42 +197,29 @@ class OneHotEncode(ColumnsBasedPipelineStage):
         columns=None,
         dummy_na=False,
         exclude_columns=None,
-        col_subset=False,
         drop_first=True,
         drop=True,
         **kwargs
     ):
-        if columns is None:
-            columns = OfDtypes(['object', 'category'])
-        else:
-            columns = columns_to_qualifier(columns)
-        if exclude_columns:
-            exclude_columns = columns_to_qualifier(exclude_columns)
-            columns = columns - exclude_columns
         self._dummy_na = dummy_na
-        self._col_subset = col_subset
         self._drop_first = drop_first
         self._drop = drop
         self._dummy_col_map = {}
         self._encoder_map = {}
         super_kwargs = {
             'columns': columns,
+            'exclude_columns': exclude_columns,
             'desc_temp': "One-hot encode {}",
         }
         super_kwargs.update(**kwargs)
+        super_kwargs['none_columns'] = OfDtypes(['object', 'category'])
         super().__init__(**super_kwargs)
-
-    def _prec(self, df):
-        if self._col_subset:
-            return True
-        return super()._prec(df)
 
     def _transformation(self, df, verbose, fit):
         raise NotImplementedError
 
     def _fit_transform(self, df, verbose):
         columns_to_encode = self._get_columns(df, fit=True)
-        self._cols_to_encode = columns_to_encode
         assign_map = {}
         if verbose:
             columns_to_encode = tqdm.tqdm(columns_to_encode)
@@ -284,15 +264,21 @@ class OneHotEncode(ColumnsBasedPipelineStage):
 
     def _transform(self, df, verbose):
         assign_map = {}
-        for colname in self._cols_to_encode:
+        columns_to_encode = self._get_columns(df, fit=False)
+        for colname in columns_to_encode:
             col = df[colname]
-            encoder = self._encoder_map[colname]
+            try:
+                encoder = self._encoder_map[colname]
+            except KeyError:  # pragma: no cover
+                raise PipelineApplicationError((
+                    "Missing encoder for column {} when applying a fitted "
+                    "OneHotEncode pipeline stage!").format(colname))
             res_cols = col.apply(encoder)
             for res_col in res_cols:
                 assign_map[res_col] = res_cols[res_col]
         inter_df = df.assign(**assign_map)
         if self._drop:
-            return inter_df.drop(self._cols_to_encode, axis=1)
+            return inter_df.drop(columns_to_encode, axis=1)
         return inter_df
 
 
@@ -359,7 +345,7 @@ class ColumnTransformer(ColumnsBasedPipelineStage):
         super().__init__(**super_kwargs)
 
     @abc.abstractmethod
-    def _col_transform(self, series):
+    def _col_transform(self, series, label):
         raise NotImplementedError
 
     def _transformation(self, df, verbose, fit):
@@ -382,7 +368,7 @@ class ColumnTransformer(ColumnsBasedPipelineStage):
                 loc -= 1
             inter_df = out_of_place_col_insert(
                 df=inter_df,
-                series=self._col_transform(source_col),
+                series=self._col_transform(source_col, colname),
                 loc=loc,
                 column_name=new_name,
             )
@@ -453,7 +439,7 @@ class MapColVals(ColumnTransformer):
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
-    def _col_transform(self, series):
+    def _col_transform(self, series, label):
         return series.map(self._value_map)
 
 
@@ -644,7 +630,7 @@ class ApplyByCols(ColumnTransformer):
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
-    def _col_transform(self, series):
+    def _col_transform(self, series, label):
         return series.apply(self._func)
 
 
@@ -793,11 +779,11 @@ class AggByCols(ColumnTransformer):
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
-    def _col_transform(self, series):
+    def _col_transform(self, series, label):
         return series.agg(self._func)
 
 
-class Log(PdPipelineStage):
+class Log(ColumnsBasedPipelineStage):
     """A pipeline stage that log-transforms numeric data.
 
     Parameters
@@ -805,11 +791,14 @@ class Log(PdPipelineStage):
     columns : str or list-like, default None
         Column names in the DataFrame to be encoded. If columns is None then
         all the columns with a numeric dtype will be transformed, except those
-        given in the exclude_columns parameter.
-    exclude : str or list-like, default None
-        Name or names of numeric columns to be excluded from log-transforming
-        when the columns parameter is not given. If None no column is excluded.
-        Ignored if the columns parameter is given.
+        given in the exclude_columns parameter. Alternatively,
+        this parameter can be assigned a callable returning an iterable of
+        labels from an input pandas.DataFrame. See pdpipe.cq.
+    exclude_columns : str or list-like, default None
+        Label or labels of columns to be excluded from encoding. If None then
+        no column is excluded. Alternatively, this parameter can be assigned a
+        callable returning an iterable of labels from an input
+        pandas.DataFrame. See pdpipe.cq. Optional.
     drop : bool, default False
         If set to True, the source columns are dropped after being encoded,
         and the resulting encoded columns retain the names of the source
@@ -835,55 +824,35 @@ class Log(PdPipelineStage):
         3  2.493205  alk
     """
 
-    _DEF_LOG_EXC_MSG = (
-        "Log stage failed because not all columns "
-        "{} were found in input dataframe."
-    )
     _DEF_LOG_APP_MSG = "Log-transforming {}..."
 
     def __init__(
         self,
         columns=None,
-        exclude=None,
+        exclude_columns=None,
         drop=False,
         non_neg=False,
         const_shift=None,
         **kwargs
     ):
-        if columns is None:
-            self._columns = None
-        else:
-            self._columns = _interpret_columns_param(columns)
-        if exclude is None:
-            self._exclude = []
-        else:
-            self._exclude = _interpret_columns_param(exclude)
         self._drop = drop
         self._non_neg = non_neg
         self._const_shift = const_shift
         self._col_to_minval = {}
-        col_str = "all numeric columns"
-        if self._columns:
-            col_str = _list_str(self._columns)
         super_kwargs = {
-            "exmsg": Log._DEF_LOG_EXC_MSG.format(col_str),
-            "appmsg": Log._DEF_LOG_APP_MSG.format(col_str),
-            "desc": "Log-transform {}".format(col_str),
+            'columns': columns,
+            'exclude_columns': exclude_columns,
+            'desc_temp': "Log-transform {}",
         }
         super_kwargs.update(**kwargs)
+        super_kwargs['none_columns'] = OfDtypes([np.number])
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
-        return set(self._columns or []).issubset(df.columns)
+    def _transformation(self, df, verbose, fit):
+        raise NotImplementedError
 
     def _fit_transform(self, df, verbose):
-        columns_to_transform = self._columns
-        if self._columns is None:
-            columns_to_transform = get_numeric_column_names(df)
-        columns_to_transform = list(
-            set(columns_to_transform).difference(self._exclude)
-        )
-        self._cols_to_transform = columns_to_transform
+        columns_to_transform = self._get_columns(df, fit=True)
         if verbose:
             columns_to_transform = tqdm.tqdm(columns_to_transform)
         inter_df = df
@@ -901,6 +870,8 @@ class Log(PdPipelineStage):
                 if minval < 0:
                     new_col = new_col + abs(minval)
                     self._col_to_minval[colname] = abs(minval)
+                else:
+                    self._col_to_minval[colname] = 0
             # must check not None as neg numbers eval to False
             if self._const_shift is not None:
                 new_col = new_col + self._const_shift
@@ -913,11 +884,16 @@ class Log(PdPipelineStage):
 
     def _transform(self, df, verbose):
         inter_df = df
-        columns_to_transform = self._cols_to_transform
+        columns_to_transform = self._get_columns(df, fit=False)
         if verbose:
             columns_to_transform = tqdm.tqdm(columns_to_transform)
         for colname in columns_to_transform:
-            source_col = df[colname]
+            try:
+                source_col = df[colname]
+            except KeyError:  # pragma: no cover
+                raise PipelineApplicationError((
+                    "Missig column {} when applying a fitted "
+                    "Log pipeline stage!").format(colname))
             loc = df.columns.get_loc(colname) + 1
             new_name = colname + "_log"
             if self._drop:
@@ -929,6 +905,10 @@ class Log(PdPipelineStage):
                 if colname in self._col_to_minval:
                     absminval = self._col_to_minval[colname]
                     new_col = new_col + absminval
+                else:  # pragma: no cover
+                    raise PipelineApplicationError((
+                        "Missig fitted parameter for column {} when applying a"
+                        " fitted Log pipeline stage!").format(colname))
             # must check not None as neg numbers eval to False
             if self._const_shift is not None:
                 new_col = new_col + self._const_shift

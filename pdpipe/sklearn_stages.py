@@ -9,6 +9,7 @@ the pipeline stages that make up this module, and continue to load other
 pipeline stages.
 """
 
+import numpy as np
 import pandas as pd
 import sklearn.preprocessing
 import tqdm
@@ -17,11 +18,10 @@ from sklearn.feature_extraction.text import (
     TfidfVectorizer,
 )
 
-from pdpipe.core import PdPipelineStage
+from pdpipe.core import PdPipelineStage, ColumnsBasedPipelineStage
 from pdpipe.util import out_of_place_col_insert
+from pdpipe.cq import OfDtypes
 from pdpipe.shared import (
-    _interpret_columns_param,
-    _list_str,
     _get_args_list,
     _identity_function,
 )
@@ -29,7 +29,7 @@ from pdpipe.shared import (
 from .exceptions import PipelineApplicationError
 
 
-class Encode(PdPipelineStage):
+class Encode(ColumnsBasedPipelineStage):
     """A pipeline stage that encodes categorical columns to integer values.
 
     The encoder for each column is saved in the attribute 'encoders', which
@@ -38,14 +38,16 @@ class Encode(PdPipelineStage):
 
     Parameters
     ----------
-    columns : str or list-like, default None
-        Column names in the DataFrame to be encoded. If columns is None then
-        all the columns with object or category dtype will be encoded, except
-        those given in the exclude_columns parameter.
+    columns : single label, list-like or callable, default None
+        Column labels in the DataFrame to be encoded. If columns is None then
+        all the columns with object or category dtype will be converted, except
+        those given in the exclude_columns parameter. Alternatively,
+        this parameter can be assigned a callable returning an iterable of
+        labels from an input pandas.DataFrame. See pdpipe.cq.
     exclude_columns : str or list-like, default None
-        Name or names of categorical columns to be excluded from encoding
-        when the columns parameter is not given. If None no column is excluded.
-        Ignored if the columns parameter is given.
+        Label or labels of columns to be excluded from encoding. If None then
+        no column is excluded. Alternatively, this parameter can be assigned a
+        callable returning an iterable of labels from an input
     drop : bool, default True
         If set to True, the source columns are dropped after being encoded,
         and the resulting encoded columns retain the names of the source
@@ -66,46 +68,26 @@ class Encode(PdPipelineStage):
         array(['acd', 'alk', 'alk'], dtype=object)
     """
 
-    _DEF_ENCODE_EXC_MSG = (
-        "Encode stage failed because not all columns "
-        "{} were found in input dataframe."
-    )
-    _DEF_ENCODE_APP_MSG = "Encoding {}..."
-
     def __init__(
         self, columns=None, exclude_columns=None, drop=True, **kwargs
     ):
-        if columns is None:
-            self._columns = None
-        else:
-            self._columns = _interpret_columns_param(columns)
-        if exclude_columns is None:
-            self._exclude_columns = []
-        else:
-            self._exclude_columns = _interpret_columns_param(exclude_columns)
         self._drop = drop
         self.encoders = {}
-        col_str = _list_str(self._columns)
         super_kwargs = {
-            "exmsg": Encode._DEF_ENCODE_EXC_MSG.format(col_str),
-            "appmsg": Encode._DEF_ENCODE_APP_MSG.format(col_str),
-            "desc": "Encode {}".format(col_str or "all categorical columns"),
+            'columns': columns,
+            'exclude_columns': exclude_columns,
+            'desc_temp': "Encode {}",
         }
         super_kwargs.update(**kwargs)
+        super_kwargs['none_columns'] = OfDtypes(['object', 'category'])
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
-        return set(self._columns or []).issubset(df.columns)
+    def _transformation(self, df, verbose, fit):
+        raise NotImplementedError
 
     def _fit_transform(self, df, verbose):
         self.encoders = {}
-        columns_to_encode = self._columns
-        if self._columns is None:
-            columns_to_encode = list(
-                set(
-                    df.select_dtypes(include=["object", "category"]).columns
-                ).difference(self._exclude_columns)
-            )
+        columns_to_encode = self._get_columns(df, fit=True)
         if verbose:
             columns_to_encode = tqdm.tqdm(columns_to_encode)
         inter_df = df
@@ -148,7 +130,7 @@ class Encode(PdPipelineStage):
         return inter_df
 
 
-class Scale(PdPipelineStage):
+class Scale(ColumnsBasedPipelineStage):
     """A pipeline stage that scales data.
 
     Parameters
@@ -157,12 +139,16 @@ class Scale(PdPipelineStage):
         The type of scaler to use to scale the data. One of 'StandardScaler',
         'MinMaxScaler', 'MaxAbsScaler', 'RobustScaler', 'QuantileTransformer'
         and 'Normalizer'.
-    exclude_columns : str or list-like, default None
-        Name or names of columns to be excluded from scaling. Excluded columns
-        are appended to the end of the resulting dataframe.
-    exclude_object_columns : bool, default True
-        If set to True, all columns of dtype object are added to the list of
-        columns excluded from scaling.
+    columns : single label, list-like or callable, default None
+        Column labels in the DataFrame to be scale. If columns is None then
+        all columns of numeric dtype will be scaled, except those given in the
+        exclude_columns parameter. Alternatively, this parameter can be
+        assigned a callable returning an iterable of labels from an input
+        pandas.DataFrame. See pdpipe.cq.
+    exclude_columns : str or list-like, optional
+        Label or labels of columns to be excluded from encoding. Alternatively,
+        this parameter can be assigned a callable returning an iterable of
+        labels from an input pandas.DataFrame. See pdpipe.cq.
     **kwargs : extra keyword arguments
         All valid extra keyword arguments are forwarded to the scaler
         constructor on scaler creation (e.g. 'n_quantiles' for
@@ -182,104 +168,82 @@ class Scale(PdPipelineStage):
         3  1.263876 -0.889001
     """
 
-    _DESC_PREFIX = "Scale data"
-    _DEF_SCALE_EXC_MSG = "Scale stage failed."
-    _DEF_SCALE_APP_MSG = "Scaling data..."
-
     def __init__(
         self,
         scaler,
+        columns=None,
         exclude_columns=None,
-        exclude_object_columns=True,
         **kwargs
     ):
         self.scaler = scaler
-        if exclude_columns is None:
-            self._exclude_columns = []
-            desc_suffix = "."
-        else:
-            self._exclude_columns = _interpret_columns_param(exclude_columns)
-            col_str = _list_str(self._exclude_columns)
-            desc_suffix = " except columns {}.".format(col_str)
-        self._exclude_obj_cols = exclude_object_columns
-        super_kwargs = {
-            "exmsg": Scale._DEF_SCALE_EXC_MSG,
-            "appmsg": Scale._DEF_SCALE_APP_MSG,
-            "desc": Scale._DESC_PREFIX + desc_suffix,
-        }
         self._kwargs = kwargs
+        super_kwargs = {
+            'columns': columns,
+            'exclude_columns': exclude_columns,
+            'desc_temp': "Scale columns {}",
+        }
         valid_super_kwargs = super()._init_kwargs()
         for key in kwargs:
             if key in valid_super_kwargs:
                 super_kwargs[key] = kwargs[key]
+        super_kwargs['none_columns'] = OfDtypes([np.number])
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
-        return True
+    def _transformation(self, df, verbose, fit):
+        raise NotImplementedError
 
     def _fit_transform(self, df, verbose):
-        cols_to_exclude = self._exclude_columns.copy()
-        if self._exclude_obj_cols:
-            obj_cols = list((df.dtypes[df.dtypes == object]).index)
-            obj_cols = [x for x in obj_cols if x not in cols_to_exclude]
-            cols_to_exclude += obj_cols
-        self._col_order = list(df.columns)
-        if cols_to_exclude:
-            excluded = df[cols_to_exclude]
-            apply_to = df[
-                [col for col in df.columns if col not in cols_to_exclude]
-            ]
-        else:
-            apply_to = df
+        self._columns_to_scale = self._get_columns(df, fit=True)
+        unscaled_cols = [
+            x for x in df.columns
+            if x not in self._columns_to_scale
+        ]
+        col_order = list(df.columns)
+        inter_df = df[self._columns_to_scale]
         self._scaler = scaler_by_params(self.scaler, **self._kwargs)
         try:
-            res = pd.DataFrame(
-                data=self._scaler.fit_transform(apply_to),
-                index=apply_to.index,
-                columns=apply_to.columns,
+            inter_df = pd.DataFrame(
+                data=self._scaler.fit_transform(inter_df.values),
+                index=inter_df.index,
+                columns=inter_df.columns,
             )
         except Exception:
             raise PipelineApplicationError(
                 "Exception raised when Scale applied to columns {}".format(
-                    apply_to.columns
+                    self._columns_to_scale
                 )
             )
-        if cols_to_exclude:
-            res = pd.concat([res, excluded], axis=1)
-            res = res[self._col_order]
+        if len(unscaled_cols) > 0:
+            unscaled = df[unscaled_cols]
+            inter_df = pd.concat([inter_df, unscaled], axis=1)
+            inter_df = inter_df[col_order]
         self.is_fitted = True
-        return res
+        return inter_df
 
     def _transform(self, df, verbose):
-        cols_to_exclude = self._exclude_columns.copy()
-        if self._exclude_obj_cols:
-            obj_cols = list((df.dtypes[df.dtypes == object]).index)
-            obj_cols = [x for x in obj_cols if x not in cols_to_exclude]
-            cols_to_exclude += obj_cols
-        self._col_order = list(df.columns)
-        if cols_to_exclude:
-            excluded = df[cols_to_exclude]
-            apply_to = df[
-                [col for col in df.columns if col not in cols_to_exclude]
-            ]
-        else:
-            apply_to = df
+        unscaled_cols = [
+            x for x in df.columns
+            if x not in self._columns_to_scale
+        ]
+        col_order = list(df.columns)
+        inter_df = df[self._columns_to_scale]
         try:
-            res = pd.DataFrame(
-                data=self._scaler.transform(apply_to),
-                index=apply_to.index,
-                columns=apply_to.columns,
+            inter_df = pd.DataFrame(
+                data=self._scaler.transform(inter_df.values),
+                index=inter_df.index,
+                columns=inter_df.columns,
             )
         except Exception:
             raise PipelineApplicationError(
                 "Exception raised when Scale applied to columns {}".format(
-                    apply_to.columns
+                    self._columns_to_scale
                 )
             )
-        if cols_to_exclude:
-            res = pd.concat([res, excluded], axis=1)
-            res = res[self._col_order]
-        return res
+        if len(unscaled_cols) > 0:
+            unscaled = df[unscaled_cols]
+            inter_df = pd.concat([inter_df, unscaled], axis=1)
+            inter_df = inter_df[col_order]
+        return inter_df
 
 
 class TfidfVectorizeTokenLists(PdPipelineStage):

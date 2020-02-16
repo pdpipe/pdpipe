@@ -15,8 +15,9 @@ import collections
 
 import nltk
 import pandas as pd
+import tqdm
 
-from pdpipe.core import PdPipelineStage
+from pdpipe.core import ColumnsBasedPipelineStage
 from pdpipe.util import out_of_place_col_insert
 from pdpipe.col_generation import MapColVals
 from pdpipe.shared import (
@@ -32,8 +33,10 @@ class TokenizeText(MapColVals):
 
     Parameters
     ----------
-    columns : str or list-like
-        Column names in the DataFrame to be tokenized.
+    columns : single label, list-like of callable
+        Column labels in the DataFrame to be transformed. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See pdpipe.cq.
     drop : bool, default True
         If set to True, the source columns are dropped after being tokenized,
         and the resulting tokenized columns retain the names of the source
@@ -80,6 +83,7 @@ class TokenizeText(MapColVals):
             'desc': "Tokenize {}".format(col_str),
         }
         super_kwargs.update(**kwargs)
+        super_kwargs['none_columns'] = 'error'
         super().__init__(**super_kwargs)
 
     def _prec(self, df):
@@ -90,12 +94,17 @@ class TokenizeText(MapColVals):
 class UntokenizeText(MapColVals):
     """A pipeline stage that joins token lists to whitespace-seperated strings.
 
+    Target columns must be series of token lists; i.e. every cell in the series
+    is an iterable of string tokens.
+
     Note: The nltk package must be installed for this pipeline stage to work.
 
     Parameters
     ----------
-    columns : str or list-like
-        Column names in the DataFrame to be untokenized.
+    columns : single label, list-like of callable
+        Column labels in the DataFrame to be transformed. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See pdpipe.cq.
     drop : bool, default True
         If set to True, the source columns are dropped after being untokenized,
         and the resulting columns retain the names of the source columns.
@@ -132,6 +141,7 @@ class UntokenizeText(MapColVals):
             'desc': "Untokenize {}".format(col_str),
         }
         super_kwargs.update(**kwargs)
+        super_kwargs['none_columns'] = 'error'
         super().__init__(**super_kwargs)
 
     def _prec(self, df):
@@ -142,6 +152,9 @@ class UntokenizeText(MapColVals):
 class RemoveStopwords(MapColVals):
     """A pipeline stage that removes stopwords from a tokenized list.
 
+    Target columns must be series of token lists; i.e. every cell in the series
+    is an iterable of string tokens.
+
     Note: The nltk package must be installed for this pipeline stage to work.
 
     Parameters
@@ -151,8 +164,10 @@ class RemoveStopwords(MapColVals):
         should then be one of the languages supported by the NLTK Stopwords
         Corpus. If a list is given, it is assumed to be the list of stopwords
         to remove.
-    columns : str or list-like
-        Column names in the DataFrame from which to remove stopwords.
+    columns : single label, list-like of callable
+        Column labels in the DataFrame to be transformed. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See pdpipe.cq.
     drop : bool, default True
         If set to True, the source columns are dropped after stopword removal,
         and the resulting columns retain the names of the source columns.
@@ -218,6 +233,7 @@ class RemoveStopwords(MapColVals):
             'desc': "Remove stopwords from {}".format(col_str),
         }
         super_kwargs.update(**kwargs)
+        super_kwargs['none_columns'] = 'error'
         super().__init__(**super_kwargs)
 
     def _prec(self, df):
@@ -228,6 +244,9 @@ class RemoveStopwords(MapColVals):
 class SnowballStem(MapColVals):
     """A pipeline stage that stems tokens in a list using the Snowball stemmer.
 
+    Target columns must be series of token lists; i.e. every cell in the series
+    is an iterable of string tokens.
+
     Note: The nltk package must be installed for this pipeline stage to work.
 
     Parameters
@@ -235,8 +254,10 @@ class SnowballStem(MapColVals):
     stemmer_name : str
         The name of the Snowball stemmer to use. Should be one of the Snowball
         stemmers implemented by nltk. E.g. 'EnglishStemmer'.
-    columns : str or list-like
-        Column names in the DataFrame to stem tokens in.
+    columns : single label, list-like of callable
+        Column labels in the DataFrame to be transformed. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See pdpipe.cq.
     drop : bool, default True
         If set to True, the source columns are dropped after stemming, and the
         resulting columns retain the names of the source columns. Otherwise,
@@ -356,6 +377,7 @@ class SnowballStem(MapColVals):
             'desc': appmsg,
         }
         super_kwargs.update(**kwargs)
+        super_kwargs['none_columns'] = 'error'
         super().__init__(**super_kwargs)
 
     def _prec(self, df):
@@ -363,15 +385,20 @@ class SnowballStem(MapColVals):
             col_type == object for col_type in df.dtypes[self._columns])
 
 
-class DropRareTokens(PdPipelineStage):
+class DropRareTokens(ColumnsBasedPipelineStage):
     """A pipeline stage that drop rare tokens from token lists.
+
+    Target columns must be series of token lists; i.e. every cell in the series
+    is an iterable of string tokens.
 
     Note: The nltk package must be installed for this pipeline stage to work.
 
     Parameters
     ----------
-    columns : str or list-like
-        Column names in the DataFrame for which to drop rare words.
+    columns : single label, list-like of callable
+        Column labels in the DataFrame to be transformed. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See pdpipe.cq.
     threshold : int
         The rarity threshold to use. Only tokens appearing more than this
         number of times in a column will remain in token lists in that column.
@@ -392,25 +419,17 @@ class DropRareTokens(PdPipelineStage):
         1    3        [b]
     """
 
-    _DEF_RARE_EXC_MSG = ("DropRareTokens stage failed because not all columns "
-                         "{} were found in input dataframe.")
-
     def __init__(self, columns, threshold, drop=True, **kwargs):
-        self._columns = _interpret_columns_param(columns)
         self._threshold = threshold
         self._drop = drop
         self._rare_removers = {}
-        col_str = _list_str(self._columns)
         super_kwargs = {
-            'exmsg': DropRareTokens._DEF_RARE_EXC_MSG.format(col_str),
-            'appmsg': "Dropping rare tokens from {}...".format(col_str),
-            'desc': "Drop rare tokens from {}".format(col_str)
+            'columns': columns,
+            'desc_temp': "Drop rare tokens from {}"
         }
         super_kwargs.update(**kwargs)
+        super_kwargs['none_columns'] = 'error'
         super().__init__(**super_kwargs)
-
-    def _prec(self, df):
-        return set(self._columns).issubset(df.columns)
 
     class _RareRemover(object):
         def __init__(self, rare_words):
@@ -429,7 +448,10 @@ class DropRareTokens(PdPipelineStage):
 
     def _fit_transform(self, df, verbose):
         inter_df = df
-        for colname in self._columns:
+        columns_to_transform = self._get_columns(df, fit=True)
+        if verbose:
+            columns_to_transform = tqdm.tqdm(columns_to_transform)
+        for colname in columns_to_transform:
             source_col = df[colname]
             loc = df.columns.get_loc(colname) + 1
             new_name = colname + "_norare"
@@ -448,9 +470,15 @@ class DropRareTokens(PdPipelineStage):
         self.is_fitted = True
         return inter_df
 
+    def _transformation(self, df, verbose, fit):
+        raise NotImplementedError
+
     def _transform(self, df, verbose):
         inter_df = df
-        for colname in self._columns:
+        columns_to_transform = self._get_columns(df, fit=False)
+        if verbose:
+            columns_to_transform = tqdm.tqdm(columns_to_transform)
+        for colname in columns_to_transform:
             source_col = df[colname]
             loc = df.columns.get_loc(colname) + 1
             new_name = colname + "_norare"

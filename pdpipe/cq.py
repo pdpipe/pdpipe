@@ -206,7 +206,7 @@ class ColumnQualifier(object):
 
     def __repr__(self):
         fstr = ''
-        if self._cqfunc.__doc__:
+        if self._cqfunc.__doc__:  # pragma: no cover
             fstr = ' - {}'.format(self._cqfunc.__doc__)
         return "<ColumnQualifier: Qualify columns by function{}>".format(fstr)
 
@@ -419,6 +419,9 @@ class ByLabels(ColumnQualifier):
         >>> cq = pdp.cq.ByLabels(['chr', 'nur'])
         >>> cq(df)
         ['chr', 'nur']
+        >>> cq = pdp.cq.ByLabels(['num', 'foo'])
+        >>> cq(df)
+        ['num']
     """
 
     def __init__(self, labels, **kwargs):

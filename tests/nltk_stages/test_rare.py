@@ -50,7 +50,7 @@ def test_drop_rare():
 def test_drop_rare_w_drop():
     df = _some_df()
     drop_rare_stage = DropRareTokens('chars', 1, drop=False)
-    res_df = drop_rare_stage(df)
+    res_df = drop_rare_stage(df, verbose=True)
     assert 'chars' in res_df.columns
     assert 'chars_norare' in res_df.columns
     assert res_df['chars_norare'][1] == ['a', 'a', 'b']
@@ -59,7 +59,7 @@ def test_drop_rare_w_drop():
 
     # see only transform (no fit) when already fitted
     df2 = _some_df2()
-    res_df2 = drop_rare_stage(df2)
+    res_df2 = drop_rare_stage(df2, verbose=True)
     assert 'chars' in res_df2.columns
     assert 'chars_norare' in res_df2.columns
     assert res_df2['chars_norare'][1] == ['a']
