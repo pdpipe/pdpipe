@@ -15,7 +15,7 @@ class RegexReplace(ApplyByCols):
     pattern : str
         The regex whose occurences will be replaced.
     replace : str
-        The replacement string to use.
+        The replacement string to use. This is equivalent to repl in re.sub.
     result_columns : str or list-like, default None
         The names of the new columns resulting from the mapping operation. Must
         be of the same length as columns. If None, behavior depends on the

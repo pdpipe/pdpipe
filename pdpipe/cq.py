@@ -167,9 +167,7 @@ class ColumnQualifier(object):
             return self.fit_transform(df)
 
     def fit_transform(self, df):
-        """Returns column labels of qualified columns from an input dataframe.
-
-        Fits this qualifier and returns the labels of the qualifying columns.
+        """Fits this qualifier and returns the labels of the qualifying columns.
 
         Parameters
         ----------
@@ -185,16 +183,34 @@ class ColumnQualifier(object):
         return self._columns
 
     def fit(self, df):
-        """Fit this qualifier and returns the labels of the qualifying columns.
+        """Fits this qualifier on the input dataframe.
 
         Parameters
         ----------
         df : pandas.DataFrame
             The input dataframe, from which columns are selected.
+
         """
         self.fit_transform(df)
 
     def transform(self, df):
+        """Applies and returns the labels of the qualifying columns.
+
+        Is this ColumnQualifier is fittable, it will return the list of column
+        labels that was determined when fitted (or the subset of it that can
+        be found in the input datarame), if it's fitted, and throw an exception
+        if it is not.
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            The input dataframe, from which columns are selected.
+
+        Returns
+        -------
+        list of objects
+            A list of labels of the qualified columns for the input dataframe.
+        """
         if not self._fittable:
             return self._cqfunc(df)
         try:
@@ -293,7 +309,7 @@ class ColumnQualifier(object):
 
 
 def is_fittable_column_qualifier(obj):
-    """Returns True if for objects that are fittable ColumnQualifier objects.
+    """Returns True for objects that are fittable ColumnQualifier objects.
 
     Parameters
     ----------
