@@ -33,7 +33,7 @@ pipeline stages.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/sklearn_stages.py#L0-L387" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/sklearn_stages.py#L0-L351" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;PdPipeline stages dependent on the scikit-learn Python library.
 
@@ -46,6 +46,7 @@ the pipeline stages that make up this module, and continue to load other
 pipeline stages.
 &#34;&#34;&#34;
 
+import numpy as np
 import pandas as pd
 import sklearn.preprocessing
 import tqdm
@@ -54,11 +55,10 @@ from sklearn.feature_extraction.text import (
     TfidfVectorizer,
 )
 
-from pdpipe.core import PdPipelineStage
+from pdpipe.core import PdPipelineStage, ColumnsBasedPipelineStage
 from pdpipe.util import out_of_place_col_insert
+from pdpipe.cq import OfDtypes
 from pdpipe.shared import (
-    _interpret_columns_param,
-    _list_str,
     _get_args_list,
     _identity_function,
 )
@@ -66,7 +66,7 @@ from pdpipe.shared import (
 from .exceptions import PipelineApplicationError
 
 
-class Encode(PdPipelineStage):
+class Encode(ColumnsBasedPipelineStage):
     &#34;&#34;&#34;A pipeline stage that encodes categorical columns to integer values.
 
     The encoder for each column is saved in the attribute &#39;encoders&#39;, which
@@ -75,14 +75,16 @@ class Encode(PdPipelineStage):
 
     Parameters
     ----------
-    columns : str or list-like, default None
-        Column names in the DataFrame to be encoded. If columns is None then
-        all the columns with object or category dtype will be encoded, except
-        those given in the exclude_columns parameter.
+    columns : single label, list-like or callable, default None
+        Column labels in the DataFrame to be encoded. If columns is None then
+        all the columns with object or category dtype will be converted, except
+        those given in the exclude_columns parameter. Alternatively,
+        this parameter can be assigned a callable returning an iterable of
+        labels from an input pandas.DataFrame. See pdpipe.cq.
     exclude_columns : str or list-like, default None
-        Name or names of categorical columns to be excluded from encoding
-        when the columns parameter is not given. If None no column is excluded.
-        Ignored if the columns parameter is given.
+        Label or labels of columns to be excluded from encoding. If None then
+        no column is excluded. Alternatively, this parameter can be assigned a
+        callable returning an iterable of labels from an input
     drop : bool, default True
         If set to True, the source columns are dropped after being encoded,
         and the resulting encoded columns retain the names of the source
@@ -103,46 +105,26 @@ class Encode(PdPipelineStage):
         array([&#39;acd&#39;, &#39;alk&#39;, &#39;alk&#39;], dtype=object)
     &#34;&#34;&#34;
 
-    _DEF_ENCODE_EXC_MSG = (
-        &#34;Encode stage failed because not all columns &#34;
-        &#34;{} were found in input dataframe.&#34;
-    )
-    _DEF_ENCODE_APP_MSG = &#34;Encoding {}...&#34;
-
     def __init__(
         self, columns=None, exclude_columns=None, drop=True, **kwargs
     ):
-        if columns is None:
-            self._columns = None
-        else:
-            self._columns = _interpret_columns_param(columns)
-        if exclude_columns is None:
-            self._exclude_columns = []
-        else:
-            self._exclude_columns = _interpret_columns_param(exclude_columns)
         self._drop = drop
         self.encoders = {}
-        col_str = _list_str(self._columns)
         super_kwargs = {
-            &#34;exmsg&#34;: Encode._DEF_ENCODE_EXC_MSG.format(col_str),
-            &#34;appmsg&#34;: Encode._DEF_ENCODE_APP_MSG.format(col_str),
-            &#34;desc&#34;: &#34;Encode {}&#34;.format(col_str or &#34;all categorical columns&#34;),
+            &#39;columns&#39;: columns,
+            &#39;exclude_columns&#39;: exclude_columns,
+            &#39;desc_temp&#39;: &#34;Encode {}&#34;,
         }
         super_kwargs.update(**kwargs)
+        super_kwargs[&#39;none_columns&#39;] = OfDtypes([&#39;object&#39;, &#39;category&#39;])
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
-        return set(self._columns or []).issubset(df.columns)
+    def _transformation(self, df, verbose, fit):
+        raise NotImplementedError
 
     def _fit_transform(self, df, verbose):
         self.encoders = {}
-        columns_to_encode = self._columns
-        if self._columns is None:
-            columns_to_encode = list(
-                set(
-                    df.select_dtypes(include=[&#34;object&#34;, &#34;category&#34;]).columns
-                ).difference(self._exclude_columns)
-            )
+        columns_to_encode = self._get_columns(df, fit=True)
         if verbose:
             columns_to_encode = tqdm.tqdm(columns_to_encode)
         inter_df = df
@@ -185,7 +167,7 @@ class Encode(PdPipelineStage):
         return inter_df
 
 
-class Scale(PdPipelineStage):
+class Scale(ColumnsBasedPipelineStage):
     &#34;&#34;&#34;A pipeline stage that scales data.
 
     Parameters
@@ -194,12 +176,16 @@ class Scale(PdPipelineStage):
         The type of scaler to use to scale the data. One of &#39;StandardScaler&#39;,
         &#39;MinMaxScaler&#39;, &#39;MaxAbsScaler&#39;, &#39;RobustScaler&#39;, &#39;QuantileTransformer&#39;
         and &#39;Normalizer&#39;.
-    exclude_columns : str or list-like, default None
-        Name or names of columns to be excluded from scaling. Excluded columns
-        are appended to the end of the resulting dataframe.
-    exclude_object_columns : bool, default True
-        If set to True, all columns of dtype object are added to the list of
-        columns excluded from scaling.
+    columns : single label, list-like or callable, default None
+        Column labels in the DataFrame to be scale. If columns is None then
+        all columns of numeric dtype will be scaled, except those given in the
+        exclude_columns parameter. Alternatively, this parameter can be
+        assigned a callable returning an iterable of labels from an input
+        pandas.DataFrame. See pdpipe.cq.
+    exclude_columns : str or list-like, optional
+        Label or labels of columns to be excluded from encoding. Alternatively,
+        this parameter can be assigned a callable returning an iterable of
+        labels from an input pandas.DataFrame. See pdpipe.cq.
     **kwargs : extra keyword arguments
         All valid extra keyword arguments are forwarded to the scaler
         constructor on scaler creation (e.g. &#39;n_quantiles&#39; for
@@ -219,104 +205,82 @@ class Scale(PdPipelineStage):
         3  1.263876 -0.889001
     &#34;&#34;&#34;
 
-    _DESC_PREFIX = &#34;Scale data&#34;
-    _DEF_SCALE_EXC_MSG = &#34;Scale stage failed.&#34;
-    _DEF_SCALE_APP_MSG = &#34;Scaling data...&#34;
-
     def __init__(
         self,
         scaler,
+        columns=None,
         exclude_columns=None,
-        exclude_object_columns=True,
         **kwargs
     ):
         self.scaler = scaler
-        if exclude_columns is None:
-            self._exclude_columns = []
-            desc_suffix = &#34;.&#34;
-        else:
-            self._exclude_columns = _interpret_columns_param(exclude_columns)
-            col_str = _list_str(self._exclude_columns)
-            desc_suffix = &#34; except columns {}.&#34;.format(col_str)
-        self._exclude_obj_cols = exclude_object_columns
-        super_kwargs = {
-            &#34;exmsg&#34;: Scale._DEF_SCALE_EXC_MSG,
-            &#34;appmsg&#34;: Scale._DEF_SCALE_APP_MSG,
-            &#34;desc&#34;: Scale._DESC_PREFIX + desc_suffix,
-        }
         self._kwargs = kwargs
+        super_kwargs = {
+            &#39;columns&#39;: columns,
+            &#39;exclude_columns&#39;: exclude_columns,
+            &#39;desc_temp&#39;: &#34;Scale columns {}&#34;,
+        }
         valid_super_kwargs = super()._init_kwargs()
         for key in kwargs:
             if key in valid_super_kwargs:
                 super_kwargs[key] = kwargs[key]
+        super_kwargs[&#39;none_columns&#39;] = OfDtypes([np.number])
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
-        return True
+    def _transformation(self, df, verbose, fit):
+        raise NotImplementedError
 
     def _fit_transform(self, df, verbose):
-        cols_to_exclude = self._exclude_columns.copy()
-        if self._exclude_obj_cols:
-            obj_cols = list((df.dtypes[df.dtypes == object]).index)
-            obj_cols = [x for x in obj_cols if x not in cols_to_exclude]
-            cols_to_exclude += obj_cols
-        self._col_order = list(df.columns)
-        if cols_to_exclude:
-            excluded = df[cols_to_exclude]
-            apply_to = df[
-                [col for col in df.columns if col not in cols_to_exclude]
-            ]
-        else:
-            apply_to = df
+        self._columns_to_scale = self._get_columns(df, fit=True)
+        unscaled_cols = [
+            x for x in df.columns
+            if x not in self._columns_to_scale
+        ]
+        col_order = list(df.columns)
+        inter_df = df[self._columns_to_scale]
         self._scaler = scaler_by_params(self.scaler, **self._kwargs)
         try:
-            res = pd.DataFrame(
-                data=self._scaler.fit_transform(apply_to),
-                index=apply_to.index,
-                columns=apply_to.columns,
+            inter_df = pd.DataFrame(
+                data=self._scaler.fit_transform(inter_df.values),
+                index=inter_df.index,
+                columns=inter_df.columns,
             )
         except Exception:
             raise PipelineApplicationError(
                 &#34;Exception raised when Scale applied to columns {}&#34;.format(
-                    apply_to.columns
+                    self._columns_to_scale
                 )
             )
-        if cols_to_exclude:
-            res = pd.concat([res, excluded], axis=1)
-            res = res[self._col_order]
+        if len(unscaled_cols) &gt; 0:
+            unscaled = df[unscaled_cols]
+            inter_df = pd.concat([inter_df, unscaled], axis=1)
+            inter_df = inter_df[col_order]
         self.is_fitted = True
-        return res
+        return inter_df
 
     def _transform(self, df, verbose):
-        cols_to_exclude = self._exclude_columns.copy()
-        if self._exclude_obj_cols:
-            obj_cols = list((df.dtypes[df.dtypes == object]).index)
-            obj_cols = [x for x in obj_cols if x not in cols_to_exclude]
-            cols_to_exclude += obj_cols
-        self._col_order = list(df.columns)
-        if cols_to_exclude:
-            excluded = df[cols_to_exclude]
-            apply_to = df[
-                [col for col in df.columns if col not in cols_to_exclude]
-            ]
-        else:
-            apply_to = df
+        unscaled_cols = [
+            x for x in df.columns
+            if x not in self._columns_to_scale
+        ]
+        col_order = list(df.columns)
+        inter_df = df[self._columns_to_scale]
         try:
-            res = pd.DataFrame(
-                data=self._scaler.transform(apply_to),
-                index=apply_to.index,
-                columns=apply_to.columns,
+            inter_df = pd.DataFrame(
+                data=self._scaler.transform(inter_df.values),
+                index=inter_df.index,
+                columns=inter_df.columns,
             )
         except Exception:
             raise PipelineApplicationError(
                 &#34;Exception raised when Scale applied to columns {}&#34;.format(
-                    apply_to.columns
+                    self._columns_to_scale
                 )
             )
-        if cols_to_exclude:
-            res = pd.concat([res, excluded], axis=1)
-            res = res[self._col_order]
-        return res
+        if len(unscaled_cols) &gt; 0:
+            unscaled = df[unscaled_cols]
+            inter_df = pd.concat([inter_df, unscaled], axis=1)
+            inter_df = inter_df[col_order]
+        return inter_df
 
 
 class TfidfVectorizeTokenLists(PdPipelineStage):
@@ -445,14 +409,16 @@ is a dict mapping each encoded column name to the
 sklearn.preprocessing.LabelEncoder object used to encode it.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
-<dd>Column names in the DataFrame to be encoded. If columns is None then
-all the columns with object or category dtype will be encoded, except
-those given in the exclude_columns parameter.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single</code> <code>label</code>, <code>list</code>-<code>like</code> or <code>callable</code>, default <code>None</code></dt>
+<dd>Column labels in the DataFrame to be encoded. If columns is None then
+all the columns with object or category dtype will be converted, except
+those given in the exclude_columns parameter. Alternatively,
+this parameter can be assigned a callable returning an iterable of
+labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
 <dt><strong><code>exclude_columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
-<dd>Name or names of categorical columns to be excluded from encoding
-when the columns parameter is not given. If None no column is excluded.
-Ignored if the columns parameter is given.</dd>
+<dd>Label or labels of columns to be excluded from encoding. If None then
+no column is excluded. Alternatively, this parameter can be assigned a
+callable returning an iterable of labels from an input</dd>
 <dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
 <dd>If set to True, the source columns are dropped after being encoded,
 and the resulting encoded columns retain the names of the source
@@ -474,9 +440,9 @@ array(['acd', 'alk', 'alk'], dtype=object)
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/sklearn_stages.py#L32-L148" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/sklearn_stages.py#L32-L130" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">class Encode(PdPipelineStage):
+<pre><code class="python">class Encode(ColumnsBasedPipelineStage):
     &#34;&#34;&#34;A pipeline stage that encodes categorical columns to integer values.
 
     The encoder for each column is saved in the attribute &#39;encoders&#39;, which
@@ -485,14 +451,16 @@ array(['acd', 'alk', 'alk'], dtype=object)
 
     Parameters
     ----------
-    columns : str or list-like, default None
-        Column names in the DataFrame to be encoded. If columns is None then
-        all the columns with object or category dtype will be encoded, except
-        those given in the exclude_columns parameter.
+    columns : single label, list-like or callable, default None
+        Column labels in the DataFrame to be encoded. If columns is None then
+        all the columns with object or category dtype will be converted, except
+        those given in the exclude_columns parameter. Alternatively,
+        this parameter can be assigned a callable returning an iterable of
+        labels from an input pandas.DataFrame. See pdpipe.cq.
     exclude_columns : str or list-like, default None
-        Name or names of categorical columns to be excluded from encoding
-        when the columns parameter is not given. If None no column is excluded.
-        Ignored if the columns parameter is given.
+        Label or labels of columns to be excluded from encoding. If None then
+        no column is excluded. Alternatively, this parameter can be assigned a
+        callable returning an iterable of labels from an input
     drop : bool, default True
         If set to True, the source columns are dropped after being encoded,
         and the resulting encoded columns retain the names of the source
@@ -513,46 +481,26 @@ array(['acd', 'alk', 'alk'], dtype=object)
         array([&#39;acd&#39;, &#39;alk&#39;, &#39;alk&#39;], dtype=object)
     &#34;&#34;&#34;
 
-    _DEF_ENCODE_EXC_MSG = (
-        &#34;Encode stage failed because not all columns &#34;
-        &#34;{} were found in input dataframe.&#34;
-    )
-    _DEF_ENCODE_APP_MSG = &#34;Encoding {}...&#34;
-
     def __init__(
         self, columns=None, exclude_columns=None, drop=True, **kwargs
     ):
-        if columns is None:
-            self._columns = None
-        else:
-            self._columns = _interpret_columns_param(columns)
-        if exclude_columns is None:
-            self._exclude_columns = []
-        else:
-            self._exclude_columns = _interpret_columns_param(exclude_columns)
         self._drop = drop
         self.encoders = {}
-        col_str = _list_str(self._columns)
         super_kwargs = {
-            &#34;exmsg&#34;: Encode._DEF_ENCODE_EXC_MSG.format(col_str),
-            &#34;appmsg&#34;: Encode._DEF_ENCODE_APP_MSG.format(col_str),
-            &#34;desc&#34;: &#34;Encode {}&#34;.format(col_str or &#34;all categorical columns&#34;),
+            &#39;columns&#39;: columns,
+            &#39;exclude_columns&#39;: exclude_columns,
+            &#39;desc_temp&#39;: &#34;Encode {}&#34;,
         }
         super_kwargs.update(**kwargs)
+        super_kwargs[&#39;none_columns&#39;] = OfDtypes([&#39;object&#39;, &#39;category&#39;])
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
-        return set(self._columns or []).issubset(df.columns)
+    def _transformation(self, df, verbose, fit):
+        raise NotImplementedError
 
     def _fit_transform(self, df, verbose):
         self.encoders = {}
-        columns_to_encode = self._columns
-        if self._columns is None:
-            columns_to_encode = list(
-                set(
-                    df.select_dtypes(include=[&#34;object&#34;, &#34;category&#34;]).columns
-                ).difference(self._exclude_columns)
-            )
+        columns_to_encode = self._get_columns(df, fit=True)
         if verbose:
             columns_to_encode = tqdm.tqdm(columns_to_encode)
         inter_df = df
@@ -596,55 +544,60 @@ array(['acd', 'alk', 'alk'], dtype=object)
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
+<li><a title="pdpipe.core.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></li>
 <li><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></li>
 <li>abc.ABC</li>
 </ul>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></b></code>:
+<li><code><b><a title="pdpipe.core.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></b></code>:
 <ul class="hlist">
-<li><code><a title="pdpipe.core.PdPipelineStage.AdHocStage" href="core.html#pdpipe.core.PdPipelineStage.AdHocStage">AdHocStage</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.AggByCols" href="core.html#pdpipe.core.PdPipelineStage.AggByCols">AggByCols</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.ApplyByCols" href="core.html#pdpipe.core.PdPipelineStage.ApplyByCols">ApplyByCols</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.ApplyToRows" href="core.html#pdpipe.core.PdPipelineStage.ApplyToRows">ApplyToRows</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.Bin" href="core.html#pdpipe.core.PdPipelineStage.Bin">Bin</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.ColByFrameFunc" href="core.html#pdpipe.core.PdPipelineStage.ColByFrameFunc">ColByFrameFunc</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.ColDrop" href="core.html#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.ColRename" href="core.html#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.ColReorder" href="core.html#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByLength" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByList" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.Encode" href="core.html#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.FreqDrop" href="core.html#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.Log" href="core.html#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.MapColVals" href="core.html#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.OneHotEncode" href="core.html#pdpipe.core.PdPipelineStage.OneHotEncode">OneHotEncode</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.PdPipeline" href="core.html#pdpipe.core.PdPipelineStage.PdPipeline">PdPipeline</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.RegexReplace" href="core.html#pdpipe.core.PdPipelineStage.RegexReplace">RegexReplace</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.RemoveStopwords" href="core.html#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.RowDrop" href="core.html#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.Scale" href="core.html#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.Schematize" href="core.html#pdpipe.core.PdPipelineStage.Schematize">Schematize</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.SnowballStem" href="core.html#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists" href="core.html#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.TokenizeText" href="core.html#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.UntokenizeText" href="core.html#pdpipe.core.PdPipelineStage.UntokenizeText">UntokenizeText</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.ValDrop" href="core.html#pdpipe.core.PdPipelineStage.ValDrop">ValDrop</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.ValKeep" href="core.html#pdpipe.core.PdPipelineStage.ValKeep">ValKeep</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.apply" href="core.html#pdpipe.core.PdPipelineStage.apply">apply</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.description" href="core.html#pdpipe.core.PdPipelineStage.description">description</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.fit" href="core.html#pdpipe.core.PdPipelineStage.fit">fit</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.fit_transform" href="core.html#pdpipe.core.PdPipelineStage.fit_transform">fit_transform</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.transform" href="core.html#pdpipe.core.PdPipelineStage.transform">transform</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.AdHocStage" href="core.html#pdpipe.core.PdPipelineStage.AdHocStage">AdHocStage</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.AggByCols" href="core.html#pdpipe.core.PdPipelineStage.AggByCols">AggByCols</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ApplyByCols" href="core.html#pdpipe.core.PdPipelineStage.ApplyByCols">ApplyByCols</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ApplyToRows" href="core.html#pdpipe.core.PdPipelineStage.ApplyToRows">ApplyToRows</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Bin" href="core.html#pdpipe.core.PdPipelineStage.Bin">Bin</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColByFrameFunc" href="core.html#pdpipe.core.PdPipelineStage.ColByFrameFunc">ColByFrameFunc</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColDrop" href="core.html#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColRename" href="core.html#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColReorder" href="core.html#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropTokensByLength" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropTokensByList" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Encode" href="core.html#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.FitOnly" href="core.html#pdpipe.core.PdPipelineStage.FitOnly">FitOnly</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.FreqDrop" href="core.html#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Log" href="core.html#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.MapColVals" href="core.html#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.OneHotEncode" href="core.html#pdpipe.core.PdPipelineStage.OneHotEncode">OneHotEncode</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.PdPipeline" href="core.html#pdpipe.core.PdPipelineStage.PdPipeline">PdPipeline</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.RegexReplace" href="core.html#pdpipe.core.PdPipelineStage.RegexReplace">RegexReplace</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.RemoveStopwords" href="core.html#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.RowDrop" href="core.html#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Scale" href="core.html#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Schematize" href="core.html#pdpipe.core.PdPipelineStage.Schematize">Schematize</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.SnowballStem" href="core.html#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.TfidfVectorizeTokenLists" href="core.html#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.TokenizeText" href="core.html#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.UntokenizeText" href="core.html#pdpipe.core.PdPipelineStage.UntokenizeText">UntokenizeText</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ValDrop" href="core.html#pdpipe.core.PdPipelineStage.ValDrop">ValDrop</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ValKeep" href="core.html#pdpipe.core.PdPipelineStage.ValKeep">ValKeep</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.apply" href="core.html#pdpipe.core.PdPipelineStage.apply">apply</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.description" href="core.html#pdpipe.core.PdPipelineStage.description">description</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.fit" href="core.html#pdpipe.core.PdPipelineStage.fit">fit</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.fit_transform" href="core.html#pdpipe.core.PdPipelineStage.fit_transform">fit_transform</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.transform" href="core.html#pdpipe.core.PdPipelineStage.transform">transform</a></code></li>
 </ul>
 </li>
 </ul>
 </dd>
 <dt id="pdpipe.sklearn_stages.Scale"><code class="flex name class">
 <span>class <span class="ident">Scale</span></span>
-<span>(</span><span>scaler, exclude_columns=None, exclude_object_columns=True, **kwargs)</span>
+<span>(</span><span>scaler, columns=None, exclude_columns=None, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>A pipeline stage that scales data.</p>
@@ -654,12 +607,16 @@ array(['acd', 'alk', 'alk'], dtype=object)
 <dd>The type of scaler to use to scale the data. One of 'StandardScaler',
 'MinMaxScaler', 'MaxAbsScaler', 'RobustScaler', 'QuantileTransformer'
 and 'Normalizer'.</dd>
-<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
-<dd>Name or names of columns to be excluded from scaling. Excluded columns
-are appended to the end of the resulting dataframe.</dd>
-<dt><strong><code>exclude_object_columns</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
-<dd>If set to True, all columns of dtype object are added to the list of
-columns excluded from scaling.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single</code> <code>label</code>, <code>list</code>-<code>like</code> or <code>callable</code>, default <code>None</code></dt>
+<dd>Column labels in the DataFrame to be scale. If columns is None then
+all columns of numeric dtype will be scaled, except those given in the
+exclude_columns parameter. Alternatively, this parameter can be
+assigned a callable returning an iterable of labels from an input
+pandas.DataFrame. See pdpipe.cq.</dd>
+<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code>, optional</dt>
+<dd>Label or labels of columns to be excluded from encoding. Alternatively,
+this parameter can be assigned a callable returning an iterable of
+labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
 <dt><strong><code>**kwargs</code></strong> :&ensp;<code>extra</code> <code>keyword</code> <code>arguments</code></dt>
 <dd>All valid extra keyword arguments are forwarded to the scaler
 constructor on scaler creation (e.g. 'n_quantiles' for
@@ -680,9 +637,9 @@ to override Scale class defaults.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/sklearn_stages.py#L151-L282" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/sklearn_stages.py#L133-L246" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">class Scale(PdPipelineStage):
+<pre><code class="python">class Scale(ColumnsBasedPipelineStage):
     &#34;&#34;&#34;A pipeline stage that scales data.
 
     Parameters
@@ -691,12 +648,16 @@ to override Scale class defaults.</dd>
         The type of scaler to use to scale the data. One of &#39;StandardScaler&#39;,
         &#39;MinMaxScaler&#39;, &#39;MaxAbsScaler&#39;, &#39;RobustScaler&#39;, &#39;QuantileTransformer&#39;
         and &#39;Normalizer&#39;.
-    exclude_columns : str or list-like, default None
-        Name or names of columns to be excluded from scaling. Excluded columns
-        are appended to the end of the resulting dataframe.
-    exclude_object_columns : bool, default True
-        If set to True, all columns of dtype object are added to the list of
-        columns excluded from scaling.
+    columns : single label, list-like or callable, default None
+        Column labels in the DataFrame to be scale. If columns is None then
+        all columns of numeric dtype will be scaled, except those given in the
+        exclude_columns parameter. Alternatively, this parameter can be
+        assigned a callable returning an iterable of labels from an input
+        pandas.DataFrame. See pdpipe.cq.
+    exclude_columns : str or list-like, optional
+        Label or labels of columns to be excluded from encoding. Alternatively,
+        this parameter can be assigned a callable returning an iterable of
+        labels from an input pandas.DataFrame. See pdpipe.cq.
     **kwargs : extra keyword arguments
         All valid extra keyword arguments are forwarded to the scaler
         constructor on scaler creation (e.g. &#39;n_quantiles&#39; for
@@ -716,149 +677,132 @@ to override Scale class defaults.</dd>
         3  1.263876 -0.889001
     &#34;&#34;&#34;
 
-    _DESC_PREFIX = &#34;Scale data&#34;
-    _DEF_SCALE_EXC_MSG = &#34;Scale stage failed.&#34;
-    _DEF_SCALE_APP_MSG = &#34;Scaling data...&#34;
-
     def __init__(
         self,
         scaler,
+        columns=None,
         exclude_columns=None,
-        exclude_object_columns=True,
         **kwargs
     ):
         self.scaler = scaler
-        if exclude_columns is None:
-            self._exclude_columns = []
-            desc_suffix = &#34;.&#34;
-        else:
-            self._exclude_columns = _interpret_columns_param(exclude_columns)
-            col_str = _list_str(self._exclude_columns)
-            desc_suffix = &#34; except columns {}.&#34;.format(col_str)
-        self._exclude_obj_cols = exclude_object_columns
-        super_kwargs = {
-            &#34;exmsg&#34;: Scale._DEF_SCALE_EXC_MSG,
-            &#34;appmsg&#34;: Scale._DEF_SCALE_APP_MSG,
-            &#34;desc&#34;: Scale._DESC_PREFIX + desc_suffix,
-        }
         self._kwargs = kwargs
+        super_kwargs = {
+            &#39;columns&#39;: columns,
+            &#39;exclude_columns&#39;: exclude_columns,
+            &#39;desc_temp&#39;: &#34;Scale columns {}&#34;,
+        }
         valid_super_kwargs = super()._init_kwargs()
         for key in kwargs:
             if key in valid_super_kwargs:
                 super_kwargs[key] = kwargs[key]
+        super_kwargs[&#39;none_columns&#39;] = OfDtypes([np.number])
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
-        return True
+    def _transformation(self, df, verbose, fit):
+        raise NotImplementedError
 
     def _fit_transform(self, df, verbose):
-        cols_to_exclude = self._exclude_columns.copy()
-        if self._exclude_obj_cols:
-            obj_cols = list((df.dtypes[df.dtypes == object]).index)
-            obj_cols = [x for x in obj_cols if x not in cols_to_exclude]
-            cols_to_exclude += obj_cols
-        self._col_order = list(df.columns)
-        if cols_to_exclude:
-            excluded = df[cols_to_exclude]
-            apply_to = df[
-                [col for col in df.columns if col not in cols_to_exclude]
-            ]
-        else:
-            apply_to = df
+        self._columns_to_scale = self._get_columns(df, fit=True)
+        unscaled_cols = [
+            x for x in df.columns
+            if x not in self._columns_to_scale
+        ]
+        col_order = list(df.columns)
+        inter_df = df[self._columns_to_scale]
         self._scaler = scaler_by_params(self.scaler, **self._kwargs)
         try:
-            res = pd.DataFrame(
-                data=self._scaler.fit_transform(apply_to),
-                index=apply_to.index,
-                columns=apply_to.columns,
+            inter_df = pd.DataFrame(
+                data=self._scaler.fit_transform(inter_df.values),
+                index=inter_df.index,
+                columns=inter_df.columns,
             )
         except Exception:
             raise PipelineApplicationError(
                 &#34;Exception raised when Scale applied to columns {}&#34;.format(
-                    apply_to.columns
+                    self._columns_to_scale
                 )
             )
-        if cols_to_exclude:
-            res = pd.concat([res, excluded], axis=1)
-            res = res[self._col_order]
+        if len(unscaled_cols) &gt; 0:
+            unscaled = df[unscaled_cols]
+            inter_df = pd.concat([inter_df, unscaled], axis=1)
+            inter_df = inter_df[col_order]
         self.is_fitted = True
-        return res
+        return inter_df
 
     def _transform(self, df, verbose):
-        cols_to_exclude = self._exclude_columns.copy()
-        if self._exclude_obj_cols:
-            obj_cols = list((df.dtypes[df.dtypes == object]).index)
-            obj_cols = [x for x in obj_cols if x not in cols_to_exclude]
-            cols_to_exclude += obj_cols
-        self._col_order = list(df.columns)
-        if cols_to_exclude:
-            excluded = df[cols_to_exclude]
-            apply_to = df[
-                [col for col in df.columns if col not in cols_to_exclude]
-            ]
-        else:
-            apply_to = df
+        unscaled_cols = [
+            x for x in df.columns
+            if x not in self._columns_to_scale
+        ]
+        col_order = list(df.columns)
+        inter_df = df[self._columns_to_scale]
         try:
-            res = pd.DataFrame(
-                data=self._scaler.transform(apply_to),
-                index=apply_to.index,
-                columns=apply_to.columns,
+            inter_df = pd.DataFrame(
+                data=self._scaler.transform(inter_df.values),
+                index=inter_df.index,
+                columns=inter_df.columns,
             )
         except Exception:
             raise PipelineApplicationError(
                 &#34;Exception raised when Scale applied to columns {}&#34;.format(
-                    apply_to.columns
+                    self._columns_to_scale
                 )
             )
-        if cols_to_exclude:
-            res = pd.concat([res, excluded], axis=1)
-            res = res[self._col_order]
-        return res</code></pre>
+        if len(unscaled_cols) &gt; 0:
+            unscaled = df[unscaled_cols]
+            inter_df = pd.concat([inter_df, unscaled], axis=1)
+            inter_df = inter_df[col_order]
+        return inter_df</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
+<li><a title="pdpipe.core.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></li>
 <li><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></li>
 <li>abc.ABC</li>
 </ul>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></b></code>:
+<li><code><b><a title="pdpipe.core.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></b></code>:
 <ul class="hlist">
-<li><code><a title="pdpipe.core.PdPipelineStage.AdHocStage" href="core.html#pdpipe.core.PdPipelineStage.AdHocStage">AdHocStage</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.AggByCols" href="core.html#pdpipe.core.PdPipelineStage.AggByCols">AggByCols</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.ApplyByCols" href="core.html#pdpipe.core.PdPipelineStage.ApplyByCols">ApplyByCols</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.ApplyToRows" href="core.html#pdpipe.core.PdPipelineStage.ApplyToRows">ApplyToRows</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.Bin" href="core.html#pdpipe.core.PdPipelineStage.Bin">Bin</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.ColByFrameFunc" href="core.html#pdpipe.core.PdPipelineStage.ColByFrameFunc">ColByFrameFunc</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.ColDrop" href="core.html#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.ColRename" href="core.html#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.ColReorder" href="core.html#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByLength" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByList" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.Encode" href="core.html#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.FreqDrop" href="core.html#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.Log" href="core.html#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.MapColVals" href="core.html#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.OneHotEncode" href="core.html#pdpipe.core.PdPipelineStage.OneHotEncode">OneHotEncode</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.PdPipeline" href="core.html#pdpipe.core.PdPipelineStage.PdPipeline">PdPipeline</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.RegexReplace" href="core.html#pdpipe.core.PdPipelineStage.RegexReplace">RegexReplace</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.RemoveStopwords" href="core.html#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.RowDrop" href="core.html#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.Scale" href="core.html#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.Schematize" href="core.html#pdpipe.core.PdPipelineStage.Schematize">Schematize</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.SnowballStem" href="core.html#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists" href="core.html#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.TokenizeText" href="core.html#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.UntokenizeText" href="core.html#pdpipe.core.PdPipelineStage.UntokenizeText">UntokenizeText</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.ValDrop" href="core.html#pdpipe.core.PdPipelineStage.ValDrop">ValDrop</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.ValKeep" href="core.html#pdpipe.core.PdPipelineStage.ValKeep">ValKeep</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.apply" href="core.html#pdpipe.core.PdPipelineStage.apply">apply</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.description" href="core.html#pdpipe.core.PdPipelineStage.description">description</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.fit" href="core.html#pdpipe.core.PdPipelineStage.fit">fit</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.fit_transform" href="core.html#pdpipe.core.PdPipelineStage.fit_transform">fit_transform</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.transform" href="core.html#pdpipe.core.PdPipelineStage.transform">transform</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.AdHocStage" href="core.html#pdpipe.core.PdPipelineStage.AdHocStage">AdHocStage</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.AggByCols" href="core.html#pdpipe.core.PdPipelineStage.AggByCols">AggByCols</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ApplyByCols" href="core.html#pdpipe.core.PdPipelineStage.ApplyByCols">ApplyByCols</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ApplyToRows" href="core.html#pdpipe.core.PdPipelineStage.ApplyToRows">ApplyToRows</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Bin" href="core.html#pdpipe.core.PdPipelineStage.Bin">Bin</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColByFrameFunc" href="core.html#pdpipe.core.PdPipelineStage.ColByFrameFunc">ColByFrameFunc</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColDrop" href="core.html#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColRename" href="core.html#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColReorder" href="core.html#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropTokensByLength" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropTokensByList" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Encode" href="core.html#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.FitOnly" href="core.html#pdpipe.core.PdPipelineStage.FitOnly">FitOnly</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.FreqDrop" href="core.html#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Log" href="core.html#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.MapColVals" href="core.html#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.OneHotEncode" href="core.html#pdpipe.core.PdPipelineStage.OneHotEncode">OneHotEncode</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.PdPipeline" href="core.html#pdpipe.core.PdPipelineStage.PdPipeline">PdPipeline</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.RegexReplace" href="core.html#pdpipe.core.PdPipelineStage.RegexReplace">RegexReplace</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.RemoveStopwords" href="core.html#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.RowDrop" href="core.html#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Scale" href="core.html#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Schematize" href="core.html#pdpipe.core.PdPipelineStage.Schematize">Schematize</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.SnowballStem" href="core.html#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.TfidfVectorizeTokenLists" href="core.html#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.TokenizeText" href="core.html#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.UntokenizeText" href="core.html#pdpipe.core.PdPipelineStage.UntokenizeText">UntokenizeText</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ValDrop" href="core.html#pdpipe.core.PdPipelineStage.ValDrop">ValDrop</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ValKeep" href="core.html#pdpipe.core.PdPipelineStage.ValKeep">ValKeep</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.apply" href="core.html#pdpipe.core.PdPipelineStage.apply">apply</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.description" href="core.html#pdpipe.core.PdPipelineStage.description">description</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.fit" href="core.html#pdpipe.core.PdPipelineStage.fit">fit</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.fit_transform" href="core.html#pdpipe.core.PdPipelineStage.fit_transform">fit_transform</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.transform" href="core.html#pdpipe.core.PdPipelineStage.transform">transform</a></code></li>
 </ul>
 </li>
 </ul>
@@ -906,7 +850,7 @@ originating in different text columns do not overwrite one another.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/sklearn_stages.py#L285-L388" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/sklearn_stages.py#L249-L352" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class TfidfVectorizeTokenLists(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage TFIDF-vectorizing a token-list column to count columns.
@@ -1031,11 +975,15 @@ originating in different text columns do not overwrite one another.</dd>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColDrop" href="core.html#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColRename" href="core.html#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColReorder" href="core.html#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByLength" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByList" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.Encode" href="core.html#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.FitOnly" href="core.html#pdpipe.core.PdPipelineStage.FitOnly">FitOnly</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.FreqDrop" href="core.html#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.Log" href="core.html#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.MapColVals" href="core.html#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>

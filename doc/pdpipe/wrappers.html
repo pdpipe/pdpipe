@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.2" />
+<title>pdpipe.wrappers API documentation</title>
+<meta name="description" content="Wrapper-kind pdpipe pipline stages." />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<style>.homelink{display:block;font-size:2em;font-weight:bold;color:#555;padding-bottom:.5em;border-bottom:1px solid silver}.homelink:hover{color:inherit}.homelink img{max-width:20%;max-height:5em;margin:auto;margin-bottom:.3em}</style>
+<link rel="canonical" href="https://pdpipe.github.io/pdpipe/doc/pdpipe/wrappers.html">
+<link rel="icon" href="https://pdpipe.github.io/pdpipe/logo.png">
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pdpipe.wrappers</code></h1>
+</header>
+<section id="section-intro">
+<p>Wrapper-kind pdpipe pipline stages.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/wrappers.py#L0-L52" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Wrapper-kind pdpipe pipline stages.&#34;&#34;&#34;
+
+
+from pdpipe.core import PdPipelineStage
+
+
+class FitOnly(PdPipelineStage):
+    &#34;&#34;&#34;A wrapper that applies a stage to input data only when fitting.
+
+    Parameters
+    ----------
+    stage : PdPipelineStage
+        The pipeline stage to operate on input data only when fitting.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[8,&#39;a&#39;],[5,&#39;b&#39;]], [1,2], [&#39;num&#39;, &#39;char&#39;])
+        &gt;&gt;&gt; stage = pdp.FitOnly(pdp.ColDrop(&#39;num&#39;))
+        &gt;&gt;&gt; stage(df)
+          char
+        1    a
+        2    b
+        &gt;&gt;&gt; df2 = pd.DataFrame([[8,&#39;a&#39;],[5,&#39;b&#39;]], [1,2], [&#39;num&#39;, &#39;char&#39;])
+        &gt;&gt;&gt; stage(df2)
+           num char
+        1    8    a
+        2    5    b
+    &#34;&#34;&#34;
+    _FITONLY_DESC = &#34;Applying, only on fit, the stage: {}&#34;
+
+    def __init__(self, stage, **kwargs):
+        self._stage = stage
+        desc = FitOnly._FITONLY_DESC.format(stage.description())
+        super_kwargs = {
+            &#39;appmsg&#39;: desc + &#39;...&#39;,
+            &#39;desc&#39;: desc,
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        return self._stage._prec(df)
+
+    def _fit_transform(self, df, verbose):
+        self.is_fitted = True
+        return self._stage.fit_transform(df, verbose=verbose)
+
+    def _transform(self, df, verbose):
+        if verbose:
+            print(&#34;Skipping, because not in fit, the stage: {}&#34;.format(
+                self._stage.description()))
+        return df</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pdpipe.wrappers.FitOnly"><code class="flex name class">
+<span>class <span class="ident">FitOnly</span></span>
+<span>(</span><span>stage, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>A wrapper that applies a stage to input data only when fitting.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>stage</code></strong> :&ensp;<code>PdPipelineStage</code></dt>
+<dd>The pipeline stage to operate on input data only when fitting.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'char'])
+&gt;&gt;&gt; stage = pdp.FitOnly(pdp.ColDrop('num'))
+&gt;&gt;&gt; stage(df)
+  char
+1    a
+2    b
+&gt;&gt;&gt; df2 = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'char'])
+&gt;&gt;&gt; stage(df2)
+   num char
+1    8    a
+2    5    b
+</code></pre></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/wrappers.py#L7-L53" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class FitOnly(PdPipelineStage):
+    &#34;&#34;&#34;A wrapper that applies a stage to input data only when fitting.
+
+    Parameters
+    ----------
+    stage : PdPipelineStage
+        The pipeline stage to operate on input data only when fitting.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[8,&#39;a&#39;],[5,&#39;b&#39;]], [1,2], [&#39;num&#39;, &#39;char&#39;])
+        &gt;&gt;&gt; stage = pdp.FitOnly(pdp.ColDrop(&#39;num&#39;))
+        &gt;&gt;&gt; stage(df)
+          char
+        1    a
+        2    b
+        &gt;&gt;&gt; df2 = pd.DataFrame([[8,&#39;a&#39;],[5,&#39;b&#39;]], [1,2], [&#39;num&#39;, &#39;char&#39;])
+        &gt;&gt;&gt; stage(df2)
+           num char
+        1    8    a
+        2    5    b
+    &#34;&#34;&#34;
+    _FITONLY_DESC = &#34;Applying, only on fit, the stage: {}&#34;
+
+    def __init__(self, stage, **kwargs):
+        self._stage = stage
+        desc = FitOnly._FITONLY_DESC.format(stage.description())
+        super_kwargs = {
+            &#39;appmsg&#39;: desc + &#39;...&#39;,
+            &#39;desc&#39;: desc,
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        return self._stage._prec(df)
+
+    def _fit_transform(self, df, verbose):
+        self.is_fitted = True
+        return self._stage.fit_transform(df, verbose=verbose)
+
+    def _transform(self, df, verbose):
+        if verbose:
+            print(&#34;Skipping, because not in fit, the stage: {}&#34;.format(
+                self._stage.description()))
+        return df</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pdpipe.core.PdPipelineStage.AdHocStage" href="core.html#pdpipe.core.PdPipelineStage.AdHocStage">AdHocStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.AggByCols" href="core.html#pdpipe.core.PdPipelineStage.AggByCols">AggByCols</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ApplyByCols" href="core.html#pdpipe.core.PdPipelineStage.ApplyByCols">ApplyByCols</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ApplyToRows" href="core.html#pdpipe.core.PdPipelineStage.ApplyToRows">ApplyToRows</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Bin" href="core.html#pdpipe.core.PdPipelineStage.Bin">Bin</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColByFrameFunc" href="core.html#pdpipe.core.PdPipelineStage.ColByFrameFunc">ColByFrameFunc</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColDrop" href="core.html#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColRename" href="core.html#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColReorder" href="core.html#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByLength" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByList" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Encode" href="core.html#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.FitOnly" href="core.html#pdpipe.core.PdPipelineStage.FitOnly">FitOnly</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.FreqDrop" href="core.html#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Log" href="core.html#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.MapColVals" href="core.html#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.OneHotEncode" href="core.html#pdpipe.core.PdPipelineStage.OneHotEncode">OneHotEncode</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.PdPipeline" href="core.html#pdpipe.core.PdPipelineStage.PdPipeline">PdPipeline</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RegexReplace" href="core.html#pdpipe.core.PdPipelineStage.RegexReplace">RegexReplace</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RemoveStopwords" href="core.html#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RowDrop" href="core.html#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Scale" href="core.html#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Schematize" href="core.html#pdpipe.core.PdPipelineStage.Schematize">Schematize</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.SnowballStem" href="core.html#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists" href="core.html#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.TokenizeText" href="core.html#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.UntokenizeText" href="core.html#pdpipe.core.PdPipelineStage.UntokenizeText">UntokenizeText</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ValDrop" href="core.html#pdpipe.core.PdPipelineStage.ValDrop">ValDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ValKeep" href="core.html#pdpipe.core.PdPipelineStage.ValKeep">ValKeep</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.apply" href="core.html#pdpipe.core.PdPipelineStage.apply">apply</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.description" href="core.html#pdpipe.core.PdPipelineStage.description">description</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.fit" href="core.html#pdpipe.core.PdPipelineStage.fit">fit</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.fit_transform" href="core.html#pdpipe.core.PdPipelineStage.fit_transform">fit_transform</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.transform" href="core.html#pdpipe.core.PdPipelineStage.transform">transform</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<header>
+<a class="homelink" rel="home" title="pdpipe Home" href="https://pdpipe.github.io/pdpipe/">
+<img src="https://pdpipe.github.io/pdpipe/logo.png" alt=""> pdpipe
+</a>
+</header>
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pdpipe" href="index.html">pdpipe</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pdpipe.wrappers.FitOnly" href="#pdpipe.wrappers.FitOnly">FitOnly</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p><span style="color:#ddd">&#21328;</span></p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.2</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

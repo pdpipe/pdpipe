@@ -33,7 +33,7 @@ stages.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/nltk_stages.py#L0-L470" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/nltk_stages.py#L0-L494" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;PdPipeline stages dependent on the nltk Python library.
 
@@ -52,8 +52,9 @@ import collections
 
 import nltk
 import pandas as pd
+import tqdm
 
-from pdpipe.core import PdPipelineStage
+from pdpipe.core import ColumnsBasedPipelineStage
 from pdpipe.util import out_of_place_col_insert
 from pdpipe.col_generation import MapColVals
 from pdpipe.shared import (
@@ -69,8 +70,10 @@ class TokenizeText(MapColVals):
 
     Parameters
     ----------
-    columns : str or list-like
-        Column names in the DataFrame to be tokenized.
+    columns : single label, list-like of callable
+        Column labels in the DataFrame to be transformed. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See pdpipe.cq.
     drop : bool, default True
         If set to True, the source columns are dropped after being tokenized,
         and the resulting tokenized columns retain the names of the source
@@ -114,10 +117,10 @@ class TokenizeText(MapColVals):
             &#39;drop&#39;: drop,
             &#39;suffix&#39;: &#39;_tok&#39;,
             &#39;exmsg&#39;: TokenizeText._DEF_TOKENIZE_EXC_MSG.format(col_str),
-            &#39;appmsg&#39;: TokenizeText._DEF_TOKENIZE_APP_MSG.format(col_str),
             &#39;desc&#39;: &#34;Tokenize {}&#34;.format(col_str),
         }
         super_kwargs.update(**kwargs)
+        super_kwargs[&#39;none_columns&#39;] = &#39;error&#39;
         super().__init__(**super_kwargs)
 
     def _prec(self, df):
@@ -128,12 +131,17 @@ class TokenizeText(MapColVals):
 class UntokenizeText(MapColVals):
     &#34;&#34;&#34;A pipeline stage that joins token lists to whitespace-seperated strings.
 
+    Target columns must be series of token lists; i.e. every cell in the series
+    is an iterable of string tokens.
+
     Note: The nltk package must be installed for this pipeline stage to work.
 
     Parameters
     ----------
-    columns : str or list-like
-        Column names in the DataFrame to be untokenized.
+    columns : single label, list-like of callable
+        Column labels in the DataFrame to be transformed. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See pdpipe.cq.
     drop : bool, default True
         If set to True, the source columns are dropped after being untokenized,
         and the resulting columns retain the names of the source columns.
@@ -167,10 +175,10 @@ class UntokenizeText(MapColVals):
             &#39;drop&#39;: drop,
             &#39;suffix&#39;: &#39;_untok&#39;,
             &#39;exmsg&#39;: UntokenizeText._DEF_UNTOKENIZE_EXC_MSG.format(col_str),
-            &#39;appmsg&#39;: &#34;Untokenizing {}&#34;.format(col_str),
             &#39;desc&#39;: &#34;Untokenize {}&#34;.format(col_str),
         }
         super_kwargs.update(**kwargs)
+        super_kwargs[&#39;none_columns&#39;] = &#39;error&#39;
         super().__init__(**super_kwargs)
 
     def _prec(self, df):
@@ -181,6 +189,9 @@ class UntokenizeText(MapColVals):
 class RemoveStopwords(MapColVals):
     &#34;&#34;&#34;A pipeline stage that removes stopwords from a tokenized list.
 
+    Target columns must be series of token lists; i.e. every cell in the series
+    is an iterable of string tokens.
+
     Note: The nltk package must be installed for this pipeline stage to work.
 
     Parameters
@@ -190,8 +201,10 @@ class RemoveStopwords(MapColVals):
         should then be one of the languages supported by the NLTK Stopwords
         Corpus. If a list is given, it is assumed to be the list of stopwords
         to remove.
-    columns : str or list-like
-        Column names in the DataFrame from which to remove stopwords.
+    columns : single label, list-like of callable
+        Column labels in the DataFrame to be transformed. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See pdpipe.cq.
     drop : bool, default True
         If set to True, the source columns are dropped after stopword removal,
         and the resulting columns retain the names of the source columns.
@@ -254,10 +267,10 @@ class RemoveStopwords(MapColVals):
             &#39;drop&#39;: drop,
             &#39;suffix&#39;: &#39;_nostop&#39;,
             &#39;exmsg&#39;: RemoveStopwords._DEF_STOPWORDS_EXC_MSG.format(col_str),
-            &#39;appmsg&#39;: RemoveStopwords._DEF_STOPWORDS_APP_MSG.format(col_str),
             &#39;desc&#39;: &#34;Remove stopwords from {}&#34;.format(col_str),
         }
         super_kwargs.update(**kwargs)
+        super_kwargs[&#39;none_columns&#39;] = &#39;error&#39;
         super().__init__(**super_kwargs)
 
     def _prec(self, df):
@@ -268,6 +281,9 @@ class RemoveStopwords(MapColVals):
 class SnowballStem(MapColVals):
     &#34;&#34;&#34;A pipeline stage that stems tokens in a list using the Snowball stemmer.
 
+    Target columns must be series of token lists; i.e. every cell in the series
+    is an iterable of string tokens.
+
     Note: The nltk package must be installed for this pipeline stage to work.
 
     Parameters
@@ -275,8 +291,10 @@ class SnowballStem(MapColVals):
     stemmer_name : str
         The name of the Snowball stemmer to use. Should be one of the Snowball
         stemmers implemented by nltk. E.g. &#39;EnglishStemmer&#39;.
-    columns : str or list-like
-        Column names in the DataFrame to stem tokens in.
+    columns : single label, list-like of callable
+        Column labels in the DataFrame to be transformed. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See pdpipe.cq.
     drop : bool, default True
         If set to True, the source columns are dropped after stemming, and the
         resulting columns retain the names of the source columns. Otherwise,
@@ -393,10 +411,10 @@ class SnowballStem(MapColVals):
             &#39;drop&#39;: drop,
             &#39;suffix&#39;: &#39;_stem&#39;,
             &#39;exmsg&#39;: SnowballStem._DEF_STEM_EXC_MSG.format(col_str),
-            &#39;appmsg&#39;: appmsg,
             &#39;desc&#39;: appmsg,
         }
         super_kwargs.update(**kwargs)
+        super_kwargs[&#39;none_columns&#39;] = &#39;error&#39;
         super().__init__(**super_kwargs)
 
     def _prec(self, df):
@@ -404,15 +422,20 @@ class SnowballStem(MapColVals):
             col_type == object for col_type in df.dtypes[self._columns])
 
 
-class DropRareTokens(PdPipelineStage):
+class DropRareTokens(ColumnsBasedPipelineStage):
     &#34;&#34;&#34;A pipeline stage that drop rare tokens from token lists.
+
+    Target columns must be series of token lists; i.e. every cell in the series
+    is an iterable of string tokens.
 
     Note: The nltk package must be installed for this pipeline stage to work.
 
     Parameters
     ----------
-    columns : str or list-like
-        Column names in the DataFrame for which to drop rare words.
+    columns : single label, list-like of callable
+        Column labels in the DataFrame to be transformed. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See pdpipe.cq.
     threshold : int
         The rarity threshold to use. Only tokens appearing more than this
         number of times in a column will remain in token lists in that column.
@@ -433,25 +456,17 @@ class DropRareTokens(PdPipelineStage):
         1    3        [b]
     &#34;&#34;&#34;
 
-    _DEF_RARE_EXC_MSG = (&#34;DropRareTokens stage failed because not all columns &#34;
-                         &#34;{} were found in input dataframe.&#34;)
-
     def __init__(self, columns, threshold, drop=True, **kwargs):
-        self._columns = _interpret_columns_param(columns)
         self._threshold = threshold
         self._drop = drop
         self._rare_removers = {}
-        col_str = _list_str(self._columns)
         super_kwargs = {
-            &#39;exmsg&#39;: DropRareTokens._DEF_RARE_EXC_MSG.format(col_str),
-            &#39;appmsg&#39;: &#34;Dropping rare tokens from {}...&#34;.format(col_str),
-            &#39;desc&#39;: &#34;Drop rare tokens from {}&#34;.format(col_str)
+            &#39;columns&#39;: columns,
+            &#39;desc_temp&#39;: &#34;Drop rare tokens from {}&#34;
         }
         super_kwargs.update(**kwargs)
+        super_kwargs[&#39;none_columns&#39;] = &#39;error&#39;
         super().__init__(**super_kwargs)
-
-    def _prec(self, df):
-        return set(self._columns).issubset(df.columns)
 
     class _RareRemover(object):
         def __init__(self, rare_words):
@@ -470,7 +485,10 @@ class DropRareTokens(PdPipelineStage):
 
     def _fit_transform(self, df, verbose):
         inter_df = df
-        for colname in self._columns:
+        columns_to_transform = self._get_columns(df, fit=True)
+        if verbose:
+            columns_to_transform = tqdm.tqdm(columns_to_transform)
+        for colname in columns_to_transform:
             source_col = df[colname]
             loc = df.columns.get_loc(colname) + 1
             new_name = colname + &#34;_norare&#34;
@@ -489,9 +507,15 @@ class DropRareTokens(PdPipelineStage):
         self.is_fitted = True
         return inter_df
 
+    def _transformation(self, df, verbose, fit):
+        raise NotImplementedError
+
     def _transform(self, df, verbose):
         inter_df = df
-        for colname in self._columns:
+        columns_to_transform = self._get_columns(df, fit=False)
+        if verbose:
+            columns_to_transform = tqdm.tqdm(columns_to_transform)
+        for colname in columns_to_transform:
             source_col = df[colname]
             loc = df.columns.get_loc(colname) + 1
             new_name = colname + &#34;_norare&#34;
@@ -523,11 +547,15 @@ class DropRareTokens(PdPipelineStage):
 </code></dt>
 <dd>
 <section class="desc"><p>A pipeline stage that drop rare tokens from token lists.</p>
+<p>Target columns must be series of token lists; i.e. every cell in the series
+is an iterable of string tokens.</p>
 <p>Note: The nltk package must be installed for this pipeline stage to work.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code></dt>
-<dd>Column names in the DataFrame for which to drop rare words.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single</code> <code>label</code>, <code>list</code>-<code>like</code> of <code>callable</code></dt>
+<dd>Column labels in the DataFrame to be transformed. Alternatively, this
+parameter can be assigned a callable returning an iterable of labels
+from an input pandas.DataFrame. See pdpipe.cq.</dd>
 <dt><strong><code>threshold</code></strong> :&ensp;<code>int</code></dt>
 <dd>The rarity threshold to use. Only tokens appearing more than this
 number of times in a column will remain in token lists in that column.</dd>
@@ -549,17 +577,22 @@ Otherwise, the new columns gain the suffix '_norare'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/nltk_stages.py#L370-L471" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/nltk_stages.py#L388-L495" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">class DropRareTokens(PdPipelineStage):
+<pre><code class="python">class DropRareTokens(ColumnsBasedPipelineStage):
     &#34;&#34;&#34;A pipeline stage that drop rare tokens from token lists.
+
+    Target columns must be series of token lists; i.e. every cell in the series
+    is an iterable of string tokens.
 
     Note: The nltk package must be installed for this pipeline stage to work.
 
     Parameters
     ----------
-    columns : str or list-like
-        Column names in the DataFrame for which to drop rare words.
+    columns : single label, list-like of callable
+        Column labels in the DataFrame to be transformed. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See pdpipe.cq.
     threshold : int
         The rarity threshold to use. Only tokens appearing more than this
         number of times in a column will remain in token lists in that column.
@@ -580,25 +613,17 @@ Otherwise, the new columns gain the suffix '_norare'.</dd>
         1    3        [b]
     &#34;&#34;&#34;
 
-    _DEF_RARE_EXC_MSG = (&#34;DropRareTokens stage failed because not all columns &#34;
-                         &#34;{} were found in input dataframe.&#34;)
-
     def __init__(self, columns, threshold, drop=True, **kwargs):
-        self._columns = _interpret_columns_param(columns)
         self._threshold = threshold
         self._drop = drop
         self._rare_removers = {}
-        col_str = _list_str(self._columns)
         super_kwargs = {
-            &#39;exmsg&#39;: DropRareTokens._DEF_RARE_EXC_MSG.format(col_str),
-            &#39;appmsg&#39;: &#34;Dropping rare tokens from {}...&#34;.format(col_str),
-            &#39;desc&#39;: &#34;Drop rare tokens from {}&#34;.format(col_str)
+            &#39;columns&#39;: columns,
+            &#39;desc_temp&#39;: &#34;Drop rare tokens from {}&#34;
         }
         super_kwargs.update(**kwargs)
+        super_kwargs[&#39;none_columns&#39;] = &#39;error&#39;
         super().__init__(**super_kwargs)
-
-    def _prec(self, df):
-        return set(self._columns).issubset(df.columns)
 
     class _RareRemover(object):
         def __init__(self, rare_words):
@@ -617,7 +642,10 @@ Otherwise, the new columns gain the suffix '_norare'.</dd>
 
     def _fit_transform(self, df, verbose):
         inter_df = df
-        for colname in self._columns:
+        columns_to_transform = self._get_columns(df, fit=True)
+        if verbose:
+            columns_to_transform = tqdm.tqdm(columns_to_transform)
+        for colname in columns_to_transform:
             source_col = df[colname]
             loc = df.columns.get_loc(colname) + 1
             new_name = colname + &#34;_norare&#34;
@@ -636,9 +664,15 @@ Otherwise, the new columns gain the suffix '_norare'.</dd>
         self.is_fitted = True
         return inter_df
 
+    def _transformation(self, df, verbose, fit):
+        raise NotImplementedError
+
     def _transform(self, df, verbose):
         inter_df = df
-        for colname in self._columns:
+        columns_to_transform = self._get_columns(df, fit=False)
+        if verbose:
+            columns_to_transform = tqdm.tqdm(columns_to_transform)
+        for colname in columns_to_transform:
             source_col = df[colname]
             loc = df.columns.get_loc(colname) + 1
             new_name = colname + &#34;_norare&#34;
@@ -656,48 +690,53 @@ Otherwise, the new columns gain the suffix '_norare'.</dd>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
+<li><a title="pdpipe.core.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></li>
 <li><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></li>
 <li>abc.ABC</li>
 </ul>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></b></code>:
+<li><code><b><a title="pdpipe.core.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></b></code>:
 <ul class="hlist">
-<li><code><a title="pdpipe.core.PdPipelineStage.AdHocStage" href="core.html#pdpipe.core.PdPipelineStage.AdHocStage">AdHocStage</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.AggByCols" href="core.html#pdpipe.core.PdPipelineStage.AggByCols">AggByCols</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.ApplyByCols" href="core.html#pdpipe.core.PdPipelineStage.ApplyByCols">ApplyByCols</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.ApplyToRows" href="core.html#pdpipe.core.PdPipelineStage.ApplyToRows">ApplyToRows</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.Bin" href="core.html#pdpipe.core.PdPipelineStage.Bin">Bin</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.ColByFrameFunc" href="core.html#pdpipe.core.PdPipelineStage.ColByFrameFunc">ColByFrameFunc</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.ColDrop" href="core.html#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.ColRename" href="core.html#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.ColReorder" href="core.html#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByLength" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByList" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.Encode" href="core.html#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.FreqDrop" href="core.html#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.Log" href="core.html#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.MapColVals" href="core.html#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.OneHotEncode" href="core.html#pdpipe.core.PdPipelineStage.OneHotEncode">OneHotEncode</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.PdPipeline" href="core.html#pdpipe.core.PdPipelineStage.PdPipeline">PdPipeline</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.RegexReplace" href="core.html#pdpipe.core.PdPipelineStage.RegexReplace">RegexReplace</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.RemoveStopwords" href="core.html#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.RowDrop" href="core.html#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.Scale" href="core.html#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.Schematize" href="core.html#pdpipe.core.PdPipelineStage.Schematize">Schematize</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.SnowballStem" href="core.html#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists" href="core.html#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.TokenizeText" href="core.html#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.UntokenizeText" href="core.html#pdpipe.core.PdPipelineStage.UntokenizeText">UntokenizeText</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.ValDrop" href="core.html#pdpipe.core.PdPipelineStage.ValDrop">ValDrop</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.ValKeep" href="core.html#pdpipe.core.PdPipelineStage.ValKeep">ValKeep</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.apply" href="core.html#pdpipe.core.PdPipelineStage.apply">apply</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.description" href="core.html#pdpipe.core.PdPipelineStage.description">description</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.fit" href="core.html#pdpipe.core.PdPipelineStage.fit">fit</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.fit_transform" href="core.html#pdpipe.core.PdPipelineStage.fit_transform">fit_transform</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.transform" href="core.html#pdpipe.core.PdPipelineStage.transform">transform</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.AdHocStage" href="core.html#pdpipe.core.PdPipelineStage.AdHocStage">AdHocStage</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.AggByCols" href="core.html#pdpipe.core.PdPipelineStage.AggByCols">AggByCols</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ApplyByCols" href="core.html#pdpipe.core.PdPipelineStage.ApplyByCols">ApplyByCols</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ApplyToRows" href="core.html#pdpipe.core.PdPipelineStage.ApplyToRows">ApplyToRows</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Bin" href="core.html#pdpipe.core.PdPipelineStage.Bin">Bin</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColByFrameFunc" href="core.html#pdpipe.core.PdPipelineStage.ColByFrameFunc">ColByFrameFunc</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColDrop" href="core.html#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColRename" href="core.html#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColReorder" href="core.html#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropTokensByLength" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropTokensByList" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Encode" href="core.html#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.FitOnly" href="core.html#pdpipe.core.PdPipelineStage.FitOnly">FitOnly</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.FreqDrop" href="core.html#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Log" href="core.html#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.MapColVals" href="core.html#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.OneHotEncode" href="core.html#pdpipe.core.PdPipelineStage.OneHotEncode">OneHotEncode</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.PdPipeline" href="core.html#pdpipe.core.PdPipelineStage.PdPipeline">PdPipeline</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.RegexReplace" href="core.html#pdpipe.core.PdPipelineStage.RegexReplace">RegexReplace</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.RemoveStopwords" href="core.html#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.RowDrop" href="core.html#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Scale" href="core.html#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Schematize" href="core.html#pdpipe.core.PdPipelineStage.Schematize">Schematize</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.SnowballStem" href="core.html#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.TfidfVectorizeTokenLists" href="core.html#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.TokenizeText" href="core.html#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.UntokenizeText" href="core.html#pdpipe.core.PdPipelineStage.UntokenizeText">UntokenizeText</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ValDrop" href="core.html#pdpipe.core.PdPipelineStage.ValDrop">ValDrop</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ValKeep" href="core.html#pdpipe.core.PdPipelineStage.ValKeep">ValKeep</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.apply" href="core.html#pdpipe.core.PdPipelineStage.apply">apply</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.description" href="core.html#pdpipe.core.PdPipelineStage.description">description</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.fit" href="core.html#pdpipe.core.PdPipelineStage.fit">fit</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.fit_transform" href="core.html#pdpipe.core.PdPipelineStage.fit_transform">fit_transform</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.transform" href="core.html#pdpipe.core.PdPipelineStage.transform">transform</a></code></li>
 </ul>
 </li>
 </ul>
@@ -708,6 +747,8 @@ Otherwise, the new columns gain the suffix '_norare'.</dd>
 </code></dt>
 <dd>
 <section class="desc"><p>A pipeline stage that removes stopwords from a tokenized list.</p>
+<p>Target columns must be series of token lists; i.e. every cell in the series
+is an iterable of string tokens.</p>
 <p>Note: The nltk package must be installed for this pipeline stage to work.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
@@ -716,8 +757,10 @@ Otherwise, the new columns gain the suffix '_norare'.</dd>
 should then be one of the languages supported by the NLTK Stopwords
 Corpus. If a list is given, it is assumed to be the list of stopwords
 to remove.</dd>
-<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code></dt>
-<dd>Column names in the DataFrame from which to remove stopwords.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single</code> <code>label</code>, <code>list</code>-<code>like</code> of <code>callable</code></dt>
+<dd>Column labels in the DataFrame to be transformed. Alternatively, this
+parameter can be assigned a callable returning an iterable of labels
+from an input pandas.DataFrame. See pdpipe.cq.</dd>
 <dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
 <dd>If set to True, the source columns are dropped after stopword removal,
 and the resulting columns retain the names of the source columns.
@@ -735,10 +778,13 @@ Otherwise, resulting columns gain the suffix '_nostop'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/nltk_stages.py#L144-L228" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/nltk_stages.py#L152-L241" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class RemoveStopwords(MapColVals):
     &#34;&#34;&#34;A pipeline stage that removes stopwords from a tokenized list.
+
+    Target columns must be series of token lists; i.e. every cell in the series
+    is an iterable of string tokens.
 
     Note: The nltk package must be installed for this pipeline stage to work.
 
@@ -749,8 +795,10 @@ Otherwise, resulting columns gain the suffix '_nostop'.</dd>
         should then be one of the languages supported by the NLTK Stopwords
         Corpus. If a list is given, it is assumed to be the list of stopwords
         to remove.
-    columns : str or list-like
-        Column names in the DataFrame from which to remove stopwords.
+    columns : single label, list-like of callable
+        Column labels in the DataFrame to be transformed. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See pdpipe.cq.
     drop : bool, default True
         If set to True, the source columns are dropped after stopword removal,
         and the resulting columns retain the names of the source columns.
@@ -813,10 +861,10 @@ Otherwise, resulting columns gain the suffix '_nostop'.</dd>
             &#39;drop&#39;: drop,
             &#39;suffix&#39;: &#39;_nostop&#39;,
             &#39;exmsg&#39;: RemoveStopwords._DEF_STOPWORDS_EXC_MSG.format(col_str),
-            &#39;appmsg&#39;: RemoveStopwords._DEF_STOPWORDS_APP_MSG.format(col_str),
             &#39;desc&#39;: &#34;Remove stopwords from {}&#34;.format(col_str),
         }
         super_kwargs.update(**kwargs)
+        super_kwargs[&#39;none_columns&#39;] = &#39;error&#39;
         super().__init__(**super_kwargs)
 
     def _prec(self, df):
@@ -826,6 +874,8 @@ Otherwise, resulting columns gain the suffix '_nostop'.</dd>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="pdpipe.col_generation.MapColVals" href="col_generation.html#pdpipe.col_generation.MapColVals">MapColVals</a></li>
+<li><a title="pdpipe.col_generation.ColumnTransformer" href="col_generation.html#pdpipe.col_generation.ColumnTransformer">ColumnTransformer</a></li>
+<li><a title="pdpipe.core.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></li>
 <li><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></li>
 <li>abc.ABC</li>
 </ul>
@@ -842,11 +892,15 @@ Otherwise, resulting columns gain the suffix '_nostop'.</dd>
 <li><code><a title="pdpipe.col_generation.MapColVals.ColDrop" href="core.html#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.ColRename" href="core.html#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.ColReorder" href="core.html#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.col_generation.MapColVals.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
+<li><code><a title="pdpipe.col_generation.MapColVals.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.col_generation.MapColVals.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.DropTokensByLength" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.DropTokensByList" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.Encode" href="core.html#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.col_generation.MapColVals.FitOnly" href="core.html#pdpipe.core.PdPipelineStage.FitOnly">FitOnly</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.FreqDrop" href="core.html#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.Log" href="core.html#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.MapColVals" href="core.html#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
@@ -878,14 +932,18 @@ Otherwise, resulting columns gain the suffix '_nostop'.</dd>
 </code></dt>
 <dd>
 <section class="desc"><p>A pipeline stage that stems tokens in a list using the Snowball stemmer.</p>
+<p>Target columns must be series of token lists; i.e. every cell in the series
+is an iterable of string tokens.</p>
 <p>Note: The nltk package must be installed for this pipeline stage to work.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>stemmer_name</code></strong> :&ensp;<code>str</code></dt>
 <dd>The name of the Snowball stemmer to use. Should be one of the Snowball
 stemmers implemented by nltk. E.g. 'EnglishStemmer'.</dd>
-<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code></dt>
-<dd>Column names in the DataFrame to stem tokens in.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single</code> <code>label</code>, <code>list</code>-<code>like</code> of <code>callable</code></dt>
+<dd>Column labels in the DataFrame to be transformed. Alternatively, this
+parameter can be assigned a callable returning an iterable of labels
+from an input pandas.DataFrame. See pdpipe.cq.</dd>
 <dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
 <dd>If set to True, the source columns are dropped after stemming, and the
 resulting columns retain the names of the source columns. Otherwise,
@@ -907,10 +965,13 @@ resulting columns gain the suffix '_stem'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/nltk_stages.py#L231-L367" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/nltk_stages.py#L244-L385" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class SnowballStem(MapColVals):
     &#34;&#34;&#34;A pipeline stage that stems tokens in a list using the Snowball stemmer.
+
+    Target columns must be series of token lists; i.e. every cell in the series
+    is an iterable of string tokens.
 
     Note: The nltk package must be installed for this pipeline stage to work.
 
@@ -919,8 +980,10 @@ resulting columns gain the suffix '_stem'.</dd>
     stemmer_name : str
         The name of the Snowball stemmer to use. Should be one of the Snowball
         stemmers implemented by nltk. E.g. &#39;EnglishStemmer&#39;.
-    columns : str or list-like
-        Column names in the DataFrame to stem tokens in.
+    columns : single label, list-like of callable
+        Column labels in the DataFrame to be transformed. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See pdpipe.cq.
     drop : bool, default True
         If set to True, the source columns are dropped after stemming, and the
         resulting columns retain the names of the source columns. Otherwise,
@@ -1037,10 +1100,10 @@ resulting columns gain the suffix '_stem'.</dd>
             &#39;drop&#39;: drop,
             &#39;suffix&#39;: &#39;_stem&#39;,
             &#39;exmsg&#39;: SnowballStem._DEF_STEM_EXC_MSG.format(col_str),
-            &#39;appmsg&#39;: appmsg,
             &#39;desc&#39;: appmsg,
         }
         super_kwargs.update(**kwargs)
+        super_kwargs[&#39;none_columns&#39;] = &#39;error&#39;
         super().__init__(**super_kwargs)
 
     def _prec(self, df):
@@ -1050,6 +1113,8 @@ resulting columns gain the suffix '_stem'.</dd>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="pdpipe.col_generation.MapColVals" href="col_generation.html#pdpipe.col_generation.MapColVals">MapColVals</a></li>
+<li><a title="pdpipe.col_generation.ColumnTransformer" href="col_generation.html#pdpipe.col_generation.ColumnTransformer">ColumnTransformer</a></li>
+<li><a title="pdpipe.core.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></li>
 <li><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></li>
 <li>abc.ABC</li>
 </ul>
@@ -1061,7 +1126,7 @@ resulting columns gain the suffix '_stem'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/nltk_stages.py#L276-L282" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/nltk_stages.py#L294-L300" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class MaxLenStemCondition(object):
 
@@ -1078,7 +1143,7 @@ resulting columns gain the suffix '_stem'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/nltk_stages.py#L268-L274" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/nltk_stages.py#L286-L292" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class MinLenStemCondition(object):
 
@@ -1095,7 +1160,7 @@ resulting columns gain the suffix '_stem'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/nltk_stages.py#L284-L291" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/nltk_stages.py#L302-L309" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class MinMaxLenStemCondition(object):
 
@@ -1121,11 +1186,15 @@ resulting columns gain the suffix '_stem'.</dd>
 <li><code><a title="pdpipe.col_generation.MapColVals.ColDrop" href="core.html#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.ColRename" href="core.html#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.ColReorder" href="core.html#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.col_generation.MapColVals.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
+<li><code><a title="pdpipe.col_generation.MapColVals.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.col_generation.MapColVals.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.DropTokensByLength" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.DropTokensByList" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.Encode" href="core.html#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.col_generation.MapColVals.FitOnly" href="core.html#pdpipe.core.PdPipelineStage.FitOnly">FitOnly</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.FreqDrop" href="core.html#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.Log" href="core.html#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.MapColVals" href="core.html#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
@@ -1160,8 +1229,10 @@ resulting columns gain the suffix '_stem'.</dd>
 <p>Note: The nltk package must be installed for this pipeline stage to work.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code></dt>
-<dd>Column names in the DataFrame to be tokenized.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single</code> <code>label</code>, <code>list</code>-<code>like</code> of <code>callable</code></dt>
+<dd>Column labels in the DataFrame to be transformed. Alternatively, this
+parameter can be assigned a callable returning an iterable of labels
+from an input pandas.DataFrame. See pdpipe.cq.</dd>
 <dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
 <dd>If set to True, the source columns are dropped after being tokenized,
 and the resulting tokenized columns retain the names of the source
@@ -1179,7 +1250,7 @@ columns. Otherwise, tokenized columns gain the suffix '_tok'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/nltk_stages.py#L28-L88" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/nltk_stages.py#L29-L91" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class TokenizeText(MapColVals):
     &#34;&#34;&#34;A pipeline stage that tokenize a text column into token lists.
@@ -1188,8 +1259,10 @@ columns. Otherwise, tokenized columns gain the suffix '_tok'.</dd>
 
     Parameters
     ----------
-    columns : str or list-like
-        Column names in the DataFrame to be tokenized.
+    columns : single label, list-like of callable
+        Column labels in the DataFrame to be transformed. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See pdpipe.cq.
     drop : bool, default True
         If set to True, the source columns are dropped after being tokenized,
         and the resulting tokenized columns retain the names of the source
@@ -1233,10 +1306,10 @@ columns. Otherwise, tokenized columns gain the suffix '_tok'.</dd>
             &#39;drop&#39;: drop,
             &#39;suffix&#39;: &#39;_tok&#39;,
             &#39;exmsg&#39;: TokenizeText._DEF_TOKENIZE_EXC_MSG.format(col_str),
-            &#39;appmsg&#39;: TokenizeText._DEF_TOKENIZE_APP_MSG.format(col_str),
             &#39;desc&#39;: &#34;Tokenize {}&#34;.format(col_str),
         }
         super_kwargs.update(**kwargs)
+        super_kwargs[&#39;none_columns&#39;] = &#39;error&#39;
         super().__init__(**super_kwargs)
 
     def _prec(self, df):
@@ -1246,6 +1319,8 @@ columns. Otherwise, tokenized columns gain the suffix '_tok'.</dd>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="pdpipe.col_generation.MapColVals" href="col_generation.html#pdpipe.col_generation.MapColVals">MapColVals</a></li>
+<li><a title="pdpipe.col_generation.ColumnTransformer" href="col_generation.html#pdpipe.col_generation.ColumnTransformer">ColumnTransformer</a></li>
+<li><a title="pdpipe.core.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></li>
 <li><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></li>
 <li>abc.ABC</li>
 </ul>
@@ -1262,11 +1337,15 @@ columns. Otherwise, tokenized columns gain the suffix '_tok'.</dd>
 <li><code><a title="pdpipe.col_generation.MapColVals.ColDrop" href="core.html#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.ColRename" href="core.html#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.ColReorder" href="core.html#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.col_generation.MapColVals.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
+<li><code><a title="pdpipe.col_generation.MapColVals.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.col_generation.MapColVals.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.DropTokensByLength" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.DropTokensByList" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.Encode" href="core.html#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.col_generation.MapColVals.FitOnly" href="core.html#pdpipe.core.PdPipelineStage.FitOnly">FitOnly</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.FreqDrop" href="core.html#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.Log" href="core.html#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.MapColVals" href="core.html#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
@@ -1298,11 +1377,15 @@ columns. Otherwise, tokenized columns gain the suffix '_tok'.</dd>
 </code></dt>
 <dd>
 <section class="desc"><p>A pipeline stage that joins token lists to whitespace-seperated strings.</p>
+<p>Target columns must be series of token lists; i.e. every cell in the series
+is an iterable of string tokens.</p>
 <p>Note: The nltk package must be installed for this pipeline stage to work.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code></dt>
-<dd>Column names in the DataFrame to be untokenized.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single</code> <code>label</code>, <code>list</code>-<code>like</code> of <code>callable</code></dt>
+<dd>Column labels in the DataFrame to be transformed. Alternatively, this
+parameter can be assigned a callable returning an iterable of labels
+from an input pandas.DataFrame. See pdpipe.cq.</dd>
 <dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
 <dd>If set to True, the source columns are dropped after being untokenized,
 and the resulting columns retain the names of the source columns.
@@ -1320,17 +1403,22 @@ Otherwise, untokenized columns gain the suffix '_untok'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/nltk_stages.py#L91-L141" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/nltk_stages.py#L94-L149" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class UntokenizeText(MapColVals):
     &#34;&#34;&#34;A pipeline stage that joins token lists to whitespace-seperated strings.
+
+    Target columns must be series of token lists; i.e. every cell in the series
+    is an iterable of string tokens.
 
     Note: The nltk package must be installed for this pipeline stage to work.
 
     Parameters
     ----------
-    columns : str or list-like
-        Column names in the DataFrame to be untokenized.
+    columns : single label, list-like of callable
+        Column labels in the DataFrame to be transformed. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See pdpipe.cq.
     drop : bool, default True
         If set to True, the source columns are dropped after being untokenized,
         and the resulting columns retain the names of the source columns.
@@ -1364,10 +1452,10 @@ Otherwise, untokenized columns gain the suffix '_untok'.</dd>
             &#39;drop&#39;: drop,
             &#39;suffix&#39;: &#39;_untok&#39;,
             &#39;exmsg&#39;: UntokenizeText._DEF_UNTOKENIZE_EXC_MSG.format(col_str),
-            &#39;appmsg&#39;: &#34;Untokenizing {}&#34;.format(col_str),
             &#39;desc&#39;: &#34;Untokenize {}&#34;.format(col_str),
         }
         super_kwargs.update(**kwargs)
+        super_kwargs[&#39;none_columns&#39;] = &#39;error&#39;
         super().__init__(**super_kwargs)
 
     def _prec(self, df):
@@ -1377,6 +1465,8 @@ Otherwise, untokenized columns gain the suffix '_untok'.</dd>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="pdpipe.col_generation.MapColVals" href="col_generation.html#pdpipe.col_generation.MapColVals">MapColVals</a></li>
+<li><a title="pdpipe.col_generation.ColumnTransformer" href="col_generation.html#pdpipe.col_generation.ColumnTransformer">ColumnTransformer</a></li>
+<li><a title="pdpipe.core.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></li>
 <li><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></li>
 <li>abc.ABC</li>
 </ul>
@@ -1393,11 +1483,15 @@ Otherwise, untokenized columns gain the suffix '_untok'.</dd>
 <li><code><a title="pdpipe.col_generation.MapColVals.ColDrop" href="core.html#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.ColRename" href="core.html#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.ColReorder" href="core.html#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.col_generation.MapColVals.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
+<li><code><a title="pdpipe.col_generation.MapColVals.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.col_generation.MapColVals.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.DropTokensByLength" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.DropTokensByList" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.Encode" href="core.html#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.col_generation.MapColVals.FitOnly" href="core.html#pdpipe.core.PdPipelineStage.FitOnly">FitOnly</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.FreqDrop" href="core.html#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.Log" href="core.html#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
 <li><code><a title="pdpipe.col_generation.MapColVals.MapColVals" href="core.html#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>

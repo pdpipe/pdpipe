@@ -28,16 +28,168 @@
 &gt;&gt;&gt; pipeline = pdp.ColDrop('Name') + pdp.Bin({'Speed': [0,5]})
 &gt;&gt;&gt; pipeline = pdp.ColDrop('Name').Bin({'Speed': [0,5]}, drop=True)
 </code></pre>
+<h2 id="creating-pipeline-stages-that-operate-on-column-subsets">Creating pipeline stages that operate on column subsets</h2>
+<p>Many pipeline stages in pdpipe operate on a subset of columns, allowing the
+caller to deteremine this subset by either providing a fixed set of column
+labels or by providing a callable that determines the column subset dynamically
+from input dataframes. The <a title="pdpipe.cq" href="cq.html"><code>pdpipe.cq</code></a> module addresses a unique but important
+use case of fittable column qualifier, which dynamically extract a column
+subset on stage fit time, but keep it fixed for future transformations.</p>
+<p>As a general rule, every pipeline stage in pdpipe that supports the <code>columns</code>
+parameter should inherently support fittable column qualifier, and generally
+the correct interpretation of both single and multiple labels as arguments. To
+unify the implementation of such functionality, and ease of creation of new
+pipeline stages, such columns shoul be created by extending the
+ColumnsBasedPipelineStage base class, found in this module (<a title="pdpipe.core" href="#pdpipe.core"><code>pdpipe.core</code></a>).</p>
+<p>The main interface of sub-classes of this base class with it is through the
+<code>columns</code>, <code>exclude_columns</code> and <code>none_columns</code> constructor arguments, and the
+"private" <code>_get_columns(df, fit)</code> method:</p>
+<pre><code>* Any extending subclass should accept the `columns` constructor parameter
+  and forward it, without transforming it, to the constructor of
+  ColumnsBasedPipelineStage. E.g.
+  `super().__init__(columns=columns, **kwargs)`. See the implementation of
+  any such extending class for a more complete example.
+
+* Extending subclasses can decide if they want to expose the
+  `exclude_columns` parameter or not. Note that most of its functionality
+  can anyway be gained by providing the `columns` parameter with a column
+  qualifier object that is a difference between two column qualifiers; e.g.
+  `columns=cq.OfDtype(np.number) - cq.OfDtype(np.int64)` is equivalent to
+  providing `columns=cq.OfDtype(np.number),
+  exclude_columns=cq.OfDtype(np.int64)`. However, exposing the
+  `exclude_columns` parameter can allow for specific unique behaviours; for
+  example, if the `none_columns` parametet - which configures the behavior
+  when `columns` is provided with `None` - is set with
+  a `cq.OfDtypes('category')` column qualifier, which means that all
+  categorical columns are selected when `columns=None`, then exposing
+  `exclude_columns` allows easy specification of the "all categorical
+  columns except X" by just giving a column qualifier capturing X to
+  `exclude_columns`, instead of having to reconstruct the default column
+  qualifier by hand and substract from it the one representing X.
+
+* When wishing to get the subset of columns to operate on, in
+  `fit_transform` or `transform` time, it is attained by calling
+  `self._get_columns(df, fit=True)` (or with `fit=False` if just
+  transforming), providing it the input dataframe.
+
+* Additionally, to get a description and application message with a nice
+  string representation of the list of columns to operate on, the
+  `desc_temp` constructor parameter of ColumnsBasedPipelineStage can be
+  provided with a format string with a place holder where the column list
+  should go. E.g. `"Drop columns {}"` for the DropCol pipeline stage.
+</code></pre>
+<p>There are two correct ways to extend it, depending on whether the pipeline
+stage you're creating is inherently fittable or not:</p>
+<pre><code>1. If the stage is NOT inherently fittable, then the ability to accept
+   fittable column qualifier objects makes it so. However, to enable
+   extending subclasses to implement their transformation using a single
+   method, they can simply implement the abstract method
+   `_transformation(self, df, verbose, fit)`. It should treat the `df` and
+   `verbose` parameters normally, but forward the `fit` parameter to the
+   `_get_columns` method when calling it. This is enough to get a pipeline
+   stage with the desired behavior, with the super-class handling all the
+   fit/transform functionality.
+
+2. If the stage IS inherently fittable, then do not use the
+   `_transformation` abstract method (it has to be implemented, so just
+   have it raise a NotImplementedError). Instead, simply override the
+   `_fit_transform` and `_transform` method of ColumnsBasedPipelineStage,
+   calling the `fit` parameter of the `_get_columns` method with the
+   correct arguement: `True` when fit-transforming and `False` when
+   transforming.
+</code></pre>
+<p>Again, taking a look at the VERY concise implementation of simple columns-based
+stages, like ColDrop or ValDrop, will probably make things clearer, and you can
+use those implementations as a template for yours.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L0-L568" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L0-L799" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Defines pipelines for processing Pandas.DataFrame-based datasets.
 
 &gt;&gt;&gt; import pdpipe as pdp
 &gt;&gt;&gt; pipeline = pdp.ColDrop(&#39;Name&#39;) + pdp.Bin({&#39;Speed&#39;: [0,5]})
 &gt;&gt;&gt; pipeline = pdp.ColDrop(&#39;Name&#39;).Bin({&#39;Speed&#39;: [0,5]}, drop=True)
+
+## Creating pipeline stages that operate on column subsets
+
+Many pipeline stages in pdpipe operate on a subset of columns, allowing the
+caller to deteremine this subset by either providing a fixed set of column
+labels or by providing a callable that determines the column subset dynamically
+from input dataframes. The `pdpipe.cq` module addresses a unique but important
+use case of fittable column qualifier, which dynamically extract a column
+subset on stage fit time, but keep it fixed for future transformations.
+
+As a general rule, every pipeline stage in pdpipe that supports the `columns`
+parameter should inherently support fittable column qualifier, and generally
+the correct interpretation of both single and multiple labels as arguments. To
+unify the implementation of such functionality, and ease of creation of new
+pipeline stages, such columns shoul be created by extending the
+ColumnsBasedPipelineStage base class, found in this module (`pdpipe.core`).
+
+The main interface of sub-classes of this base class with it is through the
+`columns`, `exclude_columns` and `none_columns` constructor arguments, and the
+&#34;private&#34; `_get_columns(df, fit)` method:
+
+    * Any extending subclass should accept the `columns` constructor parameter
+      and forward it, without transforming it, to the constructor of
+      ColumnsBasedPipelineStage. E.g.
+      `super().__init__(columns=columns, **kwargs)`. See the implementation of
+      any such extending class for a more complete example.
+
+    * Extending subclasses can decide if they want to expose the
+      `exclude_columns` parameter or not. Note that most of its functionality
+      can anyway be gained by providing the `columns` parameter with a column
+      qualifier object that is a difference between two column qualifiers; e.g.
+      `columns=cq.OfDtype(np.number) - cq.OfDtype(np.int64)` is equivalent to
+      providing `columns=cq.OfDtype(np.number),
+      exclude_columns=cq.OfDtype(np.int64)`. However, exposing the
+      `exclude_columns` parameter can allow for specific unique behaviours; for
+      example, if the `none_columns` parametet - which configures the behavior
+      when `columns` is provided with `None` - is set with
+      a `cq.OfDtypes(&#39;category&#39;)` column qualifier, which means that all
+      categorical columns are selected when `columns=None`, then exposing
+      `exclude_columns` allows easy specification of the &#34;all categorical
+      columns except X&#34; by just giving a column qualifier capturing X to
+      `exclude_columns`, instead of having to reconstruct the default column
+      qualifier by hand and substract from it the one representing X.
+
+    * When wishing to get the subset of columns to operate on, in
+      `fit_transform` or `transform` time, it is attained by calling
+      `self._get_columns(df, fit=True)` (or with `fit=False` if just
+      transforming), providing it the input dataframe.
+
+    * Additionally, to get a description and application message with a nice
+      string representation of the list of columns to operate on, the
+      `desc_temp` constructor parameter of ColumnsBasedPipelineStage can be
+      provided with a format string with a place holder where the column list
+      should go. E.g. `&#34;Drop columns {}&#34;` for the DropCol pipeline stage.
+
+There are two correct ways to extend it, depending on whether the pipeline
+stage you&#39;re creating is inherently fittable or not:
+
+    1. If the stage is NOT inherently fittable, then the ability to accept
+       fittable column qualifier objects makes it so. However, to enable
+       extending subclasses to implement their transformation using a single
+       method, they can simply implement the abstract method
+       `_transformation(self, df, verbose, fit)`. It should treat the `df` and
+       `verbose` parameters normally, but forward the `fit` parameter to the
+       `_get_columns` method when calling it. This is enough to get a pipeline
+       stage with the desired behavior, with the super-class handling all the
+       fit/transform functionality.
+
+    2. If the stage IS inherently fittable, then do not use the
+       `_transformation` abstract method (it has to be implemented, so just
+       have it raise a NotImplementedError). Instead, simply override the
+       `_fit_transform` and `_transform` method of ColumnsBasedPipelineStage,
+       calling the `fit` parameter of the `_get_columns` method with the
+       correct arguement: `True` when fit-transforming and `False` when
+       transforming.
+
+Again, taking a look at the VERY concise implementation of simple columns-based
+stages, like ColDrop or ValDrop, will probably make things clearer, and you can
+use those implementations as a template for yours.
 &#34;&#34;&#34;
 
 import sys
@@ -45,6 +197,8 @@ import inspect
 import abc
 import collections
 import textwrap
+
+from .cq import is_fittable_column_qualifier, AllColumns
 
 from .exceptions import (
     FailedPreconditionError,
@@ -106,30 +260,24 @@ class PdPipelineStage(abc.ABC):
         The message of the exception that is raised on a failed
         precondition if exraise is set to True. A default message is used
         if None is given.
-    appmsg : str, default None
-        The message printed when this stage is applied with verbose=True.
-        A default message is used if None is given.
     desc : str, default None
         A short description of this stage, used as its string representation.
         A default description is used if None is given.
     &#34;&#34;&#34;
 
     _DEF_EXC_MSG = &#39;Precondition failed in stage {}!&#39;
-    _DEF_APPLY_MSG = &#39;Applying a pipeline stage...&#39;
     _DEF_DESCRIPTION = &#39;A pipeline stage.&#39;
-    _INIT_KWARGS = [&#39;exraise&#39;, &#39;exmsg&#39;, &#39;appmsg&#39;, &#39;desc&#39;]
+    _INIT_KWARGS = [&#39;exraise&#39;, &#39;exmsg&#39;, &#39;desc&#39;]
 
     def __init__(self, exraise=True, exmsg=None, appmsg=None, desc=None):
-        if appmsg is None:
-            appmsg = PdPipelineStage._DEF_APPLY_MSG
         if desc is None:
             desc = PdPipelineStage._DEF_DESCRIPTION
         if exmsg is None:
             exmsg = PdPipelineStage._DEF_EXC_MSG.format(desc)
         self._exraise = exraise
         self._exmsg = exmsg
-        self._appmsg = appmsg
         self._desc = desc
+        self._appmsg = &#39;{}..&#39;.format(desc)
         self.is_fitted = False
 
     @classmethod
@@ -183,7 +331,7 @@ class PdPipelineStage(abc.ABC):
         &#34;&#34;&#34;
         if exraise is None:
             exraise = self._exraise
-        if self._prec(df):
+        if self._prec(df=df):
             if verbose:
                 msg = &#39;- &#39; + &#39;\n  &#39;.join(textwrap.wrap(self._appmsg))
                 print(msg, flush=True)
@@ -331,6 +479,164 @@ class PdPipelineStage(abc.ABC):
         return self._desc
 
 
+class ColumnsBasedPipelineStage(PdPipelineStage):
+    &#34;&#34;&#34;A pipeline stage that operates on a subset of dataframe columns.
+
+    Parameters
+    ---------
+    columns : object, iterable or callable
+        The label, or an iterable of labels, of columns to use. Alternatively,
+        this parameter can be assigned a callable returning an iterable of
+        labels from an input pandas.DataFrame. See pdpipe.cq.
+    exclude_columns : object, iterable or callable, optional
+        The label, or an iterable of labels, of columns to exclude, given the
+        `columns` parameter. Alternatively, this parameter can be assigned a
+        callable returning a labels iterable from an input pandas.DataFrame.
+        See pdpipe.cq. Optional. By default no columns are excluded.
+    desc_temp : str, optional
+        If given, assumed to be a format string, and every appearance of {} in
+        it is replaced with an appropriate string representation of the columns
+        parameter, and is used as the pipeline description. Ignored if `desc`
+        is provided.
+    exraise : bool, default True
+        If true, a pdpipe.FailedPreconditionError is raised when this
+        stage is applied to a dataframe for which the precondition does
+        not hold. Otherwise the stage is skipped.
+    exmsg : str, default None
+        The message of the exception that is raised on a failed
+        precondition if exraise is set to True. A default message is used
+        if None is given.
+    desc : str, default None
+        A short description of this stage, used as its string representation.
+        A default description is used if None is given.
+    none_columns : iterable, callable or str, default &#39;error&#39;
+        Determines how None values supplied to the &#39;columns&#39; parameter should
+        be handled. If set to &#39;error&#39;, the default, a ValueError is raised if
+        None is encountered. If set to &#39;all&#39;, it is interpreted to mean all
+        columns of input dataframes should be operated on. If an iterable is
+        provided it is interpreted as the default list of columns to operate on
+        when `columns=None`. If a callable is provided, it is interpreted as
+        the default column qualifier that determines input columns when
+        `columns=None`.
+    &#34;&#34;&#34;
+
+    @staticmethod
+    def _interpret_columns_param(columns, none_error=False, none_columns=None):
+        &#34;&#34;&#34;Interprets the value provided to the columns parameter and returns
+        a list version of it - if needed - a string representation of it.
+        &#34;&#34;&#34;
+        if columns is None:
+            if none_error:
+                raise ValueError((
+                    &#39;None is not a valid argument for the columns parameter of&#39;
+                    &#39; this pipeline stage.&#39;))
+            return ColumnsBasedPipelineStage._interpret_columns_param(
+                columns=none_columns)
+        if isinstance(columns, str):
+            # always check str first, because it has __iter__
+            return [columns], columns
+        if callable(columns):
+            return columns, columns.__doc__ or &#39;&#39;
+        # if it was a single string it was already made a list, and it&#39;s not a
+        # callable, so it&#39;s either an iterable of labels... or
+        if hasattr(columns, &#39;__iter__&#39;):
+            return columns, &#39;, &#39;.join(str(elem) for elem in columns)
+        # a single non-string label.
+        return [columns], str(columns)
+
+    def __init__(
+            self, columns, exclude_columns=None, desc_temp=None, exraise=True,
+            exmsg=None, desc=None, none_columns=&#39;error&#39;):
+        self._exclude_columns = exclude_columns
+        if exclude_columns:
+            self._exclude_columns = self._interpret_columns_param(
+                exclude_columns)
+        self._none_error = False
+        self._none_cols = None
+        # handle none_columns
+        if isinstance(none_columns, str):
+            if none_columns == &#39;error&#39;:
+                self._none_error = True
+            elif none_columns == &#39;all&#39;:
+                self._none_cols = AllColumns()
+            else:
+                raise ValueError((
+                    &#34;&#39;error&#39; and &#39;all&#39; are the only valid string arguments&#34;
+                    &#34; to the none_columns constructor parameter!&#34;))
+        elif hasattr(none_columns, &#39;__iter__&#39;):
+            self._none_cols = none_columns
+        elif callable(none_columns):
+            self._none_cols = none_columns
+        else:
+            raise ValueError((
+                &#34;Valid arguments to the none_columns constructor parameter&#34;
+                &#34; are &#39;error&#39;, &#39;all&#39;, an iterable of labels or a callable!&#34;
+            ))
+        # done handling none_columns
+        self._col_arg, self._col_str = self._interpret_columns_param(
+            columns, self._none_error, none_columns=self._none_cols)
+        if (desc is None) and desc_temp:
+            desc = desc_temp.format(self._col_str)
+        if exmsg is None:
+            exmsg = (
+                &#39;Pipeline stage failed because not all columns {} &#39;
+                &#39;were found in the input dataframe.&#39;
+            ).format(self._col_str)
+        super().__init__(
+            exraise=exraise,
+            exmsg=exmsg,
+            desc=desc,
+        )
+
+    def _is_fittable(self):
+        return is_fittable_column_qualifier(self._col_arg)
+
+    @staticmethod
+    def __get_cols_by_arg(col_arg, df, fit=False):
+        try:
+            if fit:
+                # try to treat col_arg as a fittable column qualifier
+                return col_arg.fit_transform(df)
+            # else, no need to fit, so try to treat _col_arg as a callable
+            return col_arg(df)
+        except AttributeError:
+            # got here cause col_arg has no fit_transform method...
+            try:
+                # so try and treat it as a callable again
+                return col_arg(df)
+            except TypeError:
+                # calling col_arg 2 lines above failed; its a list of labels
+                return col_arg
+        except TypeError:
+            # calling _col_arg 10 lines above failed; its a list of labels
+            return col_arg
+
+    def _get_columns(self, df, fit=False):
+        cols = ColumnsBasedPipelineStage.__get_cols_by_arg(
+            self._col_arg, df, fit=fit)
+        if self._exclude_columns:
+            exc_cols = ColumnsBasedPipelineStage.__get_cols_by_arg(
+                self._exclude_columns, df, fit=fit)
+            return [x for x in cols if x not in exc_cols]
+        return cols
+
+    def _prec(self, df):
+        return set(self._get_columns(df=df)).issubset(df.columns)
+
+    @abc.abstractmethod
+    def _transformation(self, df, verbose, fit):
+        raise NotImplementedError((
+            &#34;Classes extending ColumnsBasedPipelineStage must implement the &#34;
+            &#34;_transformation method!&#34;))
+
+    def _fit_transform(self, df, verbose):
+        self.is_fitted = True
+        return self._transformation(df, verbose, fit=True)
+
+    def _transform(self, df, verbose):
+        return self._transformation(df, verbose, fit=False)
+
+
 def _always_true(x):
     return True
 
@@ -385,7 +691,6 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
     &#34;&#34;&#34;
 
     _DEF_EXC_MSG = &#39;Pipeline precondition failed!&#39;
-    _DEF_APP_MSG = &#39;Applying a pipeline...&#39;
 
     def __init__(self, stages, transformer_getter=None, **kwargs):
         self._stages = stages
@@ -394,7 +699,6 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         super_kwargs = {
             &#39;exraise&#39;: False,
             &#39;exmsg&#39;: PdPipeline._DEF_EXC_MSG,
-            &#39;appmsg&#39;: PdPipeline._DEF_APP_MSG
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -633,7 +937,7 @@ make_pdpipeline(pdp.ColDrop('a'), pdp.Bin('speed'))</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L551-L569" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L782-L800" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def make_pdpipeline(*stages):
     &#34;&#34;&#34;Constructs a PdPipeline from the given pipeline stages.
@@ -679,7 +983,7 @@ dataframe. If None is given, set to a function always returning True.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L303-L330" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L536-L563" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class AdHocStage(PdPipelineStage):
     &#34;&#34;&#34;An ad-hoc stage of a pandas DataFrame-processing pipeline.
@@ -728,11 +1032,286 @@ dataframe. If None is given, set to a function always returning True.</dd>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColDrop" href="#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColRename" href="#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColReorder" href="#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColumnTransformer" href="#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage" href="#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropDuplicates" href="#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByLength" href="#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByList" href="#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.Encode" href="#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.FitOnly" href="#pdpipe.core.PdPipelineStage.FitOnly">FitOnly</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.FreqDrop" href="#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Log" href="#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.MapColVals" href="#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.OneHotEncode" href="#pdpipe.core.PdPipelineStage.OneHotEncode">OneHotEncode</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.PdPipeline" href="#pdpipe.core.PdPipelineStage.PdPipeline">PdPipeline</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RegexReplace" href="#pdpipe.core.PdPipelineStage.RegexReplace">RegexReplace</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RemoveStopwords" href="#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RowDrop" href="#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Scale" href="#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Schematize" href="#pdpipe.core.PdPipelineStage.Schematize">Schematize</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.SnowballStem" href="#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists" href="#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.TokenizeText" href="#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.UntokenizeText" href="#pdpipe.core.PdPipelineStage.UntokenizeText">UntokenizeText</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ValDrop" href="#pdpipe.core.PdPipelineStage.ValDrop">ValDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ValKeep" href="#pdpipe.core.PdPipelineStage.ValKeep">ValKeep</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.apply" href="#pdpipe.core.PdPipelineStage.apply">apply</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.description" href="#pdpipe.core.PdPipelineStage.description">description</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.fit" href="#pdpipe.core.PdPipelineStage.fit">fit</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.fit_transform" href="#pdpipe.core.PdPipelineStage.fit_transform">fit_transform</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.transform" href="#pdpipe.core.PdPipelineStage.transform">transform</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pdpipe.core.ColumnsBasedPipelineStage"><code class="flex name class">
+<span>class <span class="ident">ColumnsBasedPipelineStage</span></span>
+<span>(</span><span>columns, exclude_columns=None, desc_temp=None, exraise=True, exmsg=None, desc=None, none_columns='error')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>A pipeline stage that operates on a subset of dataframe columns.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>columns</code></strong> :&ensp;<code>object</code>, <code>iterable</code> or <code>callable</code></dt>
+<dd>The label, or an iterable of labels, of columns to use. Alternatively,
+this parameter can be assigned a callable returning an iterable of
+labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
+<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>object</code>, <code>iterable</code> or <code>callable</code>, optional</dt>
+<dd>The label, or an iterable of labels, of columns to exclude, given the
+<code>columns</code> parameter. Alternatively, this parameter can be assigned a
+callable returning a labels iterable from an input pandas.DataFrame.
+See pdpipe.cq. Optional. By default no columns are excluded.</dd>
+<dt><strong><code>desc_temp</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>If given, assumed to be a format string, and every appearance of {} in
+it is replaced with an appropriate string representation of the columns
+parameter, and is used as the pipeline description. Ignored if <code>desc</code>
+is provided.</dd>
+<dt><strong><code>exraise</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
+<dd>If true, a pdpipe.FailedPreconditionError is raised when this
+stage is applied to a dataframe for which the precondition does
+not hold. Otherwise the stage is skipped.</dd>
+<dt><strong><code>exmsg</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
+<dd>The message of the exception that is raised on a failed
+precondition if exraise is set to True. A default message is used
+if None is given.</dd>
+<dt><strong><code>desc</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
+<dd>A short description of this stage, used as its string representation.
+A default description is used if None is given.</dd>
+<dt><strong><code>none_columns</code></strong> :&ensp;<code>iterable</code>, <code>callable</code> or <code>str</code>, default <code>'error'</code></dt>
+<dd>Determines how None values supplied to the 'columns' parameter should
+be handled. If set to 'error', the default, a ValueError is raised if
+None is encountered. If set to 'all', it is interpreted to mean all
+columns of input dataframes should be operated on. If an iterable is
+provided it is interpreted as the default list of columns to operate on
+when <code>columns=None</code>. If a callable is provided, it is interpreted as
+the default column qualifier that determines input columns when
+<code>columns=None</code>.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L374-L529" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class ColumnsBasedPipelineStage(PdPipelineStage):
+    &#34;&#34;&#34;A pipeline stage that operates on a subset of dataframe columns.
+
+    Parameters
+    ---------
+    columns : object, iterable or callable
+        The label, or an iterable of labels, of columns to use. Alternatively,
+        this parameter can be assigned a callable returning an iterable of
+        labels from an input pandas.DataFrame. See pdpipe.cq.
+    exclude_columns : object, iterable or callable, optional
+        The label, or an iterable of labels, of columns to exclude, given the
+        `columns` parameter. Alternatively, this parameter can be assigned a
+        callable returning a labels iterable from an input pandas.DataFrame.
+        See pdpipe.cq. Optional. By default no columns are excluded.
+    desc_temp : str, optional
+        If given, assumed to be a format string, and every appearance of {} in
+        it is replaced with an appropriate string representation of the columns
+        parameter, and is used as the pipeline description. Ignored if `desc`
+        is provided.
+    exraise : bool, default True
+        If true, a pdpipe.FailedPreconditionError is raised when this
+        stage is applied to a dataframe for which the precondition does
+        not hold. Otherwise the stage is skipped.
+    exmsg : str, default None
+        The message of the exception that is raised on a failed
+        precondition if exraise is set to True. A default message is used
+        if None is given.
+    desc : str, default None
+        A short description of this stage, used as its string representation.
+        A default description is used if None is given.
+    none_columns : iterable, callable or str, default &#39;error&#39;
+        Determines how None values supplied to the &#39;columns&#39; parameter should
+        be handled. If set to &#39;error&#39;, the default, a ValueError is raised if
+        None is encountered. If set to &#39;all&#39;, it is interpreted to mean all
+        columns of input dataframes should be operated on. If an iterable is
+        provided it is interpreted as the default list of columns to operate on
+        when `columns=None`. If a callable is provided, it is interpreted as
+        the default column qualifier that determines input columns when
+        `columns=None`.
+    &#34;&#34;&#34;
+
+    @staticmethod
+    def _interpret_columns_param(columns, none_error=False, none_columns=None):
+        &#34;&#34;&#34;Interprets the value provided to the columns parameter and returns
+        a list version of it - if needed - a string representation of it.
+        &#34;&#34;&#34;
+        if columns is None:
+            if none_error:
+                raise ValueError((
+                    &#39;None is not a valid argument for the columns parameter of&#39;
+                    &#39; this pipeline stage.&#39;))
+            return ColumnsBasedPipelineStage._interpret_columns_param(
+                columns=none_columns)
+        if isinstance(columns, str):
+            # always check str first, because it has __iter__
+            return [columns], columns
+        if callable(columns):
+            return columns, columns.__doc__ or &#39;&#39;
+        # if it was a single string it was already made a list, and it&#39;s not a
+        # callable, so it&#39;s either an iterable of labels... or
+        if hasattr(columns, &#39;__iter__&#39;):
+            return columns, &#39;, &#39;.join(str(elem) for elem in columns)
+        # a single non-string label.
+        return [columns], str(columns)
+
+    def __init__(
+            self, columns, exclude_columns=None, desc_temp=None, exraise=True,
+            exmsg=None, desc=None, none_columns=&#39;error&#39;):
+        self._exclude_columns = exclude_columns
+        if exclude_columns:
+            self._exclude_columns = self._interpret_columns_param(
+                exclude_columns)
+        self._none_error = False
+        self._none_cols = None
+        # handle none_columns
+        if isinstance(none_columns, str):
+            if none_columns == &#39;error&#39;:
+                self._none_error = True
+            elif none_columns == &#39;all&#39;:
+                self._none_cols = AllColumns()
+            else:
+                raise ValueError((
+                    &#34;&#39;error&#39; and &#39;all&#39; are the only valid string arguments&#34;
+                    &#34; to the none_columns constructor parameter!&#34;))
+        elif hasattr(none_columns, &#39;__iter__&#39;):
+            self._none_cols = none_columns
+        elif callable(none_columns):
+            self._none_cols = none_columns
+        else:
+            raise ValueError((
+                &#34;Valid arguments to the none_columns constructor parameter&#34;
+                &#34; are &#39;error&#39;, &#39;all&#39;, an iterable of labels or a callable!&#34;
+            ))
+        # done handling none_columns
+        self._col_arg, self._col_str = self._interpret_columns_param(
+            columns, self._none_error, none_columns=self._none_cols)
+        if (desc is None) and desc_temp:
+            desc = desc_temp.format(self._col_str)
+        if exmsg is None:
+            exmsg = (
+                &#39;Pipeline stage failed because not all columns {} &#39;
+                &#39;were found in the input dataframe.&#39;
+            ).format(self._col_str)
+        super().__init__(
+            exraise=exraise,
+            exmsg=exmsg,
+            desc=desc,
+        )
+
+    def _is_fittable(self):
+        return is_fittable_column_qualifier(self._col_arg)
+
+    @staticmethod
+    def __get_cols_by_arg(col_arg, df, fit=False):
+        try:
+            if fit:
+                # try to treat col_arg as a fittable column qualifier
+                return col_arg.fit_transform(df)
+            # else, no need to fit, so try to treat _col_arg as a callable
+            return col_arg(df)
+        except AttributeError:
+            # got here cause col_arg has no fit_transform method...
+            try:
+                # so try and treat it as a callable again
+                return col_arg(df)
+            except TypeError:
+                # calling col_arg 2 lines above failed; its a list of labels
+                return col_arg
+        except TypeError:
+            # calling _col_arg 10 lines above failed; its a list of labels
+            return col_arg
+
+    def _get_columns(self, df, fit=False):
+        cols = ColumnsBasedPipelineStage.__get_cols_by_arg(
+            self._col_arg, df, fit=fit)
+        if self._exclude_columns:
+            exc_cols = ColumnsBasedPipelineStage.__get_cols_by_arg(
+                self._exclude_columns, df, fit=fit)
+            return [x for x in cols if x not in exc_cols]
+        return cols
+
+    def _prec(self, df):
+        return set(self._get_columns(df=df)).issubset(df.columns)
+
+    @abc.abstractmethod
+    def _transformation(self, df, verbose, fit):
+        raise NotImplementedError((
+            &#34;Classes extending ColumnsBasedPipelineStage must implement the &#34;
+            &#34;_transformation method!&#34;))
+
+    def _fit_transform(self, df, verbose):
+        self.is_fitted = True
+        return self._transformation(df, verbose, fit=True)
+
+    def _transform(self, df, verbose):
+        return self._transformation(df, verbose, fit=False)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pdpipe.core.PdPipelineStage" href="#pdpipe.core.PdPipelineStage">PdPipelineStage</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="pdpipe.basic_stages.ColDrop" href="basic_stages.html#pdpipe.basic_stages.ColDrop">ColDrop</a></li>
+<li><a title="pdpipe.basic_stages.ValDrop" href="basic_stages.html#pdpipe.basic_stages.ValDrop">ValDrop</a></li>
+<li><a title="pdpipe.basic_stages.ValKeep" href="basic_stages.html#pdpipe.basic_stages.ValKeep">ValKeep</a></li>
+<li><a title="pdpipe.basic_stages.RowDrop" href="basic_stages.html#pdpipe.basic_stages.RowDrop">RowDrop</a></li>
+<li><a title="pdpipe.basic_stages.DropDuplicates" href="basic_stages.html#pdpipe.basic_stages.DropDuplicates">DropDuplicates</a></li>
+<li><a title="pdpipe.col_generation.OneHotEncode" href="col_generation.html#pdpipe.col_generation.OneHotEncode">OneHotEncode</a></li>
+<li><a title="pdpipe.col_generation.ColumnTransformer" href="col_generation.html#pdpipe.col_generation.ColumnTransformer">ColumnTransformer</a></li>
+<li><a title="pdpipe.col_generation.Log" href="col_generation.html#pdpipe.col_generation.Log">Log</a></li>
+<li><a title="pdpipe.sklearn_stages.Encode" href="sklearn_stages.html#pdpipe.sklearn_stages.Encode">Encode</a></li>
+<li><a title="pdpipe.sklearn_stages.Scale" href="sklearn_stages.html#pdpipe.sklearn_stages.Scale">Scale</a></li>
+<li><a title="pdpipe.nltk_stages.DropRareTokens" href="nltk_stages.html#pdpipe.nltk_stages.DropRareTokens">DropRareTokens</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pdpipe.core.PdPipelineStage" href="#pdpipe.core.PdPipelineStage">PdPipelineStage</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pdpipe.core.PdPipelineStage.AdHocStage" href="#pdpipe.core.PdPipelineStage.AdHocStage">AdHocStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.AggByCols" href="#pdpipe.core.PdPipelineStage.AggByCols">AggByCols</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ApplyByCols" href="#pdpipe.core.PdPipelineStage.ApplyByCols">ApplyByCols</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ApplyToRows" href="#pdpipe.core.PdPipelineStage.ApplyToRows">ApplyToRows</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Bin" href="#pdpipe.core.PdPipelineStage.Bin">Bin</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColByFrameFunc" href="#pdpipe.core.PdPipelineStage.ColByFrameFunc">ColByFrameFunc</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColDrop" href="#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColRename" href="#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColReorder" href="#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColumnTransformer" href="#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage" href="#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropDuplicates" href="#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByLength" href="#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByList" href="#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Encode" href="#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.FitOnly" href="#pdpipe.core.PdPipelineStage.FitOnly">FitOnly</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.FreqDrop" href="#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.Log" href="#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.MapColVals" href="#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
@@ -781,7 +1360,7 @@ entirely.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L333-L541" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L566-L772" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class PdPipeline(PdPipelineStage, collections.abc.Sequence):
     &#34;&#34;&#34;A pipeline for processing pandas DataFrame objects.
@@ -803,7 +1382,6 @@ entirely.</dd>
     &#34;&#34;&#34;
 
     _DEF_EXC_MSG = &#39;Pipeline precondition failed!&#39;
-    _DEF_APP_MSG = &#39;Applying a pipeline...&#39;
 
     def __init__(self, stages, transformer_getter=None, **kwargs):
         self._stages = stages
@@ -812,7 +1390,6 @@ entirely.</dd>
         super_kwargs = {
             &#39;exraise&#39;: False,
             &#39;exmsg&#39;: PdPipeline._DEF_EXC_MSG,
-            &#39;appmsg&#39;: PdPipeline._DEF_APP_MSG
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -1037,7 +1614,7 @@ messages are printed.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L427-L459" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L658-L690" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def fit(self, X, y=None, exraise=None, verbose=None):
     &#34;&#34;&#34;Fits this pipeline without transforming the input dataframe.
@@ -1105,7 +1682,7 @@ messages are printed.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L390-L425" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L621-L656" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def fit_transform(self, X, y=None, exraise=None, verbose=None):
     &#34;&#34;&#34;Fits this pipeline and transforms the input dataframe.
@@ -1164,7 +1741,7 @@ applied when fitting this pipeline to data.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L523-L541" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L754-L772" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_transformer(self):
     &#34;&#34;&#34;Return the transformer induced by this fitted pipeline.
@@ -1220,7 +1797,7 @@ messages are printed.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L461-L503" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L692-L734" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def transform(self, X, y=None, exraise=None, verbose=None):
     &#34;&#34;&#34;Transforms the given dataframe without fitting this pipeline.
@@ -1281,11 +1858,15 @@ messages are printed.</dd>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColDrop" href="#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColRename" href="#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColReorder" href="#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColumnTransformer" href="#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage" href="#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropDuplicates" href="#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByLength" href="#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByList" href="#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.Encode" href="#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.FitOnly" href="#pdpipe.core.PdPipelineStage.FitOnly">FitOnly</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.FreqDrop" href="#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.Log" href="#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.MapColVals" href="#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
@@ -1324,9 +1905,6 @@ not hold. Otherwise the stage is skipped.</dd>
 <dd>The message of the exception that is raised on a failed
 precondition if exraise is set to True. A default message is used
 if None is given.</dd>
-<dt><strong><code>appmsg</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
-<dd>The message printed when this stage is applied with verbose=True.
-A default message is used if None is given.</dd>
 <dt><strong><code>desc</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
 <dd>A short description of this stage, used as its string representation.
 A default description is used if None is given.</dd>
@@ -1334,7 +1912,7 @@ A default description is used if None is given.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L61-L296" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L142-L371" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class PdPipelineStage(abc.ABC):
     &#34;&#34;&#34;A stage of a pandas DataFrame-processing pipeline.
@@ -1349,30 +1927,24 @@ A default description is used if None is given.</dd>
         The message of the exception that is raised on a failed
         precondition if exraise is set to True. A default message is used
         if None is given.
-    appmsg : str, default None
-        The message printed when this stage is applied with verbose=True.
-        A default message is used if None is given.
     desc : str, default None
         A short description of this stage, used as its string representation.
         A default description is used if None is given.
     &#34;&#34;&#34;
 
     _DEF_EXC_MSG = &#39;Precondition failed in stage {}!&#39;
-    _DEF_APPLY_MSG = &#39;Applying a pipeline stage...&#39;
     _DEF_DESCRIPTION = &#39;A pipeline stage.&#39;
-    _INIT_KWARGS = [&#39;exraise&#39;, &#39;exmsg&#39;, &#39;appmsg&#39;, &#39;desc&#39;]
+    _INIT_KWARGS = [&#39;exraise&#39;, &#39;exmsg&#39;, &#39;desc&#39;]
 
     def __init__(self, exraise=True, exmsg=None, appmsg=None, desc=None):
-        if appmsg is None:
-            appmsg = PdPipelineStage._DEF_APPLY_MSG
         if desc is None:
             desc = PdPipelineStage._DEF_DESCRIPTION
         if exmsg is None:
             exmsg = PdPipelineStage._DEF_EXC_MSG.format(desc)
         self._exraise = exraise
         self._exmsg = exmsg
-        self._appmsg = appmsg
         self._desc = desc
+        self._appmsg = &#39;{}..&#39;.format(desc)
         self.is_fitted = False
 
     @classmethod
@@ -1426,7 +1998,7 @@ A default description is used if None is given.</dd>
         &#34;&#34;&#34;
         if exraise is None:
             exraise = self._exraise
-        if self._prec(df):
+        if self._prec(df=df):
             if verbose:
                 msg = &#39;- &#39; + &#39;\n  &#39;.join(textwrap.wrap(self._appmsg))
                 print(msg, flush=True)
@@ -1579,29 +2151,19 @@ A default description is used if None is given.</dd>
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
+<li><a title="pdpipe.core.ColumnsBasedPipelineStage" href="#pdpipe.core.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></li>
 <li><a title="pdpipe.core.AdHocStage" href="#pdpipe.core.AdHocStage">AdHocStage</a></li>
 <li><a title="pdpipe.core.PdPipeline" href="#pdpipe.core.PdPipeline">PdPipeline</a></li>
-<li><a title="pdpipe.basic_stages.ColDrop" href="basic_stages.html#pdpipe.basic_stages.ColDrop">ColDrop</a></li>
-<li><a title="pdpipe.basic_stages.ValDrop" href="basic_stages.html#pdpipe.basic_stages.ValDrop">ValDrop</a></li>
-<li><a title="pdpipe.basic_stages.ValKeep" href="basic_stages.html#pdpipe.basic_stages.ValKeep">ValKeep</a></li>
 <li><a title="pdpipe.basic_stages.ColRename" href="basic_stages.html#pdpipe.basic_stages.ColRename">ColRename</a></li>
 <li><a title="pdpipe.basic_stages.DropNa" href="basic_stages.html#pdpipe.basic_stages.DropNa">DropNa</a></li>
 <li><a title="pdpipe.basic_stages.FreqDrop" href="basic_stages.html#pdpipe.basic_stages.FreqDrop">FreqDrop</a></li>
 <li><a title="pdpipe.basic_stages.ColReorder" href="basic_stages.html#pdpipe.basic_stages.ColReorder">ColReorder</a></li>
-<li><a title="pdpipe.basic_stages.RowDrop" href="basic_stages.html#pdpipe.basic_stages.RowDrop">RowDrop</a></li>
 <li><a title="pdpipe.basic_stages.Schematize" href="basic_stages.html#pdpipe.basic_stages.Schematize">Schematize</a></li>
 <li><a title="pdpipe.col_generation.Bin" href="col_generation.html#pdpipe.col_generation.Bin">Bin</a></li>
-<li><a title="pdpipe.col_generation.OneHotEncode" href="col_generation.html#pdpipe.col_generation.OneHotEncode">OneHotEncode</a></li>
-<li><a title="pdpipe.col_generation.MapColVals" href="col_generation.html#pdpipe.col_generation.MapColVals">MapColVals</a></li>
 <li><a title="pdpipe.col_generation.ApplyToRows" href="col_generation.html#pdpipe.col_generation.ApplyToRows">ApplyToRows</a></li>
-<li><a title="pdpipe.col_generation.ApplyByCols" href="col_generation.html#pdpipe.col_generation.ApplyByCols">ApplyByCols</a></li>
 <li><a title="pdpipe.col_generation.ColByFrameFunc" href="col_generation.html#pdpipe.col_generation.ColByFrameFunc">ColByFrameFunc</a></li>
-<li><a title="pdpipe.col_generation.AggByCols" href="col_generation.html#pdpipe.col_generation.AggByCols">AggByCols</a></li>
-<li><a title="pdpipe.col_generation.Log" href="col_generation.html#pdpipe.col_generation.Log">Log</a></li>
-<li><a title="pdpipe.sklearn_stages.Encode" href="sklearn_stages.html#pdpipe.sklearn_stages.Encode">Encode</a></li>
-<li><a title="pdpipe.sklearn_stages.Scale" href="sklearn_stages.html#pdpipe.sklearn_stages.Scale">Scale</a></li>
+<li><a title="pdpipe.wrappers.FitOnly" href="wrappers.html#pdpipe.wrappers.FitOnly">FitOnly</a></li>
 <li><a title="pdpipe.sklearn_stages.TfidfVectorizeTokenLists" href="sklearn_stages.html#pdpipe.sklearn_stages.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></li>
-<li><a title="pdpipe.nltk_stages.DropRareTokens" href="nltk_stages.html#pdpipe.nltk_stages.DropRareTokens">DropRareTokens</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
@@ -1622,7 +2184,7 @@ dataframe. If None is given, set to a function always returning True.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1639,7 +2201,7 @@ dataframe. If None is given, set to a function always returning True.</dd>
 <dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code></dt>
 <dd>Names of columns on which to apply the given function.</dd>
 <dt><strong><code>func</code></strong> :&ensp;<code>function</code></dt>
-<dd>The function to be applied to each element of the given columns.</dd>
+<dd>The function to be applied to each of the given columns.</dd>
 <dt><strong><code>result_columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
 <dd>The names of the new columns resulting from the mapping operation. Must
 be of the same length as columns. If None, behavior depends on the
@@ -1668,7 +2230,7 @@ is None and drop is set to False. Of not given, defaults to '_agg'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1676,7 +2238,7 @@ is None and drop is set to False. Of not given, defaults to '_agg'.</dd>
 </details>
 </dd>
 <dt id="pdpipe.core.PdPipelineStage.ApplyByCols"><code class="name flex">
-<span>def <span class="ident">ApplyByCols</span></span>(<span>self, columns, func, result_columns=None, drop=True, func_desc=None, colbl_sfx=None, **kwargs)</span>
+<span>def <span class="ident">ApplyByCols</span></span>(<span>self, columns, func, result_columns=None, drop=True, func_desc=None, suffix=None, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Creates and adds a pipeline stage applying an element-wise function to columns to this pipeline stage.</p>
@@ -1696,8 +2258,8 @@ otherwise, the name of the source column is used with the suffix
 <dd>If set to True, source columns are dropped after being mapped.</dd>
 <dt><strong><code>func_desc</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
 <dd>A function description of the given function; e.g. 'normalizing revenue
-by company size'. A default description is used if None is given.</dd>
-<dt><strong><code>colbl_sfx</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
+by company size'. Optional.</dd>
+<dt><strong><code>suffix</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
 <dd>If provided, this string is concated to resulting column labels instead
 of '_app'.</dd>
 </dl>
@@ -1715,7 +2277,7 @@ of '_app'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1771,7 +2333,7 @@ returning True is used.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1818,7 +2380,7 @@ list [0, 5, 8] is interpreted as the bins (-∞, 0), [0-5), [5-8) and
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1859,7 +2421,7 @@ by company size'. A default description is used if None is given.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1873,11 +2435,15 @@ by company size'. A default description is used if None is given.</dd>
 <section class="desc"><p>Creates and adds a pipeline stage that drops columns by name to this pipeline stage.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>str</code>, <code>iterable</code> or <code>callable</code></dt>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single</code> <code>label</code>, <code>list</code>-<code>like</code> or <code>callable</code></dt>
 <dd>The label, or an iterable of labels, of columns to drop. Alternatively,
-columns can be assigned a callable returning bool values for
-pandas.Series objects; if this is the case, every column for which it
-return True will be dropped.</dd>
+this parameter can be assigned a callable returning an iterable of
+labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
+<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>object</code>, <code>iterable</code> or <code>callable</code>, optional</dt>
+<dd>The label, or an iterable of labels, of columns to exclude, given the
+<code>columns</code> parameter. Alternatively, this parameter can be assigned a
+callable returning a labels iterable from an input pandas.DataFrame.
+See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 <dt><strong><code>errors</code></strong> :&ensp;{‘<code>ignore</code>’, ‘<code>raise</code>’}, default ‘<code>raise</code>’</dt>
 <dd>If ‘ignore’, suppress error and existing labels are dropped.</dd>
 </dl>
@@ -1892,7 +2458,7 @@ return True will be dropped.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1920,7 +2486,7 @@ return True will be dropped.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1949,7 +2515,136 @@ positions over the non-mapped colums.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.ColumnTransformer"><code class="name flex">
+<span>def <span class="ident">ColumnTransformer</span></span>(<span>self, columns, result_columns=None, drop=True, suffix=None, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates and adds a pipeline stage that applies transformation to dataframe columns to this pipeline stage..</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single</code> <code>label</code>, <code>list</code>-<code>like</code> of <code>callable</code></dt>
+<dd>Column labels in the DataFrame to be transformed. Alternatively, this
+parameter can be assigned a callable returning an iterable of labels
+from an input pandas.DataFrame. See pdpipe.cq. If None is provided all
+input columns are transformed.</dd>
+<dt><strong><code>result_columns</code></strong> :&ensp;<code>single</code> <code>label</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
+<dd>Labels for the new columns resulting from the transformations. Must
+be of the same length as columns. If None, behavior depends on the
+drop parameter: If drop is True, then the label of the source column is
+used; otherwise, the provided 'suffix' is concatenated to the label of
+the source column.</dd>
+<dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
+<dd>If set to True, source columns are dropped after being transformed.</dd>
+<dt><strong><code>suffix</code></strong> :&ensp;<code>str</code>, default <code>'_transformed'</code></dt>
+<dd>The suffix transformed columns gain if no new column labels are given.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame([[1], [3], [2]], ['UK', 'USSR', 'US'], ['Medal'])
+&gt;&gt;&gt; value_map = {1: 'Gold', 2: 'Silver', 3: 'Bronze'}
+&gt;&gt;&gt; pdp.MapColVals('Medal', value_map).apply(df)
+       Medal
+UK      Gold
+USSR  Bronze
+US    Silver
+</code></pre></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage"><code class="name flex">
+<span>def <span class="ident">ColumnsBasedPipelineStage</span></span>(<span>self, columns, exclude_columns=None, desc_temp=None, exraise=True, exmsg=None, desc=None, none_columns='error')</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates and adds a pipeline stage that operates on a subset of dataframe columns to this pipeline stage.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>columns</code></strong> :&ensp;<code>object</code>, <code>iterable</code> or <code>callable</code></dt>
+<dd>The label, or an iterable of labels, of columns to use. Alternatively,
+this parameter can be assigned a callable returning an iterable of
+labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
+<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>object</code>, <code>iterable</code> or <code>callable</code>, optional</dt>
+<dd>The label, or an iterable of labels, of columns to exclude, given the
+<code>columns</code> parameter. Alternatively, this parameter can be assigned a
+callable returning a labels iterable from an input pandas.DataFrame.
+See pdpipe.cq. Optional. By default no columns are excluded.</dd>
+<dt><strong><code>desc_temp</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>If given, assumed to be a format string, and every appearance of {} in
+it is replaced with an appropriate string representation of the columns
+parameter, and is used as the pipeline description. Ignored if <code>desc</code>
+is provided.</dd>
+<dt><strong><code>exraise</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
+<dd>If true, a pdpipe.FailedPreconditionError is raised when this
+stage is applied to a dataframe for which the precondition does
+not hold. Otherwise the stage is skipped.</dd>
+<dt><strong><code>exmsg</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
+<dd>The message of the exception that is raised on a failed
+precondition if exraise is set to True. A default message is used
+if None is given.</dd>
+<dt><strong><code>desc</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
+<dd>A short description of this stage, used as its string representation.
+A default description is used if None is given.</dd>
+<dt><strong><code>none_columns</code></strong> :&ensp;<code>iterable</code>, <code>callable</code> or <code>str</code>, default <code>'error'</code></dt>
+<dd>Determines how None values supplied to the 'columns' parameter should
+be handled. If set to 'error', the default, a ValueError is raised if
+None is encountered. If set to 'all', it is interpreted to mean all
+columns of input dataframes should be operated on. If an iterable is
+provided it is interpreted as the default list of columns to operate on
+when <code>columns=None</code>. If a callable is provided, it is interpreted as
+the default column qualifier that determines input columns when
+<code>columns=None</code>.</dd>
+</dl></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.DropDuplicates"><code class="name flex">
+<span>def <span class="ident">DropDuplicates</span></span>(<span>self, columns=None, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Drop duplicates in the given columns to this pipeline stage.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>columns</code></strong> :&ensp;<code>column</code> <code>label</code> or <code>sequence</code> of <code>labels</code>, optional</dt>
+<dd>The labels of the columns to consider for duplication drop. If not
+populated, duplicates are dropped from all columns.</dd>
+<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>object</code>, <code>iterable</code> or <code>callable</code>, optional</dt>
+<dd>The label, or an iterable of labels, of columns to exclude, given the
+<code>columns</code> parameter. Alternatively, this parameter can be assigned a
+callable returning a labels iterable from an input pandas.DataFrame.
+See pdpipe.cq. Optional. By default no columns are excluded.</dd>
+</dl>
+<h2 id="examples">Examples</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame([[8, 1],[8, 2], [9, 2]], [1,2,3], ['a', 'b'])
+&gt;&gt;&gt; pdp.DropDuplicates('a').apply(df)
+   a  b
+1  8  1
+3  9  2
+</code></pre></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1973,7 +2668,7 @@ positions over the non-mapped colums.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -1985,11 +2680,15 @@ positions over the non-mapped colums.</dd>
 </code></dt>
 <dd>
 <section class="desc"><p>Creates and adds a pipeline stage that drop rare tokens from token lists to this pipeline stage.</p>
+<p>Target columns must be series of token lists; i.e. every cell in the series
+is an iterable of string tokens.</p>
 <p>Note: The nltk package must be installed for this pipeline stage to work.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code></dt>
-<dd>Column names in the DataFrame for which to drop rare words.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single</code> <code>label</code>, <code>list</code>-<code>like</code> of <code>callable</code></dt>
+<dd>Column labels in the DataFrame to be transformed. Alternatively, this
+parameter can be assigned a callable returning an iterable of labels
+from an input pandas.DataFrame. See pdpipe.cq.</dd>
 <dt><strong><code>threshold</code></strong> :&ensp;<code>int</code></dt>
 <dd>The rarity threshold to use. Only tokens appearing more than this
 number of times in a column will remain in token lists in that column.</dd>
@@ -2011,7 +2710,7 @@ Otherwise, the new columns gain the suffix '_norare'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2055,7 +2754,7 @@ suffix '_filtered'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2095,7 +2794,7 @@ suffix '_filtered'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2112,14 +2811,16 @@ is a dict mapping each encoded column name to the
 sklearn.preprocessing.LabelEncoder object used to encode it.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
-<dd>Column names in the DataFrame to be encoded. If columns is None then
-all the columns with object or category dtype will be encoded, except
-those given in the exclude_columns parameter.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single</code> <code>label</code>, <code>list</code>-<code>like</code> or <code>callable</code>, default <code>None</code></dt>
+<dd>Column labels in the DataFrame to be encoded. If columns is None then
+all the columns with object or category dtype will be converted, except
+those given in the exclude_columns parameter. Alternatively,
+this parameter can be assigned a callable returning an iterable of
+labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
 <dt><strong><code>exclude_columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
-<dd>Name or names of categorical columns to be excluded from encoding
-when the columns parameter is not given. If None no column is excluded.
-Ignored if the columns parameter is given.</dd>
+<dd>Label or labels of columns to be excluded from encoding. If None then
+no column is excluded. Alternatively, this parameter can be assigned a
+callable returning an iterable of labels from an input</dd>
 <dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
 <dd>If set to True, the source columns are dropped after being encoded,
 and the resulting encoded columns retain the names of the source
@@ -2141,7 +2842,41 @@ array(['acd', 'alk', 'alk'], dtype=object)
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.FitOnly"><code class="name flex">
+<span>def <span class="ident">FitOnly</span></span>(<span>self, stage, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Creates and adds a wrapper that applies a stage to input data only when fitting to this pipeline stage.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>stage</code></strong> :&ensp;<a title="pdpipe.core.PdPipelineStage" href="#pdpipe.core.PdPipelineStage"><code>PdPipelineStage</code></a></dt>
+<dd>The pipeline stage to operate on input data only when fitting.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'char'])
+&gt;&gt;&gt; stage = pdp.FitOnly(pdp.ColDrop('num'))
+&gt;&gt;&gt; stage(df)
+  char
+1    a
+2    b
+&gt;&gt;&gt; df2 = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'char'])
+&gt;&gt;&gt; stage(df2)
+   num char
+1    8    a
+2    5    b
+</code></pre></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2158,7 +2893,7 @@ array(['acd', 'alk', 'alk'], dtype=object)
 <dt><strong><code>threshold</code></strong> :&ensp;<code>int</code></dt>
 <dd>The minimum frequency required for a value to be kept.</dd>
 <dt><strong><code>column</code></strong> :&ensp;<code>str</code></dt>
-<dd>The name of the colums to check for the given value frequency.</dd>
+<dd>The name of the colum to check for the given value frequency.</dd>
 </dl>
 <h2 id="example">Example</h2>
 <pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
@@ -2171,7 +2906,7 @@ array(['acd', 'alk', 'alk'], dtype=object)
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2179,7 +2914,7 @@ array(['acd', 'alk', 'alk'], dtype=object)
 </details>
 </dd>
 <dt id="pdpipe.core.PdPipelineStage.Log"><code class="name flex">
-<span>def <span class="ident">Log</span></span>(<span>self, columns=None, exclude=None, drop=False, non_neg=False, const_shift=None, **kwargs)</span>
+<span>def <span class="ident">Log</span></span>(<span>self, columns=None, exclude_columns=None, drop=False, non_neg=False, const_shift=None, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Creates and adds a pipeline stage that log-transforms numeric data to this pipeline stage.</p>
@@ -2188,11 +2923,14 @@ array(['acd', 'alk', 'alk'], dtype=object)
 <dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
 <dd>Column names in the DataFrame to be encoded. If columns is None then
 all the columns with a numeric dtype will be transformed, except those
-given in the exclude_columns parameter.</dd>
-<dt><strong><code>exclude</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
-<dd>Name or names of numeric columns to be excluded from log-transforming
-when the columns parameter is not given. If None no column is excluded.
-Ignored if the columns parameter is given.</dd>
+given in the exclude_columns parameter. Alternatively,
+this parameter can be assigned a callable returning an iterable of
+labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
+<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
+<dd>Label or labels of columns to be excluded from encoding. If None then
+no column is excluded. Alternatively, this parameter can be assigned a
+callable returning an iterable of labels from an input
+pandas.DataFrame. See pdpipe.cq. Optional.</dd>
 <dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>False</code></dt>
 <dd>If set to True, the source columns are dropped after being encoded,
 and the resulting encoded columns retain the names of the source
@@ -2219,7 +2957,7 @@ then is the column shifted by this constant.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2233,8 +2971,11 @@ then is the column shifted by this constant.</dd>
 <section class="desc"><p>Creates and adds a pipeline stage that replaces the values of a column by a map to this pipeline stage.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>single</code> <code>label</code> or <code>list</code>-<code>like</code></dt>
-<dd>Column labels in the DataFrame to be mapped.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single</code> <code>label</code>, <code>list</code>-<code>like</code> of <code>callable</code></dt>
+<dd>Column labels in the DataFrame to be mapped. Alternatively, this
+parameter can be assigned a callable returning an iterable of labels
+from an input pandas.DataFrame. See pdpipe.cq. If None is provided all
+input columns are mapped.</dd>
 <dt><strong><code>value_map</code></strong> :&ensp;<code>dict</code>, <code>function</code> or <code>pandas.Series</code></dt>
 <dd>A dictionary mapping existing values to new ones. Values not in the
 dictionary as keys will be converted to NaN. If a function is given, it
@@ -2264,7 +3005,7 @@ US    Silver
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2272,7 +3013,7 @@ US    Silver
 </details>
 </dd>
 <dt id="pdpipe.core.PdPipelineStage.OneHotEncode"><code class="name flex">
-<span>def <span class="ident">OneHotEncode</span></span>(<span>self, columns=None, dummy_na=False, exclude_columns=None, col_subset=False, drop_first=True, drop=True, **kwargs)</span>
+<span>def <span class="ident">OneHotEncode</span></span>(<span>self, columns=None, dummy_na=False, exclude_columns=None, drop_first=True, drop=True, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Creates and adds a pipeline stage that one-hot-encodes categorical columns to this pipeline stage.</p>
@@ -2282,21 +3023,19 @@ the dummy variabletrap). This is done since features are usually one-hot
 encoded for use with linear models, which require this behaviour.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>single</code> <code>label</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single</code> <code>label</code>, <code>list</code>-<code>like</code> or <code>callable</code>, default <code>None</code></dt>
 <dd>Column labels in the DataFrame to be encoded. If columns is None then
 all the columns with object or category dtype will be converted, except
-those given in the exclude_columns parameter.</dd>
+those given in the exclude_columns parameter. Alternatively,
+this parameter can be assigned a callable returning an iterable of
+labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
 <dt><strong><code>dummy_na</code></strong> :&ensp;<code>bool</code>, default <code>False</code></dt>
 <dd>Add a column to indicate NaNs, if False NaNs are ignored.</dd>
 <dt><strong><code>exclude_columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
-<dd>Name or names of categorical columns to be excluded from encoding
-when the columns parameter is not given. If None no column is excluded.
-Ignored if the columns parameter is given.</dd>
-<dt><strong><code>col_subset</code></strong> :&ensp;<code>bool</code>, default <code>False</code></dt>
-<dd>If set to True, and only a subset of given columns is found, they are
-encoded (if the missing columns are encoutered after the stage is
-fitted they will be ignored). Otherwise, the stage will fail on the
-precondition requiring all given columns are in input dataframes.</dd>
+<dd>Label or labels of columns to be excluded from encoding. If None then
+no column is excluded. Alternatively, this parameter can be assigned a
+callable returning an iterable of labels from an input
+pandas.DataFrame. See pdpipe.cq. Optional.</dd>
 <dt><strong><code>drop_first</code></strong> :&ensp;<code>bool</code> or <code>single</code> <code>label</code>, default <code>True</code></dt>
 <dd>Whether to get k-1 dummies out of k categorical levels by removing the
 first level. If a non bool argument matching one of the categories is
@@ -2318,7 +3057,7 @@ category will still be dropped.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2347,7 +3086,7 @@ entirely.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2366,7 +3105,7 @@ entirely.</dd>
 <dt><strong><code>pattern</code></strong> :&ensp;<code>str</code></dt>
 <dd>The regex whose occurences will be replaced.</dd>
 <dt><strong><code>replace</code></strong> :&ensp;<code>str</code></dt>
-<dd>The replacement string to use.</dd>
+<dd>The replacement string to use. This is equivalent to repl in re.sub.</dd>
 <dt><strong><code>result_columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
 <dd>The names of the new columns resulting from the mapping operation. Must
 be of the same length as columns. If None, behavior depends on the
@@ -2389,7 +3128,7 @@ otherwise, the name of the source column is used with the suffix
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2401,6 +3140,8 @@ otherwise, the name of the source column is used with the suffix
 </code></dt>
 <dd>
 <section class="desc"><p>Creates and adds a pipeline stage that removes stopwords from a tokenized list to this pipeline stage.</p>
+<p>Target columns must be series of token lists; i.e. every cell in the series
+is an iterable of string tokens.</p>
 <p>Note: The nltk package must be installed for this pipeline stage to work.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
@@ -2409,8 +3150,10 @@ otherwise, the name of the source column is used with the suffix
 should then be one of the languages supported by the NLTK Stopwords
 Corpus. If a list is given, it is assumed to be the list of stopwords
 to remove.</dd>
-<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code></dt>
-<dd>Column names in the DataFrame from which to remove stopwords.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single</code> <code>label</code>, <code>list</code>-<code>like</code> of <code>callable</code></dt>
+<dd>Column labels in the DataFrame to be transformed. Alternatively, this
+parameter can be assigned a callable returning an iterable of labels
+from an input pandas.DataFrame. See pdpipe.cq.</dd>
 <dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
 <dd>If set to True, the source columns are dropped after stopword removal,
 and the resulting columns retain the names of the source columns.
@@ -2428,7 +3171,7 @@ Otherwise, resulting columns gain the suffix '_nostop'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2456,9 +3199,19 @@ satisfying at least one of the conditions are dropped. If set to 'xor',
 rows satisfying exactly one of the conditions will be dropped. Set to
 'any' by default.</dd>
 <dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>iterable</code>, optional</dt>
-<dd>The label, or an iterable of labels, of columns. Optional. If given,
+<dd>The label, or an iterable of labels, of columns. Alternatively,
+this parameter can be assigned a callable returning an iterable of
+labels from an input pandas.DataFrame. See pdpipe.cq. If given,
 input conditions will be applied to the sub-dataframe made up of
-these columns to determine which rows to drop.</dd>
+these columns to determine which rows to drop. Ignored if <code>conditions</code>
+is provided with a dict object. If <code>conditions</code> is a list and this
+parameter is not provided, all columns are checked (unless
+<code>exclude_columns</code> is additionally provided)</dd>
+<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>object</code>, <code>iterable</code> or <code>callable</code>, optional</dt>
+<dd>The label, or an iterable of labels, of columns to exclude, given the
+<code>columns</code> parameter. Alternatively, this parameter can be assigned a
+callable returning a labels iterable from an input pandas.DataFrame.
+See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 </dl>
 <h2 id="example">Example</h2>
 <pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
@@ -2475,7 +3228,7 @@ these columns to determine which rows to drop.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2483,7 +3236,7 @@ these columns to determine which rows to drop.</dd>
 </details>
 </dd>
 <dt id="pdpipe.core.PdPipelineStage.Scale"><code class="name flex">
-<span>def <span class="ident">Scale</span></span>(<span>self, scaler, exclude_columns=None, exclude_object_columns=True, **kwargs)</span>
+<span>def <span class="ident">Scale</span></span>(<span>self, scaler, columns=None, exclude_columns=None, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Creates and adds a pipeline stage that scales data to this pipeline stage.</p>
@@ -2493,12 +3246,16 @@ these columns to determine which rows to drop.</dd>
 <dd>The type of scaler to use to scale the data. One of 'StandardScaler',
 'MinMaxScaler', 'MaxAbsScaler', 'RobustScaler', 'QuantileTransformer'
 and 'Normalizer'.</dd>
-<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
-<dd>Name or names of columns to be excluded from scaling. Excluded columns
-are appended to the end of the resulting dataframe.</dd>
-<dt><strong><code>exclude_object_columns</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
-<dd>If set to True, all columns of dtype object are added to the list of
-columns excluded from scaling.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single</code> <code>label</code>, <code>list</code>-<code>like</code> or <code>callable</code>, default <code>None</code></dt>
+<dd>Column labels in the DataFrame to be scale. If columns is None then
+all columns of numeric dtype will be scaled, except those given in the
+exclude_columns parameter. Alternatively, this parameter can be
+assigned a callable returning an iterable of labels from an input
+pandas.DataFrame. See pdpipe.cq.</dd>
+<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code>, optional</dt>
+<dd>Label or labels of columns to be excluded from encoding. Alternatively,
+this parameter can be assigned a callable returning an iterable of
+labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
 <dt><strong><code>**kwargs</code></strong> :&ensp;<code>extra</code> <code>keyword</code> <code>arguments</code></dt>
 <dd>All valid extra keyword arguments are forwarded to the scaler
 constructor on scaler creation (e.g. 'n_quantiles' for
@@ -2519,7 +3276,7 @@ to override Scale class defaults.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2527,7 +3284,7 @@ to override Scale class defaults.</dd>
 </details>
 </dd>
 <dt id="pdpipe.core.PdPipelineStage.Schematize"><code class="name flex">
-<span>def <span class="ident">Schematize</span></span>(<span>self, columns)</span>
+<span>def <span class="ident">Schematize</span></span>(<span>self, columns, **kwargs)</span>
 </code></dt>
 <dd>
 <section class="desc"><p>Enforces a column schema on input dataframes to this pipeline stage.</p>
@@ -2551,7 +3308,7 @@ to override Scale class defaults.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2563,14 +3320,18 @@ to override Scale class defaults.</dd>
 </code></dt>
 <dd>
 <section class="desc"><p>Creates and adds a pipeline stage that stems tokens in a list using the Snowball stemmer to this pipeline stage.</p>
+<p>Target columns must be series of token lists; i.e. every cell in the series
+is an iterable of string tokens.</p>
 <p>Note: The nltk package must be installed for this pipeline stage to work.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>stemmer_name</code></strong> :&ensp;<code>str</code></dt>
 <dd>The name of the Snowball stemmer to use. Should be one of the Snowball
 stemmers implemented by nltk. E.g. 'EnglishStemmer'.</dd>
-<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code></dt>
-<dd>Column names in the DataFrame to stem tokens in.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single</code> <code>label</code>, <code>list</code>-<code>like</code> of <code>callable</code></dt>
+<dd>Column labels in the DataFrame to be transformed. Alternatively, this
+parameter can be assigned a callable returning an iterable of labels
+from an input pandas.DataFrame. See pdpipe.cq.</dd>
 <dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
 <dd>If set to True, the source columns are dropped after stemming, and the
 resulting columns retain the names of the source columns. Otherwise,
@@ -2592,7 +3353,7 @@ resulting columns gain the suffix '_stem'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2641,7 +3402,7 @@ originating in different text columns do not overwrite one another.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2656,8 +3417,10 @@ originating in different text columns do not overwrite one another.</dd>
 <p>Note: The nltk package must be installed for this pipeline stage to work.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code></dt>
-<dd>Column names in the DataFrame to be tokenized.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single</code> <code>label</code>, <code>list</code>-<code>like</code> of <code>callable</code></dt>
+<dd>Column labels in the DataFrame to be transformed. Alternatively, this
+parameter can be assigned a callable returning an iterable of labels
+from an input pandas.DataFrame. See pdpipe.cq.</dd>
 <dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
 <dd>If set to True, the source columns are dropped after being tokenized,
 and the resulting tokenized columns retain the names of the source
@@ -2675,7 +3438,7 @@ columns. Otherwise, tokenized columns gain the suffix '_tok'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2687,11 +3450,15 @@ columns. Otherwise, tokenized columns gain the suffix '_tok'.</dd>
 </code></dt>
 <dd>
 <section class="desc"><p>Creates and adds a pipeline stage that joins token lists to whitespace-seperated strings to this pipeline stage.</p>
+<p>Target columns must be series of token lists; i.e. every cell in the series
+is an iterable of string tokens.</p>
 <p>Note: The nltk package must be installed for this pipeline stage to work.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code></dt>
-<dd>Column names in the DataFrame to be untokenized.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single</code> <code>label</code>, <code>list</code>-<code>like</code> of <code>callable</code></dt>
+<dd>Column labels in the DataFrame to be transformed. Alternatively, this
+parameter can be assigned a callable returning an iterable of labels
+from an input pandas.DataFrame. See pdpipe.cq.</dd>
 <dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
 <dd>If set to True, the source columns are dropped after being untokenized,
 and the resulting columns retain the names of the source columns.
@@ -2709,7 +3476,7 @@ Otherwise, untokenized columns gain the suffix '_untok'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2725,9 +3492,16 @@ Otherwise, untokenized columns gain the suffix '_untok'.</dd>
 <dl>
 <dt><strong><code>values</code></strong> :&ensp;<code>list</code>-<code>like</code></dt>
 <dd>A list of the values to drop.</dd>
-<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
-<dd>The name, or an iterable of names, of columns to check for the given
-values. If set to None, all columns are checked.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single</code> <code>label</code>, <code>list</code>-<code>like</code> or <code>callable</code>, default <code>None</code></dt>
+<dd>The label, or an iterable of labels, of columns to check for the given
+values. Alternatively, this parameter can be assigned a callable
+returning an iterable of labels from an input pandas.DataFrame. See
+pdpipe.cq. If set to None, all columns are checked.</dd>
+<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>object</code>, <code>iterable</code> or <code>callable</code>, optional</dt>
+<dd>The label, or an iterable of labels, of columns to exclude, given the
+<code>columns</code> parameter. Alternatively, this parameter can be assigned a
+callable returning a labels iterable from an input pandas.DataFrame.
+See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 </dl>
 <h2 id="example">Example</h2>
 <pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
@@ -2743,7 +3517,7 @@ values. If set to None, all columns are checked.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2759,9 +3533,16 @@ values. If set to None, all columns are checked.</dd>
 <dl>
 <dt><strong><code>values</code></strong> :&ensp;<code>list</code>-<code>like</code></dt>
 <dd>A list of the values to keep.</dd>
-<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
-<dd>The name, or an iterable of names, of columns to check for the given
-values. If set to None, all columns are checked.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single</code> <code>label</code>, <code>list</code>-<code>like</code> or <code>callable</code>, default <code>None</code></dt>
+<dd>The label, or an iterable of labels, of columns to check for the given
+values. Alternatively, this parameter can be assigned a callable
+returning an iterable of labels from an input pandas.DataFrame. See
+pdpipe.cq. If set to None, all columns are checked.</dd>
+<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>object</code>, <code>iterable</code> or <code>callable</code>, optional</dt>
+<dd>The label, or an iterable of labels, of columns to exclude, given the
+<code>columns</code> parameter. Alternatively, this parameter can be assigned a
+callable returning a labels iterable from an input pandas.DataFrame.
+See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 </dl>
 <h2 id="example">Example</h2>
 <pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
@@ -2777,7 +3558,7 @@ values. If set to None, all columns are checked.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L36-L38" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L117-L119" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def _append_stage_func(self, *args, **kwds):
     # self is always a PdPipelineStage
@@ -2814,7 +3595,7 @@ Defaults to False.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L123-L160" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L198-L235" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def apply(self, df, exraise=None, verbose=False):
     &#34;&#34;&#34;Applies this pipeline stage to the given dataframe.
@@ -2844,7 +3625,7 @@ Defaults to False.</dd>
     &#34;&#34;&#34;
     if exraise is None:
         exraise = self._exraise
-    if self._prec(df):
+    if self._prec(df=df):
         if verbose:
             msg = &#39;- &#39; + &#39;\n  &#39;.join(textwrap.wrap(self._appmsg))
             print(msg, flush=True)
@@ -2864,7 +3645,7 @@ Defaults to False.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L294-L296" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L369-L371" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def description(self):
     &#34;&#34;&#34;Returns the description of this pipeline stage&#34;&#34;&#34;
@@ -2901,7 +3682,7 @@ Defaults to False.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L200-L235" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L275-L310" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def fit(self, X, y=None, exraise=None, verbose=False):
     &#34;&#34;&#34;Fits this stage without transforming the given dataframe.
@@ -2971,7 +3752,7 @@ Defaults to False.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L164-L198" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L239-L273" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def fit_transform(self, X, y=None, exraise=None, verbose=False):
     &#34;&#34;&#34;Fits this stage and transforms the given dataframe.
@@ -3042,7 +3823,7 @@ Defaults to False.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/core.py#L237-L279" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/core.py#L312-L354" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def transform(self, X, y=None, exraise=None, verbose=False):
     &#34;&#34;&#34;Transforms the given dataframe without fitting this stage.
@@ -3102,7 +3883,9 @@ Defaults to False.</dd>
 </header>
 <h1>Index</h1>
 <div class="toc">
-<ul></ul>
+<ul>
+<li><a href="#creating-pipeline-stages-that-operate-on-column-subsets">Creating pipeline stages that operate on column subsets</a></li>
+</ul>
 </div>
 <ul id="index">
 <li><h3>Super-module</h3>
@@ -3119,6 +3902,9 @@ Defaults to False.</dd>
 <ul>
 <li>
 <h4><code><a title="pdpipe.core.AdHocStage" href="#pdpipe.core.AdHocStage">AdHocStage</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pdpipe.core.ColumnsBasedPipelineStage" href="#pdpipe.core.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></h4>
 </li>
 <li>
 <h4><code><a title="pdpipe.core.PdPipeline" href="#pdpipe.core.PdPipeline">PdPipeline</a></code></h4>
@@ -3141,11 +3927,15 @@ Defaults to False.</dd>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColDrop" href="#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColRename" href="#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColReorder" href="#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColumnTransformer" href="#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage" href="#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropDuplicates" href="#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByLength" href="#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByList" href="#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.Encode" href="#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.FitOnly" href="#pdpipe.core.PdPipelineStage.FitOnly">FitOnly</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.FreqDrop" href="#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.Log" href="#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.MapColVals" href="#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>

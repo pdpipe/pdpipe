@@ -151,6 +151,11 @@ parameter to a pipeline apply call with a bool sets or unsets exception raising 
 <pre><code class="python">  res_df = pipeline.apply(df, verbose=True)
 </code></pre>
 <p>Finally, <code>fit</code>, <code>transform</code> and <code>fit_transform</code> all call the corresponding pipeline stage methods of all stages composing the pipeline</p>
+<h2 id="column-qualifiers">Column Qualifiers</h2>
+<p>All <code>pdpipe</code> pipeline stages that posses the <code>columns</code> parameter can accept callables - instead of lists of labels - as valid arguments to that parameter. These callables are assumed to be column qualifiers - functions that can be applied to an input dataframe to extract the list of labels to operate on in run time.</p>
+<p>The module <code>pdpipe.cq</code> provides a powerful class - <code>ColumnQualifier</code> - implementing this idea with various enhancements, like the ability to fit a list of labels in fit time to be retained for future transforms and support for various boolean operators between column qualifiers.</p>
+<p>It also provides ready implementations for qualifiers qualifying columns by label, dtype and the number of missing values. This enable powerful behaviours like dropping columns by missing value frequency, scaling only integer columns or performing PCA on the subset of columns starting with the string <code>'tfidf_token_'</code>.</p>
+<p>Read more on column qualifiers in the documentation of the <code>pdpipe.cq</code> module.</p>
 <h1 id="types-of-pipeline-stages">Types of Pipeline Stages</h1>
 <p>All built-in stages are thoroughly documented, including examples; if you find any documentation lacking please open an issue. A list of briefly described available built-in stages follows:</p>
 <h2 id="basic-stages">Basic Stages</h2>
@@ -164,6 +169,8 @@ parameter to a pipeline apply call with a bool sets or unsets exception raising 
 <li>FreqDrop - Drop rows by value frequency threshold on a specific column.</li>
 <li>ColReorder - Reorder columns.</li>
 <li>RowDrop - Drop rows by callable conditions.</li>
+<li>Schematize - Learn a dataframe schema on fit and transform to it on future transforms.</li>
+<li>DropDuplicates - Drop duplicate values in a subset of columns.</li>
 </ul>
 <h2 id="column-generation">Column Generation</h2>
 <ul>
@@ -176,10 +183,17 @@ parameter to a pipeline apply call with a bool sets or unsets exception raising 
 <li>AggByCols - Generate columns by applying an series-wise function to columns.</li>
 <li>Log - Log-transform numeric data, possibly shifting data before.</li>
 </ul>
+<h2 id="text-stages">Text Stages</h2>
+<ul>
+<li>RegexReplace - Replace regex occurences in columns of strings.</li>
+<li>DropTokensByLength - Drop tokens in token lists by token length.</li>
+<li>DropTokensByList - Drop every occurence of a given set of string tokens in token lists.</li>
+</ul>
 <h2 id="scikit-learn-dependent-stages">Scikit-learn-dependent Stages</h2>
 <ul>
 <li>Encode - Encode a categorical column to corresponding number values.</li>
 <li>Scale - Scale data with any of the sklearn scalers.</li>
+<li>TfidfVectorizeTokenLists - Transform a column of token lists into the correponding set of tfidf vector columns.</li>
 </ul>
 <h2 id="nltk-dependent-stages">nltk-dependent Stages</h2>
 <ul>
@@ -201,7 +215,7 @@ class which takes a function in its <code>transform</code> constructor parameter
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/__init__.py#L0-L126" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/__init__.py#L0-L136" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;
 The `pdpipe` Python package provides a concise interface for building `pandas`
@@ -236,6 +250,7 @@ from .basic_stages import (
     ColReorder,
     RowDrop,
     Schematize,
+    DropDuplicates,
 )
 
 core.__load_stage_attributes_from_module__(&#34;pdpipe.basic_stages&#34;)
@@ -262,6 +277,13 @@ from .text_stages import (
 )
 
 core.__load_stage_attributes_from_module__(&#34;pdpipe.text_stages&#34;)
+
+from . import wrappers
+from .wrappers import (
+    FitOnly,
+)
+
+core.__load_stage_attributes_from_module__(&#34;pdpipe.wrappers&#34;)
 
 try:
     from . import sklearn_stages
@@ -298,6 +320,8 @@ except ImportError:
         &#34;pdpipe: nltk import failed. nltk-dependent  pipeline &#34;
         &#34;stages will not be loaded.&#34;
     )
+
+from . import cq
 
 
 from ._version import get_versions
@@ -347,6 +371,10 @@ __pdoc__ = {
 <dd>
 <section class="desc"><p>Defines pipelines for processing Pandas.DataFrame-based datasets …</p></section>
 </dd>
+<dt><code class="name"><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code></dt>
+<dd>
+<section class="desc"><p>Column qualifiers for pdpipe …</p></section>
+</dd>
 <dt><code class="name"><a title="pdpipe.exceptions" href="exceptions.html">pdpipe.exceptions</a></code></dt>
 <dd>
 <section class="desc"><p>Custom exceptions for pdpipe.</p></section>
@@ -366,6 +394,10 @@ __pdoc__ = {
 <dt><code class="name"><a title="pdpipe.util" href="util.html">pdpipe.util</a></code></dt>
 <dd>
 <section class="desc"><p>Utility methods for pdpipe.</p></section>
+</dd>
+<dt><code class="name"><a title="pdpipe.wrappers" href="wrappers.html">pdpipe.wrappers</a></code></dt>
+<dd>
+<section class="desc"><p>Wrapper-kind pdpipe pipline stages.</p></section>
 </dd>
 </dl>
 </section>
@@ -406,11 +438,13 @@ __pdoc__ = {
 <li><a href="#applying-pipelines">Applying Pipelines</a></li>
 </ul>
 </li>
+<li><a href="#column-qualifiers">Column Qualifiers</a></li>
 </ul>
 </li>
 <li><a href="#types-of-pipeline-stages">Types of Pipeline Stages</a><ul>
 <li><a href="#basic-stages">Basic Stages</a></li>
 <li><a href="#column-generation">Column Generation</a></li>
+<li><a href="#text-stages">Text Stages</a></li>
 <li><a href="#scikit-learn-dependent-stages">Scikit-learn-dependent Stages</a></li>
 <li><a href="#nltk-dependent-stages">nltk-dependent Stages</a></li>
 </ul>
@@ -428,11 +462,13 @@ __pdoc__ = {
 <li><code><a title="pdpipe.basic_stages" href="basic_stages.html">pdpipe.basic_stages</a></code></li>
 <li><code><a title="pdpipe.col_generation" href="col_generation.html">pdpipe.col_generation</a></code></li>
 <li><code><a title="pdpipe.core" href="core.html">pdpipe.core</a></code></li>
+<li><code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code></li>
 <li><code><a title="pdpipe.exceptions" href="exceptions.html">pdpipe.exceptions</a></code></li>
 <li><code><a title="pdpipe.nltk_stages" href="nltk_stages.html">pdpipe.nltk_stages</a></code></li>
 <li><code><a title="pdpipe.sklearn_stages" href="sklearn_stages.html">pdpipe.sklearn_stages</a></code></li>
 <li><code><a title="pdpipe.text_stages" href="text_stages.html">pdpipe.text_stages</a></code></li>
 <li><code><a title="pdpipe.util" href="util.html">pdpipe.util</a></code></li>
+<li><code><a title="pdpipe.wrappers" href="wrappers.html">pdpipe.wrappers</a></code></li>
 </ul>
 </li>
 </ul>

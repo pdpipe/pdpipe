@@ -27,16 +27,13 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/text_stages.py#L0-L241" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/text_stages.py#L0-L214" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Text processing pdpipe pipeline stages.&#34;&#34;&#34;
 
 import re
 
 from pdpipe.col_generation import ApplyByCols
-from pdpipe.shared import (
-    _list_str
-)
 
 
 class RegexReplace(ApplyByCols):
@@ -49,7 +46,7 @@ class RegexReplace(ApplyByCols):
     pattern : str
         The regex whose occurences will be replaced.
     replace : str
-        The replacement string to use.
+        The replacement string to use. This is equivalent to repl in re.sub.
     result_columns : str or list-like, default None
         The names of the new columns resulting from the mapping operation. Must
         be of the same length as columns. If None, behavior depends on the
@@ -70,11 +67,6 @@ class RegexReplace(ApplyByCols):
         1    4  more than NUM
         2    5  with NUM more
     &#34;&#34;&#34;  # noqa: W605
-
-    _BASE_STR = &#34;Replacing appearances of {} with &#39;{}&#39; in column{} {}&#34;
-    _DEF_EXC_MSG_SUFFIX = &#34; failed. Column{} {} not found in dataframe.&#34;
-    _DEF_APP_MSG_SUFFIX = &#34;...&#34;
-    _DEF_DESCRIPTION_SUFFIX = &#34;.&#34;
 
     class RegexReplacer(object):
         &#34;&#34;&#34;A pickle-able regex replacement function.&#34;&#34;&#34;
@@ -99,21 +91,16 @@ class RegexReplace(ApplyByCols):
         self._pattern = pattern
         self._replace = replace
         self._pattern_obj = re.compile(pattern)
-        col_str = _list_str(columns)
-        sfx = &#34;s&#34; if len(columns) &gt; 1 else &#34;&#34;
-        base_str = RegexReplace._BASE_STR.format(
-            pattern, replace, sfx, col_str)
+        desc_temp = &#34;Replacing appearances of {} with &#39;{}&#39; in column {{}}&#34;
+        desc_temp = desc_temp.format(pattern, replace)
         super_kwargs = {
             &#39;columns&#39;: columns,
             &#39;func&#39;: RegexReplace.RegexReplacer(
                 self._pattern_obj, self._replace),
-            &#39;colbl_sfx&#39;: &#39;_regex&#39;,
+            &#39;suffix&#39;: &#39;_regex&#39;,
             &#39;result_columns&#39;: result_columns,
             &#39;drop&#39;: drop,
-            &#39;exmsg&#39;: base_str + ApplyByCols._DEF_EXC_MSG_SUFFIX.format(
-                sfx, col_str),
-            &#39;appmsg&#39;: base_str + ApplyByCols._DEF_APP_MSG_SUFFIX,
-            &#39;desc&#39;: base_str + ApplyByCols._DEF_DESCRIPTION_SUFFIX,
+            &#39;desc_temp&#39;: desc_temp,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -173,34 +160,27 @@ class DropTokensByLength(ApplyByCols):
                 if len(x) &gt;= self.min_len and len(x) &lt;= self.max_len
             ]
 
-    _BASE_STR = &#34;Filtering out tokens of length{} in column{} {}&#34;
-    _DEF_EXC_MSG_SUFFIX = &#34; failed.&#34;
-    _DEF_APP_MSG_SUFFIX = &#34;...&#34;
-    _DEF_DESCRIPTION_SUFFIX = &#34;.&#34;
-
     def __init__(
         self, columns, min_len, max_len=None, result_columns=None, drop=True,
         **kwargs
     ):
         self._min_len = min_len
         self._max_len = max_len
-        col_str = _list_str(columns)
-        sfx = &#34;s&#34; if len(columns) &gt; 1 else &#34;&#34;
         token_filter = DropTokensByLength.MinLengthTokenFilter(min_len)
         cond_str = &#34; &gt; {}&#34;.format(min_len)
         if max_len:
             token_filter = DropTokensByLength.MinMaxLengthTokenFilter(
                 min_len=min_len, max_len=max_len)
             cond_str += &#34; &lt; {}&#34;.format(max_len)
-        base_str = DropTokensByLength._BASE_STR.format(cond_str, sfx, col_str)
+        desc_temp = &#34;Filtering out tokens of length{} in columns {{}}&#34;
+        desc_temp = desc_temp.format(cond_str)
         super_kwargs = {
-            &#34;columns&#34;: columns,
-            &#34;func&#34;: token_filter,
-            &#34;colbl_sfx&#34;: &#34;_filtered&#34;,
-            &#34;drop&#34;: drop,
-            &#34;exmsg&#34;: base_str + DropTokensByLength._DEF_EXC_MSG_SUFFIX,
-            &#34;appmsg&#34;: base_str + DropTokensByLength._DEF_APP_MSG_SUFFIX,
-            &#34;desc&#34;: base_str + DropTokensByLength._DEF_DESCRIPTION_SUFFIX,
+            &#39;columns&#39;: columns,
+            &#39;func&#39;: token_filter,
+            &#39;result_columns&#39;: result_columns,
+            &#39;drop&#39;: drop,
+            &#39;suffix&#39;: &#34;_filtered&#34;,
+            &#39;desc_temp&#39;: desc_temp,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -244,30 +224,23 @@ class DropTokensByList(ApplyByCols):
         def __call__(self, token_list):
             return [x for x in token_list if x not in self.bad_tokens]
 
-    _BASE_STR = &#34;Filtering out tokens{} in column{} {}&#34;
-    _DEF_EXC_MSG_SUFFIX = &#34; failed.&#34;
-    _DEF_APP_MSG_SUFFIX = &#34;...&#34;
-    _DEF_DESCRIPTION_SUFFIX = &#34;.&#34;
-
     def __init__(
         self, columns, bad_tokens, result_columns=None, drop=True,
         **kwargs
     ):
         self._bad_tokens = bad_tokens
-        col_str = _list_str(columns)
-        sfx = &#34;s&#34; if len(columns) &gt; 1 else &#34;&#34;
         cond_str = &#34;&#34;
         if len(bad_tokens) &lt; 10:
-            cond_str = &#34;in list [&#34; + &#34; &#34;.join(bad_tokens) + &#34;]&#34;
-        base_str = DropTokensByList._BASE_STR.format(cond_str, sfx, col_str)
+            cond_str = &#34; in list [&#34; + &#34; &#34;.join(bad_tokens) + &#34;]&#34;
+        base_str = &#34;Filtering out tokens{} in columns {{}}&#34;
+        desc_temp = base_str.format(cond_str)
         super_kwargs = {
-            &#34;columns&#34;: columns,
-            &#34;func&#34;: DropTokensByList.ListTokenFilter(bad_tokens),
-            &#34;colbl_sfx&#34;: &#34;_filtered&#34;,
-            &#34;drop&#34;: drop,
-            &#34;exmsg&#34;: base_str + DropTokensByList._DEF_EXC_MSG_SUFFIX,
-            &#34;appmsg&#34;: base_str + DropTokensByList._DEF_APP_MSG_SUFFIX,
-            &#34;desc&#34;: base_str + DropTokensByList._DEF_DESCRIPTION_SUFFIX,
+            &#39;columns&#39;: columns,
+            &#39;func&#39;: DropTokensByList.ListTokenFilter(bad_tokens),
+            &#39;result_columns&#39;: result_columns,
+            &#39;drop&#39;: drop,
+            &#39;suffix&#39;: &#34;_filtered&#34;,
+            &#39;desc_temp&#39;: desc_temp,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)</code></pre>
@@ -320,7 +293,7 @@ suffix '_filtered'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/text_stages.py#L91-L175" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/text_stages.py#L78-L155" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class DropTokensByLength(ApplyByCols):
     &#34;&#34;&#34;A pipeline stage removing tokens by length in string-token list columns.
@@ -376,34 +349,27 @@ suffix '_filtered'.</dd>
                 if len(x) &gt;= self.min_len and len(x) &lt;= self.max_len
             ]
 
-    _BASE_STR = &#34;Filtering out tokens of length{} in column{} {}&#34;
-    _DEF_EXC_MSG_SUFFIX = &#34; failed.&#34;
-    _DEF_APP_MSG_SUFFIX = &#34;...&#34;
-    _DEF_DESCRIPTION_SUFFIX = &#34;.&#34;
-
     def __init__(
         self, columns, min_len, max_len=None, result_columns=None, drop=True,
         **kwargs
     ):
         self._min_len = min_len
         self._max_len = max_len
-        col_str = _list_str(columns)
-        sfx = &#34;s&#34; if len(columns) &gt; 1 else &#34;&#34;
         token_filter = DropTokensByLength.MinLengthTokenFilter(min_len)
         cond_str = &#34; &gt; {}&#34;.format(min_len)
         if max_len:
             token_filter = DropTokensByLength.MinMaxLengthTokenFilter(
                 min_len=min_len, max_len=max_len)
             cond_str += &#34; &lt; {}&#34;.format(max_len)
-        base_str = DropTokensByLength._BASE_STR.format(cond_str, sfx, col_str)
+        desc_temp = &#34;Filtering out tokens of length{} in columns {{}}&#34;
+        desc_temp = desc_temp.format(cond_str)
         super_kwargs = {
-            &#34;columns&#34;: columns,
-            &#34;func&#34;: token_filter,
-            &#34;colbl_sfx&#34;: &#34;_filtered&#34;,
-            &#34;drop&#34;: drop,
-            &#34;exmsg&#34;: base_str + DropTokensByLength._DEF_EXC_MSG_SUFFIX,
-            &#34;appmsg&#34;: base_str + DropTokensByLength._DEF_APP_MSG_SUFFIX,
-            &#34;desc&#34;: base_str + DropTokensByLength._DEF_DESCRIPTION_SUFFIX,
+            &#39;columns&#39;: columns,
+            &#39;func&#39;: token_filter,
+            &#39;result_columns&#39;: result_columns,
+            &#39;drop&#39;: drop,
+            &#39;suffix&#39;: &#34;_filtered&#34;,
+            &#39;desc_temp&#39;: desc_temp,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)</code></pre>
@@ -411,6 +377,8 @@ suffix '_filtered'.</dd>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="pdpipe.col_generation.ApplyByCols" href="col_generation.html#pdpipe.col_generation.ApplyByCols">ApplyByCols</a></li>
+<li><a title="pdpipe.col_generation.ColumnTransformer" href="col_generation.html#pdpipe.col_generation.ColumnTransformer">ColumnTransformer</a></li>
+<li><a title="pdpipe.core.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></li>
 <li><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></li>
 <li>abc.ABC</li>
 </ul>
@@ -422,7 +390,7 @@ suffix '_filtered'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/text_stages.py#L125-L131" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/text_stages.py#L112-L118" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class MinLengthTokenFilter(object):
 
@@ -439,7 +407,7 @@ suffix '_filtered'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/text_stages.py#L133-L143" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/text_stages.py#L120-L130" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class MinMaxLengthTokenFilter(object):
 
@@ -468,11 +436,15 @@ suffix '_filtered'.</dd>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.ColDrop" href="core.html#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.ColRename" href="core.html#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.ColReorder" href="core.html#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.col_generation.ApplyByCols.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
+<li><code><a title="pdpipe.col_generation.ApplyByCols.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.col_generation.ApplyByCols.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.DropTokensByLength" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.DropTokensByList" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.Encode" href="core.html#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.col_generation.ApplyByCols.FitOnly" href="core.html#pdpipe.core.PdPipelineStage.FitOnly">FitOnly</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.FreqDrop" href="core.html#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.Log" href="core.html#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.MapColVals" href="core.html#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
@@ -532,7 +504,7 @@ suffix '_filtered'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/text_stages.py#L178-L242" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/text_stages.py#L158-L215" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class DropTokensByList(ApplyByCols):
     &#34;&#34;&#34;A pipeline stage removing specific tokens in string-token list columns.
@@ -572,30 +544,23 @@ suffix '_filtered'.</dd>
         def __call__(self, token_list):
             return [x for x in token_list if x not in self.bad_tokens]
 
-    _BASE_STR = &#34;Filtering out tokens{} in column{} {}&#34;
-    _DEF_EXC_MSG_SUFFIX = &#34; failed.&#34;
-    _DEF_APP_MSG_SUFFIX = &#34;...&#34;
-    _DEF_DESCRIPTION_SUFFIX = &#34;.&#34;
-
     def __init__(
         self, columns, bad_tokens, result_columns=None, drop=True,
         **kwargs
     ):
         self._bad_tokens = bad_tokens
-        col_str = _list_str(columns)
-        sfx = &#34;s&#34; if len(columns) &gt; 1 else &#34;&#34;
         cond_str = &#34;&#34;
         if len(bad_tokens) &lt; 10:
-            cond_str = &#34;in list [&#34; + &#34; &#34;.join(bad_tokens) + &#34;]&#34;
-        base_str = DropTokensByList._BASE_STR.format(cond_str, sfx, col_str)
+            cond_str = &#34; in list [&#34; + &#34; &#34;.join(bad_tokens) + &#34;]&#34;
+        base_str = &#34;Filtering out tokens{} in columns {{}}&#34;
+        desc_temp = base_str.format(cond_str)
         super_kwargs = {
-            &#34;columns&#34;: columns,
-            &#34;func&#34;: DropTokensByList.ListTokenFilter(bad_tokens),
-            &#34;colbl_sfx&#34;: &#34;_filtered&#34;,
-            &#34;drop&#34;: drop,
-            &#34;exmsg&#34;: base_str + DropTokensByList._DEF_EXC_MSG_SUFFIX,
-            &#34;appmsg&#34;: base_str + DropTokensByList._DEF_APP_MSG_SUFFIX,
-            &#34;desc&#34;: base_str + DropTokensByList._DEF_DESCRIPTION_SUFFIX,
+            &#39;columns&#39;: columns,
+            &#39;func&#39;: DropTokensByList.ListTokenFilter(bad_tokens),
+            &#39;result_columns&#39;: result_columns,
+            &#39;drop&#39;: drop,
+            &#39;suffix&#39;: &#34;_filtered&#34;,
+            &#39;desc_temp&#39;: desc_temp,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)</code></pre>
@@ -603,6 +568,8 @@ suffix '_filtered'.</dd>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="pdpipe.col_generation.ApplyByCols" href="col_generation.html#pdpipe.col_generation.ApplyByCols">ApplyByCols</a></li>
+<li><a title="pdpipe.col_generation.ColumnTransformer" href="col_generation.html#pdpipe.col_generation.ColumnTransformer">ColumnTransformer</a></li>
+<li><a title="pdpipe.core.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></li>
 <li><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></li>
 <li>abc.ABC</li>
 </ul>
@@ -614,7 +581,7 @@ suffix '_filtered'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/text_stages.py#L208-L214" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/text_stages.py#L188-L194" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ListTokenFilter(object):
 
@@ -639,11 +606,15 @@ suffix '_filtered'.</dd>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.ColDrop" href="core.html#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.ColRename" href="core.html#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.ColReorder" href="core.html#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.col_generation.ApplyByCols.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
+<li><code><a title="pdpipe.col_generation.ApplyByCols.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.col_generation.ApplyByCols.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.DropTokensByLength" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.DropTokensByList" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.Encode" href="core.html#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.col_generation.ApplyByCols.FitOnly" href="core.html#pdpipe.core.PdPipelineStage.FitOnly">FitOnly</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.FreqDrop" href="core.html#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.Log" href="core.html#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.MapColVals" href="core.html#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
@@ -682,7 +653,7 @@ suffix '_filtered'.</dd>
 <dt><strong><code>pattern</code></strong> :&ensp;<code>str</code></dt>
 <dd>The regex whose occurences will be replaced.</dd>
 <dt><strong><code>replace</code></strong> :&ensp;<code>str</code></dt>
-<dd>The replacement string to use.</dd>
+<dd>The replacement string to use. This is equivalent to repl in re.sub.</dd>
 <dt><strong><code>result_columns</code></strong> :&ensp;<code>str</code> or <code>list</code>-<code>like</code>, default <code>None</code></dt>
 <dd>The names of the new columns resulting from the mapping operation. Must
 be of the same length as columns. If None, behavior depends on the
@@ -705,7 +676,7 @@ otherwise, the name of the source column is used with the suffix
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/text_stages.py#L11-L88" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/text_stages.py#L8-L75" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class RegexReplace(ApplyByCols):
     &#34;&#34;&#34;A pipeline stage replacing regex occurences in a text column.
@@ -717,7 +688,7 @@ otherwise, the name of the source column is used with the suffix
     pattern : str
         The regex whose occurences will be replaced.
     replace : str
-        The replacement string to use.
+        The replacement string to use. This is equivalent to repl in re.sub.
     result_columns : str or list-like, default None
         The names of the new columns resulting from the mapping operation. Must
         be of the same length as columns. If None, behavior depends on the
@@ -738,11 +709,6 @@ otherwise, the name of the source column is used with the suffix
         1    4  more than NUM
         2    5  with NUM more
     &#34;&#34;&#34;  # noqa: W605
-
-    _BASE_STR = &#34;Replacing appearances of {} with &#39;{}&#39; in column{} {}&#34;
-    _DEF_EXC_MSG_SUFFIX = &#34; failed. Column{} {} not found in dataframe.&#34;
-    _DEF_APP_MSG_SUFFIX = &#34;...&#34;
-    _DEF_DESCRIPTION_SUFFIX = &#34;.&#34;
 
     class RegexReplacer(object):
         &#34;&#34;&#34;A pickle-able regex replacement function.&#34;&#34;&#34;
@@ -767,21 +733,16 @@ otherwise, the name of the source column is used with the suffix
         self._pattern = pattern
         self._replace = replace
         self._pattern_obj = re.compile(pattern)
-        col_str = _list_str(columns)
-        sfx = &#34;s&#34; if len(columns) &gt; 1 else &#34;&#34;
-        base_str = RegexReplace._BASE_STR.format(
-            pattern, replace, sfx, col_str)
+        desc_temp = &#34;Replacing appearances of {} with &#39;{}&#39; in column {{}}&#34;
+        desc_temp = desc_temp.format(pattern, replace)
         super_kwargs = {
             &#39;columns&#39;: columns,
             &#39;func&#39;: RegexReplace.RegexReplacer(
                 self._pattern_obj, self._replace),
-            &#39;colbl_sfx&#39;: &#39;_regex&#39;,
+            &#39;suffix&#39;: &#39;_regex&#39;,
             &#39;result_columns&#39;: result_columns,
             &#39;drop&#39;: drop,
-            &#39;exmsg&#39;: base_str + ApplyByCols._DEF_EXC_MSG_SUFFIX.format(
-                sfx, col_str),
-            &#39;appmsg&#39;: base_str + ApplyByCols._DEF_APP_MSG_SUFFIX,
-            &#39;desc&#39;: base_str + ApplyByCols._DEF_DESCRIPTION_SUFFIX,
+            &#39;desc_temp&#39;: desc_temp,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)</code></pre>
@@ -789,6 +750,8 @@ otherwise, the name of the source column is used with the suffix
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li><a title="pdpipe.col_generation.ApplyByCols" href="col_generation.html#pdpipe.col_generation.ApplyByCols">ApplyByCols</a></li>
+<li><a title="pdpipe.col_generation.ColumnTransformer" href="col_generation.html#pdpipe.col_generation.ColumnTransformer">ColumnTransformer</a></li>
+<li><a title="pdpipe.core.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></li>
 <li><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></li>
 <li>abc.ABC</li>
 </ul>
@@ -800,7 +763,7 @@ otherwise, the name of the source column is used with the suffix
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/7ca5141725a190ff4a29f895370860ab5661e781/pdpipe/text_stages.py#L48-L56" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/text_stages.py#L40-L48" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class RegexReplacer(object):
     &#34;&#34;&#34;A pickle-able regex replacement function.&#34;&#34;&#34;
@@ -827,11 +790,15 @@ otherwise, the name of the source column is used with the suffix
 <li><code><a title="pdpipe.col_generation.ApplyByCols.ColDrop" href="core.html#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.ColRename" href="core.html#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.ColReorder" href="core.html#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.col_generation.ApplyByCols.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
+<li><code><a title="pdpipe.col_generation.ApplyByCols.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.col_generation.ApplyByCols.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.DropTokensByLength" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.DropTokensByList" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.Encode" href="core.html#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.col_generation.ApplyByCols.FitOnly" href="core.html#pdpipe.core.PdPipelineStage.FitOnly">FitOnly</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.FreqDrop" href="core.html#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.Log" href="core.html#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.MapColVals" href="core.html#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
