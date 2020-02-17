@@ -147,3 +147,89 @@ def test_columns_based_stage_none():
     assert res.iloc[0, 0] == 2
     assert res.iloc[0, 1] == 2
     assert res.iloc[0, 2] == 3
+
+
+class BadNoneColumnsStrArg(ColumnsBasedPipelineStage):
+    """A pipeline stage for testing"""
+
+    def __init__(self, columns, errors=None, **kwargs):
+        self._errors = errors
+        super_kwargs = {
+            'columns': columns,
+            'desc_temp': 'Drop columns {}',
+        }
+        super_kwargs.update(**kwargs)
+        super_kwargs['none_columns'] = 'badval'
+        super().__init__(**super_kwargs)
+
+    def _transformation(self, df, verbose, fit):
+        inter_df = df
+        for col in self._get_columns(df, fit=fit):
+            inter_df[col] = inter_df[col] * 2
+        return inter_df
+
+
+def test_bad_none_columns_str_arg():
+    with pytest.raises(ValueError):
+        BadNoneColumnsStrArg(['collbl'])
+
+
+class BadNoneColumnsArg(ColumnsBasedPipelineStage):
+    """A pipeline stage for testing"""
+
+    def __init__(self, columns, errors=None, **kwargs):
+        self._errors = errors
+        super_kwargs = {
+            'columns': columns,
+            'desc_temp': 'Drop columns {}',
+        }
+        super_kwargs.update(**kwargs)
+        super_kwargs['none_columns'] = FailedPreconditionError()
+        super().__init__(**super_kwargs)
+
+    def _transformation(self, df, verbose, fit):
+        inter_df = df
+        for col in self._get_columns(df, fit=fit):
+            inter_df[col] = inter_df[col] * 2
+        return inter_df
+
+
+def test_bad_none_columns_arg():
+    with pytest.raises(ValueError):
+        BadNoneColumnsArg(['collbl'])
+
+
+class NumDefaultDrop(ColumnsBasedPipelineStage):
+    """A pipeline stage for testing"""
+
+    def __init__(self, columns, errors=None, **kwargs):
+        self._errors = errors
+        super_kwargs = {
+            'columns': columns,
+            'desc_temp': 'Drop columns {}',
+        }
+        super_kwargs.update(**kwargs)
+        super_kwargs['none_columns'] = ['num']
+        super().__init__(**super_kwargs)
+
+    def _transformation(self, df, verbose, fit):
+        keep_cols = [
+            x for x in df.columns
+            if x not in self._get_columns(df, fit=fit)
+        ]
+        return df[keep_cols]
+
+
+def test_columns_based_stage_none_columns_is_list():
+    df = _df_d()
+    stage = NumDefaultDrop('char')
+    res = stage(df)
+    assert 'num' in res.columns
+    assert 'char' not in res.columns
+    assert 4 in res.columns
+
+    stage = NumDefaultDrop(None)
+    res = stage(df)
+    assert 'num' not in res.columns
+    assert 'char' in res.columns
+    assert 4 in res.columns

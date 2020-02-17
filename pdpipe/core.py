@@ -445,25 +445,26 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
                 exclude_columns)
         self._none_error = False
         self._none_cols = None
-        if none_columns:
-            if isinstance(none_columns, str):
-                if none_columns == 'error':
-                    self._none_error = True
-                elif none_columns == 'all':
-                    self._none_cols = AllColumns()
-                else:
-                    raise ValueError((
-                        "'error' and 'all' are the only valid string arguments"
-                        " to the none_columns constructor parameter!"))
-            elif hasattr(none_columns, '__iter__'):
-                self._none_cols = none_columns
-            elif callable(none_columns):
-                self._none_cols = none_columns
+        # handle none_columns
+        if isinstance(none_columns, str):
+            if none_columns == 'error':
+                self._none_error = True
+            elif none_columns == 'all':
+                self._none_cols = AllColumns()
             else:
                 raise ValueError((
-                    "Valid arguments to the none_columns constructor parameter"
-                    " are 'error', 'all', an iterable of labels or a callable!"
-                ))
+                    "'error' and 'all' are the only valid string arguments"
+                    " to the none_columns constructor parameter!"))
+        elif hasattr(none_columns, '__iter__'):
+            self._none_cols = none_columns
+        elif callable(none_columns):
+            self._none_cols = none_columns
+        else:
+            raise ValueError((
+                "Valid arguments to the none_columns constructor parameter"
+                " are 'error', 'all', an iterable of labels or a callable!"
+            ))
+        # done handling none_columns
         self._col_arg, self._col_str = self._interpret_columns_param(
             columns, self._none_error, none_columns=self._none_cols)
         if (desc is None) and desc_temp:
