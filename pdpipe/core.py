@@ -489,9 +489,8 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
             if fit:
                 # try to treat col_arg as a fittable column qualifier
                 return col_arg.fit_transform(df)
-            else:
-                # no need to fit, so try to treat _col_arg as a callable
-                return col_arg(df)
+            # else, no need to fit, so try to treat _col_arg as a callable
+            return col_arg(df)
         except AttributeError:
             # got here cause col_arg has no fit_transform method...
             try:
