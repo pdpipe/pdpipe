@@ -33,6 +33,7 @@ class SomeStage(PdPipelineStage):
 def test_basic_pipeline_stage():
     """Testing the col binner helper class."""
     test_stage = SomeStage()
+    assert not test_stage._is_fittable()
     df = _test_df()
     res_df = test_stage.apply(df, verbose=True)
     assert res_df.equals(df)
@@ -121,3 +122,67 @@ def test_pipeline_stage_addition_to_int():
     silent_fail_stage = SilentDropStage('Tigers')
     with pytest.raises(TypeError):
         silent_fail_stage + 2
+
+
+class FittableDropByCharStage(PdPipelineStage):
+    """A pipeline stage for testing"""
+
+    def __init__(self, char):
+        self.char = char
+        super().__init__()
+
+    def _prec(self, df):
+        return True
+
+    def _fit_transform(self, df, verbose):
+        self.columns = [
+            x for x in df.columns
+            if x.startswith(self.char)
+        ]
+        keep_cols = [
+            x for x in df.columns
+            if x not in self.columns
+        ]
+        self.is_fitted = True
+        return df[keep_cols]
+
+    def _transform(self, df, verbose):
+        keep_cols = [
+            x for x in df.columns
+            if x not in self.columns
+        ]
+        return df[keep_cols]
+
+
+def _test_df2():
+    return pd.DataFrame(
+        data=[[1, 'a'], [2, 'b']],
+        index=[1, 2],
+        columns=['abo', 'coo']
+    )
+
+
+def _test_df3():
+    return pd.DataFrame(
+        data=[[1, 'a'], [2, 'b']],
+        index=[1, 2],
+        columns=['abo', 'aoo']
+    )
+
+
+def test_fittable_stage():
+    stage = FittableDropByCharStage('a')
+    assert stage._is_fittable()
+
+    res1 = stage(_test_df2())
+    assert 'abo' not in res1.columns
+    assert 'coo' in res1.columns
+
+    res2 = stage(_test_df3())
+    assert 'abo' not in res2.columns
+    assert 'aoo' in res2.columns
+
+    stage = FittableDropByCharStage('a')
+    res3 = stage(_test_df2())
+    assert 'abo' not in res3.columns
+    assert 'aoo' not in res3.columns

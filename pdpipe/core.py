@@ -3,6 +3,85 @@
 >>> import pdpipe as pdp
 >>> pipeline = pdp.ColDrop('Name') + pdp.Bin({'Speed': [0,5]})
 >>> pipeline = pdp.ColDrop('Name').Bin({'Speed': [0,5]}, drop=True)
+
+## Creating pipeline stages that operate on column subsets
+
+Many pipeline stages in pdpipe operate on a subset of columns, allowing the
+caller to deteremine this subset by either providing a fixed set of column
+labels or by providing a callable that determines the column subset dynamically
+from input dataframes. The `pdpipe.cq` module addresses a unique but important
+use case of fittable column qualifier, which dynamically extract a column
+subset on stage fit time, but keep it fixed for future transformations.
+
+As a general rule, every pipeline stage in pdpipe that supports the `columns`
+parameter should inherently support fittable column qualifier, and generally
+the correct interpretation of both single and multiple labels as arguments. To
+unify the implementation of such functionality, and ease of creation of new
+pipeline stages, such columns shoul be created by extending the
+ColumnsBasedPipelineStage base class, found in this module (`pdpipe.core`).
+
+The main interface of sub-classes of this base class with it is through the
+`columns`, `exclude_columns` and `none_columns` constructor arguments, and the
+"private" `_get_columns(df, fit)` method:
+
+    * Any extending subclass should accept the `columns` constructor parameter
+      and forward it, without transforming it, to the constructor of
+      ColumnsBasedPipelineStage. E.g.
+      `super().__init__(columns=columns, **kwargs)`. See the implementation of
+      any such extending class for a more complete example.
+
+    * Extending subclasses can decide if they want to expose the
+      `exclude_columns` parameter or not. Note that most of its functionality
+      can anyway be gained by providing the `columns` parameter with a column
+      qualifier object that is a difference between two column qualifiers; e.g.
+      `columns=cq.OfDtype(np.number) - cq.OfDtype(np.int64)` is equivalent to
+      providing `columns=cq.OfDtype(np.number),
+      exclude_columns=cq.OfDtype(np.int64)`. However, exposing the
+      `exclude_columns` parameter can allow for specific unique behaviours; for
+      example, if the `none_columns` parametet - which configures the behavior
+      when `columns` is provided with `None` - is set with
+      a `cq.OfDtypes('category')` column qualifier, which means that all
+      categorical columns are selected when `columns=None`, then exposing
+      `exclude_columns` allows easy specification of the "all categorical
+      columns except X" by just giving a column qualifier capturing X to
+      `exclude_columns`, instead of having to reconstruct the default column
+      qualifier by hand and substract from it the one representing X.
+
+    * When wishing to get the subset of columns to operate on, in
+      `fit_transform` or `transform` time, it is attained by calling
+      `self._get_columns(df, fit=True)` (or with `fit=False` if just
+      transforming), providing it the input dataframe.
+
+    * Additionally, to get a description and application message with a nice
+      string representation of the list of columns to operate on, the
+      `desc_temp` constructor parameter of ColumnsBasedPipelineStage can be
+      provided with a format string with a place holder where the column list
+      should go. E.g. `"Drop columns {}"` for the DropCol pipeline stage.
+
+There are two correct ways to extend it, depending on whether the pipeline
+stage you're creating is inherently fittable or not:
+
+    1. If the stage is NOT inherently fittable, then the ability to accept
+       fittable column qualifier objects makes it so. However, to enable
+       extending subclasses to implement their transformation using a single
+       method, they can simply implement the abstract method
+       `_transformation(self, df, verbose, fit)`. It should treat the `df` and
+       `verbose` parameters normally, but forward the `fit` parameter to the
+       `_get_columns` method when calling it. This is enough to get a pipeline
+       stage with the desired behavior, with the super-class handling all the
+       fit/transform functionality.
+
+    2. If the stage IS inherently fittable, then do not use the
+       `_transformation` abstract method (it has to be implemented, so just
+       have it raise a NotImplementedError). Instead, simply override the
+       `_fit_transform` and `_transform` method of ColumnsBasedPipelineStage,
+       calling the `fit` parameter of the `_get_columns` method with the
+       correct arguement: `True` when fit-transforming and `False` when
+       transforming.
+
+Again, taking a look at the VERY concise implementation of simple columns-based
+stages, like ColDrop or ValDrop, will probably make things clearer, and you can
+use those implementations as a template for yours.
 """
 
 import sys
@@ -10,6 +89,8 @@ import inspect
 import abc
 import collections
 import textwrap
+
+from .cq import is_fittable_column_qualifier, AllColumns
 
 from .exceptions import (
     FailedPreconditionError,
@@ -71,30 +152,24 @@ class PdPipelineStage(abc.ABC):
         The message of the exception that is raised on a failed
         precondition if exraise is set to True. A default message is used
         if None is given.
-    appmsg : str, default None
-        The message printed when this stage is applied with verbose=True.
-        A default message is used if None is given.
     desc : str, default None
         A short description of this stage, used as its string representation.
         A default description is used if None is given.
     """
 
     _DEF_EXC_MSG = 'Precondition failed in stage {}!'
-    _DEF_APPLY_MSG = 'Applying a pipeline stage...'
     _DEF_DESCRIPTION = 'A pipeline stage.'
-    _INIT_KWARGS = ['exraise', 'exmsg', 'appmsg', 'desc']
+    _INIT_KWARGS = ['exraise', 'exmsg', 'desc']
 
     def __init__(self, exraise=True, exmsg=None, appmsg=None, desc=None):
-        if appmsg is None:
-            appmsg = PdPipelineStage._DEF_APPLY_MSG
         if desc is None:
             desc = PdPipelineStage._DEF_DESCRIPTION
         if exmsg is None:
             exmsg = PdPipelineStage._DEF_EXC_MSG.format(desc)
         self._exraise = exraise
         self._exmsg = exmsg
-        self._appmsg = appmsg
         self._desc = desc
+        self._appmsg = '{}..'.format(desc)
         self.is_fitted = False
 
     @classmethod
@@ -148,7 +223,7 @@ class PdPipelineStage(abc.ABC):
         """
         if exraise is None:
             exraise = self._exraise
-        if self._prec(df):
+        if self._prec(df=df):
             if verbose:
                 msg = '- ' + '\n  '.join(textwrap.wrap(self._appmsg))
                 print(msg, flush=True)
@@ -296,6 +371,164 @@ class PdPipelineStage(abc.ABC):
         return self._desc
 
 
+class ColumnsBasedPipelineStage(PdPipelineStage):
+    """A pipeline stage that operates on a subset of dataframe columns.
+
+    Parameters
+    ---------
+    columns : object, iterable or callable
+        The label, or an iterable of labels, of columns to use. Alternatively,
+        this parameter can be assigned a callable returning an iterable of
+        labels from an input pandas.DataFrame. See pdpipe.cq.
+    exclude_columns : object, iterable or callable, optional
+        The label, or an iterable of labels, of columns to exclude, given the
+        `columns` parameter. Alternatively, this parameter can be assigned a
+        callable returning a labels iterable from an input pandas.DataFrame.
+        See pdpipe.cq. Optional. By default no columns are excluded.
+    desc_temp : str, optional
+        If given, assumed to be a format string, and every appearance of {} in
+        it is replaced with an appropriate string representation of the columns
+        parameter, and is used as the pipeline description. Ignored if `desc`
+        is provided.
+    exraise : bool, default True
+        If true, a pdpipe.FailedPreconditionError is raised when this
+        stage is applied to a dataframe for which the precondition does
+        not hold. Otherwise the stage is skipped.
+    exmsg : str, default None
+        The message of the exception that is raised on a failed
+        precondition if exraise is set to True. A default message is used
+        if None is given.
+    desc : str, default None
+        A short description of this stage, used as its string representation.
+        A default description is used if None is given.
+    none_columns : iterable, callable or str, default 'error'
+        Determines how None values supplied to the 'columns' parameter should
+        be handled. If set to 'error', the default, a ValueError is raised if
+        None is encountered. If set to 'all', it is interpreted to mean all
+        columns of input dataframes should be operated on. If an iterable is
+        provided it is interpreted as the default list of columns to operate on
+        when `columns=None`. If a callable is provided, it is interpreted as
+        the default column qualifier that determines input columns when
+        `columns=None`.
+    """
+
+    @staticmethod
+    def _interpret_columns_param(columns, none_error=False, none_columns=None):
+        """Interprets the value provided to the columns parameter and returns
+        a list version of it - if needed - a string representation of it.
+        """
+        if columns is None:
+            if none_error:
+                raise ValueError((
+                    'None is not a valid argument for the columns parameter of'
+                    ' this pipeline stage.'))
+            return ColumnsBasedPipelineStage._interpret_columns_param(
+                columns=none_columns)
+        if isinstance(columns, str):
+            # always check str first, because it has __iter__
+            return [columns], columns
+        if callable(columns):
+            return columns, columns.__doc__ or ''
+        # if it was a single string it was already made a list, and it's not a
+        # callable, so it's either an iterable of labels... or
+        if hasattr(columns, '__iter__'):
+            return columns, ', '.join(str(elem) for elem in columns)
+        # a single non-string label.
+        return [columns], str(columns)
+
+    def __init__(
+            self, columns, exclude_columns=None, desc_temp=None, exraise=True,
+            exmsg=None, desc=None, none_columns='error'):
+        self._exclude_columns = exclude_columns
+        if exclude_columns:
+            self._exclude_columns = self._interpret_columns_param(
+                exclude_columns)
+        self._none_error = False
+        self._none_cols = None
+        # handle none_columns
+        if isinstance(none_columns, str):
+            if none_columns == 'error':
+                self._none_error = True
+            elif none_columns == 'all':
+                self._none_cols = AllColumns()
+            else:
+                raise ValueError((
+                    "'error' and 'all' are the only valid string arguments"
+                    " to the none_columns constructor parameter!"))
+        elif hasattr(none_columns, '__iter__'):
+            self._none_cols = none_columns
+        elif callable(none_columns):
+            self._none_cols = none_columns
+        else:
+            raise ValueError((
+                "Valid arguments to the none_columns constructor parameter"
+                " are 'error', 'all', an iterable of labels or a callable!"
+            ))
+        # done handling none_columns
+        self._col_arg, self._col_str = self._interpret_columns_param(
+            columns, self._none_error, none_columns=self._none_cols)
+        if (desc is None) and desc_temp:
+            desc = desc_temp.format(self._col_str)
+        if exmsg is None:
+            exmsg = (
+                'Pipeline stage failed because not all columns {} '
+                'were found in the input dataframe.'
+            ).format(self._col_str)
+        super().__init__(
+            exraise=exraise,
+            exmsg=exmsg,
+            desc=desc,
+        )
+
+    def _is_fittable(self):
+        return is_fittable_column_qualifier(self._col_arg)
+
+    @staticmethod
+    def __get_cols_by_arg(col_arg, df, fit=False):
+        try:
+            if fit:
+                # try to treat col_arg as a fittable column qualifier
+                return col_arg.fit_transform(df)
+            # else, no need to fit, so try to treat _col_arg as a callable
+            return col_arg(df)
+        except AttributeError:
+            # got here cause col_arg has no fit_transform method...
+            try:
+                # so try and treat it as a callable again
+                return col_arg(df)
+            except TypeError:
+                # calling col_arg 2 lines above failed; its a list of labels
+                return col_arg
+        except TypeError:
+            # calling _col_arg 10 lines above failed; its a list of labels
+            return col_arg
+
+    def _get_columns(self, df, fit=False):
+        cols = ColumnsBasedPipelineStage.__get_cols_by_arg(
+            self._col_arg, df, fit=fit)
+        if self._exclude_columns:
+            exc_cols = ColumnsBasedPipelineStage.__get_cols_by_arg(
+                self._exclude_columns, df, fit=fit)
+            return [x for x in cols if x not in exc_cols]
+        return cols
+
+    def _prec(self, df):
+        return set(self._get_columns(df=df)).issubset(df.columns)
+
+    @abc.abstractmethod
+    def _transformation(self, df, verbose, fit):
+        raise NotImplementedError((
+            "Classes extending ColumnsBasedPipelineStage must implement the "
+            "_transformation method!"))
+
+    def _fit_transform(self, df, verbose):
+        self.is_fitted = True
+        return self._transformation(df, verbose, fit=True)
+
+    def _transform(self, df, verbose):
+        return self._transformation(df, verbose, fit=False)
+
+
 def _always_true(x):
     return True
 
@@ -350,7 +583,6 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
     """
 
     _DEF_EXC_MSG = 'Pipeline precondition failed!'
-    _DEF_APP_MSG = 'Applying a pipeline...'
 
     def __init__(self, stages, transformer_getter=None, **kwargs):
         self._stages = stages
@@ -359,7 +591,6 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         super_kwargs = {
             'exraise': False,
             'exmsg': PdPipeline._DEF_EXC_MSG,
-            'appmsg': PdPipeline._DEF_APP_MSG
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)

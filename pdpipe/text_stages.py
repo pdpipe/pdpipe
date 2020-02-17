@@ -3,9 +3,6 @@
 import re
 
 from pdpipe.col_generation import ApplyByCols
-from pdpipe.shared import (
-    _list_str
-)
 
 
 class RegexReplace(ApplyByCols):
@@ -40,11 +37,6 @@ class RegexReplace(ApplyByCols):
         2    5  with NUM more
     """  # noqa: W605
 
-    _BASE_STR = "Replacing appearances of {} with '{}' in column{} {}"
-    _DEF_EXC_MSG_SUFFIX = " failed. Column{} {} not found in dataframe."
-    _DEF_APP_MSG_SUFFIX = "..."
-    _DEF_DESCRIPTION_SUFFIX = "."
-
     class RegexReplacer(object):
         """A pickle-able regex replacement function."""
 
@@ -68,21 +60,16 @@ class RegexReplace(ApplyByCols):
         self._pattern = pattern
         self._replace = replace
         self._pattern_obj = re.compile(pattern)
-        col_str = _list_str(columns)
-        sfx = "s" if len(columns) > 1 else ""
-        base_str = RegexReplace._BASE_STR.format(
-            pattern, replace, sfx, col_str)
+        desc_temp = "Replacing appearances of {} with '{}' in column {{}}"
+        desc_temp = desc_temp.format(pattern, replace)
         super_kwargs = {
             'columns': columns,
             'func': RegexReplace.RegexReplacer(
                 self._pattern_obj, self._replace),
-            'colbl_sfx': '_regex',
+            'suffix': '_regex',
             'result_columns': result_columns,
             'drop': drop,
-            'exmsg': base_str + ApplyByCols._DEF_EXC_MSG_SUFFIX.format(
-                sfx, col_str),
-            'appmsg': base_str + ApplyByCols._DEF_APP_MSG_SUFFIX,
-            'desc': base_str + ApplyByCols._DEF_DESCRIPTION_SUFFIX,
+            'desc_temp': desc_temp,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -142,34 +129,27 @@ class DropTokensByLength(ApplyByCols):
                 if len(x) >= self.min_len and len(x) <= self.max_len
             ]
 
-    _BASE_STR = "Filtering out tokens of length{} in column{} {}"
-    _DEF_EXC_MSG_SUFFIX = " failed."
-    _DEF_APP_MSG_SUFFIX = "..."
-    _DEF_DESCRIPTION_SUFFIX = "."
-
     def __init__(
         self, columns, min_len, max_len=None, result_columns=None, drop=True,
         **kwargs
     ):
         self._min_len = min_len
         self._max_len = max_len
-        col_str = _list_str(columns)
-        sfx = "s" if len(columns) > 1 else ""
         token_filter = DropTokensByLength.MinLengthTokenFilter(min_len)
         cond_str = " > {}".format(min_len)
         if max_len:
             token_filter = DropTokensByLength.MinMaxLengthTokenFilter(
                 min_len=min_len, max_len=max_len)
             cond_str += " < {}".format(max_len)
-        base_str = DropTokensByLength._BASE_STR.format(cond_str, sfx, col_str)
+        desc_temp = "Filtering out tokens of length{} in columns {{}}"
+        desc_temp = desc_temp.format(cond_str)
         super_kwargs = {
-            "columns": columns,
-            "func": token_filter,
-            "colbl_sfx": "_filtered",
-            "drop": drop,
-            "exmsg": base_str + DropTokensByLength._DEF_EXC_MSG_SUFFIX,
-            "appmsg": base_str + DropTokensByLength._DEF_APP_MSG_SUFFIX,
-            "desc": base_str + DropTokensByLength._DEF_DESCRIPTION_SUFFIX,
+            'columns': columns,
+            'func': token_filter,
+            'result_columns': result_columns,
+            'drop': drop,
+            'suffix': "_filtered",
+            'desc_temp': desc_temp,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -213,30 +193,23 @@ class DropTokensByList(ApplyByCols):
         def __call__(self, token_list):
             return [x for x in token_list if x not in self.bad_tokens]
 
-    _BASE_STR = "Filtering out tokens{} in column{} {}"
-    _DEF_EXC_MSG_SUFFIX = " failed."
-    _DEF_APP_MSG_SUFFIX = "..."
-    _DEF_DESCRIPTION_SUFFIX = "."
-
     def __init__(
         self, columns, bad_tokens, result_columns=None, drop=True,
         **kwargs
     ):
         self._bad_tokens = bad_tokens
-        col_str = _list_str(columns)
-        sfx = "s" if len(columns) > 1 else ""
         cond_str = ""
         if len(bad_tokens) < 10:
-            cond_str = "in list [" + " ".join(bad_tokens) + "]"
-        base_str = DropTokensByList._BASE_STR.format(cond_str, sfx, col_str)
+            cond_str = " in list [" + " ".join(bad_tokens) + "]"
+        base_str = "Filtering out tokens{} in columns {{}}"
+        desc_temp = base_str.format(cond_str)
         super_kwargs = {
-            "columns": columns,
-            "func": DropTokensByList.ListTokenFilter(bad_tokens),
-            "colbl_sfx": "_filtered",
-            "drop": drop,
-            "exmsg": base_str + DropTokensByList._DEF_EXC_MSG_SUFFIX,
-            "appmsg": base_str + DropTokensByList._DEF_APP_MSG_SUFFIX,
-            "desc": base_str + DropTokensByList._DEF_DESCRIPTION_SUFFIX,
+            'columns': columns,
+            'func': DropTokensByList.ListTokenFilter(bad_tokens),
+            'result_columns': result_columns,
+            'drop': drop,
+            'suffix': "_filtered",
+            'desc_temp': desc_temp,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)

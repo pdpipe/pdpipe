@@ -4,6 +4,7 @@ import pytest
 import pandas as pd
 
 from pdpipe.col_generation import OneHotEncode
+from pdpipe import cq
 
 
 def _one_categ_df():
@@ -182,6 +183,7 @@ def test_onehotencode_one_with_exclude():
     """Basic binning test."""
     df = _two_categ_df()
     onehotencode = OneHotEncode(exclude_columns=["Name"])
+    print(onehotencode._col_arg)
     res_df = onehotencode(df)
     assert "Born" not in res_df.columns
     assert "Name" in res_df.columns
@@ -345,9 +347,9 @@ def test_onehotencode_one_no_drop():
 
 
 @pytest.mark.onehotencode
-def test_onehotencode_col_subset():
+def test_onehotencode_by_labels_cq():
     df = _two_categ_df()
-    onehotencode = OneHotEncode(columns=["Born", "Cat"], col_subset=True)
+    onehotencode = OneHotEncode(columns=cq.ByLabels(["Born", "Cat"]))
     res_df = onehotencode(df)
     assert "Born" not in res_df.columns
     assert "Born_Greece" not in res_df.columns
@@ -384,13 +386,12 @@ def test_onehotencode_col_subset():
 @pytest.mark.onehotencode
 @pytest.mark.parametrize("verbose", [True, False])
 def test_onehotencode_one_with_drop_first_colname(verbose):
-    """Basic binning test."""
     df = _one_categ_df()
     onehotencode = OneHotEncode("Born", drop_first="UK")
     res_df = onehotencode(df, verbose=verbose)
     assert "Born" not in res_df.columns
-    assert "Born_Greece" in res_df.columns
     assert "Born_UK" not in res_df.columns
+    assert "Born_Greece" in res_df.columns
     assert res_df["Born_Greece"][1] == 0
     assert res_df["Born_Greece"][2] == 0
     assert res_df["Born_Greece"][3] == 1

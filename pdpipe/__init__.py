@@ -102,6 +102,8 @@ except ImportError:
         "stages will not be loaded."
     )
 
+from . import cq
+
 
 from ._version import get_versions
 

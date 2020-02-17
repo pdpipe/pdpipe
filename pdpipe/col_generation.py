@@ -1,12 +1,15 @@
 """Basic pdpipe PdPipelineStages."""
 
+import abc
+
 import numpy as np
 import pandas as pd
 import sortedcontainers as sc
 import tqdm
 
-from pdpipe.core import PdPipelineStage
-from pdpipe.util import out_of_place_col_insert, get_numeric_column_names
+from pdpipe.core import PdPipelineStage, ColumnsBasedPipelineStage
+from pdpipe.util import out_of_place_col_insert
+from pdpipe.cq import OfDtypes
 
 from pdpipe.shared import _interpret_columns_param, _list_str
 
@@ -131,7 +134,7 @@ class Bin(PdPipelineStage):
         return inter_df
 
 
-class OneHotEncode(PdPipelineStage):
+class OneHotEncode(ColumnsBasedPipelineStage):
     """A pipeline stage that one-hot-encodes categorical columns.
 
     By default only k-1 dummies are created fo k categorical levels, as to
@@ -141,21 +144,19 @@ class OneHotEncode(PdPipelineStage):
 
     Parameters
     ----------
-    columns : single label or list-like, default None
+    columns : single label, list-like or callable, default None
         Column labels in the DataFrame to be encoded. If columns is None then
         all the columns with object or category dtype will be converted, except
-        those given in the exclude_columns parameter.
+        those given in the exclude_columns parameter. Alternatively,
+        this parameter can be assigned a callable returning an iterable of
+        labels from an input pandas.DataFrame. See pdpipe.cq.
     dummy_na : bool, default False
         Add a column to indicate NaNs, if False NaNs are ignored.
     exclude_columns : str or list-like, default None
-        Name or names of categorical columns to be excluded from encoding
-        when the columns parameter is not given. If None no column is excluded.
-        Ignored if the columns parameter is given.
-    col_subset : bool, default False
-        If set to True, and only a subset of given columns is found, they are
-        encoded (if the missing columns are encoutered after the stage is
-        fitted they will be ignored). Otherwise, the stage will fail on the
-        precondition requiring all given columns are in input dataframes.
+        Label or labels of columns to be excluded from encoding. If None then
+        no column is excluded. Alternatively, this parameter can be assigned a
+        callable returning an iterable of labels from an input
+        pandas.DataFrame. See pdpipe.cq. Optional.
     drop_first : bool or single label, default True
         Whether to get k-1 dummies out of k categorical levels by removing the
         first level. If a non bool argument matching one of the categories is
@@ -175,12 +176,6 @@ class OneHotEncode(PdPipelineStage):
         2        1         0
         3        0         0
     """
-
-    _DEF_1HENCODE_EXC_MSG = (
-        "OneHotEncode stage failed because not all columns "
-        "{} were found in input dataframe."
-    )
-    _DEF_1HENCODE_APP_MSG = "One-hot encoding {}..."
 
     class _FitterEncoder(object):
         def __init__(self, col_name, dummy_columns):
@@ -202,56 +197,29 @@ class OneHotEncode(PdPipelineStage):
         columns=None,
         dummy_na=False,
         exclude_columns=None,
-        col_subset=False,
         drop_first=True,
         drop=True,
         **kwargs
     ):
-        if columns is None:
-            self._columns = None
-        else:
-            self._columns = _interpret_columns_param(columns)
         self._dummy_na = dummy_na
-        if exclude_columns is None:
-            self._exclude_columns = []
-        else:
-            self._exclude_columns = _interpret_columns_param(exclude_columns)
-        self._col_subset = col_subset
         self._drop_first = drop_first
         self._drop = drop
         self._dummy_col_map = {}
         self._encoder_map = {}
-        col_str = _list_str(self._columns)
         super_kwargs = {
-            "exmsg": OneHotEncode._DEF_1HENCODE_EXC_MSG.format(col_str),
-            "appmsg": OneHotEncode._DEF_1HENCODE_APP_MSG.format(
-                col_str or "all columns"
-            ),
-            "desc": "One-hot encode {}".format(
-                col_str or "all categorical columns"
-            ),
+            'columns': columns,
+            'exclude_columns': exclude_columns,
+            'desc_temp': "One-hot encode {}",
         }
         super_kwargs.update(**kwargs)
+        super_kwargs['none_columns'] = OfDtypes(['object', 'category'])
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
-        if self._col_subset:
-            return True
-        return set(self._columns or []).issubset(df.columns)
+    def _transformation(self, df, verbose, fit):
+        raise NotImplementedError
 
     def _fit_transform(self, df, verbose):
-        columns_to_encode = self._columns
-        if self._columns is None:
-            columns_to_encode = list(
-                set(
-                    df.select_dtypes(include=["object", "category"]).columns
-                ).difference(self._exclude_columns)
-            )
-        if self._col_subset:
-            columns_to_encode = [
-                x for x in columns_to_encode if x in df.columns
-            ]
-        self._cols_to_encode = columns_to_encode
+        columns_to_encode = self._get_columns(df, fit=True)
         assign_map = {}
         if verbose:
             columns_to_encode = tqdm.tqdm(columns_to_encode)
@@ -296,25 +264,127 @@ class OneHotEncode(PdPipelineStage):
 
     def _transform(self, df, verbose):
         assign_map = {}
-        for colname in self._cols_to_encode:
+        columns_to_encode = self._get_columns(df, fit=False)
+        for colname in columns_to_encode:
             col = df[colname]
-            encoder = self._encoder_map[colname]
+            try:
+                encoder = self._encoder_map[colname]
+            except KeyError:  # pragma: no cover
+                raise PipelineApplicationError((
+                    "Missing encoder for column {} when applying a fitted "
+                    "OneHotEncode pipeline stage!").format(colname))
             res_cols = col.apply(encoder)
             for res_col in res_cols:
                 assign_map[res_col] = res_cols[res_col]
         inter_df = df.assign(**assign_map)
         if self._drop:
-            return inter_df.drop(self._cols_to_encode, axis=1)
+            return inter_df.drop(columns_to_encode, axis=1)
         return inter_df
 
 
-class MapColVals(PdPipelineStage):
+class ColumnTransformer(ColumnsBasedPipelineStage):
+    """A pipeline stage that applies transformation to dataframe columns..
+
+    Parameters
+    ----------
+    columns : single label, list-like of callable
+        Column labels in the DataFrame to be transformed. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See pdpipe.cq. If None is provided all
+        input columns are transformed.
+    result_columns : single label or list-like, default None
+        Labels for the new columns resulting from the transformations. Must
+        be of the same length as columns. If None, behavior depends on the
+        drop parameter: If drop is True, then the label of the source column is
+        used; otherwise, the provided 'suffix' is concatenated to the label of
+        the source column.
+    drop : bool, default True
+        If set to True, source columns are dropped after being transformed.
+    suffix : str, default '_transformed'
+        The suffix transformed columns gain if no new column labels are given.
+
+    Example
+    -------
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> df = pd.DataFrame([[1], [3], [2]], ['UK', 'USSR', 'US'], ['Medal'])
+        >>> value_map = {1: 'Gold', 2: 'Silver', 3: 'Bronze'}
+        >>> pdp.MapColVals('Medal', value_map).apply(df)
+               Medal
+        UK      Gold
+        USSR  Bronze
+        US    Silver
+    """
+
+    def __init__(
+        self,
+        columns,
+        result_columns=None,
+        drop=True,
+        suffix=None,
+        **kwargs
+    ):
+        if suffix is None:  # pragma: no cover
+            suffix = "_transformed"
+        self.suffix = suffix
+        self._result_columns = result_columns
+        if result_columns:
+            self._result_columns = _interpret_columns_param(result_columns)
+            if len(self._result_columns) != len(
+                    _interpret_columns_param(columns)):
+                raise ValueError(
+                    "columns and result_columns parameters must"
+                    " be label lists of the same length!"
+                )
+        self._drop = drop
+        super_kwargs = {
+            'columns': columns,
+            'desc_temp': "Transform columns {}",
+            'none_columns': 'all',
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    @abc.abstractmethod
+    def _col_transform(self, series, label):
+        raise NotImplementedError
+
+    def _transformation(self, df, verbose, fit):
+        columns = self._get_columns(df, fit=fit)
+        result_columns = self._result_columns
+        if self._result_columns is None:
+            if self._drop:
+                result_columns = columns
+            else:
+                result_columns = [
+                    col + self.suffix for col in columns
+                ]
+        inter_df = df
+        for i, colname in enumerate(columns):
+            source_col = df[colname]
+            loc = df.columns.get_loc(colname) + 1
+            new_name = result_columns[i]
+            if self._drop:
+                inter_df = inter_df.drop(colname, axis=1)
+                loc -= 1
+            inter_df = out_of_place_col_insert(
+                df=inter_df,
+                series=self._col_transform(source_col, colname),
+                loc=loc,
+                column_name=new_name,
+            )
+        return inter_df
+
+
+class MapColVals(ColumnTransformer):
     """A pipeline stage that replaces the values of a column by a map.
 
     Parameters
     ----------
-    columns : single label or list-like
-        Column labels in the DataFrame to be mapped.
+    columns : single label, list-like of callable
+        Column labels in the DataFrame to be mapped. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See pdpipe.cq. If None is provided all
+        input columns are mapped.
     value_map : dict, function or pandas.Series
         A dictionary mapping existing values to new ones. Values not in the
         dictionary as keys will be converted to NaN. If a function is given, it
@@ -343,12 +413,6 @@ class MapColVals(PdPipelineStage):
         US    Silver
     """
 
-    _DEF_MAP_COLVAL_EXC_MSG = (
-        "MapColVals stage failed because column{} "
-        "{} were not found in input dataframe."
-    )
-    _DEF_MAP_COLVAL_APP_MSG = "Mapping values of column{} {} with {}..."
-
     def __init__(
         self,
         columns,
@@ -358,59 +422,25 @@ class MapColVals(PdPipelineStage):
         suffix=None,
         **kwargs
     ):
-        self._columns = _interpret_columns_param(columns)
         self._value_map = value_map
         if suffix is None:
             suffix = "_map"
-        self.suffix = suffix
-        if result_columns is None:
-            if drop:
-                self._result_columns = self._columns
-            else:
-                self._result_columns = [
-                    col + self.suffix for col in self._columns
-                ]
-        else:
-            self._result_columns = _interpret_columns_param(result_columns)
-            if len(self._result_columns) != len(self._columns):
-                raise ValueError(
-                    "columns and result_columns parameters must"
-                    " be string lists of the same length!"
-                )
-        col_str = _list_str(self._columns)
-        sfx = "s" if len(self._columns) > 1 else ""
-        self._drop = drop
+        _, colstr = ColumnsBasedPipelineStage._interpret_columns_param(
+            columns)
         super_kwargs = {
-            "exmsg": MapColVals._DEF_MAP_COLVAL_EXC_MSG.format(sfx, col_str),
-            "appmsg": MapColVals._DEF_MAP_COLVAL_APP_MSG.format(
-                sfx, col_str, self._value_map
-            ),
-            "desc": "Map values of column{} {} with {}.".format(
-                sfx, col_str, self._value_map
+            'columns': columns,
+            'result_columns': result_columns,
+            'drop': drop,
+            'suffix': suffix,
+            'desc': "Map values of columns {} with {}.".format(
+                colstr, self._value_map
             ),
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
-        return set(self._columns).issubset(df.columns)
-
-    def _transform(self, df, verbose):
-        inter_df = df
-        for i, colname in enumerate(self._columns):
-            source_col = df[colname]
-            loc = df.columns.get_loc(colname) + 1
-            new_name = self._result_columns[i]
-            if self._drop:
-                inter_df = inter_df.drop(colname, axis=1)
-                loc -= 1
-            inter_df = out_of_place_col_insert(
-                df=inter_df,
-                series=source_col.map(self._value_map),
-                loc=loc,
-                column_name=new_name,
-            )
-        return inter_df
+    def _col_transform(self, series, label):
+        return series.map(self._value_map)
 
 
 def _always_true(x):
@@ -535,7 +565,7 @@ class ApplyToRows(PdPipelineStage):
         )
 
 
-class ApplyByCols(PdPipelineStage):
+class ApplyByCols(ColumnTransformer):
     """A pipeline stage applying an element-wise function to columns.
 
     Parameters
@@ -554,8 +584,8 @@ class ApplyByCols(PdPipelineStage):
         If set to True, source columns are dropped after being mapped.
     func_desc : str, default None
         A function description of the given function; e.g. 'normalizing revenue
-        by company size'. A default description is used if None is given.
-    colbl_sfx : str, default None
+        by company size'. Optional.
+    suffix : str, default None
         If provided, this string is concated to resulting column labels instead
         of '_app'.
 
@@ -573,11 +603,6 @@ class ApplyByCols(PdPipelineStage):
         3  13  alk
     """
 
-    _BASE_STR = "Applying a function {} to column{} {}"
-    _DEF_EXC_MSG_SUFFIX = " failed."
-    _DEF_APP_MSG_SUFFIX = "..."
-    _DEF_DESCRIPTION_SUFFIX = "."
-
     def __init__(
         self,
         columns,
@@ -585,61 +610,28 @@ class ApplyByCols(PdPipelineStage):
         result_columns=None,
         drop=True,
         func_desc=None,
-        colbl_sfx=None,
+        suffix=None,
         **kwargs
     ):
-        self._columns = _interpret_columns_param(columns)
         self._func = func
-        self._colbl_sfx = "_app"
-        if colbl_sfx:
-            self._colbl_sfx = colbl_sfx
-        if result_columns is None:
-            if drop:
-                self._result_columns = self._columns
-            else:
-                self._result_columns = [
-                    col + self._colbl_sfx for col in self._columns]
-        else:
-            self._result_columns = _interpret_columns_param(result_columns)
-            if len(self._result_columns) != len(self._columns):
-                raise ValueError(
-                    "columns and result_columns parameters must"
-                    " be string lists of the same length!"
-                )
-        self._drop = drop
+        if suffix is None:
+            suffix = "_app"
         if func_desc is None:
             func_desc = ""
         self._func_desc = func_desc
-        col_str = _list_str(self._columns)
-        sfx = "s" if len(self._columns) > 1 else ""
-        base_str = ApplyByCols._BASE_STR.format(self._func_desc, sfx, col_str)
         super_kwargs = {
-            "exmsg": base_str + ApplyByCols._DEF_EXC_MSG_SUFFIX,
-            "appmsg": base_str + ApplyByCols._DEF_APP_MSG_SUFFIX,
-            "desc": base_str + ApplyByCols._DEF_DESCRIPTION_SUFFIX,
+            'columns': columns,
+            'result_columns': result_columns,
+            'drop': drop,
+            'suffix': suffix,
+            'desc_temp': 'Apply a function {} to columns {{}}'.format(
+                func_desc),
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
-        return set(self._columns).issubset(df.columns)
-
-    def _transform(self, df, verbose):
-        inter_df = df
-        for i, colname in enumerate(self._columns):
-            source_col = df[colname]
-            loc = df.columns.get_loc(colname) + 1
-            new_name = self._result_columns[i]
-            if self._drop:
-                inter_df = inter_df.drop(colname, axis=1)
-                loc -= 1
-            inter_df = out_of_place_col_insert(
-                df=inter_df,
-                series=source_col.apply(self._func),
-                loc=loc,
-                column_name=new_name,
-            )
-        return inter_df
+    def _col_transform(self, series, label):
+        return series.apply(self._func)
 
 
 class ColByFrameFunc(PdPipelineStage):
@@ -722,7 +714,7 @@ class ColByFrameFunc(PdPipelineStage):
         return inter_df
 
 
-class AggByCols(PdPipelineStage):
+class AggByCols(ColumnTransformer):
     """A pipeline stage applying a series-wise function to columns.
 
     Parameters
@@ -730,7 +722,7 @@ class AggByCols(PdPipelineStage):
     columns : str or list-like
         Names of columns on which to apply the given function.
     func : function
-        The function to be applied to each element of the given columns.
+        The function to be applied to each of the given columns.
     result_columns : str or list-like, default None
         The names of the new columns resulting from the mapping operation. Must
         be of the same length as columns. If None, behavior depends on the
@@ -759,12 +751,6 @@ class AggByCols(PdPipelineStage):
         3  2.493205  alk
     """
 
-    _BASE_STR = "Applying a function {} to column{} {}"
-    _DEF_EXC_MSG_SUFFIX = " failed."
-    _DEF_APP_MSG_SUFFIX = "..."
-    _DEF_DESCRIPTION_SUFFIX = "."
-    _DEF_COLNAME_SUFFIX = "_agg"
-
     def __init__(
         self,
         columns,
@@ -775,60 +761,29 @@ class AggByCols(PdPipelineStage):
         suffix=None,
         **kwargs
     ):
-        if suffix is None:
-            suffix = AggByCols._DEF_COLNAME_SUFFIX
-        self._suffix = suffix
-        self._columns = _interpret_columns_param(columns)
         self._func = func
-        if result_columns is None:
-            if drop:
-                self._result_columns = self._columns
-            else:
-                self._result_columns = [col + suffix for col in self._columns]
-        else:
-            self._result_columns = _interpret_columns_param(result_columns)
-            if len(self._result_columns) != len(self._columns):
-                raise ValueError(
-                    "columns and result_columns parameters must"
-                    " be string lists of the same length!"
-                )
-        self._drop = drop
+        if suffix is None:
+            suffix = "_agg"
         if func_desc is None:
             func_desc = ""
         self._func_desc = func_desc
-        col_str = _list_str(self._columns)
-        sfx = "s" if len(self._columns) > 1 else ""
-        base_str = ApplyByCols._BASE_STR.format(self._func_desc, sfx, col_str)
         super_kwargs = {
-            "exmsg": base_str + ApplyByCols._DEF_EXC_MSG_SUFFIX,
-            "appmsg": base_str + ApplyByCols._DEF_APP_MSG_SUFFIX,
-            "desc": base_str + ApplyByCols._DEF_DESCRIPTION_SUFFIX,
+            'columns': columns,
+            'result_columns': result_columns,
+            'drop': drop,
+            'suffix': suffix,
+            'desc_temp': (
+                'Apply an aggregation function {} to columns {{}}'.format(
+                    func_desc)),
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
-        return set(self._columns).issubset(df.columns)
-
-    def _transform(self, df, verbose):
-        inter_df = df
-        for i, colname in enumerate(self._columns):
-            source_col = df[colname]
-            loc = df.columns.get_loc(colname) + 1
-            new_name = self._result_columns[i]
-            if self._drop:
-                inter_df = inter_df.drop(colname, axis=1)
-                loc -= 1
-            inter_df = out_of_place_col_insert(
-                df=inter_df,
-                series=source_col.agg(self._func),
-                loc=loc,
-                column_name=new_name,
-            )
-        return inter_df
+    def _col_transform(self, series, label):
+        return series.agg(self._func)
 
 
-class Log(PdPipelineStage):
+class Log(ColumnsBasedPipelineStage):
     """A pipeline stage that log-transforms numeric data.
 
     Parameters
@@ -836,11 +791,14 @@ class Log(PdPipelineStage):
     columns : str or list-like, default None
         Column names in the DataFrame to be encoded. If columns is None then
         all the columns with a numeric dtype will be transformed, except those
-        given in the exclude_columns parameter.
-    exclude : str or list-like, default None
-        Name or names of numeric columns to be excluded from log-transforming
-        when the columns parameter is not given. If None no column is excluded.
-        Ignored if the columns parameter is given.
+        given in the exclude_columns parameter. Alternatively,
+        this parameter can be assigned a callable returning an iterable of
+        labels from an input pandas.DataFrame. See pdpipe.cq.
+    exclude_columns : str or list-like, default None
+        Label or labels of columns to be excluded from encoding. If None then
+        no column is excluded. Alternatively, this parameter can be assigned a
+        callable returning an iterable of labels from an input
+        pandas.DataFrame. See pdpipe.cq. Optional.
     drop : bool, default False
         If set to True, the source columns are dropped after being encoded,
         and the resulting encoded columns retain the names of the source
@@ -866,55 +824,35 @@ class Log(PdPipelineStage):
         3  2.493205  alk
     """
 
-    _DEF_LOG_EXC_MSG = (
-        "Log stage failed because not all columns "
-        "{} were found in input dataframe."
-    )
     _DEF_LOG_APP_MSG = "Log-transforming {}..."
 
     def __init__(
         self,
         columns=None,
-        exclude=None,
+        exclude_columns=None,
         drop=False,
         non_neg=False,
         const_shift=None,
         **kwargs
     ):
-        if columns is None:
-            self._columns = None
-        else:
-            self._columns = _interpret_columns_param(columns)
-        if exclude is None:
-            self._exclude = []
-        else:
-            self._exclude = _interpret_columns_param(exclude)
         self._drop = drop
         self._non_neg = non_neg
         self._const_shift = const_shift
         self._col_to_minval = {}
-        col_str = "all numeric columns"
-        if self._columns:
-            col_str = _list_str(self._columns)
         super_kwargs = {
-            "exmsg": Log._DEF_LOG_EXC_MSG.format(col_str),
-            "appmsg": Log._DEF_LOG_APP_MSG.format(col_str),
-            "desc": "Log-transform {}".format(col_str),
+            'columns': columns,
+            'exclude_columns': exclude_columns,
+            'desc_temp': "Log-transform {}",
         }
         super_kwargs.update(**kwargs)
+        super_kwargs['none_columns'] = OfDtypes([np.number])
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
-        return set(self._columns or []).issubset(df.columns)
+    def _transformation(self, df, verbose, fit):
+        raise NotImplementedError
 
     def _fit_transform(self, df, verbose):
-        columns_to_transform = self._columns
-        if self._columns is None:
-            columns_to_transform = get_numeric_column_names(df)
-        columns_to_transform = list(
-            set(columns_to_transform).difference(self._exclude)
-        )
-        self._cols_to_transform = columns_to_transform
+        columns_to_transform = self._get_columns(df, fit=True)
         if verbose:
             columns_to_transform = tqdm.tqdm(columns_to_transform)
         inter_df = df
@@ -932,6 +870,8 @@ class Log(PdPipelineStage):
                 if minval < 0:
                     new_col = new_col + abs(minval)
                     self._col_to_minval[colname] = abs(minval)
+                else:
+                    self._col_to_minval[colname] = 0
             # must check not None as neg numbers eval to False
             if self._const_shift is not None:
                 new_col = new_col + self._const_shift
@@ -944,11 +884,16 @@ class Log(PdPipelineStage):
 
     def _transform(self, df, verbose):
         inter_df = df
-        columns_to_transform = self._cols_to_transform
+        columns_to_transform = self._get_columns(df, fit=False)
         if verbose:
             columns_to_transform = tqdm.tqdm(columns_to_transform)
         for colname in columns_to_transform:
-            source_col = df[colname]
+            try:
+                source_col = df[colname]
+            except KeyError:  # pragma: no cover
+                raise PipelineApplicationError((
+                    "Missig column {} when applying a fitted "
+                    "Log pipeline stage!").format(colname))
             loc = df.columns.get_loc(colname) + 1
             new_name = colname + "_log"
             if self._drop:
@@ -960,6 +905,10 @@ class Log(PdPipelineStage):
                 if colname in self._col_to_minval:
                     absminval = self._col_to_minval[colname]
                     new_col = new_col + absminval
+                else:  # pragma: no cover
+                    raise PipelineApplicationError((
+                        "Missig fitted parameter for column {} when applying a"
+                        " fitted Log pipeline stage!").format(colname))
             # must check not None as neg numbers eval to False
             if self._const_shift is not None:
                 new_col = new_col + self._const_shift
