@@ -419,7 +419,7 @@ class ByLabels(ColumnQualifier):
     Parameters
     ----------
     labels : single label or list-like
-        Columns labels which qualify.
+        Column labels which qualify.
     **kwargs
         Additionaly accepts all keyword arguments of the constructor of
         ColumnQualifier. See the documentation of ColumnQualifier for details.
@@ -450,7 +450,7 @@ class ByLabels(ColumnQualifier):
                 lbl for lbl in df.columns
                 if lbl in self._labels
             ]
-        _cqfunc.__doc__ = "Columns  wwith labels in {}".format(
+        _cqfunc.__doc__ = "Columns with labels in {}".format(
             self._labels_str)
         kwargs['func'] = _cqfunc
         super().__init__(**kwargs)
