@@ -40,6 +40,8 @@ class FitOnly(PdPipelineStage):
         super().__init__(**super_kwargs)
 
     def _prec(self, df):
+        if self.is_fitted:
+            return True
         return self._stage._prec(df)
 
     def _fit_transform(self, df, verbose):
