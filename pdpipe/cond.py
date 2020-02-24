@@ -180,6 +180,122 @@ class Condition(object):
         return Condition(func=_func)
 
 
+class PerColumnCondition(Condition):
+    """Checks whether the columns of input dataframes statisfy a condition set.
+
+    Parameters
+    ----------
+    conditions : callable or list-like
+        The condition, or set of conditions, that columns of input dataframes
+        must satisfy. Conditions are callables that accept a `pandas.Series`
+        object and return a `bool` value.
+    conditions_reduce : str, default 'all'
+        How condition statisfaction results are reduced per-column, in case of
+        multiple conditions. 'all' requires a column to satisfy all conditions,
+        while 'any' requires at least one condition to be satisfied.
+    columns_reduce : str, default 'all'
+        How condition satisfaction results are reduced among multiple columns.
+        'all' requires all columns of input dataframes to satisfy the given
+        condition (in the case of multiple conditions, behaviour is determined
+        by the `condition_reduce` parameter), while 'any' requires at least one
+        column to statisfy.
+    **kwargs
+        Additionaly accepts all keyword arguments of the constructor of
+        Condition. See the documentation of Condition for details.
+
+    Example
+    -------
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> df = pd.DataFrame(
+        ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
+        >>> cond = pdp.cond.PerColumnCondition(
+        ...     conditions=lambda x: x.dtype == int,
+        ... )
+        >>> cond
+        <pdpipe.Condition: Dataframes with all colums stasifying all \
+conditions: anonymous condition>
+        >>> cond(df)
+        False
+        >>> cond = pdp.cond.PerColumnCondition(
+        ...     conditions=lambda x: x.dtype == int,
+        ...     columns_reduce='any',
+        ... )
+        >>> cond(df)
+        True
+        >>> cond = pdp.cond.PerColumnCondition(
+        ...     conditions=[
+        ...         lambda x: x.dtype == int,
+        ...         lambda x: x.dtype == object,
+        ...     ],
+        ... )
+        >>> cond(df)
+        False
+        >>> cond = pdp.cond.PerColumnCondition(
+        ...     conditions=[
+        ...         lambda x: x.dtype == int,
+        ...         lambda x: x.dtype == object,
+        ...     ],
+        ...     conditions_reduce='any',
+        ... )
+        >>> cond(df)
+        True
+    """
+
+    def __init__(self, conditions, conditions_reduce=None, columns_reduce=None,
+                 **kwargs):
+        # handling default args and input types
+        if not hasattr(conditions, '__iter__'):
+            conditions = [conditions]
+        if conditions_reduce is None:
+            conditions_reduce = 'all'
+        if columns_reduce is None:
+            columns_reduce = 'all'
+        # building class attributes
+        self._conditions = conditions
+        self._cond_reduce_str = conditions_reduce
+        self._col_reduce_str = columns_reduce
+        self._conditions_str = ', '.join([
+            c.__doc__ or 'anonymous condition'
+            for c in conditions
+        ])
+        if conditions_reduce == 'all':
+            self._cond_reduce = all
+        elif conditions_reduce == 'any':
+            self._cond_reduce = any
+        else:
+            raise ValueError((
+                "The only valid arguments to the `conditions_reduce` parameter"
+                " of PerColumnCondition are 'all' and 'any'!"
+            ))
+        if columns_reduce == 'all':
+            self._col_reduce = all
+        elif columns_reduce == 'any':
+            self._col_reduce = any
+        else:
+            raise ValueError((
+                "The only valid arguments to the `columns_reduce` parameter"
+                " of PerColumnCondition are 'all' and 'any'!"
+            ))
+        # building resulting function
+        def _func(df):  # noqa: E306
+            return self._col_reduce([
+                self._cond_reduce([
+                    cond(df[lbl])
+                    for cond in self._conditions
+                ])
+                for lbl in df.columns
+            ])
+        doc_str = "Dataframes with {} colums stasifying {} conditions: {}"
+        self._func_doc = doc_str.format(
+            self._col_reduce_str, self._cond_reduce_str, self._conditions_str)
+        _func.__doc__ = self._func_doc
+        kwargs['func'] = _func
+        super().__init__(**kwargs)
+
+    def __repr__(self):
+        return "<pdpipe.Condition: {}>".format(self._func_doc)
+
+
 class HasAllColumns(Condition):
     """Checks whether input dataframes contain a list of columns.
 
