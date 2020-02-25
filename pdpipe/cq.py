@@ -62,7 +62,7 @@ pipeline += pdp.ColDrop(columns=pdp.cq.ColumnQualifier(lambda df: [
 ]))
 ```
 
-ColumnQualifier objects also support the &, ^ and | binary boolean operators -
+ColumnQualifier objects also support the &, ^ and | binary operators -
 representing boolean and, xor and or, respectively - and the ~ unary boolean
 operator - representing the boolean not operator. Finally, the - binary
 operator is implemented to represent the NOT IN non-symetric binary relation
