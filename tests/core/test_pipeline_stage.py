@@ -70,6 +70,13 @@ def test_basic_pipeline_stage():
     assert repr(test_stage) == expected_repr
 
 
+def test_prec_arg():
+    test_stage = SomeStage(prec=lambda df: False)
+    df = _test_df()
+    with pytest.raises(FailedPreconditionError):
+        test_stage(df)
+
+
 class FailStage(PdPipelineStage):
     """A pipeline stage for testing"""
 
@@ -98,9 +105,9 @@ def test_fail_pipeline_stage():
 class SilentDropStage(PdPipelineStage):
     """A pipeline stage for testing"""
 
-    def __init__(self, colname):
+    def __init__(self, colname, **kwargs):
         self.colname = colname
-        super().__init__(exraise=False)
+        super().__init__(exraise=False, **kwargs)
 
     def _prec(self, df):
         return self.colname in df.columns
@@ -122,6 +129,18 @@ def test_pipeline_stage_addition_to_int():
     silent_fail_stage = SilentDropStage('Tigers')
     with pytest.raises(TypeError):
         silent_fail_stage + 2
+
+
+def test_skip_arg():
+    silent_fail_stage = SilentDropStage('num')
+    df = _test_df()
+    assert 'num' in df.columns
+    res = silent_fail_stage(df)
+    assert 'num' not in res.columns
+
+    silent_fail_stage = SilentDropStage('num', skip=lambda df: True)
+    res = silent_fail_stage(df)
+    assert 'num' in res.columns
 
 
 class FittableDropByCharStage(PdPipelineStage):

@@ -12,9 +12,10 @@ not statisfied.
 
 This module - `pdpipe.cond` - provides a way to easily generate `Condition`
 objects, which are callable, and can easily be made fittable - to have their
-result determined in fit time and preserved for future transforms. This
-enables the creation pipeline stages that their effective inclusion in the
-pipeline is determined when `fit_transform` is called; for example, whether
+result determined in fit time and preserved for future transforms - by
+assigning the constructor parameter `fittable=True`. This enables the creation
+of pipeline stages whose their effective inclusion in the pipeline is
+determinedonly  when `fit_transform` is called; for example, whether
 dimensionality reduction is required - once this decision is done in training
 time it should be maintained for all future transforms of data (in test and
 validation sets or in production).
@@ -368,8 +369,8 @@ conditions: anonymous condition>
         # building resulting function
         _func = PerColumnCondition._ConditionFunction(
             conditions=self._conditions,
-            col_reduce=self._col_reduce,
             cond_reduce=self._cond_reduce,
+            col_reduce=self._col_reduce,
         )
         doc_str = "Dataframes with {} columns stasifying {} conditions: {}"
         self._func_doc = doc_str.format(
@@ -593,7 +594,7 @@ class HasAtMostMissingValues(Condition):
 
         def __call__(self, df):
             nmiss = df.isna().sum().sum()
-            return nmiss / df.size <= self.n_missing
+            return (nmiss / df.size) <= self.n_missing
 
     def __init__(self, n_missing, **kwargs):
         self._n_missing = n_missing

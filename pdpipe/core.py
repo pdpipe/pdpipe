@@ -155,13 +155,25 @@ class PdPipelineStage(abc.ABC):
     desc : str, default None
         A short description of this stage, used as its string representation.
         A default description is used if None is given.
+    prec : callable, default None
+        This can be assigned a callable that returns boolean values for input
+        dataframes, which will be used to determine whether input dataframes
+        satisfy the preconditions for this pipeline stage (see the `exraise`
+        parameter for the behaviour of failed preconditions). See pdp.cond for
+        more information on specialised Condition objects.
+    skip : callable, default None
+        This can be assigned a callable that returns boolean values for input
+        dataframes, which will be used to determine whether this stage should
+        be skipped for input dataframes. See pdp.cond for more information on
+        specialised Condition objects.
     """
 
     _DEF_EXC_MSG = 'Precondition failed in stage {}!'
     _DEF_DESCRIPTION = 'A pipeline stage.'
     _INIT_KWARGS = ['exraise', 'exmsg', 'desc']
 
-    def __init__(self, exraise=True, exmsg=None, appmsg=None, desc=None):
+    def __init__(self, exraise=True, exmsg=None, desc=None, prec=None,
+                 skip=None):
         if desc is None:
             desc = PdPipelineStage._DEF_DESCRIPTION
         if exmsg is None:
@@ -169,6 +181,8 @@ class PdPipelineStage(abc.ABC):
         self._exraise = exraise
         self._exmsg = exmsg
         self._desc = desc
+        self._prec_arg = prec
+        self._skip = skip
         self._appmsg = '{}..'.format(desc)
         self.is_fitted = False
 
@@ -180,6 +194,11 @@ class PdPipelineStage(abc.ABC):
     def _prec(self, df):  # pylint: disable=R0201,W0613
         """Returns True if this stage can be applied to the given dataframe."""
         raise NotImplementedError
+
+    def _compound_prec(self, df):
+        if self._prec_arg:
+            return self._prec_arg(df)
+        return self._prec(df)
 
     def _fit_transform(self, df, verbose):
         """Fits this stage and transforms the input dataframe."""
@@ -223,7 +242,9 @@ class PdPipelineStage(abc.ABC):
         """
         if exraise is None:
             exraise = self._exraise
-        if self._prec(df=df):
+        if self._skip and self._skip(df):
+            return df
+        if self._compound_prec(df=df):
             if verbose:
                 msg = '- ' + '\n  '.join(textwrap.wrap(self._appmsg))
                 print(msg, flush=True)
@@ -390,17 +411,6 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
         it is replaced with an appropriate string representation of the columns
         parameter, and is used as the pipeline description. Ignored if `desc`
         is provided.
-    exraise : bool, default True
-        If true, a pdpipe.FailedPreconditionError is raised when this
-        stage is applied to a dataframe for which the precondition does
-        not hold. Otherwise the stage is skipped.
-    exmsg : str, default None
-        The message of the exception that is raised on a failed
-        precondition if exraise is set to True. A default message is used
-        if None is given.
-    desc : str, default None
-        A short description of this stage, used as its string representation.
-        A default description is used if None is given.
     none_columns : iterable, callable or str, default 'error'
         Determines how None values supplied to the 'columns' parameter should
         be handled. If set to 'error', the default, a ValueError is raised if
@@ -410,6 +420,8 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
         when `columns=None`. If a callable is provided, it is interpreted as
         the default column qualifier that determines input columns when
         `columns=None`.
+    **kwargs
+        Additionally supports all constructor parameters of PdPipelineStage.
     """
 
     @staticmethod
@@ -437,8 +449,8 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
         return [columns], str(columns)
 
     def __init__(
-            self, columns, exclude_columns=None, desc_temp=None, exraise=True,
-            exmsg=None, desc=None, none_columns='error'):
+            self, columns, exclude_columns=None, desc_temp=None,
+            none_columns='error', **kwargs):
         self._exclude_columns = exclude_columns
         if exclude_columns:
             self._exclude_columns = self._interpret_columns_param(
@@ -467,18 +479,14 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
         # done handling none_columns
         self._col_arg, self._col_str = self._interpret_columns_param(
             columns, self._none_error, none_columns=self._none_cols)
-        if (desc is None) and desc_temp:
-            desc = desc_temp.format(self._col_str)
-        if exmsg is None:
-            exmsg = (
+        if (kwargs.get('desc') is None) and desc_temp:
+            kwargs['desc'] = desc_temp.format(self._col_str)
+        if kwargs.get('exmsg') is None:
+            kwargs['exmsg'] = (
                 'Pipeline stage failed because not all columns {} '
                 'were found in the input dataframe.'
             ).format(self._col_str)
-        super().__init__(
-            exraise=exraise,
-            exmsg=exmsg,
-            desc=desc,
-        )
+        super().__init__(**kwargs)
 
     def _is_fittable(self):
         return is_fittable_column_qualifier(self._col_arg)
