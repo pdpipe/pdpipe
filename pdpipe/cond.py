@@ -81,9 +81,11 @@ class Condition(object):
     func : callable
         A callable that given an input pandas.DataFrame objects returns a
         boolean value.
-    fittable : bool, default True
-        If set to false, this condition becomes unfittable, and `func` is
-        called on every call to transform. True by default.
+    fittable : bool, default False
+        If set to True, this condition becomes fittable, and `func` is not
+        called on calls of `transform()` of a fitted object. If set to False,
+        the default, `func` is called on every call to transform. False by
+        default.
 
     Example
     -------
@@ -95,8 +97,6 @@ class Condition(object):
     """
 
     def __init__(self, func, fittable=None):
-        if fittable is None:
-            fittable = True
         self._func = func
         self._fittable = fittable
 
