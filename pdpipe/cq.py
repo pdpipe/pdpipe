@@ -62,7 +62,7 @@ pipeline += pdp.ColDrop(columns=pdp.cq.ColumnQualifier(lambda df: [
 ]))
 ```
 
-ColumnQualifier objects also support the &, ^ and | binary boolean operators -
+ColumnQualifier objects also support the &, ^ and | binary operators -
 representing boolean and, xor and or, respectively - and the ~ unary boolean
 operator - representing the boolean not operator. Finally, the - binary
 operator is implemented to represent the NOT IN non-symetric binary relation
@@ -488,7 +488,7 @@ class ByLabels(ColumnQualifier):
     Parameters
     ----------
     labels : single label or list-like
-        Columns labels which qualify.
+        Column labels which qualify.
     **kwargs
         Additionaly accepts all keyword arguments of the constructor of
         ColumnQualifier. See the documentation of ColumnQualifier for details.
@@ -526,7 +526,7 @@ class ByLabels(ColumnQualifier):
         self._labels = labels
         self._labels_str = _list_str(self._labels)
         cqfunc = ByLabels._LabelsQualifierFunc(self._labels)
-        cqfunc.__doc__ = "Columns  wwith labels in {}".format(
+        cqfunc.__doc__ = "Columns with labels in {}".format(
             self._labels_str)
         kwargs['func'] = cqfunc
         super().__init__(**kwargs)

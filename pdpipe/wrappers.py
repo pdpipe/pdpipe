@@ -33,7 +33,6 @@ class FitOnly(PdPipelineStage):
         self._stage = stage
         desc = FitOnly._FITONLY_DESC.format(stage.description())
         super_kwargs = {
-            'appmsg': desc + '...',
             'desc': desc,
         }
         super_kwargs.update(**kwargs)

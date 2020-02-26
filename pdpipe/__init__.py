@@ -103,6 +103,7 @@ except ImportError:
     )
 
 from . import cq
+from . import cond
 
 
 from ._version import get_versions

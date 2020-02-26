@@ -58,7 +58,6 @@ class Bin(PdPipelineStage):
         "Bin stage failed because not all columns "
         "{} were found in input dataframe."
     )
-    _DEF_BIN_APP_MSG = "Binning column{} {}..."
 
     def _default_desc(self):
         string = ""
@@ -76,9 +75,6 @@ class Bin(PdPipelineStage):
         columns_str = _list_str(list(bin_map.keys()))
         super_kwargs = {
             "exmsg": Bin._DEF_BIN_EXC_MSG.format(columns_str),
-            "appmsg": Bin._DEF_BIN_APP_MSG.format(
-                "s" if len(bin_map) > 1 else "", columns_str
-            ),
             "desc": self._default_desc(),
         }
         super_kwargs.update(**kwargs)
@@ -495,7 +491,6 @@ class ApplyToRows(PdPipelineStage):
     """
 
     _DEF_APPLYTOROWS_EXC_MSG = "Applying a function {} failed."
-    _DEF_APPLYTOROWS_APP_MSG = "Applying a function {}..."
     _DEF_COLNAME = "new_col"
 
     def __init__(
@@ -520,7 +515,6 @@ class ApplyToRows(PdPipelineStage):
         self._prec_func = prec
         super_kwargs = {
             "exmsg": ApplyToRows._DEF_APPLYTOROWS_EXC_MSG.format(func_desc),
-            "appmsg": ApplyToRows._DEF_APPLYTOROWS_APP_MSG.format(func_desc),
             "desc": "Generating a column with a function {}.".format(
                 self._func_desc
             ),
@@ -668,7 +662,6 @@ class ColByFrameFunc(PdPipelineStage):
 
     _BASE_STR = "Applying a function{} to column {}"
     _DEF_EXC_MSG_SUFFIX = " failed."
-    _DEF_APP_MSG_SUFFIX = "..."
     _DEF_DESCRIPTION_SUFFIX = "."
 
     def __init__(
@@ -685,7 +678,6 @@ class ColByFrameFunc(PdPipelineStage):
         base_str = ColByFrameFunc._BASE_STR.format(self._func_desc, column)
         super_kwargs = {
             "exmsg": base_str + ColByFrameFunc._DEF_EXC_MSG_SUFFIX,
-            "appmsg": base_str + ColByFrameFunc._DEF_APP_MSG_SUFFIX,
             "desc": base_str + ColByFrameFunc._DEF_DESCRIPTION_SUFFIX,
         }
         super_kwargs.update(**kwargs)

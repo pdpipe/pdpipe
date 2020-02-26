@@ -281,7 +281,7 @@ class SnowballStem(MapColVals):
     _DEF_STEM_EXC_MSG = ("SnowballStem stage failed because not all "
                          "columns {} are present in input dataframe and "
                          "are of dtype object.")
-    _DEF_STEM_APP_MSG = "Stemming tokens{} in {}..."
+    _DEF_STEM_DESC = "Stemming tokens{} in {}..."
 
     class MinLenStemCondition(object):
 
@@ -367,14 +367,14 @@ class SnowballStem(MapColVals):
             if not min_len:
                 cond_str += ' of length'
             cond_str += ' <= {}'.format(max_len)
-        appmsg = SnowballStem._DEF_STEM_APP_MSG.format(cond_str, col_str)
+        desc = SnowballStem._DEF_STEM_DESC.format(cond_str, col_str)
         super_kwargs = {
             'columns': columns,
             'value_map': self.list_stemmer,
             'drop': drop,
             'suffix': '_stem',
             'exmsg': SnowballStem._DEF_STEM_EXC_MSG.format(col_str),
-            'desc': appmsg,
+            'desc': desc,
         }
         super_kwargs.update(**kwargs)
         super_kwargs['none_columns'] = 'error'

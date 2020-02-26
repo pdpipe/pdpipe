@@ -299,7 +299,6 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
         super_kwargs = {
             "exmsg": ("TfIdfVectorizeTokenLists precondition not met:"
                       "{} column not found.".format(column)),
-            "appmsg": "{}..".format(msg),
             "desc": msg,
         }
         valid_vectorizer_args = _get_args_list(TfidfVectorizer.__init__)

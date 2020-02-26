@@ -187,7 +187,6 @@ class ColRename(PdPipelineStage):
 
     _DEF_COLDRENAME_EXC_MSG = ("ColRename stage failed because not all columns"
                                " {} were found in input dataframe.")
-    _DEF_COLDRENAME_APP_MSG = "Renaming column{} {}..."
 
     def __init__(self, rename_map, **kwargs):
         self._rename_map = rename_map
@@ -195,8 +194,6 @@ class ColRename(PdPipelineStage):
         suffix = 's' if len(rename_map) > 1 else ''
         super_kwargs = {
             'exmsg': ColRename._DEF_COLDRENAME_EXC_MSG.format(columns_str),
-            'appmsg': ColRename._DEF_COLDRENAME_APP_MSG.format(
-                suffix, columns_str),
             'desc': "Rename column{} with {}".format(suffix, self._rename_map)
         }
         super_kwargs.update(**kwargs)
@@ -233,7 +230,6 @@ class DropNa(PdPipelineStage):
         self.dropna_kwargs = {key: kwargs.pop(key) for key in common}
         super_kwargs = {
             'exmsg': DropNa._DEF_DROPNA_EXC_MSG,
-            'appmsg': DropNa._DEF_DROPNA_APP_MSG,
             'desc': "Drops null values."
         }
         super_kwargs.update(**kwargs)
@@ -276,18 +272,13 @@ class FreqDrop(PdPipelineStage):
 
     _DEF_FREQDROP_EXC_MSG = ("FreqDrop stage failed because column {} was not"
                              " found in input dataframe.")
-    _DEF_FREQDROP_APPLY_MSG = ("Dropping values with frequency < {} in column"
-                               " {}...")
     _DEF_FREQDROP_DESC = "Drop values with frequency < {} in column {}."
 
     def __init__(self, threshold, column, **kwargs):
         self._threshold = threshold
         self._column = column
-        apply_msg = FreqDrop._DEF_FREQDROP_APPLY_MSG.format(
-            self._threshold, self._column)
         super_kwargs = {
             'exmsg': FreqDrop._DEF_FREQDROP_EXC_MSG.format(self._column),
-            'appmsg': apply_msg,
             'desc': FreqDrop._DEF_FREQDROP_DESC.format(
                 self._threshold, self._column)
         }
@@ -335,7 +326,6 @@ class ColReorder(PdPipelineStage):
         self._pos_to_col = reverse_dict_partial(positions)
         super_kwargs = {
             'exmsg': ColReorder._DEF_ORD_EXC_MSG.format(self._col_to_pos),
-            'appmsg': "Reordering columns by {}".format(self._col_to_pos),
             'desc': "Reorder columns by {}".format(self._col_to_pos),
         }
         super_kwargs.update(**kwargs)
@@ -514,12 +504,10 @@ class Schematize(PdPipelineStage):
         self._columns_str = _list_str(self._columns)
         desc = "Transform input dataframes to the following schema: {}".format(
             self._columns_str)
-        appmsg = desc + '..'
         exmsg = "Not all required columns {} found in input dataframe!".format(
             self._columns_str)
         super_kwargs = {
             'exmsg': exmsg,
-            'appmsg': appmsg,
             'desc': desc,
         }
         super_kwargs.update(**kwargs)
