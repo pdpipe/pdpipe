@@ -33,7 +33,7 @@ pipeline stages.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/sklearn_stages.py#L0-L351" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/sklearn_stages.py#L0-L350" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;PdPipeline stages dependent on the scikit-learn Python library.
 
@@ -336,7 +336,6 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
         super_kwargs = {
             &#34;exmsg&#34;: (&#34;TfIdfVectorizeTokenLists precondition not met:&#34;
                       &#34;{} column not found.&#34;.format(column)),
-            &#34;appmsg&#34;: &#34;{}..&#34;.format(msg),
             &#34;desc&#34;: msg,
         }
         valid_vectorizer_args = _get_args_list(TfidfVectorizer.__init__)
@@ -440,7 +439,7 @@ array(['acd', 'alk', 'alk'], dtype=object)
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/sklearn_stages.py#L32-L130" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/sklearn_stages.py#L32-L130" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Encode(ColumnsBasedPipelineStage):
     &#34;&#34;&#34;A pipeline stage that encodes categorical columns to integer values.
@@ -637,7 +636,7 @@ to override Scale class defaults.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/sklearn_stages.py#L133-L246" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/sklearn_stages.py#L133-L246" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Scale(ColumnsBasedPipelineStage):
     &#34;&#34;&#34;A pipeline stage that scales data.
@@ -850,7 +849,7 @@ originating in different text columns do not overwrite one another.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/sklearn_stages.py#L249-L352" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/sklearn_stages.py#L249-L351" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class TfidfVectorizeTokenLists(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage TFIDF-vectorizing a token-list column to count columns.
@@ -905,7 +904,6 @@ originating in different text columns do not overwrite one another.</dd>
         super_kwargs = {
             &#34;exmsg&#34;: (&#34;TfIdfVectorizeTokenLists precondition not met:&#34;
                       &#34;{} column not found.&#34;.format(column)),
-            &#34;appmsg&#34;: &#34;{}..&#34;.format(msg),
             &#34;desc&#34;: msg,
         }
         valid_vectorizer_args = _get_args_list(TfidfVectorizer.__init__)

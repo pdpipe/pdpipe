@@ -27,7 +27,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/basic_stages.py#L0-L572" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/basic_stages.py#L0-L560" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Basic pdpipe PdPipelineStages.&#34;&#34;&#34;
 
@@ -218,7 +218,6 @@ class ColRename(PdPipelineStage):
 
     _DEF_COLDRENAME_EXC_MSG = (&#34;ColRename stage failed because not all columns&#34;
                                &#34; {} were found in input dataframe.&#34;)
-    _DEF_COLDRENAME_APP_MSG = &#34;Renaming column{} {}...&#34;
 
     def __init__(self, rename_map, **kwargs):
         self._rename_map = rename_map
@@ -226,8 +225,6 @@ class ColRename(PdPipelineStage):
         suffix = &#39;s&#39; if len(rename_map) &gt; 1 else &#39;&#39;
         super_kwargs = {
             &#39;exmsg&#39;: ColRename._DEF_COLDRENAME_EXC_MSG.format(columns_str),
-            &#39;appmsg&#39;: ColRename._DEF_COLDRENAME_APP_MSG.format(
-                suffix, columns_str),
             &#39;desc&#39;: &#34;Rename column{} with {}&#34;.format(suffix, self._rename_map)
         }
         super_kwargs.update(**kwargs)
@@ -264,7 +261,6 @@ class DropNa(PdPipelineStage):
         self.dropna_kwargs = {key: kwargs.pop(key) for key in common}
         super_kwargs = {
             &#39;exmsg&#39;: DropNa._DEF_DROPNA_EXC_MSG,
-            &#39;appmsg&#39;: DropNa._DEF_DROPNA_APP_MSG,
             &#39;desc&#39;: &#34;Drops null values.&#34;
         }
         super_kwargs.update(**kwargs)
@@ -307,18 +303,13 @@ class FreqDrop(PdPipelineStage):
 
     _DEF_FREQDROP_EXC_MSG = (&#34;FreqDrop stage failed because column {} was not&#34;
                              &#34; found in input dataframe.&#34;)
-    _DEF_FREQDROP_APPLY_MSG = (&#34;Dropping values with frequency &lt; {} in column&#34;
-                               &#34; {}...&#34;)
     _DEF_FREQDROP_DESC = &#34;Drop values with frequency &lt; {} in column {}.&#34;
 
     def __init__(self, threshold, column, **kwargs):
         self._threshold = threshold
         self._column = column
-        apply_msg = FreqDrop._DEF_FREQDROP_APPLY_MSG.format(
-            self._threshold, self._column)
         super_kwargs = {
             &#39;exmsg&#39;: FreqDrop._DEF_FREQDROP_EXC_MSG.format(self._column),
-            &#39;appmsg&#39;: apply_msg,
             &#39;desc&#39;: FreqDrop._DEF_FREQDROP_DESC.format(
                 self._threshold, self._column)
         }
@@ -366,7 +357,6 @@ class ColReorder(PdPipelineStage):
         self._pos_to_col = reverse_dict_partial(positions)
         super_kwargs = {
             &#39;exmsg&#39;: ColReorder._DEF_ORD_EXC_MSG.format(self._col_to_pos),
-            &#39;appmsg&#39;: &#34;Reordering columns by {}&#34;.format(self._col_to_pos),
             &#39;desc&#39;: &#34;Reorder columns by {}&#34;.format(self._col_to_pos),
         }
         super_kwargs.update(**kwargs)
@@ -545,12 +535,10 @@ class Schematize(PdPipelineStage):
         self._columns_str = _list_str(self._columns)
         desc = &#34;Transform input dataframes to the following schema: {}&#34;.format(
             self._columns_str)
-        appmsg = desc + &#39;..&#39;
         exmsg = &#34;Not all required columns {} found in input dataframe!&#34;.format(
             self._columns_str)
         super_kwargs = {
             &#39;exmsg&#39;: exmsg,
-            &#39;appmsg&#39;: appmsg,
             &#39;desc&#39;: desc,
         }
         super_kwargs.update(**kwargs)
@@ -644,7 +632,7 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/basic_stages.py#L15-L59" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/basic_stages.py#L15-L59" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ColDrop(ColumnsBasedPipelineStage):
     &#34;&#34;&#34;A pipeline stage that drops columns by name.
@@ -767,7 +755,7 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/basic_stages.py#L170-L209" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/basic_stages.py#L170-L206" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ColRename(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that renames a column or columns.
@@ -789,7 +777,6 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 
     _DEF_COLDRENAME_EXC_MSG = (&#34;ColRename stage failed because not all columns&#34;
                                &#34; {} were found in input dataframe.&#34;)
-    _DEF_COLDRENAME_APP_MSG = &#34;Renaming column{} {}...&#34;
 
     def __init__(self, rename_map, **kwargs):
         self._rename_map = rename_map
@@ -797,8 +784,6 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
         suffix = &#39;s&#39; if len(rename_map) &gt; 1 else &#39;&#39;
         super_kwargs = {
             &#39;exmsg&#39;: ColRename._DEF_COLDRENAME_EXC_MSG.format(columns_str),
-            &#39;appmsg&#39;: ColRename._DEF_COLDRENAME_APP_MSG.format(
-                suffix, columns_str),
             &#39;desc&#39;: &#34;Rename column{} with {}&#34;.format(suffix, self._rename_map)
         }
         super_kwargs.update(**kwargs)
@@ -885,7 +870,7 @@ positions over the non-mapped colums.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/basic_stages.py#L311-L361" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/basic_stages.py#L302-L351" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ColReorder(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that reorders columns.
@@ -914,7 +899,6 @@ positions over the non-mapped colums.</dd>
         self._pos_to_col = reverse_dict_partial(positions)
         super_kwargs = {
             &#39;exmsg&#39;: ColReorder._DEF_ORD_EXC_MSG.format(self._col_to_pos),
-            &#39;appmsg&#39;: &#34;Reordering columns by {}&#34;.format(self._col_to_pos),
             &#39;desc&#39;: &#34;Reorder columns by {}&#34;.format(self._col_to_pos),
         }
         super_kwargs.update(**kwargs)
@@ -1019,7 +1003,7 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/basic_stages.py#L535-L573" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/basic_stages.py#L523-L561" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class DropDuplicates(ColumnsBasedPipelineStage):
     &#34;&#34;&#34;Drop duplicates in the given columns.
@@ -1132,7 +1116,7 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/basic_stages.py#L212-L254" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/basic_stages.py#L209-L250" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class DropNa(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that drops null values.
@@ -1158,7 +1142,6 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
         self.dropna_kwargs = {key: kwargs.pop(key) for key in common}
         super_kwargs = {
             &#39;exmsg&#39;: DropNa._DEF_DROPNA_EXC_MSG,
-            &#39;appmsg&#39;: DropNa._DEF_DROPNA_APP_MSG,
             &#39;desc&#39;: &#34;Drops null values.&#34;
         }
         super_kwargs.update(**kwargs)
@@ -1254,7 +1237,7 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/basic_stages.py#L257-L308" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/basic_stages.py#L253-L299" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class FreqDrop(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that drops rows by value frequency.
@@ -1278,18 +1261,13 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 
     _DEF_FREQDROP_EXC_MSG = (&#34;FreqDrop stage failed because column {} was not&#34;
                              &#34; found in input dataframe.&#34;)
-    _DEF_FREQDROP_APPLY_MSG = (&#34;Dropping values with frequency &lt; {} in column&#34;
-                               &#34; {}...&#34;)
     _DEF_FREQDROP_DESC = &#34;Drop values with frequency &lt; {} in column {}.&#34;
 
     def __init__(self, threshold, column, **kwargs):
         self._threshold = threshold
         self._column = column
-        apply_msg = FreqDrop._DEF_FREQDROP_APPLY_MSG.format(
-            self._threshold, self._column)
         super_kwargs = {
             &#39;exmsg&#39;: FreqDrop._DEF_FREQDROP_EXC_MSG.format(self._column),
-            &#39;appmsg&#39;: apply_msg,
             &#39;desc&#39;: FreqDrop._DEF_FREQDROP_DESC.format(
                 self._threshold, self._column)
         }
@@ -1412,7 +1390,7 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/basic_stages.py#L364-L487" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/basic_stages.py#L354-L477" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class RowDrop(ColumnsBasedPipelineStage):
     &#34;&#34;&#34;A pipeline stage that drop rows by callable conditions.
@@ -1553,7 +1531,7 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/basic_stages.py#L417-L426" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/basic_stages.py#L407-L416" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class DictRowCond(object):
     &#34;&#34;&#34;Filter rows by a dict of conditions.&#34;&#34;&#34;
@@ -1573,7 +1551,7 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/basic_stages.py#L428-L437" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/basic_stages.py#L418-L427" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ListRowCond(object):
     &#34;&#34;&#34;Filter rows by a list of conditions.&#34;&#34;&#34;
@@ -1661,7 +1639,7 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/basic_stages.py#L490-L532" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/basic_stages.py#L480-L520" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Schematize(PdPipelineStage):
     &#34;&#34;&#34;Enforces a column schema on input dataframes.
@@ -1690,12 +1668,10 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
         self._columns_str = _list_str(self._columns)
         desc = &#34;Transform input dataframes to the following schema: {}&#34;.format(
             self._columns_str)
-        appmsg = desc + &#39;..&#39;
         exmsg = &#34;Not all required columns {} found in input dataframe!&#34;.format(
             self._columns_str)
         super_kwargs = {
             &#39;exmsg&#39;: exmsg,
-            &#39;appmsg&#39;: appmsg,
             &#39;desc&#39;: desc,
         }
         super_kwargs.update(**kwargs)
@@ -1794,7 +1770,7 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/basic_stages.py#L62-L113" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/basic_stages.py#L62-L113" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ValDrop(ColumnsBasedPipelineStage):
     &#34;&#34;&#34;A pipeline stage that drops rows by value.
@@ -1937,7 +1913,7 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/basic_stages.py#L116-L167" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/basic_stages.py#L116-L167" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ValKeep(ColumnsBasedPipelineStage):
     &#34;&#34;&#34;A pipeline stage that keeps rows by value.

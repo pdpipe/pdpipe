@@ -33,7 +33,7 @@ stages.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/nltk_stages.py#L0-L494" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/nltk_stages.py#L0-L494" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;PdPipeline stages dependent on the nltk Python library.
 
@@ -318,7 +318,7 @@ class SnowballStem(MapColVals):
     _DEF_STEM_EXC_MSG = (&#34;SnowballStem stage failed because not all &#34;
                          &#34;columns {} are present in input dataframe and &#34;
                          &#34;are of dtype object.&#34;)
-    _DEF_STEM_APP_MSG = &#34;Stemming tokens{} in {}...&#34;
+    _DEF_STEM_DESC = &#34;Stemming tokens{} in {}...&#34;
 
     class MinLenStemCondition(object):
 
@@ -404,14 +404,14 @@ class SnowballStem(MapColVals):
             if not min_len:
                 cond_str += &#39; of length&#39;
             cond_str += &#39; &lt;= {}&#39;.format(max_len)
-        appmsg = SnowballStem._DEF_STEM_APP_MSG.format(cond_str, col_str)
+        desc = SnowballStem._DEF_STEM_DESC.format(cond_str, col_str)
         super_kwargs = {
             &#39;columns&#39;: columns,
             &#39;value_map&#39;: self.list_stemmer,
             &#39;drop&#39;: drop,
             &#39;suffix&#39;: &#39;_stem&#39;,
             &#39;exmsg&#39;: SnowballStem._DEF_STEM_EXC_MSG.format(col_str),
-            &#39;desc&#39;: appmsg,
+            &#39;desc&#39;: desc,
         }
         super_kwargs.update(**kwargs)
         super_kwargs[&#39;none_columns&#39;] = &#39;error&#39;
@@ -577,7 +577,7 @@ Otherwise, the new columns gain the suffix '_norare'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/nltk_stages.py#L388-L495" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/nltk_stages.py#L388-L495" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class DropRareTokens(ColumnsBasedPipelineStage):
     &#34;&#34;&#34;A pipeline stage that drop rare tokens from token lists.
@@ -778,7 +778,7 @@ Otherwise, resulting columns gain the suffix '_nostop'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/nltk_stages.py#L152-L241" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/nltk_stages.py#L152-L241" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class RemoveStopwords(MapColVals):
     &#34;&#34;&#34;A pipeline stage that removes stopwords from a tokenized list.
@@ -965,7 +965,7 @@ resulting columns gain the suffix '_stem'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/nltk_stages.py#L244-L385" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/nltk_stages.py#L244-L385" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class SnowballStem(MapColVals):
     &#34;&#34;&#34;A pipeline stage that stems tokens in a list using the Snowball stemmer.
@@ -1007,7 +1007,7 @@ resulting columns gain the suffix '_stem'.</dd>
     _DEF_STEM_EXC_MSG = (&#34;SnowballStem stage failed because not all &#34;
                          &#34;columns {} are present in input dataframe and &#34;
                          &#34;are of dtype object.&#34;)
-    _DEF_STEM_APP_MSG = &#34;Stemming tokens{} in {}...&#34;
+    _DEF_STEM_DESC = &#34;Stemming tokens{} in {}...&#34;
 
     class MinLenStemCondition(object):
 
@@ -1093,14 +1093,14 @@ resulting columns gain the suffix '_stem'.</dd>
             if not min_len:
                 cond_str += &#39; of length&#39;
             cond_str += &#39; &lt;= {}&#39;.format(max_len)
-        appmsg = SnowballStem._DEF_STEM_APP_MSG.format(cond_str, col_str)
+        desc = SnowballStem._DEF_STEM_DESC.format(cond_str, col_str)
         super_kwargs = {
             &#39;columns&#39;: columns,
             &#39;value_map&#39;: self.list_stemmer,
             &#39;drop&#39;: drop,
             &#39;suffix&#39;: &#39;_stem&#39;,
             &#39;exmsg&#39;: SnowballStem._DEF_STEM_EXC_MSG.format(col_str),
-            &#39;desc&#39;: appmsg,
+            &#39;desc&#39;: desc,
         }
         super_kwargs.update(**kwargs)
         super_kwargs[&#39;none_columns&#39;] = &#39;error&#39;
@@ -1126,7 +1126,7 @@ resulting columns gain the suffix '_stem'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/nltk_stages.py#L294-L300" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/nltk_stages.py#L294-L300" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class MaxLenStemCondition(object):
 
@@ -1143,7 +1143,7 @@ resulting columns gain the suffix '_stem'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/nltk_stages.py#L286-L292" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/nltk_stages.py#L286-L292" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class MinLenStemCondition(object):
 
@@ -1160,7 +1160,7 @@ resulting columns gain the suffix '_stem'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/nltk_stages.py#L302-L309" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/nltk_stages.py#L302-L309" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class MinMaxLenStemCondition(object):
 
@@ -1250,7 +1250,7 @@ columns. Otherwise, tokenized columns gain the suffix '_tok'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/nltk_stages.py#L29-L91" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/nltk_stages.py#L29-L91" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class TokenizeText(MapColVals):
     &#34;&#34;&#34;A pipeline stage that tokenize a text column into token lists.
@@ -1403,7 +1403,7 @@ Otherwise, untokenized columns gain the suffix '_untok'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/nltk_stages.py#L94-L149" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/nltk_stages.py#L94-L149" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class UntokenizeText(MapColVals):
     &#34;&#34;&#34;A pipeline stage that joins token lists to whitespace-seperated strings.

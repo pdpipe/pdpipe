@@ -215,7 +215,7 @@ class which takes a function in its <code>transform</code> constructor parameter
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/__init__.py#L0-L136" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/__init__.py#L0-L137" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;
 The `pdpipe` Python package provides a concise interface for building `pandas`
@@ -322,6 +322,7 @@ except ImportError:
     )
 
 from . import cq
+from . import cond
 
 
 from ._version import get_versions
@@ -366,6 +367,10 @@ __pdoc__ = {
 <dt><code class="name"><a title="pdpipe.col_generation" href="col_generation.html">pdpipe.col_generation</a></code></dt>
 <dd>
 <section class="desc"><p>Basic pdpipe PdPipelineStages.</p></section>
+</dd>
+<dt><code class="name"><a title="pdpipe.cond" href="cond.html">pdpipe.cond</a></code></dt>
+<dd>
+<section class="desc"><p>Fittable conditions for pdpipe …</p></section>
 </dd>
 <dt><code class="name"><a title="pdpipe.core" href="core.html">pdpipe.core</a></code></dt>
 <dd>
@@ -461,6 +466,7 @@ __pdoc__ = {
 <ul>
 <li><code><a title="pdpipe.basic_stages" href="basic_stages.html">pdpipe.basic_stages</a></code></li>
 <li><code><a title="pdpipe.col_generation" href="col_generation.html">pdpipe.col_generation</a></code></li>
+<li><code><a title="pdpipe.cond" href="cond.html">pdpipe.cond</a></code></li>
 <li><code><a title="pdpipe.core" href="core.html">pdpipe.core</a></code></li>
 <li><code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code></li>
 <li><code><a title="pdpipe.exceptions" href="exceptions.html">pdpipe.exceptions</a></code></li>

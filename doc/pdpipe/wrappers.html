@@ -27,7 +27,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/wrappers.py#L0-L52" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/wrappers.py#L0-L53" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Wrapper-kind pdpipe pipline stages.&#34;&#34;&#34;
 
@@ -64,13 +64,14 @@ class FitOnly(PdPipelineStage):
         self._stage = stage
         desc = FitOnly._FITONLY_DESC.format(stage.description())
         super_kwargs = {
-            &#39;appmsg&#39;: desc + &#39;...&#39;,
             &#39;desc&#39;: desc,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
     def _prec(self, df):
+        if self.is_fitted:
+            return True
         return self._stage._prec(df)
 
     def _fit_transform(self, df, verbose):
@@ -121,7 +122,7 @@ class FitOnly(PdPipelineStage):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/wrappers.py#L7-L53" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/wrappers.py#L7-L54" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class FitOnly(PdPipelineStage):
     &#34;&#34;&#34;A wrapper that applies a stage to input data only when fitting.
@@ -152,13 +153,14 @@ class FitOnly(PdPipelineStage):
         self._stage = stage
         desc = FitOnly._FITONLY_DESC.format(stage.description())
         super_kwargs = {
-            &#39;appmsg&#39;: desc + &#39;...&#39;,
             &#39;desc&#39;: desc,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
     def _prec(self, df):
+        if self.is_fitted:
+            return True
         return self._stage._prec(df)
 
     def _fit_transform(self, df, verbose):

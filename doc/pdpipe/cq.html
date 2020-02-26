@@ -78,7 +78,7 @@ columns of data type <code>numpy.int64</code>, but also "remembers" that list af
   if s.dtype == np.int64
 ]))
 </code></pre>
-<p>ColumnQualifier objects also support the &amp;, ^ and | binary boolean operators -
+<p>ColumnQualifier objects also support the &amp;, ^ and | binary operators -
 representing boolean and, xor and or, respectively - and the ~ unary boolean
 operator - representing the boolean not operator. Finally, the - binary
 operator is implemented to represent the NOT IN non-symetric binary relation
@@ -113,7 +113,7 @@ that start with 'b' can be generated with:</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/cq.py#L0-L648" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/cq.py#L0-L745" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Column qualifiers for pdpipe.
 
@@ -179,7 +179,7 @@ pipeline += pdp.ColDrop(columns=pdp.cq.ColumnQualifier(lambda df: [
 ]))
 ```
 
-ColumnQualifier objects also support the &amp;, ^ and | binary boolean operators -
+ColumnQualifier objects also support the &amp;, ^ and | binary operators -
 representing boolean and, xor and or, respectively - and the ~ unary boolean
 operator - representing the boolean not operator. Finally, the - binary
 operator is implemented to represent the NOT IN non-symetric binary relation
@@ -349,80 +349,134 @@ class ColumnQualifier(object):
     def _x_inorderof_y(x, y):
         return [i for i in y if i in x]
 
+    class _AndQualifierFunc(object):
+        &#34;&#34;&#34;A pickle-able AND qualifier class.&#34;&#34;&#34;
+
+        def __init__(self, first, second):
+            self.first = first
+            self.second = second
+
+        def __call__(self, df):
+            return ColumnQualifier._x_inorderof_y(
+                x=set(self.first(df)).intersection(self.second(df)),
+                y=df.columns,
+            )
+
     def __and__(self, other):
         try:
-            ofunc = other._cqfunc
-            def _cqfunc(df):  # noqa: E306
-                return ColumnQualifier._x_inorderof_y(
-                    x=set(self._cqfunc(df)).intersection(ofunc(df)),
-                    y=df.columns,
-                )
-            _cqfunc.__doc__ = &#39;{} AND {}&#39;.format(
+            res_func = ColumnQualifier._AndQualifierFunc(
+                first=self._cqfunc,
+                second=other._cqfunc,
+            )
+            res_func.__doc__ = &#39;{} AND {}&#39;.format(
                 self._cqfunc.__doc__ or &#39;Anonymous qualifier 1&#39;,
                 other._cqfunc.__doc__ or &#39;Anonymous qualifier 2&#39;,
             )
-            return ColumnQualifier(func=_cqfunc)
+            return ColumnQualifier(func=res_func)
         except AttributeError:
             return NotImplemented
+
+    class _XorQualifierFunc(object):
+        &#34;&#34;&#34;A pickle-able XOR qualifier class.&#34;&#34;&#34;
+
+        def __init__(self, first, second):
+            self.first = first
+            self.second = second
+
+        def __call__(self, df):
+            return ColumnQualifier._x_inorderof_y(
+                x=set(self.first(df)).symmetric_difference(self.second(df)),
+                y=df.columns,
+            )
 
     def __xor__(self, other):
         try:
-            ofunc = other._cqfunc
-            def _cqfunc(df):  # noqa: E306
-                return ColumnQualifier._x_inorderof_y(
-                    x=set(self._cqfunc(df)).symmetric_difference(ofunc(df)),
-                    y=df.columns,
-                )
-            _cqfunc.__doc__ = &#39;{} XOR {}&#39;.format(
+            res_func = ColumnQualifier._XorQualifierFunc(
+                first=self._cqfunc,
+                second=other._cqfunc,
+            )
+            res_func.__doc__ = &#39;{} XOR {}&#39;.format(
                 self._cqfunc.__doc__ or &#39;Anonymous qualifier 1&#39;,
                 other._cqfunc.__doc__ or &#39;Anonymous qualifier 2&#39;,
             )
-            return ColumnQualifier(func=_cqfunc)
+            return ColumnQualifier(func=res_func)
         except AttributeError:
             return NotImplemented
+
+    class _OrQualifierFunc(object):
+        &#34;&#34;&#34;A pickle-able OR qualifier class.&#34;&#34;&#34;
+
+        def __init__(self, first, second):
+            self.first = first
+            self.second = second
+
+        def __call__(self, df):
+            return ColumnQualifier._x_inorderof_y(
+                x=set(self.first(df)).union(self.second(df)),
+                y=df.columns,
+            )
 
     def __or__(self, other):
         try:
-            ofunc = other._cqfunc
-            def _cqfunc(df):  # noqa: E306
-                return ColumnQualifier._x_inorderof_y(
-                    x=set(self._cqfunc(df)).union(ofunc(df)),
-                    y=df.columns,
-                )
-            _cqfunc.__doc__ = &#39;{} OR {}&#39;.format(
+            res_func = ColumnQualifier._OrQualifierFunc(
+                first=self._cqfunc,
+                second=other._cqfunc,
+            )
+            res_func.__doc__ = &#39;{} OR {}&#39;.format(
                 self._cqfunc.__doc__ or &#39;Anonymous qualifier 1&#39;,
                 other._cqfunc.__doc__ or &#39;Anonymous qualifier 2&#39;,
             )
-            return ColumnQualifier(func=_cqfunc)
+            return ColumnQualifier(func=res_func)
         except AttributeError:
             return NotImplemented
+
+    class _SubQualifierFunc(object):
+        &#34;&#34;&#34;A pickle-able SUB qualifier class.&#34;&#34;&#34;
+
+        def __init__(self, first, second):
+            self.first = first
+            self.second = second
+
+        def __call__(self, df):
+            return ColumnQualifier._x_inorderof_y(
+                x=set(self.first(df)).difference(self.second(df)),
+                y=df.columns,
+            )
 
     def __sub__(self, other):
         try:
-            ofunc = other._cqfunc
-            def _cqfunc(df):  # noqa: E306
-                return ColumnQualifier._x_inorderof_y(
-                    x=set(self._cqfunc(df)).difference(ofunc(df)),
-                    y=df.columns,
-                )
-            _cqfunc.__doc__ = &#39;{} NOT IN {}&#39;.format(
+            res_func = ColumnQualifier._SubQualifierFunc(
+                first=self._cqfunc,
+                second=other._cqfunc,
+            )
+            res_func.__doc__ = &#39;{} NOT IN {}&#39;.format(
                 self._cqfunc.__doc__ or &#39;Anonymous qualifier 1&#39;,
                 other._cqfunc.__doc__ or &#39;Anonymous qualifier 2&#39;,
             )
-            return ColumnQualifier(func=_cqfunc)
+            return ColumnQualifier(func=res_func)
         except AttributeError:
             return NotImplemented
 
-    def __invert__(self):
-        def _cqfunc(df):  # noqa: E306
+    class _NotQualifierFunc(object):
+        &#34;&#34;&#34;A pickle-able NOT qualifier class.&#34;&#34;&#34;
+
+        def __init__(self, cq):
+            self.cq = cq
+
+        def __call__(self, df):
             return ColumnQualifier._x_inorderof_y(
-                x=set(df.columns).difference(self._cqfunc(df)),
+                x=set(df.columns).difference(self.cq(df)),
                 y=df.columns,
             )
-        _cqfunc.__doc__ = &#39;NOT {}&#39;.format(
+
+    def __invert__(self):
+        res_func = ColumnQualifier._NotQualifierFunc(
+            cq=self._cqfunc
+        )
+        res_func.__doc__ = &#39;NOT {}&#39;.format(
             self._cqfunc.__doc__ or &#39;Anonymous qualifier&#39;
         )
-        return ColumnQualifier(func=_cqfunc)
+        return ColumnQualifier(func=res_func)
 
 
 def is_fittable_column_qualifier(obj):
@@ -475,10 +529,13 @@ class AllColumns(ColumnQualifier):
         [&#39;b&#39;]
     &#34;&#34;&#34;
 
-    def __init__(self, **kwargs):
-        def _cqfunc(df):  # noqa: E306
+    class _SelectAllColumns(object):
+
+        def __call__(self, df):
             return list(df.columns)
-        kwargs[&#39;func&#39;] = _cqfunc
+
+    def __init__(self, **kwargs):
+        kwargs[&#39;func&#39;] = AllColumns._SelectAllColumns()
         super().__init__(**kwargs)
 
     def __repr__(self):
@@ -512,21 +569,33 @@ class ByColumnCondition(ColumnQualifier):
         [&#39;age&#39;]
     &#34;&#34;&#34;
 
+    class _SafeCond(object):
+
+        def __init__(self, cond):
+            self.cond = cond
+
+        def __call__(self, series):
+            try:
+                return self.cond(series)
+            except Exception:
+                return False
+
+    class _ColumnConditionChecker(object):
+
+        def __init__(self, cond):
+            self.cond = cond
+
+        def __call__(self, df):
+            return list([
+                lbl for lbl, series in df.iteritems()
+                if self.cond(series)
+            ])
+
     def __init__(self, cond, safe=False, **kwargs):
         self._cond = cond
         if safe:
-            def _safe_cond(series):
-                try:
-                    return cond(series)
-                except Exception:
-                    return False
-            self._cond = _safe_cond
-        def _cqfunc(df):  # noqa: E306
-            return list([
-                lbl for lbl, series in df.iteritems()
-                if self._cond(series)
-            ])
-        kwargs[&#39;func&#39;] = _cqfunc
+            self._cond = ByColumnCondition._SafeCond(cond)
+        kwargs[&#39;func&#39;] = ByColumnCondition._ColumnConditionChecker(self._cond)
         super().__init__(**kwargs)
 
 
@@ -536,7 +605,7 @@ class ByLabels(ColumnQualifier):
     Parameters
     ----------
     labels : single label or list-like
-        Columns labels which qualify.
+        Column labels which qualify.
     **kwargs
         Additionaly accepts all keyword arguments of the constructor of
         ColumnQualifier. See the documentation of ColumnQualifier for details.
@@ -557,19 +626,26 @@ class ByLabels(ColumnQualifier):
         [&#39;num&#39;]
     &#34;&#34;&#34;
 
+    class _LabelsQualifierFunc(object):
+
+        def __init__(self, labels):
+            self.labels = labels
+
+        def __call__(self, df):
+            return [
+                lbl for lbl in df.columns
+                if lbl in self.labels
+            ]
+
     def __init__(self, labels, **kwargs):
         if isinstance(labels, str) or not hasattr(labels, &#39;__iter__&#39;):
             labels = [labels]
         self._labels = labels
         self._labels_str = _list_str(self._labels)
-        def _cqfunc(df):  # noqa: E306
-            return [
-                lbl for lbl in df.columns
-                if lbl in self._labels
-            ]
-        _cqfunc.__doc__ = &#34;Columns  wwith labels in {}&#34;.format(
+        cqfunc = ByLabels._LabelsQualifierFunc(self._labels)
+        cqfunc.__doc__ = &#34;Columns with labels in {}&#34;.format(
             self._labels_str)
-        kwargs[&#39;func&#39;] = _cqfunc
+        kwargs[&#39;func&#39;] = cqfunc
         super().__init__(**kwargs)
 
     def __repr__(self):
@@ -638,15 +714,22 @@ class StartWith(ColumnQualifier):
         except AttributeError:
             return False
 
-    def __init__(self, prefix, **kwargs):
-        self._prefix = prefix
-        def _cqfunc(df):  # noqa: E306
+    class _StartWithFunc(object):
+
+        def __init__(self, prefix):
+            self.prefix = prefix
+
+        def __call__(self, df):
             return [
                 lbl for lbl in df.columns
-                if StartWith._safe_startwith(lbl, self._prefix)
+                if StartWith._safe_startwith(lbl, self.prefix)
             ]
-        _cqfunc.__doc__ = &#34;Columns that start with {}&#34;.format(self._prefix)
-        kwargs[&#39;func&#39;] = _cqfunc
+
+    def __init__(self, prefix, **kwargs):
+        self._prefix = prefix
+        cqfunc = StartWith._StartWithFunc(prefix)
+        cqfunc.__doc__ = &#34;Columns that start with {}&#34;.format(self._prefix)
+        kwargs[&#39;func&#39;] = cqfunc
         super().__init__(**kwargs)
 
     def __repr__(self):
@@ -686,13 +769,20 @@ class OfDtypes(ColumnQualifier):
         [&#39;age&#39;]
     &#34;&#34;&#34;
 
+    class _OfDtypeFunc(object):
+
+        def __init__(self, dtypes):
+            self.dtypes = dtypes
+
+        def __call__(self, df):
+            return list(df.select_dtypes(include=self.dtypes).columns)
+
     def __init__(self, dtypes, **kwargs):
         self._dtypes = dtypes
         self._dtypes_str = _list_str(self._dtypes)
-        def _cqfunc(df):  # noqa: E306
-            return list(df.select_dtypes(include=self._dtypes).columns)
-        _cqfunc.__doc__ = &#34;Columns of dtypes {}&#34;.format(self._dtypes_str)
-        kwargs[&#39;func&#39;] = _cqfunc
+        cqfunc = OfDtypes._OfDtypeFunc(dtypes)
+        cqfunc.__doc__ = &#34;Columns of dtypes {}&#34;.format(self._dtypes_str)
+        kwargs[&#39;func&#39;] = cqfunc
         super().__init__(**kwargs)
 
     def __repr__(self):
@@ -723,13 +813,20 @@ class WithAtMostMissingValues(ColumnQualifier):
         [&#39;grade&#39;, &#39;age&#39;]
     &#34;&#34;&#34;
 
+    class _AtMostFunc(object):
+
+        def __init__(self, n_missing):
+            self._n_missing = n_missing
+
+        def __call__(self, df):
+            return list(df.columns[df.isna().sum() &lt;= self._n_missing])
+
     def __init__(self, n_missing, **kwargs):
         self._n_missing = n_missing
-        def _cqfunc(df):  # noqa: E306
-            return list(df.columns[df.isna().sum() &lt;= self._n_missing])
-        _cqfunc.__doc__ = &#34;Columns with at most {} missing values&#34;.format(
+        cqfunc = WithAtMostMissingValues._AtMostFunc(n_missing)
+        cqfunc.__doc__ = &#34;Columns with at most {} missing values&#34;.format(
             self._n_missing)
-        kwargs[&#39;func&#39;] = _cqfunc
+        kwargs[&#39;func&#39;] = cqfunc
         super().__init__(**kwargs)
 
     def __repr__(self):
@@ -802,7 +899,7 @@ labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/cq.py#L462-L491" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/cq.py#L538-L567" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def columns_to_qualifier(columns):
     &#34;&#34;&#34;Converts the given columns parameter to an equivalent column qualifier.
@@ -855,7 +952,7 @@ fittable, False otherwise.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/cq.py#L311-L325" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/cq.py#L365-L379" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def is_fittable_column_qualifier(obj):
     &#34;&#34;&#34;Returns True for objects that are fittable ColumnQualifier objects.
@@ -916,7 +1013,7 @@ ColumnQualifier. See the documentation of ColumnQualifier for details.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/cq.py#L328-L368" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/cq.py#L382-L425" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class AllColumns(ColumnQualifier):
     &#34;&#34;&#34;Selectes all columns in input dataframes..
@@ -951,10 +1048,13 @@ ColumnQualifier. See the documentation of ColumnQualifier for details.</dd>
         [&#39;b&#39;]
     &#34;&#34;&#34;
 
-    def __init__(self, **kwargs):
-        def _cqfunc(df):  # noqa: E306
+    class _SelectAllColumns(object):
+
+        def __call__(self, df):
             return list(df.columns)
-        kwargs[&#39;func&#39;] = _cqfunc
+
+    def __init__(self, **kwargs):
+        kwargs[&#39;func&#39;] = AllColumns._SelectAllColumns()
         super().__init__(**kwargs)
 
     def __repr__(self):
@@ -1006,7 +1106,7 @@ ColumnQualifier. See the documentation of ColumnQualifier for details.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/cq.py#L371-L413" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/cq.py#L428-L482" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ByColumnCondition(ColumnQualifier):
     &#34;&#34;&#34;A fittable column qualifier based on a per-column condition.
@@ -1035,21 +1135,33 @@ ColumnQualifier. See the documentation of ColumnQualifier for details.</dd>
         [&#39;age&#39;]
     &#34;&#34;&#34;
 
+    class _SafeCond(object):
+
+        def __init__(self, cond):
+            self.cond = cond
+
+        def __call__(self, series):
+            try:
+                return self.cond(series)
+            except Exception:
+                return False
+
+    class _ColumnConditionChecker(object):
+
+        def __init__(self, cond):
+            self.cond = cond
+
+        def __call__(self, df):
+            return list([
+                lbl for lbl, series in df.iteritems()
+                if self.cond(series)
+            ])
+
     def __init__(self, cond, safe=False, **kwargs):
         self._cond = cond
         if safe:
-            def _safe_cond(series):
-                try:
-                    return cond(series)
-                except Exception:
-                    return False
-            self._cond = _safe_cond
-        def _cqfunc(df):  # noqa: E306
-            return list([
-                lbl for lbl, series in df.iteritems()
-                if self._cond(series)
-            ])
-        kwargs[&#39;func&#39;] = _cqfunc
+            self._cond = ByColumnCondition._SafeCond(cond)
+        kwargs[&#39;func&#39;] = ByColumnCondition._ColumnConditionChecker(self._cond)
         super().__init__(**kwargs)</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -1076,7 +1188,7 @@ ColumnQualifier. See the documentation of ColumnQualifier for details.</dd>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>labels</code></strong> :&ensp;<code>single</code> <code>label</code> or <code>list</code>-<code>like</code></dt>
-<dd>Columns labels which qualify.</dd>
+<dd>Column labels which qualify.</dd>
 <dt><strong><code>**kwargs</code></strong></dt>
 <dd>Additionaly accepts all keyword arguments of the constructor of
 ColumnQualifier. See the documentation of ColumnQualifier for details.</dd>
@@ -1098,7 +1210,7 @@ ColumnQualifier. See the documentation of ColumnQualifier for details.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/cq.py#L416-L459" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/cq.py#L485-L535" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ByLabels(ColumnQualifier):
     &#34;&#34;&#34;Selectes all columns with the given label or labels.
@@ -1106,7 +1218,7 @@ ColumnQualifier. See the documentation of ColumnQualifier for details.</dd>
     Parameters
     ----------
     labels : single label or list-like
-        Columns labels which qualify.
+        Column labels which qualify.
     **kwargs
         Additionaly accepts all keyword arguments of the constructor of
         ColumnQualifier. See the documentation of ColumnQualifier for details.
@@ -1127,19 +1239,26 @@ ColumnQualifier. See the documentation of ColumnQualifier for details.</dd>
         [&#39;num&#39;]
     &#34;&#34;&#34;
 
+    class _LabelsQualifierFunc(object):
+
+        def __init__(self, labels):
+            self.labels = labels
+
+        def __call__(self, df):
+            return [
+                lbl for lbl in df.columns
+                if lbl in self.labels
+            ]
+
     def __init__(self, labels, **kwargs):
         if isinstance(labels, str) or not hasattr(labels, &#39;__iter__&#39;):
             labels = [labels]
         self._labels = labels
         self._labels_str = _list_str(self._labels)
-        def _cqfunc(df):  # noqa: E306
-            return [
-                lbl for lbl in df.columns
-                if lbl in self._labels
-            ]
-        _cqfunc.__doc__ = &#34;Columns  wwith labels in {}&#34;.format(
+        cqfunc = ByLabels._LabelsQualifierFunc(self._labels)
+        cqfunc.__doc__ = &#34;Columns with labels in {}&#34;.format(
             self._labels_str)
-        kwargs[&#39;func&#39;] = _cqfunc
+        kwargs[&#39;func&#39;] = cqfunc
         super().__init__(**kwargs)
 
     def __repr__(self):
@@ -1197,7 +1316,7 @@ dataframe that is missing some values in the fitted qualifier.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/cq.py#L111-L308" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/cq.py#L111-L362" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ColumnQualifier(object):
     &#34;&#34;&#34;A fittable qualifier that returns column labels from an input dataframe.
@@ -1323,80 +1442,134 @@ dataframe that is missing some values in the fitted qualifier.</dd>
     def _x_inorderof_y(x, y):
         return [i for i in y if i in x]
 
+    class _AndQualifierFunc(object):
+        &#34;&#34;&#34;A pickle-able AND qualifier class.&#34;&#34;&#34;
+
+        def __init__(self, first, second):
+            self.first = first
+            self.second = second
+
+        def __call__(self, df):
+            return ColumnQualifier._x_inorderof_y(
+                x=set(self.first(df)).intersection(self.second(df)),
+                y=df.columns,
+            )
+
     def __and__(self, other):
         try:
-            ofunc = other._cqfunc
-            def _cqfunc(df):  # noqa: E306
-                return ColumnQualifier._x_inorderof_y(
-                    x=set(self._cqfunc(df)).intersection(ofunc(df)),
-                    y=df.columns,
-                )
-            _cqfunc.__doc__ = &#39;{} AND {}&#39;.format(
+            res_func = ColumnQualifier._AndQualifierFunc(
+                first=self._cqfunc,
+                second=other._cqfunc,
+            )
+            res_func.__doc__ = &#39;{} AND {}&#39;.format(
                 self._cqfunc.__doc__ or &#39;Anonymous qualifier 1&#39;,
                 other._cqfunc.__doc__ or &#39;Anonymous qualifier 2&#39;,
             )
-            return ColumnQualifier(func=_cqfunc)
+            return ColumnQualifier(func=res_func)
         except AttributeError:
             return NotImplemented
+
+    class _XorQualifierFunc(object):
+        &#34;&#34;&#34;A pickle-able XOR qualifier class.&#34;&#34;&#34;
+
+        def __init__(self, first, second):
+            self.first = first
+            self.second = second
+
+        def __call__(self, df):
+            return ColumnQualifier._x_inorderof_y(
+                x=set(self.first(df)).symmetric_difference(self.second(df)),
+                y=df.columns,
+            )
 
     def __xor__(self, other):
         try:
-            ofunc = other._cqfunc
-            def _cqfunc(df):  # noqa: E306
-                return ColumnQualifier._x_inorderof_y(
-                    x=set(self._cqfunc(df)).symmetric_difference(ofunc(df)),
-                    y=df.columns,
-                )
-            _cqfunc.__doc__ = &#39;{} XOR {}&#39;.format(
+            res_func = ColumnQualifier._XorQualifierFunc(
+                first=self._cqfunc,
+                second=other._cqfunc,
+            )
+            res_func.__doc__ = &#39;{} XOR {}&#39;.format(
                 self._cqfunc.__doc__ or &#39;Anonymous qualifier 1&#39;,
                 other._cqfunc.__doc__ or &#39;Anonymous qualifier 2&#39;,
             )
-            return ColumnQualifier(func=_cqfunc)
+            return ColumnQualifier(func=res_func)
         except AttributeError:
             return NotImplemented
+
+    class _OrQualifierFunc(object):
+        &#34;&#34;&#34;A pickle-able OR qualifier class.&#34;&#34;&#34;
+
+        def __init__(self, first, second):
+            self.first = first
+            self.second = second
+
+        def __call__(self, df):
+            return ColumnQualifier._x_inorderof_y(
+                x=set(self.first(df)).union(self.second(df)),
+                y=df.columns,
+            )
 
     def __or__(self, other):
         try:
-            ofunc = other._cqfunc
-            def _cqfunc(df):  # noqa: E306
-                return ColumnQualifier._x_inorderof_y(
-                    x=set(self._cqfunc(df)).union(ofunc(df)),
-                    y=df.columns,
-                )
-            _cqfunc.__doc__ = &#39;{} OR {}&#39;.format(
+            res_func = ColumnQualifier._OrQualifierFunc(
+                first=self._cqfunc,
+                second=other._cqfunc,
+            )
+            res_func.__doc__ = &#39;{} OR {}&#39;.format(
                 self._cqfunc.__doc__ or &#39;Anonymous qualifier 1&#39;,
                 other._cqfunc.__doc__ or &#39;Anonymous qualifier 2&#39;,
             )
-            return ColumnQualifier(func=_cqfunc)
+            return ColumnQualifier(func=res_func)
         except AttributeError:
             return NotImplemented
+
+    class _SubQualifierFunc(object):
+        &#34;&#34;&#34;A pickle-able SUB qualifier class.&#34;&#34;&#34;
+
+        def __init__(self, first, second):
+            self.first = first
+            self.second = second
+
+        def __call__(self, df):
+            return ColumnQualifier._x_inorderof_y(
+                x=set(self.first(df)).difference(self.second(df)),
+                y=df.columns,
+            )
 
     def __sub__(self, other):
         try:
-            ofunc = other._cqfunc
-            def _cqfunc(df):  # noqa: E306
-                return ColumnQualifier._x_inorderof_y(
-                    x=set(self._cqfunc(df)).difference(ofunc(df)),
-                    y=df.columns,
-                )
-            _cqfunc.__doc__ = &#39;{} NOT IN {}&#39;.format(
+            res_func = ColumnQualifier._SubQualifierFunc(
+                first=self._cqfunc,
+                second=other._cqfunc,
+            )
+            res_func.__doc__ = &#39;{} NOT IN {}&#39;.format(
                 self._cqfunc.__doc__ or &#39;Anonymous qualifier 1&#39;,
                 other._cqfunc.__doc__ or &#39;Anonymous qualifier 2&#39;,
             )
-            return ColumnQualifier(func=_cqfunc)
+            return ColumnQualifier(func=res_func)
         except AttributeError:
             return NotImplemented
 
-    def __invert__(self):
-        def _cqfunc(df):  # noqa: E306
+    class _NotQualifierFunc(object):
+        &#34;&#34;&#34;A pickle-able NOT qualifier class.&#34;&#34;&#34;
+
+        def __init__(self, cq):
+            self.cq = cq
+
+        def __call__(self, df):
             return ColumnQualifier._x_inorderof_y(
-                x=set(df.columns).difference(self._cqfunc(df)),
+                x=set(df.columns).difference(self.cq(df)),
                 y=df.columns,
             )
-        _cqfunc.__doc__ = &#39;NOT {}&#39;.format(
+
+    def __invert__(self):
+        res_func = ColumnQualifier._NotQualifierFunc(
+            cq=self._cqfunc
+        )
+        res_func.__doc__ = &#39;NOT {}&#39;.format(
             self._cqfunc.__doc__ or &#39;Anonymous qualifier&#39;
         )
-        return ColumnQualifier(func=_cqfunc)</code></pre>
+        return ColumnQualifier(func=res_func)</code></pre>
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
@@ -1422,7 +1595,7 @@ dataframe that is missing some values in the fitted qualifier.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/cq.py#L185-L194" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/cq.py#L185-L194" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def fit(self, df):
     &#34;&#34;&#34;Fits this qualifier on the input dataframe.
@@ -1454,7 +1627,7 @@ dataframe that is missing some values in the fitted qualifier.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/cq.py#L169-L183" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/cq.py#L169-L183" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def fit_transform(self, df):
     &#34;&#34;&#34;Fits this qualifier and returns the labels of the qualifying columns.
@@ -1495,7 +1668,7 @@ if it is not.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/cq.py#L196-L221" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/cq.py#L196-L221" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def transform(self, df):
     &#34;&#34;&#34;Applies and returns the labels of the qualifying columns.
@@ -1562,7 +1735,7 @@ ColumnQualifier. See the documentation of ColumnQualifier for details.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/cq.py#L540-L582" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/cq.py#L623-L672" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class OfDtypes(ColumnQualifier):
     &#34;&#34;&#34;Selectes all columns that are of a given dtypes.
@@ -1596,13 +1769,20 @@ ColumnQualifier. See the documentation of ColumnQualifier for details.</dd>
         [&#39;age&#39;]
     &#34;&#34;&#34;
 
+    class _OfDtypeFunc(object):
+
+        def __init__(self, dtypes):
+            self.dtypes = dtypes
+
+        def __call__(self, df):
+            return list(df.select_dtypes(include=self.dtypes).columns)
+
     def __init__(self, dtypes, **kwargs):
         self._dtypes = dtypes
         self._dtypes_str = _list_str(self._dtypes)
-        def _cqfunc(df):  # noqa: E306
-            return list(df.select_dtypes(include=self._dtypes).columns)
-        _cqfunc.__doc__ = &#34;Columns of dtypes {}&#34;.format(self._dtypes_str)
-        kwargs[&#39;func&#39;] = _cqfunc
+        cqfunc = OfDtypes._OfDtypeFunc(dtypes)
+        cqfunc.__doc__ = &#34;Columns of dtypes {}&#34;.format(self._dtypes_str)
+        kwargs[&#39;func&#39;] = cqfunc
         super().__init__(**kwargs)
 
     def __repr__(self):
@@ -1650,7 +1830,7 @@ ColumnQualifier. See the documentation of ColumnQualifier for details.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/cq.py#L494-L537" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/cq.py#L570-L620" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class StartWith(ColumnQualifier):
     &#34;&#34;&#34;Selectes all columns that start with the given string.
@@ -1682,15 +1862,22 @@ ColumnQualifier. See the documentation of ColumnQualifier for details.</dd>
         except AttributeError:
             return False
 
-    def __init__(self, prefix, **kwargs):
-        self._prefix = prefix
-        def _cqfunc(df):  # noqa: E306
+    class _StartWithFunc(object):
+
+        def __init__(self, prefix):
+            self.prefix = prefix
+
+        def __call__(self, df):
             return [
                 lbl for lbl in df.columns
-                if StartWith._safe_startwith(lbl, self._prefix)
+                if StartWith._safe_startwith(lbl, self.prefix)
             ]
-        _cqfunc.__doc__ = &#34;Columns that start with {}&#34;.format(self._prefix)
-        kwargs[&#39;func&#39;] = _cqfunc
+
+    def __init__(self, prefix, **kwargs):
+        self._prefix = prefix
+        cqfunc = StartWith._StartWithFunc(prefix)
+        cqfunc.__doc__ = &#34;Columns that start with {}&#34;.format(self._prefix)
+        kwargs[&#39;func&#39;] = cqfunc
         super().__init__(**kwargs)
 
     def __repr__(self):
@@ -1722,7 +1909,7 @@ unfitted column qualifier.</p></section>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/cq.py#L105-L108" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/cq.py#L105-L108" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class UnfittedColumnQualifierError(Exception):
     &#34;&#34;&#34;An exception raised when a (non-fit) transform is attempted with an
@@ -1763,7 +1950,7 @@ ColumnQualifier. See the documentation of ColumnQualifier for details.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/cq.py#L585-L620" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/cq.py#L675-L717" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class WithAtMostMissingValues(ColumnQualifier):
     &#34;&#34;&#34;Selectes all columns with no more than X missing values.
@@ -1789,13 +1976,20 @@ ColumnQualifier. See the documentation of ColumnQualifier for details.</dd>
         [&#39;grade&#39;, &#39;age&#39;]
     &#34;&#34;&#34;
 
+    class _AtMostFunc(object):
+
+        def __init__(self, n_missing):
+            self._n_missing = n_missing
+
+        def __call__(self, df):
+            return list(df.columns[df.isna().sum() &lt;= self._n_missing])
+
     def __init__(self, n_missing, **kwargs):
         self._n_missing = n_missing
-        def _cqfunc(df):  # noqa: E306
-            return list(df.columns[df.isna().sum() &lt;= self._n_missing])
-        _cqfunc.__doc__ = &#34;Columns with at most {} missing values&#34;.format(
+        cqfunc = WithAtMostMissingValues._AtMostFunc(n_missing)
+        cqfunc.__doc__ = &#34;Columns with at most {} missing values&#34;.format(
             self._n_missing)
-        kwargs[&#39;func&#39;] = _cqfunc
+        kwargs[&#39;func&#39;] = cqfunc
         super().__init__(**kwargs)
 
     def __repr__(self):
@@ -1846,7 +2040,7 @@ See the documentation of ColumnQualifier for details.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/cq.py#L623-L649" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/cq.py#L720-L746" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class WithoutMissingValues(WithAtMostMissingValues):
     &#34;&#34;&#34;Selectes all columns with no missing values.

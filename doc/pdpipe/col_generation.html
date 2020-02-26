@@ -27,7 +27,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/col_generation.py#L0-L918" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/col_generation.py#L0-L910" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Basic pdpipe PdPipelineStages.&#34;&#34;&#34;
 
@@ -89,7 +89,6 @@ class Bin(PdPipelineStage):
         &#34;Bin stage failed because not all columns &#34;
         &#34;{} were found in input dataframe.&#34;
     )
-    _DEF_BIN_APP_MSG = &#34;Binning column{} {}...&#34;
 
     def _default_desc(self):
         string = &#34;&#34;
@@ -107,9 +106,6 @@ class Bin(PdPipelineStage):
         columns_str = _list_str(list(bin_map.keys()))
         super_kwargs = {
             &#34;exmsg&#34;: Bin._DEF_BIN_EXC_MSG.format(columns_str),
-            &#34;appmsg&#34;: Bin._DEF_BIN_APP_MSG.format(
-                &#34;s&#34; if len(bin_map) &gt; 1 else &#34;&#34;, columns_str
-            ),
             &#34;desc&#34;: self._default_desc(),
         }
         super_kwargs.update(**kwargs)
@@ -526,7 +522,6 @@ class ApplyToRows(PdPipelineStage):
     &#34;&#34;&#34;
 
     _DEF_APPLYTOROWS_EXC_MSG = &#34;Applying a function {} failed.&#34;
-    _DEF_APPLYTOROWS_APP_MSG = &#34;Applying a function {}...&#34;
     _DEF_COLNAME = &#34;new_col&#34;
 
     def __init__(
@@ -551,7 +546,6 @@ class ApplyToRows(PdPipelineStage):
         self._prec_func = prec
         super_kwargs = {
             &#34;exmsg&#34;: ApplyToRows._DEF_APPLYTOROWS_EXC_MSG.format(func_desc),
-            &#34;appmsg&#34;: ApplyToRows._DEF_APPLYTOROWS_APP_MSG.format(func_desc),
             &#34;desc&#34;: &#34;Generating a column with a function {}.&#34;.format(
                 self._func_desc
             ),
@@ -699,7 +693,6 @@ class ColByFrameFunc(PdPipelineStage):
 
     _BASE_STR = &#34;Applying a function{} to column {}&#34;
     _DEF_EXC_MSG_SUFFIX = &#34; failed.&#34;
-    _DEF_APP_MSG_SUFFIX = &#34;...&#34;
     _DEF_DESCRIPTION_SUFFIX = &#34;.&#34;
 
     def __init__(
@@ -716,7 +709,6 @@ class ColByFrameFunc(PdPipelineStage):
         base_str = ColByFrameFunc._BASE_STR.format(self._func_desc, column)
         super_kwargs = {
             &#34;exmsg&#34;: base_str + ColByFrameFunc._DEF_EXC_MSG_SUFFIX,
-            &#34;appmsg&#34;: base_str + ColByFrameFunc._DEF_APP_MSG_SUFFIX,
             &#34;desc&#34;: base_str + ColByFrameFunc._DEF_DESCRIPTION_SUFFIX,
         }
         super_kwargs.update(**kwargs)
@@ -999,7 +991,7 @@ is None and drop is set to False. Of not given, defaults to '_agg'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/col_generation.py#L717-L783" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/col_generation.py#L709-L775" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class AggByCols(ColumnTransformer):
     &#34;&#34;&#34;A pipeline stage applying a series-wise function to columns.
@@ -1164,7 +1156,7 @@ of '_app'.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/col_generation.py#L568-L634" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/col_generation.py#L562-L628" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ApplyByCols(ColumnTransformer):
     &#34;&#34;&#34;A pipeline stage applying an element-wise function to columns.
@@ -1344,7 +1336,7 @@ returning True is used.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/col_generation.py#L450-L565" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/col_generation.py#L446-L559" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ApplyToRows(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage generating columns by applying a function to each row.
@@ -1394,7 +1386,6 @@ returning True is used.</dd>
     &#34;&#34;&#34;
 
     _DEF_APPLYTOROWS_EXC_MSG = &#34;Applying a function {} failed.&#34;
-    _DEF_APPLYTOROWS_APP_MSG = &#34;Applying a function {}...&#34;
     _DEF_COLNAME = &#34;new_col&#34;
 
     def __init__(
@@ -1419,7 +1410,6 @@ returning True is used.</dd>
         self._prec_func = prec
         super_kwargs = {
             &#34;exmsg&#34;: ApplyToRows._DEF_APPLYTOROWS_EXC_MSG.format(func_desc),
-            &#34;appmsg&#34;: ApplyToRows._DEF_APPLYTOROWS_APP_MSG.format(func_desc),
             &#34;desc&#34;: &#34;Generating a column with a function {}.&#34;.format(
                 self._func_desc
             ),
@@ -1556,7 +1546,7 @@ list [0, 5, 8] is interpreted as the bins (-∞, 0), [0-5), [5-8) and
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/col_generation.py#L19-L134" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/col_generation.py#L19-L130" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Bin(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage that adds a binned version of a column or columns.
@@ -1600,7 +1590,6 @@ list [0, 5, 8] is interpreted as the bins (-∞, 0), [0-5), [5-8) and
         &#34;Bin stage failed because not all columns &#34;
         &#34;{} were found in input dataframe.&#34;
     )
-    _DEF_BIN_APP_MSG = &#34;Binning column{} {}...&#34;
 
     def _default_desc(self):
         string = &#34;&#34;
@@ -1618,9 +1607,6 @@ list [0, 5, 8] is interpreted as the bins (-∞, 0), [0-5), [5-8) and
         columns_str = _list_str(list(bin_map.keys()))
         super_kwargs = {
             &#34;exmsg&#34;: Bin._DEF_BIN_EXC_MSG.format(columns_str),
-            &#34;appmsg&#34;: Bin._DEF_BIN_APP_MSG.format(
-                &#34;s&#34; if len(bin_map) &gt; 1 else &#34;&#34;, columns_str
-            ),
             &#34;desc&#34;: self._default_desc(),
         }
         super_kwargs.update(**kwargs)
@@ -1762,7 +1748,7 @@ by company size'. A default description is used if None is given.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/col_generation.py#L637-L714" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/col_generation.py#L631-L706" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ColByFrameFunc(PdPipelineStage):
     &#34;&#34;&#34;A pipeline stage adding a column by applying a dataframw-wide function.
@@ -1798,7 +1784,6 @@ by company size'. A default description is used if None is given.</dd>
 
     _BASE_STR = &#34;Applying a function{} to column {}&#34;
     _DEF_EXC_MSG_SUFFIX = &#34; failed.&#34;
-    _DEF_APP_MSG_SUFFIX = &#34;...&#34;
     _DEF_DESCRIPTION_SUFFIX = &#34;.&#34;
 
     def __init__(
@@ -1815,7 +1800,6 @@ by company size'. A default description is used if None is given.</dd>
         base_str = ColByFrameFunc._BASE_STR.format(self._func_desc, column)
         super_kwargs = {
             &#34;exmsg&#34;: base_str + ColByFrameFunc._DEF_EXC_MSG_SUFFIX,
-            &#34;appmsg&#34;: base_str + ColByFrameFunc._DEF_APP_MSG_SUFFIX,
             &#34;desc&#34;: base_str + ColByFrameFunc._DEF_DESCRIPTION_SUFFIX,
         }
         super_kwargs.update(**kwargs)
@@ -1932,7 +1916,7 @@ US    Silver
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/col_generation.py#L285-L375" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/col_generation.py#L281-L371" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ColumnTransformer(ColumnsBasedPipelineStage):
     &#34;&#34;&#34;A pipeline stage that applies transformation to dataframe columns..
@@ -2130,7 +2114,7 @@ then is the column shifted by this constant.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/col_generation.py#L786-L919" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/col_generation.py#L778-L911" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Log(ColumnsBasedPipelineStage):
     &#34;&#34;&#34;A pipeline stage that log-transforms numeric data.
@@ -2362,7 +2346,7 @@ US    Silver
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/col_generation.py#L378-L443" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/col_generation.py#L374-L439" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class MapColVals(ColumnTransformer):
     &#34;&#34;&#34;A pipeline stage that replaces the values of a column by a map.
@@ -2538,7 +2522,7 @@ category will still be dropped.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/9fd965aab1f1a96a7841d452d60b229233ad5fd5/pdpipe/col_generation.py#L137-L282" class="git-link">Browse git</a>
+<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/col_generation.py#L133-L278" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class OneHotEncode(ColumnsBasedPipelineStage):
     &#34;&#34;&#34;A pipeline stage that one-hot-encodes categorical columns.
