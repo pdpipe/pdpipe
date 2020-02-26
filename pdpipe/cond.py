@@ -283,7 +283,7 @@ class PerColumnCondition(Condition):
         >>> df = pd.DataFrame(
         ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
         >>> cond = pdp.cond.PerColumnCondition(
-        ...     conditions=lambda x: x.dtype == int,
+        ...     conditions=lambda x: x.dtype == np.int64,
         ... )
         >>> cond
         <pdpipe.Condition: Dataframes with all columns stasifying all \
@@ -298,7 +298,7 @@ conditions: anonymous condition>
         True
         >>> cond = pdp.cond.PerColumnCondition(
         ...     conditions=[
-        ...         lambda x: x.dtype == int,
+        ...         lambda x: x.dtype == np.int64,
         ...         lambda x: x.dtype == object,
         ...     ],
         ... )
@@ -306,7 +306,7 @@ conditions: anonymous condition>
         False
         >>> cond = pdp.cond.PerColumnCondition(
         ...     conditions=[
-        ...         lambda x: x.dtype == int,
+        ...         lambda x: x.dtype == np.int64,
         ...         lambda x: x.dtype == object,
         ...     ],
         ...     conditions_reduce='any',
