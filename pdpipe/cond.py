@@ -279,7 +279,7 @@ class PerColumnCondition(Condition):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp;
+        >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
         >>> df = pd.DataFrame(
         ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
         >>> cond = pdp.cond.PerColumnCondition(
@@ -291,7 +291,7 @@ conditions: anonymous condition>
         >>> cond(df)
         False
         >>> cond = pdp.cond.PerColumnCondition(
-        ...     conditions=lambda x: x.dtype == int,
+        ...     conditions=lambda x: x.dtype == np.int64,
         ...     columns_reduce='any',
         ... )
         >>> cond(df)
