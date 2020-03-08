@@ -170,7 +170,7 @@ class PdPipelineStage(abc.ABC):
 
     _DEF_EXC_MSG = 'Precondition failed in stage {}!'
     _DEF_DESCRIPTION = 'A pipeline stage.'
-    _INIT_KWARGS = ['exraise', 'exmsg', 'desc']
+    _INIT_KWARGS = ['exraise', 'exmsg', 'desc', 'prec', 'skip']
 
     def __init__(self, exraise=True, exmsg=None, desc=None, prec=None,
                  skip=None):
