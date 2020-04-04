@@ -640,9 +640,9 @@ class InjectiveSklearnTransformer(_BaseSklearnTransformer):
         'a_foo', 'b_foo', etc for source columnes 'a', 'b' and so on.
     **kwargs : extra keyword arguments
         All valid extra keyword arguments are forwarded to the transfomer
-        constructor on scaler creation (e.g. 'n_quantiles' for
-        QuantileTransformer). All other extra keyword arguments are assumed to
-        be valid PdPipelineStage constructor arguments.
+        constructor on creation (e.g. 'n_quantiles' for QuantileTransformer).
+        All other extra keyword arguments are assumed to be valid
+        PdPipelineStage constructor arguments.
 
     Example
     -------
