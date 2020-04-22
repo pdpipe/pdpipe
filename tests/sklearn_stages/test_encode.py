@@ -24,6 +24,7 @@ def _some_df2():
     )
 
 
+@pytest.mark.sklearn
 def test_encode():
     df = _some_df()
     encode_stage = Encode()
@@ -70,6 +71,7 @@ def test_encode():
     assert res_df2['name'][3] == 2
 
 
+@pytest.mark.sklearn
 def test_encode_fit():
     df = _some_df()
     encode_stage = Encode()
@@ -106,6 +108,7 @@ def test_encode_fit():
     assert res_df2['name'][3] == 2
 
 
+@pytest.mark.sklearn
 def test_encode_with_args():
     df = _some_df()
     encode_stage = Encode("lbl", drop=False)
@@ -132,6 +135,7 @@ def test_encode_with_args():
     assert res_df2['lbl_enc'][3] == 1
 
 
+@pytest.mark.sklearn
 def test_encode_with_exclude():
     df = _some_df()
     encode_stage = Encode("lbl", exclude_columns="name")
@@ -142,6 +146,7 @@ def test_encode_with_exclude():
     assert res_df['lbl'][3] == 1
 
 
+@pytest.mark.sklearn
 def test_encode_in_pipeline():
     drop_name = pdp.ColDrop('name')
     encode_stage = Encode()
@@ -164,6 +169,7 @@ def test_encode_in_pipeline():
     assert res_df2['lbl'][3] == 1
 
 
+@pytest.mark.sklearn
 def test_encode_in_pipelin_fit_n_transform():
     drop_name = pdp.ColDrop('name')
     encode_stage = Encode()
