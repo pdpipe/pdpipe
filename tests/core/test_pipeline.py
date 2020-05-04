@@ -32,7 +32,8 @@ class SilentDropStage(PdPipelineStage):
         return df.drop([self.colname], axis=1)
 
 
-def test_two_stage_pipeline_stage():
+@pytest.mark.parametrize("time", [True, False])
+def test_two_stage_pipeline_stage(time):
     """Testing something."""
     drop_num1 = SilentDropStage('num1')
     drop_num2 = SilentDropStage('num2')
@@ -47,20 +48,20 @@ def test_two_stage_pipeline_stage():
 
     # test fit
     df = _test_df()
-    res_df = pipeline.fit(df, verbose=True)
+    res_df = pipeline.fit(df, verbose=True, time=time)
     for x in ['num1', 'num2', 'char']:
         assert x in res_df.columns
 
     # test transform
     df = _test_df()
-    res_df = pipeline.transform(df, verbose=True)
+    res_df = pipeline.transform(df, verbose=True, time=time)
     assert 'num1' not in res_df.columns
     assert 'num2' not in res_df.columns
     assert 'char' in res_df.columns
 
     # test fit_transform
     df = _test_df()
-    res_df = pipeline.fit_transform(df, verbose=True)
+    res_df = pipeline.fit_transform(df, verbose=True, time=time)
 
     # test get_transformer
     trs = lambda pipline: pipeline[:1]  # noqa: E731
