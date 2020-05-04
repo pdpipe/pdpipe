@@ -18,5 +18,6 @@ exclude =
 	.venv,
 	.github,
 	.pytest_cache,
-	.eggs
+	.eggs,
+	versioneer.py
 max-complexity = 10
