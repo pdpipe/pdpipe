@@ -810,14 +810,18 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
     def __times_str__(self, times):
         res = "A pdpipe pipeline:\n"
         stime = sum(times)
+        if stime > 0:
+            percentages = [100 * x / stime for x in times]
+        else:
+            percentages = [0 for x in times]
         res += '[ 0] [{:0>5.2f}s ({:0>5.2f}%)]  '.format(
-            times[0], 100 * times[0] / stime
+            times[0], percentages[0]
         ) + "\n      ".join(
             textwrap.wrap(self._stages[0].description())
         ) + '\n'
         for i, stage in enumerate(self._stages[1:]):
             res += '[{:>2}] [{:0>5.2f}s ({:0>5.2f}%)]  '.format(
-                i + 1, times[i + 1], 100 * times[i + 1] / stime
+                i + 1, times[i + 1], percentages[i + 1]
             ) + "\n      ".join(
                 textwrap.wrap(stage.description())
             ) + '\n'
