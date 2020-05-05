@@ -877,7 +877,12 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         return ''.join(lines)
 
     def memory_report(self):
-        """Prints a detailed memory report of the pipeline object to screen."""
+        """Prints a detailed memory report of the pipeline object to screen.
+
+        To get better memory estimates make sure the pympler Python package is
+        installed. Without it, sys.getsizeof is used, which can be extremely
+        underestimate memory size of Python objects.
+        """
         print("=== Pipeline memory report ===")
         size = asizeof(self)
         if size > 500000:  # pragma: no cover
