@@ -85,8 +85,9 @@ use those implementations as a template for yours.
 """
 
 import sys
-import inspect
 import abc
+import time
+import inspect
 import collections
 import textwrap
 
@@ -626,7 +627,27 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             return self.transform(X=df, exraise=exraise, verbose=verbose)
         return self.fit_transform(X=df, exraise=exraise, verbose=verbose)
 
-    def fit_transform(self, X, y=None, exraise=None, verbose=None):
+    def __timed_fit_transform(self, X, y=None, exraise=None, verbose=None):
+        inter_x = X
+        times = []
+        prev = time.time()
+        for stage in self._stages:
+            inter_x = stage.fit_transform(
+                X=inter_x,
+                y=None,
+                exraise=exraise,
+                verbose=verbose,
+            )
+            now = time.time()
+            times.append(now - prev)
+            prev = now
+        self.is_fitted = True
+        print("\nPipeline total application time: {:.3f}s.\n Details:".format(
+            sum(times)))
+        print(self.__times_str__(times))
+        return inter_x
+
+    def fit_transform(self, X, y=None, exraise=None, verbose=None, time=False):
         """Fits this pipeline and transforms the input dataframe.
 
         Parameters
@@ -646,12 +667,18 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             If True an explanation message is printed after the precondition
             of each stage is checked but before its application. Otherwise, no
             messages are printed.
+        time : bool, default False
+            If True, per-stage application time is measured and reported when
+            pipeline application is done.
 
         Returns
         -------
         pandas.DataFrame
             The resulting dacaframe.
         """
+        if time:
+            return self.__timed_fit_transform(
+                X=X, y=y, exraise=exraise, verbose=verbose)
         inter_x = X
         for stage in self._stages:
             inter_x = stage.fit_transform(
@@ -663,7 +690,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         self.is_fitted = True
         return inter_x
 
-    def fit(self, X, y=None, exraise=None, verbose=None):
+    def fit(self, X, y=None, exraise=None, verbose=None, time=None):
         """Fits this pipeline without transforming the input dataframe.
 
         Parameters
@@ -683,6 +710,9 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             If True an explanation message is printed after the precondition
             of each stage is checked but before its application. Otherwise, no
             messages are printed.
+        time : bool, default False
+            If True, per-stage application time is measured and reported when
+            pipeline application is done.
 
         Returns
         -------
@@ -694,10 +724,31 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             y=None,
             exraise=exraise,
             verbose=verbose,
+            time=time,
         )
         return X
 
-    def transform(self, X, y=None, exraise=None, verbose=None):
+    def __timed_transform(self, X, y=None, exraise=None, verbose=None):
+        inter_x = X
+        times = []
+        prev = time.time()
+        for stage in self._stages:
+            inter_x = stage.transform(
+                X=inter_x,
+                y=None,
+                exraise=exraise,
+                verbose=verbose,
+            )
+            now = time.time()
+            times.append(now - prev)
+            prev = now
+        self.is_fitted = True
+        print("\nPipeline total application time: {:.3f}s.\n Details:".format(
+            sum(times)))
+        print(self.__times_str__(times))
+        return inter_x
+
+    def transform(self, X, y=None, exraise=None, verbose=None, time=False):
         """Transforms the given dataframe without fitting this pipeline.
 
         If any stage in this pipeline is fittable but is not fitted, an
@@ -720,6 +771,9 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             If True an explanation message is printed after the precondition
             of each stage is checked but before its application. Otherwise, no
             messages are printed.
+        time : bool, default False
+            If True, per-stage application time is measured and reported when
+            pipeline application is done.
 
         Returns
         -------
@@ -731,6 +785,9 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                 raise UnfittedPipelineStageError((
                     "PipelineStage {} in pipeline is fittable but"
                     " unfitted!").format(stage))
+        if time:
+            return self.__timed_transform(
+                X=X, y=y, exraise=exraise, verbose=verbose)
         inter_df = X
         for stage in self._stages:
             inter_df = stage.transform(
@@ -749,6 +806,26 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         if isinstance(other, PdPipelineStage):
             return PdPipeline([*self._stages, other])
         return NotImplemented
+
+    def __times_str__(self, times):
+        res = "A pdpipe pipeline:\n"
+        stime = sum(times)
+        if stime > 0:
+            percentages = [100 * x / stime for x in times]
+        else:
+            percentages = [0 for x in times]
+        res += '[ 0] [{:0>5.2f}s ({:0>5.2f}%)]  '.format(
+            times[0], percentages[0]
+        ) + "\n      ".join(
+            textwrap.wrap(self._stages[0].description())
+        ) + '\n'
+        for i, stage in enumerate(self._stages[1:]):
+            res += '[{:>2}] [{:0>5.2f}s ({:0>5.2f}%)]  '.format(
+                i + 1, times[i + 1], percentages[i + 1]
+            ) + "\n      ".join(
+                textwrap.wrap(stage.description())
+            ) + '\n'
+        return res
 
     def __str__(self):
         res = "A pdpipe pipeline:\n"
