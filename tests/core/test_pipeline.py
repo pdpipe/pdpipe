@@ -45,6 +45,7 @@ def test_two_stage_pipeline_stage(time):
     assert 'num2' not in res_df.columns
     assert 'char' in res_df.columns
     str(pipeline)
+    pipeline.memory_report()
 
     # test fit
     df = _test_df()

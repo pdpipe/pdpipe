@@ -145,6 +145,7 @@ class ColumnQualifier(object):
         if fittable is None:
             fittable = True
         self._cqfunc = func
+        self.__doc__ = func.__doc__
         self._fittable = fittable
         self._subset = subset
 
@@ -528,6 +529,7 @@ class ByLabels(ColumnQualifier):
         cqfunc = ByLabels._LabelsQualifierFunc(self._labels)
         cqfunc.__doc__ = "Columns with labels in {}".format(
             self._labels_str)
+        self.__doc__ = cqfunc.__doc__
         kwargs['func'] = cqfunc
         super().__init__(**kwargs)
 
@@ -612,6 +614,7 @@ class StartWith(ColumnQualifier):
         self._prefix = prefix
         cqfunc = StartWith._StartWithFunc(prefix)
         cqfunc.__doc__ = "Columns that start with {}".format(self._prefix)
+        self.__doc__ = cqfunc.__doc__
         kwargs['func'] = cqfunc
         super().__init__(**kwargs)
 
@@ -665,6 +668,7 @@ class OfDtypes(ColumnQualifier):
         self._dtypes_str = _list_str(self._dtypes)
         cqfunc = OfDtypes._OfDtypeFunc(dtypes)
         cqfunc.__doc__ = "Columns of dtypes {}".format(self._dtypes_str)
+        self.__doc__ = cqfunc.__doc__
         kwargs['func'] = cqfunc
         super().__init__(**kwargs)
 
@@ -709,6 +713,7 @@ class WithAtMostMissingValues(ColumnQualifier):
         cqfunc = WithAtMostMissingValues._AtMostFunc(n_missing)
         cqfunc.__doc__ = "Columns with at most {} missing values".format(
             self._n_missing)
+        self.__doc__ = cqfunc.__doc__
         kwargs['func'] = cqfunc
         super().__init__(**kwargs)
 
