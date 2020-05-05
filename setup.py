@@ -32,6 +32,7 @@ setup(
     name='pdpipe',
     description="Easy pipelines for pandas.",
     long_description=README_RST,
+    long_description_content_type='text/x-rst',
     author="Shay Palachy",
     author_email="shaypal5@gmail.com",
     version=versioneer.get_version(),
