@@ -91,6 +91,11 @@ import inspect
 import collections
 import textwrap
 
+try:
+    from pympler.asizeof import asizeof
+except ImportError:
+    from sys import getsizeof as asizeof
+
 from .cq import is_fittable_column_qualifier, AllColumns
 
 from .exceptions import (
@@ -392,6 +397,23 @@ class PdPipelineStage(abc.ABC):
         """Returns the description of this pipeline stage"""
         return self._desc
 
+    def _mem_str(self):
+        lines = []
+        for a in dir(self):
+            if not a.startswith('__'):
+                att = getattr(self, a)
+                if not callable(att):
+                    size = asizeof(att)
+                    if size > 500000:  # pragma: no cover
+                        lines.append('  - {}, {:.2f}Mb\n'.format(
+                            a, size / 1000000))
+                    elif size > 1000:  # pragma: no cover
+                        lines.append('  - {}, {:.2f}Kb\n'.format(
+                            a, size / 1000))
+                    else:
+                        lines.append('  - {}, {}b\n'.format(a, size))
+        return ''.join(lines)
+
 
 class ColumnsBasedPipelineStage(PdPipelineStage):
     """A pipeline stage that operates on a subset of dataframe columns.
@@ -441,6 +463,8 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
             # always check str first, because it has __iter__
             return [columns], columns
         if callable(columns):
+            # if isinstance(columns, ColumnQualifier):
+            #     return columns, columns.__repr__() or ''
             return columns, columns.__doc__ or ''
         # if it was a single string it was already made a list, and it's not a
         # callable, so it's either an iterable of labels... or
@@ -836,6 +860,43 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                 textwrap.wrap(stage.description())) + '\n'
         return res
 
+    def _mem_str(self):
+        lines = []
+        for i, stage in enumerate(self._stages):
+            size = asizeof(stage)
+            if size > 500000:  # pragma: no cover
+                lines.append('[{:>2}] {:.2f}Mb, {}\n'.format(
+                    i, size / 1000000, stage.description()))
+            elif size > 1000:  # pragma: no cover
+                lines.append('[{:>2}] {:.2f}Kb, {}\n'.format(
+                    i, size / 1000, stage.description()))
+            else:
+                lines.append('[{:>2}] {:}b, {}\n'.format(
+                    i, size, stage.description()))
+            lines.append(stage._mem_str())
+        return ''.join(lines)
+
+    def memory_report(self):
+        """Prints a detailed memory report of the pipeline object to screen.
+
+        To get better memory estimates make sure the pympler Python package is
+        installed. Without it, sys.getsizeof is used, which can be extremely
+        underestimate memory size of Python objects.
+        """
+        print("=== Pipeline memory report ===")
+        size = asizeof(self)
+        if size > 500000:  # pragma: no cover
+            print("Total pipeline size in memory: {:.2f}Mb".format(
+                size / 1000000))
+        elif size > 1000:  # pragma: no cover
+            print("Total pipeline size in memory: {:.2f}Kb".format(
+                size / 1000))
+        else:
+            print("Total pipeline size in memory: {:.2f}b".format(
+                size))
+        print("Per-stage memory structure:")
+        print(self._mem_str())
+
     def get_transformer(self):
         """Return the transformer induced by this fitted pipeline.
 
@@ -858,7 +919,6 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
 
     # def drop(self, index):
     #     """Returns this pipeline with the stage of the given index removed.
-
     #     Arguments
     #     ---------
     #     index
