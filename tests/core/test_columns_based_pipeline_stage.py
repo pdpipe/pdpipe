@@ -65,7 +65,9 @@ def test_columns_based_stage():
             return string.startswith('n')
         except AttributeError:
             return False
-    stage = Drop(lambda df: [l for l in df.columns if _safe_start_with(l)])
+    stage = Drop(lambda df: [
+        lbl for lbl in df.columns if _safe_start_with(lbl)
+    ])
     res = stage(df1)
     assert 'num' not in res.columns
     assert 'char' in res.columns
