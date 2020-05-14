@@ -398,6 +398,7 @@ class PdPipelineStage(abc.ABC):
         return self._desc
 
     def _mem_str(self):
+        total = asizeof(self)
         lines = []
         for a in dir(self):
             if not a.startswith('__'):
@@ -405,13 +406,14 @@ class PdPipelineStage(abc.ABC):
                 if not callable(att):
                     size = asizeof(att)
                     if size > 500000:  # pragma: no cover
-                        lines.append('  - {}, {:.2f}Mb\n'.format(
-                            a, size / 1000000))
+                        lines.append('  - {}, {:.2f}Mb ({:0>5.2f}%)\n'.format(
+                            a, size / 1000000, 100 * size / total))
                     elif size > 1000:  # pragma: no cover
-                        lines.append('  - {}, {:.2f}Kb\n'.format(
-                            a, size / 1000))
+                        lines.append('  - {}, {:.2f}Kb ({:0>5.2f}%)\n'.format(
+                            a, size / 1000, 100 * size / total))
                     else:
-                        lines.append('  - {}, {}b\n'.format(a, size))
+                        lines.append('  - {}, {}b ({:0>5.2f}%)\n'.format(
+                            a, size, 100 * size / total))
         return ''.join(lines)
 
 
@@ -860,19 +862,21 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                 textwrap.wrap(stage.description())) + '\n'
         return res
 
-    def _mem_str(self):
+    def _mem_str(self, total):
+        total = asizeof(self)
         lines = []
         for i, stage in enumerate(self._stages):
             size = asizeof(stage)
             if size > 500000:  # pragma: no cover
-                lines.append('[{:>2}] {:.2f}Mb, {}\n'.format(
-                    i, size / 1000000, stage.description()))
+                lines.append('[{:>2}] {:.2f}Mb ({:0>5.2f}%), {}\n'.format(
+                    i, size / 1000000, 100 * size / total,
+                    stage.description()))
             elif size > 1000:  # pragma: no cover
-                lines.append('[{:>2}] {:.2f}Kb, {}\n'.format(
-                    i, size / 1000, stage.description()))
+                lines.append('[{:>2}] {:.2f}Kb ({:0>5.2f}%), {}\n'.format(
+                    i, size / 1000, 100 * size / total, stage.description()))
             else:
-                lines.append('[{:>2}] {:}b, {}\n'.format(
-                    i, size, stage.description()))
+                lines.append('[{:>2}] {:}b ({:0>5.2f}%), {}\n'.format(
+                    i, size, 100 * size / total, stage.description()))
             lines.append(stage._mem_str())
         return ''.join(lines)
 
@@ -895,7 +899,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             print("Total pipeline size in memory: {:.2f}b".format(
                 size))
         print("Per-stage memory structure:")
-        print(self._mem_str())
+        print(self._mem_str(total=size))
 
     def get_transformer(self):
         """Return the transformer induced by this fitted pipeline.
