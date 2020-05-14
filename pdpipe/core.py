@@ -176,7 +176,7 @@ class PdPipelineStage(abc.ABC):
 
     _DEF_EXC_MSG = 'Precondition failed in stage {}!'
     _DEF_DESCRIPTION = 'A pipeline stage.'
-    _INIT_KWARGS = ['exraise', 'exmsg', 'desc']
+    _INIT_KWARGS = ['exraise', 'exmsg', 'desc', 'prec', 'skip']
 
     def __init__(self, exraise=True, exmsg=None, desc=None, prec=None,
                  skip=None):
@@ -836,9 +836,9 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
     def __times_str__(self, times):
         res = "A pdpipe pipeline:\n"
         stime = sum(times)
-        if stime > 0:
+        if stime > 0:  # pragma: no cover
             percentages = [100 * x / stime for x in times]
-        else:
+        else:  # pragma: no cover
             percentages = [0 for x in times]
         res += '[ 0] [{:0>5.2f}s ({:0>5.2f}%)]  '.format(
             times[0], percentages[0]

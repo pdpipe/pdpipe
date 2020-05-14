@@ -310,7 +310,7 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
         }
         pipeline_stage_args = {
             k: kwargs[k] for k in kwargs
-            if k not in valid_vectorizer_args
+            if k in PdPipelineStage._INIT_KWARGS
         }
         super_kwargs.update(**pipeline_stage_args)
         super().__init__(**super_kwargs)
