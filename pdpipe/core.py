@@ -574,22 +574,39 @@ class AdHocStage(PdPipelineStage):
     Parameters
     ----------
     transform : callable
-        The transformation this stage applies to dataframes.
+        The transformation this stage applies to dataframes. If the
+        fit_transform parameter is also populated than this transformation is
+        only applied on calls to transform.
+    fit_transform : callable, optional
+        The transformation this stage applies to dataframes, only on
+        fit_transform. Optional.
     prec : callable, default None
         A callable that returns a boolean value. Represent a a precondition
         used to determine whether this stage can be applied to a given
         dataframe. If None is given, set to a function always returning True.
     """
 
-    def __init__(self, transform, prec=None, **kwargs):
+    def __init__(self, transform, fit_transform=None, prec=None, **kwargs):
         if prec is None:
             prec = _always_true
         self._adhoc_transform = transform
+        self._adhoc_fit_transform = fit_transform
         self._adhoc_prec = prec
         super().__init__(**kwargs)
 
     def _prec(self, df):
         return self._adhoc_prec(df)
+
+    def _fit_transform(self, df, verbose):
+        self.is_fitted = True
+        if self._adhoc_fit_transform is None:
+            self.is_fitted = True
+            return self._transform(df, verbose=verbose)
+        try:
+            print("Blah!")
+            return self._adhoc_fit_transform(df, verbose=verbose)
+        except TypeError:
+            return self._adhoc_fit_transform(df)
 
     def _transform(self, df, verbose):
         try:
