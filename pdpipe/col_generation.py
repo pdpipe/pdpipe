@@ -268,7 +268,8 @@ class OneHotEncode(ColumnsBasedPipelineStage):
             except KeyError:  # pragma: no cover
                 raise PipelineApplicationError((
                     "Missing encoder for column {} when applying a fitted "
-                    "OneHotEncode pipeline stage by class {} !").format(colname, self.__class__))
+                    "OneHotEncode pipeline stage by class {} !")
+                    .format(colname, self.__class__))
             res_cols = col.apply(encoder)
             for res_col in res_cols:
                 assign_map[res_col] = res_cols[res_col]
@@ -692,7 +693,8 @@ class ColByFrameFunc(PdPipelineStage):
             new_col = self._func(df)
         except Exception:
             raise PipelineApplicationError(
-                "Exception raised applying function {} to dataframe by class {}.".format(
+                "Exception raised applying function {} to "
+                "dataframe by class {}.".format(
                     self._func_desc, self.__class__
                 )
             )
@@ -885,7 +887,8 @@ class Log(ColumnsBasedPipelineStage):
             except KeyError:  # pragma: no cover
                 raise PipelineApplicationError((
                     "Missig column {} when applying a fitted "
-                    "Log pipeline stage by class {} !").format(colname, self.__class__))
+                    "Log pipeline stage by class {} !").format(
+                        colname, self.__class__))
             loc = df.columns.get_loc(colname) + 1
             new_name = colname + "_log"
             if self._drop:
@@ -900,7 +903,8 @@ class Log(ColumnsBasedPipelineStage):
                 else:  # pragma: no cover
                     raise PipelineApplicationError((
                         "Missig fitted parameter for column {} when applying a"
-                        " fitted Log pipeline stage by class {}!").format(colname, self.__class__))
+                        " fitted Log pipeline stage by class {}!").format(
+                            colname, self.__class__))
             # must check not None as neg numbers eval to False
             if self._const_shift is not None:
                 new_col = new_col + self._const_shift
