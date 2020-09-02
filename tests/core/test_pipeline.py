@@ -7,7 +7,8 @@ from pdpipe.core import (
     PdPipelineStage,
     PdPipeline
 )
-from pdpipe import make_pdpipeline
+from pdpipe import make_pdpipeline, ColByFrameFunc, ColDrop
+from pdpipe.exceptions import PipelineApplicationError
 
 
 def _test_df():
@@ -185,3 +186,25 @@ def test_pipeline_slice():
     assert 'num1' not in res_df.columns
     assert 'num2' not in res_df.columns
     assert 'char' in res_df.columns
+
+@pytest.mark.parametrize("time", [True, False])
+def test_pipeline_error(time):
+    """Test exceptions at pipeline level"""
+
+    # test fit
+    df = _test_df()
+    func = lambda df: df['num1'] == df['num3']
+    pipeline = PdPipeline([ColByFrameFunc("Equality", func), ColDrop("B")])
+    with pytest.raises(PipelineApplicationError):
+        pipeline.fit(df, verbose=True, time=time)
+
+    # test transform
+    df = _test_df()
+    with pytest.raises(PipelineApplicationError):
+        pipeline.transform(df, verbose=True, time=time)
+
+    # test fit_transform
+    df = _test_df()
+    with pytest.raises(PipelineApplicationError):
+        pipeline.fit_transform(df, verbose=True, time=time)
+    
