@@ -101,6 +101,7 @@ from .cq import is_fittable_column_qualifier, AllColumns
 from .exceptions import (
     FailedPreconditionError,
     UnfittedPipelineStageError,
+    PipelineApplicationError
 )
 
 
@@ -674,16 +675,23 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         inter_x = X
         times = []
         prev = time.time()
-        for stage in self._stages:
-            inter_x = stage.fit_transform(
-                X=inter_x,
-                y=None,
-                exraise=exraise,
-                verbose=verbose,
-            )
-            now = time.time()
-            times.append(now - prev)
-            prev = now
+        for i, stage in enumerate(self._stages):
+            try:
+                inter_x = stage.fit_transform(
+                    X=inter_x,
+                    y=None,
+                    exraise=exraise,
+                    verbose=verbose,
+                )
+                now = time.time()
+                times.append(now - prev)
+                prev = now
+            except Exception:
+                raise PipelineApplicationError(
+                    "Exception raised in stage [ {}] {}".format(
+                        i, stage
+                    )
+                )
         self.is_fitted = True
         print("\nPipeline total application time: {:.3f}s.\n Details:".format(
             sum(times)))
@@ -723,13 +731,20 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             return self.__timed_fit_transform(
                 X=X, y=y, exraise=exraise, verbose=verbose)
         inter_x = X
-        for stage in self._stages:
-            inter_x = stage.fit_transform(
-                X=inter_x,
-                y=None,
-                exraise=exraise,
-                verbose=verbose,
-            )
+        for i, stage in enumerate(self._stages):
+            try:
+                inter_x = stage.fit_transform(
+                    X=inter_x,
+                    y=None,
+                    exraise=exraise,
+                    verbose=verbose,
+                )
+            except Exception:
+                raise PipelineApplicationError(
+                    "Exception raised in stage [ {}] {}".format(
+                        i, stage
+                    )
+                )
         self.is_fitted = True
         return inter_x
 
@@ -775,16 +790,23 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         inter_x = X
         times = []
         prev = time.time()
-        for stage in self._stages:
-            inter_x = stage.transform(
-                X=inter_x,
-                y=None,
-                exraise=exraise,
-                verbose=verbose,
-            )
-            now = time.time()
-            times.append(now - prev)
-            prev = now
+        for i, stage in enumerate(self._stages):
+            try:
+                inter_x = stage.transform(
+                    X=inter_x,
+                    y=None,
+                    exraise=exraise,
+                    verbose=verbose,
+                )
+                now = time.time()
+                times.append(now - prev)
+                prev = now
+            except Exception:
+                raise PipelineApplicationError(
+                    "Exception raised in stage [ {}] {}".format(
+                        i, stage
+                    )
+                )
         self.is_fitted = True
         print("\nPipeline total application time: {:.3f}s.\n Details:".format(
             sum(times)))
@@ -832,13 +854,20 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             return self.__timed_transform(
                 X=X, y=y, exraise=exraise, verbose=verbose)
         inter_df = X
-        for stage in self._stages:
-            inter_df = stage.transform(
-                X=inter_df,
-                y=None,
-                exraise=exraise,
-                verbose=verbose,
-            )
+        for i, stage in enumerate(self._stages):
+            try:
+                inter_df = stage.transform(
+                    X=inter_df,
+                    y=None,
+                    exraise=exraise,
+                    verbose=verbose,
+                )
+            except Exception:
+                raise PipelineApplicationError(
+                    "Exception raised in stage [ {}] {}".format(
+                        i, stage
+                    )
+                )
         return inter_df
 
     __call__ = apply

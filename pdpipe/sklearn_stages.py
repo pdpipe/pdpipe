@@ -209,8 +209,9 @@ class Scale(ColumnsBasedPipelineStage):
             )
         except Exception:
             raise PipelineApplicationError(
-                "Exception raised when Scale applied to columns {}".format(
-                    self._columns_to_scale
+                "Exception raised when Scale applied to columns"
+                " {} by class {}".format(
+                    self._columns_to_scale, self.__class__
                 )
             )
         if len(unscaled_cols) > 0:
@@ -235,8 +236,9 @@ class Scale(ColumnsBasedPipelineStage):
             )
         except Exception:
             raise PipelineApplicationError(
-                "Exception raised when Scale applied to columns {}".format(
-                    self._columns_to_scale
+                "Exception raised when Scale applied to columns"
+                " {} by class {}".format(
+                    self._columns_to_scale, self.__class__
                 )
             )
         if len(unscaled_cols) > 0:
