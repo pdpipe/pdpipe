@@ -187,14 +187,17 @@ def test_pipeline_slice():
     assert 'num2' not in res_df.columns
     assert 'char' in res_df.columns
 
+
 @pytest.mark.parametrize("time", [True, False])
 def test_pipeline_error(time):
     """Test exceptions at pipeline level"""
 
     # test fit
     df = _test_df()
-    func = lambda df: df['num1'] == df['num3']
-    pipeline = PdPipeline([ColByFrameFunc("Equality", func), ColDrop("B")])
+
+    def _func(df):
+        return df['num1'] == df['num3']
+    pipeline = PdPipeline([ColByFrameFunc("Equality", _func), ColDrop("B")])
     with pytest.raises(PipelineApplicationError):
         pipeline.fit(df, verbose=True, time=time)
 
@@ -207,4 +210,3 @@ def test_pipeline_error(time):
     df = _test_df()
     with pytest.raises(PipelineApplicationError):
         pipeline.fit_transform(df, verbose=True, time=time)
-    
