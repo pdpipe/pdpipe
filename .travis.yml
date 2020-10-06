@@ -74,6 +74,7 @@ matrix:
       python: "3.6-dev"
     - python: "3.7-dev"
     - python: "3.8-dev"
+    - python: "3.9-dev"
     # ==== Docs built on a designated Python 3.6 job ====
     # - python: 3.6
     #   name: 'Docs'
