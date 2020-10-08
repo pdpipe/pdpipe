@@ -22,9 +22,9 @@ def _test_df():
 class SilentDropStage(PdPipelineStage):
     """A pipeline stage for testing"""
 
-    def __init__(self, colname):
+    def __init__(self, colname, **kwargs):
         self.colname = colname
-        super().__init__(exraise=False)
+        super().__init__(exraise=False, **kwargs)
 
     def _prec(self, df):
         return self.colname in df.columns
@@ -181,6 +181,26 @@ def test_pipeline_slice():
     assert len(pipeline) == 3
     pipeline = pipeline[0:2]
     assert len(pipeline) == 2
+    df = _test_df()
+    res_df = pipeline.apply(df, verbose=True)
+    assert 'num1' not in res_df.columns
+    assert 'num2' not in res_df.columns
+    assert 'char' in res_df.columns
+
+
+def test_pipeline_slice_by_label():
+    """Testing something."""
+    drop_num1 = SilentDropStage('num1', label='dropNum1')
+    drop_num2 = SilentDropStage('num2', label='dropNum2')
+    drop_char = SilentDropStage('char', label='dropChar')
+    pipeline = PdPipeline([drop_num1, drop_num2, drop_char])
+    assert len(pipeline) == 3
+    pipeline = pipeline[['dropNum1', 'dropNum2']]
+    assert len(pipeline) == 2
+    assert pipeline['dropNum1'] == drop_num1
+    with pytest.raises(Exception) as e:
+        pipeline['dropChar']
+    assert str(e.value) == "'dropChar' is not exist."
     df = _test_df()
     res_df = pipeline.apply(df, verbose=True)
     assert 'num1' not in res_df.columns
