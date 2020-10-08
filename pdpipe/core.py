@@ -173,14 +173,16 @@ class PdPipelineStage(abc.ABC):
         dataframes, which will be used to determine whether this stage should
         be skipped for input dataframes. See pdp.cond for more information on
         specialised Condition objects.
+    label : str, default None
+        A label of this stage.
     """
 
     _DEF_EXC_MSG = 'Precondition failed in stage {}!'
     _DEF_DESCRIPTION = 'A pipeline stage.'
-    _INIT_KWARGS = ['exraise', 'exmsg', 'desc', 'prec', 'skip']
+    _INIT_KWARGS = ['exraise', 'exmsg', 'desc', 'prec', 'skip', 'label']
 
     def __init__(self, exraise=True, exmsg=None, desc=None, prec=None,
-                 skip=None):
+                 skip=None, label=None):
         if desc is None:
             desc = PdPipelineStage._DEF_DESCRIPTION
         if exmsg is None:
@@ -191,6 +193,7 @@ class PdPipelineStage(abc.ABC):
         self._prec_arg = prec
         self._skip = skip
         self._appmsg = '{}..'.format(desc)
+        self._label = label
         self.is_fitted = False
 
     @classmethod
