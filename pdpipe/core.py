@@ -655,6 +655,17 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
     def __getitem__(self, index):
         if isinstance(index, slice):
             return PdPipeline(self._stages[index])
+
+        if isinstance(index, list):
+            stages = [stage for stage in self._stages if stage._label in index]
+            return PdPipeline(stages)
+
+        if isinstance(index, str):
+            stages = [stage for stage in self._stages if stage._label == index]
+            if len(stages) == 0:
+                raise Exception("'{}' is not exist.".format(index))
+            return stages[0]
+
         return self._stages[index]
 
     # implementing a collections.abc.Sequence abstract method
