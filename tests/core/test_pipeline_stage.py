@@ -143,6 +143,14 @@ def test_skip_arg():
     assert 'num' in res.columns
 
 
+def test_stage_label():
+    stage = SilentDropStage('Tigers', label='Label')
+    assert stage._label == 'Label'
+    with pytest.raises(ValueError) as e:
+        stage = SilentDropStage('Tigers', label=12345)
+    assert str(e.value) == "'label' must be a str, not int."
+
+
 class FittableDropByCharStage(PdPipelineStage):
     """A pipeline stage for testing"""
 

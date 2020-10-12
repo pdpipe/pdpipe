@@ -1,4 +1,5 @@
 """Testing basic pipeline stages."""
+from builtins import ValueError
 
 import pandas as pd
 import pytest
@@ -198,7 +199,7 @@ def test_pipeline_slice_by_label():
     pipeline = pipeline[['dropNum1', 'dropNum2']]
     assert len(pipeline) == 2
     assert pipeline['dropNum1'] == drop_num1
-    with pytest.raises(Exception) as e:
+    with pytest.raises(ValueError) as e:
         pipeline['dropChar']
     assert str(e.value) == "'dropChar' is not exist."
     df = _test_df()

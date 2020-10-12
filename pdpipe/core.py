@@ -173,8 +173,9 @@ class PdPipelineStage(abc.ABC):
         dataframes, which will be used to determine whether this stage should
         be skipped for input dataframes. See pdp.cond for more information on
         specialised Condition objects.
-    label : str, default None
+    label : str, default ''
         A label of this stage.
+        Pipelines can be sliced with this label.
     """
 
     _DEF_EXC_MSG = 'Precondition failed in stage {}!'
@@ -182,17 +183,22 @@ class PdPipelineStage(abc.ABC):
     _INIT_KWARGS = ['exraise', 'exmsg', 'desc', 'prec', 'skip', 'label']
 
     def __init__(self, exraise=True, exmsg=None, desc=None, prec=None,
-                 skip=None, label=None):
+                 skip=None, label=''):
+        if not isinstance(label, str):
+            raise ValueError(
+                "'label' must be a str, not {}.".format(type(label).__name__)
+            )
         if desc is None:
             desc = PdPipelineStage._DEF_DESCRIPTION
         if exmsg is None:
             exmsg = PdPipelineStage._DEF_EXC_MSG.format(desc)
+
         self._exraise = exraise
         self._exmsg = exmsg
         self._desc = desc
         self._prec_arg = prec
         self._skip = skip
-        self._appmsg = '{}..'.format(desc)
+        self._appmsg = '{}: {}'.format(label, desc)
         self._label = label
         self.is_fitted = False
 
@@ -656,14 +662,14 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         if isinstance(index, slice):
             return PdPipeline(self._stages[index])
 
-        if isinstance(index, list):
+        if isinstance(index, list) and all(isinstance(x, str) for x in index):
             stages = [stage for stage in self._stages if stage._label in index]
             return PdPipeline(stages)
 
         if isinstance(index, str):
             stages = [stage for stage in self._stages if stage._label == index]
             if len(stages) == 0:
-                raise Exception("'{}' is not exist.".format(index))
+                raise ValueError("'{}' is not exist.".format(index))
             return stages[0]
 
         return self._stages[index]
