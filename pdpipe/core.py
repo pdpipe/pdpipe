@@ -173,20 +173,20 @@ class PdPipelineStage(abc.ABC):
         dataframes, which will be used to determine whether this stage should
         be skipped for input dataframes. See pdp.cond for more information on
         specialised Condition objects.
-    label : str, default ''
-        A label of this stage.
-        Pipelines can be sliced with this label.
+    name : str, default ''
+        The name of this stage.
+        Pipelines can be sliced by this name.
     """
 
     _DEF_EXC_MSG = 'Precondition failed in stage {}!'
     _DEF_DESCRIPTION = 'A pipeline stage.'
-    _INIT_KWARGS = ['exraise', 'exmsg', 'desc', 'prec', 'skip', 'label']
+    _INIT_KWARGS = ['exraise', 'exmsg', 'desc', 'prec', 'skip', 'name']
 
     def __init__(self, exraise=True, exmsg=None, desc=None, prec=None,
-                 skip=None, label=''):
-        if not isinstance(label, str):
+                 skip=None, name=''):
+        if not isinstance(name, str):
             raise ValueError(
-                "'label' must be a str, not {}.".format(type(label).__name__)
+                "'name' must be a str, not {}.".format(type(name).__name__)
             )
         if desc is None:
             desc = PdPipelineStage._DEF_DESCRIPTION
@@ -198,8 +198,8 @@ class PdPipelineStage(abc.ABC):
         self._desc = desc
         self._prec_arg = prec
         self._skip = skip
-        self._appmsg = '{}: {}'.format(label, desc)
-        self._label = label
+        self._appmsg = '{}: {}'.format(name, desc)
+        self._name = name
         self.is_fitted = False
 
     @classmethod
@@ -663,11 +663,11 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             return PdPipeline(self._stages[index])
 
         if isinstance(index, list) and all(isinstance(x, str) for x in index):
-            stages = [stage for stage in self._stages if stage._label in index]
+            stages = [stage for stage in self._stages if stage._name in index]
             return PdPipeline(stages)
 
         if isinstance(index, str):
-            stages = [stage for stage in self._stages if stage._label == index]
+            stages = [stage for stage in self._stages if stage._name == index]
             if len(stages) == 0:
                 raise ValueError("'{}' is not exist.".format(index))
             return stages[0]

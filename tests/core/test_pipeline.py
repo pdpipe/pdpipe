@@ -189,11 +189,11 @@ def test_pipeline_slice():
     assert 'char' in res_df.columns
 
 
-def test_pipeline_slice_by_label():
+def test_pipeline_slice_by_name():
     """Testing something."""
-    drop_num1 = SilentDropStage('num1', label='dropNum1')
-    drop_num2 = SilentDropStage('num2', label='dropNum2')
-    drop_char = SilentDropStage('char', label='dropChar')
+    drop_num1 = SilentDropStage('num1', name='dropNum1')
+    drop_num2 = SilentDropStage('num2', name='dropNum2')
+    drop_char = SilentDropStage('char', name='dropChar')
     pipeline = PdPipeline([drop_num1, drop_num2, drop_char])
     assert len(pipeline) == 3
     pipeline = pipeline[['dropNum1', 'dropNum2']]
