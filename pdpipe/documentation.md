@@ -179,6 +179,17 @@ Pipelines are Python Sequence objects, and as such can be sliced using Python's 
   A pdpipe pipeline:
   [ 0] OneHotEncode Label
 ```
+Pipelines can also be sliced by the stages `name` parameter, notice when running `pipeline[['name1', 'name2']]` a new pipeline will returned with all stages that they `name` is 'name1' or 'name2', and when running `pipeline['name'] only the first stage that has the 'name' will return.:
+
+```python
+  >>> pipeline = pdp.ColDrop("Name", name="dropName").OneHotEncode("Label", name="encoder").ValDrop([-1], "Children").ApplyByCols("height", math.ceil)
+  >>> pipeline['dropName']
+  PdPipelineStage: Drop columns Name
+  >>> pipeline[['dropName', 'encoder']]
+  A pdpipe pipeline:
+  [ 0]  Drop columns Name
+  [ 1]  One-hot encode Label
+```
 
 ### Applying Pipelines
 
