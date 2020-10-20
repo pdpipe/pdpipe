@@ -198,7 +198,7 @@ class PdPipelineStage(abc.ABC):
         self._desc = desc
         self._prec_arg = prec
         self._skip = skip
-        self._appmsg = '{}: {}'.format(name, desc)
+        self._appmsg = '{}{}'.format(name + ': ' if name else '', desc)
         self._name = name
         self.is_fitted = False
 
