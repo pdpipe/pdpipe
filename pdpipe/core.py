@@ -173,24 +173,33 @@ class PdPipelineStage(abc.ABC):
         dataframes, which will be used to determine whether this stage should
         be skipped for input dataframes. See pdp.cond for more information on
         specialised Condition objects.
+    name : str, default ''
+        The name of this stage.
+        Pipelines can be sliced by this name.
     """
 
     _DEF_EXC_MSG = 'Precondition failed in stage {}!'
     _DEF_DESCRIPTION = 'A pipeline stage.'
-    _INIT_KWARGS = ['exraise', 'exmsg', 'desc', 'prec', 'skip']
+    _INIT_KWARGS = ['exraise', 'exmsg', 'desc', 'prec', 'skip', 'name']
 
     def __init__(self, exraise=True, exmsg=None, desc=None, prec=None,
-                 skip=None):
+                 skip=None, name=''):
+        if not isinstance(name, str):
+            raise ValueError(
+                "'name' must be a str, not {}.".format(type(name).__name__)
+            )
         if desc is None:
             desc = PdPipelineStage._DEF_DESCRIPTION
         if exmsg is None:
             exmsg = PdPipelineStage._DEF_EXC_MSG.format(desc)
+
         self._exraise = exraise
         self._exmsg = exmsg
         self._desc = desc
         self._prec_arg = prec
         self._skip = skip
-        self._appmsg = '{}..'.format(desc)
+        self._appmsg = '{}{}'.format(name + ': ' if name else '', desc)
+        self._name = name
         self.is_fitted = False
 
     @classmethod
@@ -652,6 +661,17 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
     def __getitem__(self, index):
         if isinstance(index, slice):
             return PdPipeline(self._stages[index])
+
+        if isinstance(index, list) and all(isinstance(x, str) for x in index):
+            stages = [stage for stage in self._stages if stage._name in index]
+            return PdPipeline(stages)
+
+        if isinstance(index, str):
+            stages = [stage for stage in self._stages if stage._name == index]
+            if len(stages) == 0:
+                raise ValueError("'{}' is not exist.".format(index))
+            return stages[0]
+
         return self._stages[index]
 
     # implementing a collections.abc.Sequence abstract method
