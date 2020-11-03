@@ -49,6 +49,8 @@ class FitOnly(PdPipelineStage):
 
     def _transform(self, df, verbose):
         if verbose:
-            print("Skipping, because not in fit, the stage: {}".format(
-                self._stage.description()))
+            print(
+                f"Skipping, because not in fit, "
+                f"the stage: {self._stage.description()}"
+            )
         return df

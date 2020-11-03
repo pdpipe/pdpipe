@@ -63,9 +63,9 @@ class Bin(PdPipelineStage):
         string = ""
         columns = list(self._bin_map.keys())
         col1 = columns[0]
-        string += "Bin {} by {},\n".format(col1, self._bin_map[col1])
+        string += f"Bin {col1} by { self._bin_map[col1]},\n"
         for col in columns[1:]:
-            string += "bin {} by {},\n".format(col, self._bin_map[col])
+            string += f"bin {col} by {self._bin_map[col]},\n"
         string = string[0:-2] + "."
         return string
 
@@ -92,15 +92,15 @@ class Bin(PdPipelineStage):
             if val in sorted_bins:
                 ind = sorted_bins.bisect(val) - 1
                 if ind == last_ix:
-                    return "{}≤".format(sorted_bins[-1])
-                return "{}-{}".format(sorted_bins[ind], sorted_bins[ind + 1])
+                    return f"{sorted_bins[-1]}≤"
+                return f"{sorted_bins[ind]}-{sorted_bins[ind + 1]}"
             try:
                 ind = sorted_bins.bisect(val)
                 if ind == 0:
-                    return "<{}".format(sorted_bins[ind])
-                return "{}-{}".format(sorted_bins[ind - 1], sorted_bins[ind])
+                    return f"<{sorted_bins[ind]}"
+                return f"{sorted_bins[ind - 1]}-{sorted_bins[ind]}"
             except IndexError:
-                return "{}≤".format(sorted_bins[sorted_bins.bisect(val) - 1])
+                return f"{sorted_bins[sorted_bins.bisect(val) - 1]}≤"
 
         return _col_binner
 
@@ -179,7 +179,7 @@ class OneHotEncode(ColumnsBasedPipelineStage):
             self.dummy_columns = dummy_columns
 
         def __call__(self, value):
-            this_dummy = "{}_{}".format(self.col_name, value)
+            this_dummy = f"{self.col_name}_{value}"
             return pd.Series(
                 data=[
                     int(this_dummy == dummy_col)
@@ -429,9 +429,7 @@ class MapColVals(ColumnTransformer):
             'result_columns': result_columns,
             'drop': drop,
             'suffix': suffix,
-            'desc': "Map values of columns {} with {}.".format(
-                colstr, self._value_map
-            ),
+            'desc': f"Map values of columns {colstr} with {self._value_map}.",
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -516,9 +514,7 @@ class ApplyToRows(PdPipelineStage):
         self._prec_func = prec
         super_kwargs = {
             "exmsg": ApplyToRows._DEF_APPLYTOROWS_EXC_MSG.format(func_desc),
-            "desc": "Generating a column with a function {}.".format(
-                self._func_desc
-            ),
+            "desc": f"Generating a column with a function {self._func_desc}.",
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -619,8 +615,7 @@ class ApplyByCols(ColumnTransformer):
             'result_columns': result_columns,
             'drop': drop,
             'suffix': suffix,
-            'desc_temp': 'Apply a function {} to columns {{}}'.format(
-                func_desc),
+            'desc_temp': f'Apply a function {func_desc} to columns {{}}',
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -693,10 +688,8 @@ class ColByFrameFunc(PdPipelineStage):
             new_col = self._func(df)
         except Exception:
             raise PipelineApplicationError(
-                "Exception raised applying function {} to "
-                "dataframe by class {}.".format(
-                    self._func_desc, self.__class__
-                )
+                f"Exception raised applying function {self._func_desc} to "
+                f"dataframe by class {self.__class__}."
             )
         if self._follow_column:
             loc = df.columns.get_loc(self._follow_column) + 1
@@ -767,8 +760,8 @@ class AggByCols(ColumnTransformer):
             'drop': drop,
             'suffix': suffix,
             'desc_temp': (
-                'Apply an aggregation function {} to columns {{}}'.format(
-                    func_desc)),
+                f'Apply an aggregation function {func_desc} to columns {{}}'
+            ),
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)

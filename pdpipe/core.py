@@ -186,7 +186,7 @@ class PdPipelineStage(abc.ABC):
                  skip=None, name=''):
         if not isinstance(name, str):
             raise ValueError(
-                "'name' must be a str, not {}.".format(type(name).__name__)
+                f"'name' must be a str, not {type(name).__name__}."
             )
         if desc is None:
             desc = PdPipelineStage._DEF_DESCRIPTION
@@ -198,7 +198,7 @@ class PdPipelineStage(abc.ABC):
         self._desc = desc
         self._prec_arg = prec
         self._skip = skip
-        self._appmsg = '{}{}'.format(name + ': ' if name else '', desc)
+        self._appmsg = f"{name + ': ' if name else ''}{desc}"
         self._name = name
         self.is_fitted = False
 
@@ -398,7 +398,7 @@ class PdPipelineStage(abc.ABC):
         return NotImplemented
 
     def __str__(self):
-        return "PdPipelineStage: {}".format(self._desc)
+        return f"PdPipelineStage: {self._desc}"
 
     def __repr__(self):
         return self.__str__()
@@ -669,7 +669,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         if isinstance(index, str):
             stages = [stage for stage in self._stages if stage._name == index]
             if len(stages) == 0:
-                raise ValueError("'{}' is not exist.".format(index))
+                raise ValueError(f"'{index}' is not exist.")
             return stages[0]
 
         return self._stages[index]
@@ -708,9 +708,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                 prev = now
             except Exception:
                 raise PipelineApplicationError(
-                    "Exception raised in stage [ {}] {}".format(
-                        i, stage
-                    )
+                    f"Exception raised in stage [ {i}] {stage}"
                 )
         self.is_fitted = True
         print("\nPipeline total application time: {:.3f}s.\n Details:".format(
@@ -761,9 +759,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                 )
             except Exception:
                 raise PipelineApplicationError(
-                    "Exception raised in stage [ {}] {}".format(
-                        i, stage
-                    )
+                    f"Exception raised in stage [ {i}] {stage}"
                 )
         self.is_fitted = True
         return inter_x
@@ -823,9 +819,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                 prev = now
             except Exception:
                 raise PipelineApplicationError(
-                    "Exception raised in stage [ {}] {}".format(
-                        i, stage
-                    )
+                    f"Exception raised in stage [ {i}] {stage}"
                 )
         self.is_fitted = True
         print("\nPipeline total application time: {:.3f}s.\n Details:".format(
@@ -884,9 +878,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                 )
             except Exception:
                 raise PipelineApplicationError(
-                    "Exception raised in stage [ {}] {}".format(
-                        i, stage
-                    )
+                    f"Exception raised in stage [ {i}] {stage}"
                 )
         return inter_df
 

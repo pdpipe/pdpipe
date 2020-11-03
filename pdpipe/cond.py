@@ -172,8 +172,8 @@ class Condition(object):
     def __repr__(self):
         fstr = ''
         if self._func.__doc__:  # pragma: no cover
-            fstr = ' - {}'.format(self._func.__doc__)
-        return "<pdpipe.Condition: By function{}>".format(fstr)
+            fstr = f' - {self._func.__doc__}'
+        return f"<pdpipe.Condition: By function{fstr}>"
 
     # --- overriding boolean operators ---
 
@@ -190,9 +190,9 @@ class Condition(object):
     def __and__(self, other):
         try:
             _func = Condition._AndCondition(self._func, other._func)
-            _func.__doc__ = '{} AND {}'.format(
-                self._func.__doc__ or 'Anonymous condition 1',
-                other._func.__doc__ or 'Anonymous condition 2',
+            _func.__doc__ = (
+                f"{self._func.__doc__ or 'Anonymous condition 1'} AND "
+                f"{other._func.__doc__ or 'Anonymous condition 2'}"
             )
             return Condition(func=_func)
         except AttributeError:
@@ -210,9 +210,9 @@ class Condition(object):
     def __xor__(self, other):
         try:
             _func = Condition._XorCondition(self._func, other._func)
-            _func.__doc__ = '{} XOR {}'.format(
-                self._func.__doc__ or 'Anonymous condition 1',
-                other._func.__doc__ or 'Anonymous condition 2',
+            _func.__doc__ = (
+                f"{self._func.__doc__ or 'Anonymous condition 1'} XOR "
+                f"{other._func.__doc__ or 'Anonymous condition 2'}"
             )
             return Condition(func=_func)
         except AttributeError:
@@ -230,9 +230,9 @@ class Condition(object):
     def __or__(self, other):
         try:
             _func = Condition._OrCondition(self._func, other._func)
-            _func.__doc__ = '{} OR {}'.format(
-                self._func.__doc__ or 'Anonymous condition 1',
-                other._func.__doc__ or 'Anonymous condition 2',
+            _func.__doc__ = (
+                f"{self._func.__doc__ or 'Anonymous condition 1'} OR "
+                f"{other._func.__doc__ or 'Anonymous condition 2'}"
             )
             return Condition(func=_func)
         except AttributeError:
@@ -248,9 +248,7 @@ class Condition(object):
 
     def __invert__(self):
         _func = Condition._NotCondition(self._func)
-        _func.__doc__ = 'NOT {}'.format(
-            self._func.__doc__ or 'Anonymous condition'
-        )
+        _func.__doc__ = f"NOT {self._func.__doc__ or 'Anonymous condition'}"
         return Condition(func=_func)
 
 
@@ -380,7 +378,7 @@ conditions: anonymous condition>
         super().__init__(**kwargs)
 
     def __repr__(self):
-        return "<pdpipe.Condition: {}>".format(self._func_doc)
+        return f"<pdpipe.Condition: {self._func_doc}>"
 
 
 class HasAllColumns(Condition):
@@ -422,14 +420,12 @@ class HasAllColumns(Condition):
                 lbl in df.columns
                 for lbl in self._labels
             ])
-        _func.__doc__ = "Dataframes with colums {}".format(
-            self._labels_str)
+        _func.__doc__ = f"Dataframes with colums {self._labels_str}"
         kwargs['func'] = _func
         super().__init__(**kwargs)
 
     def __repr__(self):
-        return "<pdpipe.Condition: Has all columns in {}>".format(
-            self._labels_str)
+        return f"<pdpipe.Condition: Has all columns in {self._labels_str}>"
 
 
 class ColumnsFromList(PerColumnCondition):
@@ -481,8 +477,7 @@ conditions: Series with labels in num>
         self._labels = labels
         self._labels_str = _list_str(self._labels)
         _func = ColumnsFromList._SeriesLblCondition(self._labels)
-        _func.__doc__ = "Series with labels in {}".format(
-            self._labels_str)
+        _func.__doc__ = f"Series with labels in {self._labels_str}"
         kwargs['conditions'] = [_func]
         kwargs['columns_reduce'] = columns_reduce
         super().__init__(**kwargs)
@@ -534,14 +529,12 @@ class HasNoColumn(Condition):
         self._labels = labels
         self._labels_str = _list_str(self._labels)
         _func = HasNoColumn._NoColumnsFunc(self._labels)
-        _func.__doc__ = "Dataframes with no colum from {}".format(
-            self._labels_str)
+        _func.__doc__ = f"Dataframes with no colum from {self._labels_str}"
         kwargs['func'] = _func
         super().__init__(**kwargs)
 
     def __repr__(self):
-        return "<pdpipe.Condition: Has no column in {}>".format(
-            self._labels_str)
+        return f"<pdpipe.Condition: Has no column in {self._labels_str}>"
 
 
 class HasAtMostMissingValues(Condition):
@@ -604,14 +597,15 @@ class HasAtMostMissingValues(Condition):
             _func = HasAtMostMissingValues._FloatMissingValuesFunc(n_missing)
         else:
             raise ValueError("n_missing should be of type int or float!")
-        _func.__doc__ = "Dataframes with at most {} missing values".format(
-            self._n_missing)
+        _func.__doc__ = (
+            f"Dataframes with at most {self._n_missing} missing values"
+        )
         kwargs['func'] = _func
         super().__init__(**kwargs)
 
     def __repr__(self):
-        return "<pdpipe.Condition: Has at most {} missing values>".format(
-            self._n_missing)
+        return f"<pdpipe.Condition: " \
+               f"Has at most {self._n_missing} missing values>"
 
 
 class HasNoMissingValues(HasAtMostMissingValues):

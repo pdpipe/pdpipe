@@ -52,17 +52,17 @@ def check_sk_pipeline():
 
     train = _train_df()
     res_train = pline(train)
-    print("Processed train set: {}".format(res_train))
+    print(f"Processed train set: {res_train}")
     x_train, y_train = x_y_by_col_lbl(res_train, "lbl")
     model_pline = model_pline.fit(x_train, y_train)
-    print("Fitted model pipeline: {}".format(model_pline))
+    print(f"Fitted model pipeline: {model_pline}")
 
     test = _test_df()
     res_test = pline(test)
-    print("Processed test set: {}".format(res_test))
+    print(f"Processed test set: {res_test}")
     x_test, y_test = x_y_by_col_lbl(res_test, "lbl")
     predictions = model_pline.predict(x_test)
-    print("predictions: {}".format(predictions))
+    print(f"predictions: {predictions}")
 
 
 if __name__ == "__main__":
