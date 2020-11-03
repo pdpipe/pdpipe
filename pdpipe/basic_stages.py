@@ -95,8 +95,7 @@ class ValDrop(ColumnsBasedPipelineStage):
         self._values_str = _list_str(self._values)
         super_kwargs = {
             'columns': columns,
-            'desc_temp': 'Drop values {} in columns {{}}'.format(
-                self._values_str),
+            'desc_temp': f'Drop values {self._values_str} in columns {{}}',
         }
         super_kwargs.update(**kwargs)
         super_kwargs['none_columns'] = 'all'
@@ -109,7 +108,7 @@ class ValDrop(ColumnsBasedPipelineStage):
         for col in columns_to_check:
             inter_df = inter_df[~inter_df[col].isin(self._values)]
         if verbose:
-            print("{} rows dropped.".format(before_count - len(inter_df)))
+            print(f"{before_count - len(inter_df)} rows dropped.")
         return inter_df
 
 
@@ -149,8 +148,7 @@ class ValKeep(ColumnsBasedPipelineStage):
         self._values_str = _list_str(self._values)
         super_kwargs = {
             'columns': columns,
-            'desc_temp': 'Keep values {} in columns {{}}'.format(
-                self._values_str),
+            'desc_temp': f'Keep values {self._values_str} in columns {{}}',
         }
         super_kwargs.update(**kwargs)
         super_kwargs['none_columns'] = 'all'
@@ -163,7 +161,7 @@ class ValKeep(ColumnsBasedPipelineStage):
         for col in columns_to_check:
             inter_df = inter_df[inter_df[col].isin(self._values)]
         if verbose:
-            print("{} rows dropped.".format(before_count - len(inter_df)))
+            print(f"{before_count - len(inter_df)} rows dropped.")
         return inter_df
 
 
@@ -194,7 +192,7 @@ class ColRename(PdPipelineStage):
         suffix = 's' if len(rename_map) > 1 else ''
         super_kwargs = {
             'exmsg': ColRename._DEF_COLDRENAME_EXC_MSG.format(columns_str),
-            'desc': "Rename column{} with {}".format(suffix, self._rename_map)
+            'desc': f"Rename column{suffix} with {self._rename_map}",
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -243,10 +241,10 @@ class DropNa(PdPipelineStage):
         ncols_before = len(df.columns)
         inter_df = df.dropna(**self.dropna_kwargs)
         if verbose:
-            print("{} rows, {} columns dropeed".format(
-                before_count - len(inter_df),
-                ncols_before - len(inter_df.columns),
-            ))
+            print(
+                f"{before_count - len(inter_df)} rows, "
+                f"{ncols_before - len(inter_df.columns)} columns dropeed"
+            )
         return inter_df
 
 
@@ -295,7 +293,7 @@ class FreqDrop(PdPipelineStage):
         to_drop = valcount[valcount < self._threshold].index
         inter_df = inter_df[~inter_df[self._column].isin(to_drop)]
         if verbose:
-            print("{} rows dropped.".format(before_count - len(inter_df)))
+            print(f"{before_count - len(inter_df)} rows dropped.")
         return inter_df
 
 
@@ -326,7 +324,7 @@ class ColReorder(PdPipelineStage):
         self._pos_to_col = reverse_dict_partial(positions)
         super_kwargs = {
             'exmsg': ColReorder._DEF_ORD_EXC_MSG.format(self._col_to_pos),
-            'desc': "Reorder columns by {}".format(self._col_to_pos),
+            'desc': f"Reorder columns by {self._col_to_pos}",
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -347,8 +345,7 @@ class ColReorder(PdPipelineStage):
                     new_columns.append(non_map_cols.popleft())
             return df[new_columns]
         except (IndexError):
-            raise ValueError("Bad positions mapping given: {}".format(
-                new_columns))
+            raise ValueError(f"Bad positions mapping given: {new_columns}")
 
 
 class RowDrop(ColumnsBasedPipelineStage):
@@ -473,7 +470,7 @@ class RowDrop(ColumnsBasedPipelineStage):
         drop_index = ~subdf.apply(self._row_cond, axis=1)
         inter_df = df[drop_index]
         if verbose:
-            print("{} rows dropped.".format(before_count - len(inter_df)))
+            print(f"{before_count - len(inter_df)} rows dropped.")
         return inter_df
 
 
@@ -502,10 +499,14 @@ class Schematize(PdPipelineStage):
     def __init__(self, columns, **kwargs):
         self._columns = _interpret_columns_param(columns)
         self._columns_str = _list_str(self._columns)
-        desc = "Transform input dataframes to the following schema: {}".format(
-            self._columns_str)
-        exmsg = "Not all required columns {} found in input dataframe!".format(
-            self._columns_str)
+        desc = (
+            f"Transform input dataframes to the following schema: "
+            f"{self._columns_str}"
+        )
+        exmsg = (
+            f"Not all required columns {self._columns_str} "
+            f"found in input dataframe!"
+        )
         super_kwargs = {
             'exmsg': exmsg,
             'desc': desc,
@@ -557,5 +558,5 @@ class DropDuplicates(ColumnsBasedPipelineStage):
         columns = self._get_columns(df, fit=fit)
         inter_df = df.drop_duplicates(subset=columns)
         if verbose:
-            print("{} rows dropped.".format(len(df) - len(inter_df)))
+            print(f"{len(df) - len(inter_df)} rows dropped.")
         return inter_df

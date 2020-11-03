@@ -136,11 +136,11 @@ class DropTokensByLength(ApplyByCols):
         self._min_len = min_len
         self._max_len = max_len
         token_filter = DropTokensByLength.MinLengthTokenFilter(min_len)
-        cond_str = " > {}".format(min_len)
+        cond_str = f" > {min_len}"
         if max_len:
             token_filter = DropTokensByLength.MinMaxLengthTokenFilter(
                 min_len=min_len, max_len=max_len)
-            cond_str += " < {}".format(max_len)
+            cond_str += f" < {max_len}"
         desc_temp = "Filtering out tokens of length{} in columns {{}}"
         desc_temp = desc_temp.format(cond_str)
         super_kwargs = {

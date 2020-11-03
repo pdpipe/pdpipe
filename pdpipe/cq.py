@@ -224,8 +224,8 @@ class ColumnQualifier(object):
     def __repr__(self):
         fstr = ''
         if self._cqfunc.__doc__:  # pragma: no cover
-            fstr = ' - {}'.format(self._cqfunc.__doc__)
-        return "<ColumnQualifier: Qualify columns by function{}>".format(fstr)
+            fstr = f' - {self._cqfunc.__doc__}'
+        return f"<ColumnQualifier: Qualify columns by function{fstr}>"
 
     # --- overriding boolean operators ---
 
@@ -252,9 +252,9 @@ class ColumnQualifier(object):
                 first=self._cqfunc,
                 second=other._cqfunc,
             )
-            res_func.__doc__ = '{} AND {}'.format(
-                self._cqfunc.__doc__ or 'Anonymous qualifier 1',
-                other._cqfunc.__doc__ or 'Anonymous qualifier 2',
+            res_func.__doc__ = (
+                f"{self._cqfunc.__doc__ or 'Anonymous qualifier 1'} AND "
+                f"{other._cqfunc.__doc__ or 'Anonymous qualifier 2'}"
             )
             return ColumnQualifier(func=res_func)
         except AttributeError:
@@ -279,9 +279,9 @@ class ColumnQualifier(object):
                 first=self._cqfunc,
                 second=other._cqfunc,
             )
-            res_func.__doc__ = '{} XOR {}'.format(
-                self._cqfunc.__doc__ or 'Anonymous qualifier 1',
-                other._cqfunc.__doc__ or 'Anonymous qualifier 2',
+            res_func.__doc__ = (
+                f"{self._cqfunc.__doc__ or 'Anonymous qualifier 1'} XOR "
+                f"{other._cqfunc.__doc__ or 'Anonymous qualifier 2'}"
             )
             return ColumnQualifier(func=res_func)
         except AttributeError:
@@ -306,9 +306,9 @@ class ColumnQualifier(object):
                 first=self._cqfunc,
                 second=other._cqfunc,
             )
-            res_func.__doc__ = '{} OR {}'.format(
-                self._cqfunc.__doc__ or 'Anonymous qualifier 1',
-                other._cqfunc.__doc__ or 'Anonymous qualifier 2',
+            res_func.__doc__ = (
+                f"{self._cqfunc.__doc__ or 'Anonymous qualifier 1'} OR "
+                f"{other._cqfunc.__doc__ or 'Anonymous qualifier 2'}"
             )
             return ColumnQualifier(func=res_func)
         except AttributeError:
@@ -333,9 +333,9 @@ class ColumnQualifier(object):
                 first=self._cqfunc,
                 second=other._cqfunc,
             )
-            res_func.__doc__ = '{} NOT IN {}'.format(
-                self._cqfunc.__doc__ or 'Anonymous qualifier 1',
-                other._cqfunc.__doc__ or 'Anonymous qualifier 2',
+            res_func.__doc__ = (
+                f"{self._cqfunc.__doc__ or 'Anonymous qualifier 1'} NOT IN "
+                f"{other._cqfunc.__doc__ or 'Anonymous qualifier 2'}"
             )
             return ColumnQualifier(func=res_func)
         except AttributeError:
@@ -357,8 +357,8 @@ class ColumnQualifier(object):
         res_func = ColumnQualifier._NotQualifierFunc(
             cq=self._cqfunc
         )
-        res_func.__doc__ = 'NOT {}'.format(
-            self._cqfunc.__doc__ or 'Anonymous qualifier'
+        res_func.__doc__ = (
+            f"NOT {self._cqfunc.__doc__ or 'Anonymous qualifier'}"
         )
         return ColumnQualifier(func=res_func)
 
@@ -527,14 +527,13 @@ class ByLabels(ColumnQualifier):
         self._labels = labels
         self._labels_str = _list_str(self._labels)
         cqfunc = ByLabels._LabelsQualifierFunc(self._labels)
-        cqfunc.__doc__ = "Columns with labels in {}".format(
-            self._labels_str)
+        cqfunc.__doc__ = f"Columns with labels in {self._labels_str}"
         self.__doc__ = cqfunc.__doc__
         kwargs['func'] = cqfunc
         super().__init__(**kwargs)
 
     def __repr__(self):
-        return "<ColumnQualifier: By labels in {}>".format(self._labels_str)
+        return f"<ColumnQualifier: By labels in {self._labels_str}>"
 
 
 def columns_to_qualifier(columns):
@@ -613,14 +612,13 @@ class StartWith(ColumnQualifier):
     def __init__(self, prefix, **kwargs):
         self._prefix = prefix
         cqfunc = StartWith._StartWithFunc(prefix)
-        cqfunc.__doc__ = "Columns that start with {}".format(self._prefix)
+        cqfunc.__doc__ = f"Columns that start with {self._prefix}"
         self.__doc__ = cqfunc.__doc__
         kwargs['func'] = cqfunc
         super().__init__(**kwargs)
 
     def __repr__(self):
-        return "<ColumnQualifier: Columns starting with {}>".format(
-            self._prefix)
+        return f"<ColumnQualifier: Columns starting with {self._prefix}>"
 
 
 class OfDtypes(ColumnQualifier):
@@ -667,13 +665,13 @@ class OfDtypes(ColumnQualifier):
         self._dtypes = dtypes
         self._dtypes_str = _list_str(self._dtypes)
         cqfunc = OfDtypes._OfDtypeFunc(dtypes)
-        cqfunc.__doc__ = "Columns of dtypes {}".format(self._dtypes_str)
+        cqfunc.__doc__ = f"Columns of dtypes {self._dtypes_str}"
         self.__doc__ = cqfunc.__doc__
         kwargs['func'] = cqfunc
         super().__init__(**kwargs)
 
     def __repr__(self):
-        return "<ColumnQualifier: With dtypes in {}>".format(self._dtypes_str)
+        return f"<ColumnQualifier: With dtypes in {self._dtypes_str}>"
 
 
 class WithAtMostMissingValues(ColumnQualifier):
@@ -711,15 +709,16 @@ class WithAtMostMissingValues(ColumnQualifier):
     def __init__(self, n_missing, **kwargs):
         self._n_missing = n_missing
         cqfunc = WithAtMostMissingValues._AtMostFunc(n_missing)
-        cqfunc.__doc__ = "Columns with at most {} missing values".format(
-            self._n_missing)
+        cqfunc.__doc__ = (
+            f"Columns with at most {self._n_missing} missing values"
+        )
         self.__doc__ = cqfunc.__doc__
         kwargs['func'] = cqfunc
         super().__init__(**kwargs)
 
     def __repr__(self):
-        return "<ColumnQualifier: With at most {} missing values>".format(
-            self._n_missing)
+        return f"<ColumnQualifier: " \
+               f"With at most {self._n_missing} missing values>"
 
 
 class WithoutMissingValues(WithAtMostMissingValues):

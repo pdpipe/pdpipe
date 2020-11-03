@@ -60,7 +60,7 @@ def test_tfidf_vec_hierarchical_labels():
         words.extend(row['Quote'])
     uwords = set(words)
     for w in uwords:
-        assert 'Quote_{}'.format(w) in res_df.columns
+        assert f'Quote_{w}' in res_df.columns
     non_zeros = (
         res_df.drop('Quote', axis=1, errors='ignore') > 0
     ).T.sum().values

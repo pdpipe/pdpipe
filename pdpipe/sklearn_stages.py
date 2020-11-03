@@ -210,9 +210,7 @@ class Scale(ColumnsBasedPipelineStage):
         except Exception:
             raise PipelineApplicationError(
                 "Exception raised when Scale applied to columns"
-                " {} by class {}".format(
-                    self._columns_to_scale, self.__class__
-                )
+                f" {self._columns_to_scale} by class {self.__class__}"
             )
         if len(unscaled_cols) > 0:
             unscaled = df[unscaled_cols]
@@ -237,9 +235,7 @@ class Scale(ColumnsBasedPipelineStage):
         except Exception:
             raise PipelineApplicationError(
                 "Exception raised when Scale applied to columns"
-                " {} by class {}".format(
-                    self._columns_to_scale, self.__class__
-                )
+                f" {self._columns_to_scale} by class {self.__class__}"
             )
         if len(unscaled_cols) > 0:
             unscaled = df[unscaled_cols]
@@ -300,7 +296,7 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
         msg = TfidfVectorizeTokenLists._DEF_CNTVEC_MSG.format(column)
         super_kwargs = {
             "exmsg": ("TfIdfVectorizeTokenLists precondition not met:"
-                      "{} column not found.".format(column)),
+                      f"{column} column not found."),
             "desc": msg,
         }
         valid_vectorizer_args = _get_args_list(TfidfVectorizer.__init__)
@@ -330,7 +326,7 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
         self._n_features = vectorized.shape[1]
         if self._hierarchical_labels:
             self._res_col_names = [
-                '{}_{}'.format(self._column, f)
+                f'{self._column}_{f}'
                 for f in self._tfidf_vectorizer.get_feature_names()
             ]
         else:

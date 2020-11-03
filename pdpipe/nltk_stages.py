@@ -80,7 +80,7 @@ class TokenizeText(MapColVals):
             'drop': drop,
             'suffix': '_tok',
             'exmsg': TokenizeText._DEF_TOKENIZE_EXC_MSG.format(col_str),
-            'desc': "Tokenize {}".format(col_str),
+            'desc': f"Tokenize {col_str}",
         }
         super_kwargs.update(**kwargs)
         super_kwargs['none_columns'] = 'error'
@@ -138,7 +138,7 @@ class UntokenizeText(MapColVals):
             'drop': drop,
             'suffix': '_untok',
             'exmsg': UntokenizeText._DEF_UNTOKENIZE_EXC_MSG.format(col_str),
-            'desc': "Untokenize {}".format(col_str),
+            'desc': f"Untokenize {col_str}",
         }
         super_kwargs.update(**kwargs)
         super_kwargs['none_columns'] = 'error'
@@ -230,7 +230,7 @@ class RemoveStopwords(MapColVals):
             'drop': drop,
             'suffix': '_nostop',
             'exmsg': RemoveStopwords._DEF_STOPWORDS_EXC_MSG.format(col_str),
-            'desc': "Remove stopwords from {}".format(col_str),
+            'desc': f"Remove stopwords from {col_str}",
         }
         super_kwargs.update(**kwargs)
         super_kwargs['none_columns'] = 'error'
@@ -362,11 +362,11 @@ class SnowballStem(MapColVals):
         col_str = _list_str(self._columns)
         cond_str = ''
         if min_len:
-            cond_str += ' of length >= {}'.format(min_len)
+            cond_str += f' of length >= {min_len}'
         if max_len:
             if not min_len:
                 cond_str += ' of length'
-            cond_str += ' <= {}'.format(max_len)
+            cond_str += f' <= {max_len}'
         desc = SnowballStem._DEF_STEM_DESC.format(cond_str, col_str)
         super_kwargs = {
             'columns': columns,
