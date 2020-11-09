@@ -46,7 +46,6 @@ setup(
         'nltk': ['nltk'],
         'test': TEST_REQUIRES
     },
-    setup_requires=INSTALL_REQUIRES,
     platforms=['any'],
     keywords='pandas dataframe pipeline data',
     classifiers=[
