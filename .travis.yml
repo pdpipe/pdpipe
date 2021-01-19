@@ -26,11 +26,6 @@ matrix:
         # - find -name '*.md' | xargs .github/lint-markdown.sh
         - flake8
     # ======= OSX ========
-    - name: "Python 3.6.5 on macOS 10.13"
-      os: osx
-      osx_image: xcode9.4  # Python 3.6.5 running on macOS 10.13
-      language: shell       # 'language: python' is an error on Travis CI macOS
-      script: python3 -m pytest -c pytest_osx.ini
     - name: "Python 3.7.3 on macOS 10.14"
       os: osx
       osx_image: xcode10.2  # Python 3.7.3 running on macOS 10.14.3
