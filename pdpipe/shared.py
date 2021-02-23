@@ -20,8 +20,8 @@ def _list_str(listi):
 
 
 def _get_args_list(func):
-    args, varargs, varkw, defaults = inspect.getargspec(func)
-    return args
+    signature = inspect.signature(func)
+    return list(signature.parameters.keys())
 
 
 def _identity_function(x):
