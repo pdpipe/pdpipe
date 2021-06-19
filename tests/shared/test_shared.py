@@ -1,10 +1,13 @@
 """Testing shared functions of pdpipe."""
 
+import numpy as np
+
 from pdpipe.shared import (
     _interpret_columns_param,
     _list_str,
     _get_args_list,
     _identity_function,
+    _str2list
 )
 
 
@@ -33,3 +36,13 @@ def test_get_args_list():
 
 def test_identity_function():
     assert _identity_function(5) == 5
+
+
+def test_str2list_str():
+    assert _str2list('a') == ['a']
+
+
+def test_str2list_iter():
+    assert _str2list(['a']) == ['a']
+    assert isinstance(_str2list(tuple('a')), tuple)
+    assert _str2list(np.array(['a'])) == np.array(['a'])

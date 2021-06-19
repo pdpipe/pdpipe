@@ -26,3 +26,10 @@ def _get_args_list(func):
 
 def _identity_function(x):
     return x
+
+
+def _str2list(s):
+    if isinstance(s, str):
+        return [s]
+    else:
+        return s
