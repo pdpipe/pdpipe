@@ -1,0 +1,36 @@
+name: Lint
+
+on:
+  # Trigger the workflow on push or pull request,
+  # but only for the main branch
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  run-linters:
+    name: Run linters
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: set up python 3.9
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.9
+
+      # Install your linters here
+      - name: Install flake8
+        run: |
+          python -m pip install flake8
+
+      - name: Run linters
+        uses: wearerequired/lint-action@v1
+        with:
+          flake8: true
+          # Enable your linters here
