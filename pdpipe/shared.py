@@ -1,6 +1,7 @@
 """Shared inner functionalities for pdpipe."""
 
 import inspect
+import numpy as np
 
 
 def _interpret_columns_param(columns):
@@ -26,3 +27,10 @@ def _get_args_list(func):
 
 def _identity_function(x):
     return x
+
+
+def _str2list(s):
+    if type(s) == str:
+        return [s]
+    elif isinstance(s, (list, np.ndarray, tuple)):
+        return s
