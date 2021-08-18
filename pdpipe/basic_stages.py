@@ -170,7 +170,7 @@ class ColRename(PdPipelineStage):
 
     Parameters
     ----------
-    rename_map : dict
+    rename_mapper : dict-like or function
         Maps old column names to new ones.
 
     Example
@@ -186,22 +186,45 @@ class ColRename(PdPipelineStage):
     _DEF_COLDRENAME_EXC_MSG = ("ColRename stage failed because not all columns"
                                " {} were found in input dataframe.")
 
-    def __init__(self, rename_map, **kwargs):
-        self._rename_map = rename_map
-        columns_str = _list_str(list(rename_map.keys()))
-        suffix = 's' if len(rename_map) > 1 else ''
+    def __init__(self, rename_mapper, **kwargs):
+        self._rename_mapper = rename_mapper
+        try:
+            columns_str = _list_str(list(rename_mapper.keys()))
+            mapper_repr = str(rename_mapper)
+            keys_set = set(self._rename_mapper.keys())
+
+            def _tprec(df):
+                return keys_set.issubset(df.columns)
+        except AttributeError:
+            mapper_repr = rename_mapper.__name__
+            doc = rename_mapper.__doc__
+            if doc is None:
+                columns_str = f"by func {rename_mapper.__name__}"
+            else:
+                columns_str = (
+                    f"by func {rename_mapper.__name__} with "
+                    f"doc: {rename_mapper.__doc__}"
+                )
+
+            def _tprec(df):
+                return True
+        try:
+            suffix = 's' if len(rename_mapper) > 1 else ''
+        except TypeError:
+            suffix = 's'
+        self._tprec = _tprec
         super_kwargs = {
             'exmsg': ColRename._DEF_COLDRENAME_EXC_MSG.format(columns_str),
-            'desc': f"Rename column{suffix} with {self._rename_map}",
+            'desc': f"Rename column{suffix} with {mapper_repr}",
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
     def _prec(self, df):
-        return set(self._rename_map.keys()).issubset(df.columns)
+        return self._tprec(df)
 
     def _transform(self, df, verbose):
-        return df.rename(columns=self._rename_map)
+        return df.rename(columns=self._rename_mapper)
 
 
 class DropNa(PdPipelineStage):
