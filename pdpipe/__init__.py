@@ -27,6 +27,7 @@ from .basic_stages import (
     ValKeep,
     ColRename,
     DropNa,
+    SetIndex,
     FreqDrop,
     ColReorder,
     RowDrop,

@@ -271,6 +271,55 @@ class DropNa(PdPipelineStage):
         return inter_df
 
 
+class SetIndex(PdPipelineStage):
+    """A pipeline stage that set existing columns as index.
+
+    Supports all parameter supported by pandas.set_index function except for
+    `inplace`.
+
+    Example
+    -------
+        >> import pandas as pd; import pdpipe as pdp;
+        >> df = pd.DataFrame([[1,4],[3, 11]], [1,2], ['a','b'])
+        >> pdp.SetIndex('a').apply(df)
+            b
+        a
+        1   4
+        3  11
+    """
+
+    _DEF_SETIDX_EXC_MSG = "SetIndex stage failed."
+    _DEF_SETIDX_APP_MSG = "Setting indexes..."
+    _SETINDEX_KWARGS = ['drop', 'append', 'verify_integrity']
+
+    def __init__(self, keys, **kwargs):
+        common = set(kwargs.keys()).intersection(SetIndex._SETINDEX_KWARGS)
+        self.setindex_kwargs = {key: kwargs.pop(key) for key in common}
+        self.keys = keys
+        if isinstance(keys, str):
+            def _tprec(df):
+                return keys in df.columns
+        elif hasattr(keys, '__iter__'):
+            def _tprec(df):
+                return all([k in df.columns for k in keys])
+        else:
+            def _tprec(df):
+                return True
+        self._tprec = _tprec
+        super_kwargs = {
+            'exmsg': SetIndex._DEF_SETIDX_EXC_MSG,
+            'desc': "Set indexes."
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        return self._tprec(df)
+
+    def _transform(self, df, verbose):
+        return df.set_index(keys=self.keys, **self.setindex_kwargs)
+
+
 class FreqDrop(PdPipelineStage):
     """A pipeline stage that drops rows by value frequency.
 
