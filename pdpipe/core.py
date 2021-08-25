@@ -146,6 +146,65 @@ def __load_stage_attributes_from_module__(module_name):
 
 # === basic classes ===
 
+class PdpApplicationContext(dict):
+    """An object encapsulating the application context of a pipeline.
+    Parameters
+    ----------
+    fit_context : PdpApplicationContext, optional
+        Another application context object, representing the application
+        context of a previous fit of the pipelline this application context
+        is initialized for. Optional.
+    """
+
+    def __init__(self, fit_context=None):
+        self.__locked__ = False
+        self.__fit_context__ = fit_context
+
+    def __setitem__(self, key, value):
+        if not self.__locked__:
+            super().__setitem__(key, value)
+
+    def __delitem__(self, key):
+        if not self.__locked__:
+            super().__delitem__(key)
+
+    def pop(self, key, default):
+        """If key is in the dictionary, remove it and return its value, else
+        return default. If default is not given and key is not in the
+        dictionary, a KeyError is raised.
+        """
+        if not self.__locked__:
+            return super().pop(key, default)
+        return super().__getitem__(key)
+
+    def clear(self):
+        """Remove all items from the dictionary."""
+        if not self.__locked__:
+            super().clear()
+
+    def popitem(self):
+        """Not implemented!"""
+        raise NotImplementedError
+
+    def update(self, other):
+        """Update the dictionary with the key/value pairs from other,
+        overwriting existing keys. Return None.
+        update() accepts either another dictionary object or an iterable of
+        key/value pairs (as tuples or other iterables of length two). If
+        keyword arguments are specified, the dictionary is then updated with
+        those key/value pairs: d.update(red=1, blue=2).
+        """
+        if not self.__locked__:
+            super().update(other)
+
+    def lock(self):
+        """Locks this application context for changes."""
+        self.__locked__ = True
+
+    def fit_context(self):
+        """Returns a locked PdpApplicationContext object of a previous fit."""
+        return self.__fit_context__
+
 
 class PdPipelineStage(abc.ABC):
     """A stage of a pandas DataFrame-processing pipeline.
@@ -214,6 +273,8 @@ class PdPipelineStage(abc.ABC):
         self._skip = skip
         self._appmsg = f"{name + ': ' if name else ''}{desc}"
         self._name = name
+        self._fit_context: PdpApplicationContext = None
+        self._application_context: PdpApplicationContext = None
         self.is_fitted = False
 
     @classmethod
@@ -720,17 +781,31 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         # PdPipeline overrides apply in a way which makes this moot
         raise NotImplementedError
 
+    def _post_transform_lock(self):
+        self._application_context.lock()
+        self._fit_context.lock()
+
     def apply(self, df, exraise=None, verbose=False):
+        self._application_context = PdpApplicationContext()
         if self.is_fitted:
-            return self.transform(X=df, exraise=exraise, verbose=verbose)
-        return self.fit_transform(X=df, exraise=exraise, verbose=verbose)
+            res = self.transform(X=df, exraise=exraise, verbose=verbose)
+            self._post_transform_lock()
+            return res
+        self._fit_context = PdpApplicationContext()
+        res = self.fit_transform(X=df, exraise=exraise, verbose=verbose)
+        self._post_transform_lock()
+        return res
 
     def __timed_fit_transform(self, X, y=None, exraise=None, verbose=None):
+        self._application_context = PdpApplicationContext()
+        self._fit_context = PdpApplicationContext()
         inter_x = X
         times = []
         prev = time.time()
         for i, stage in enumerate(self._stages):
             try:
+                stage._fit_context = self._fit_context
+                stage._application_context = self._application_context
                 inter_x = stage.fit_transform(
                     X=inter_x,
                     y=None,
@@ -740,14 +815,15 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                 now = time.time()
                 times.append(now - prev)
                 prev = now
-            except Exception:
+            except Exception as e:
                 raise PipelineApplicationError(
                     f"Exception raised in stage [ {i}] {stage}"
-                )
+                ) from e
         self.is_fitted = True
         print("\nPipeline total application time: {:.3f}s.\n Details:".format(
             sum(times)))
         print(self.__times_str__(times))
+        self._post_transform_lock()
         return inter_x
 
     def fit_transform(self, X, y=None, exraise=None, verbose=None, time=False):
@@ -783,18 +859,23 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             return self.__timed_fit_transform(
                 X=X, y=y, exraise=exraise, verbose=verbose)
         inter_x = X
+        self._application_context = PdpApplicationContext()
+        self._fit_context = PdpApplicationContext()
         for i, stage in enumerate(self._stages):
             try:
+                stage._fit_context = self._fit_context
+                stage._application_context = self._application_context
                 inter_x = stage.fit_transform(
                     X=inter_x,
                     y=None,
                     exraise=exraise,
                     verbose=verbose,
                 )
-            except Exception:
+            except Exception as e:
                 raise PipelineApplicationError(
                     f"Exception raised in stage [ {i}] {stage}"
-                )
+                ) from e
+        self._post_transform_lock()
         self.is_fitted = True
         return inter_x
 
@@ -840,8 +921,12 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         inter_x = X
         times = []
         prev = time.time()
+        self._application_context = PdpApplicationContext()
+        self._fit_context = PdpApplicationContext()
         for i, stage in enumerate(self._stages):
             try:
+                stage._fit_context = self._fit_context
+                stage._application_context = self._application_context
                 inter_x = stage.transform(
                     X=inter_x,
                     y=None,
@@ -851,14 +936,15 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                 now = time.time()
                 times.append(now - prev)
                 prev = now
-            except Exception:
+            except Exception as e:
                 raise PipelineApplicationError(
                     f"Exception raised in stage [ {i}] {stage}"
-                )
+                ) from e
         self.is_fitted = True
         print("\nPipeline total application time: {:.3f}s.\n Details:".format(
             sum(times)))
         print(self.__times_str__(times))
+        self._post_transform_lock()
         return inter_x
 
     def transform(self, X, y=None, exraise=None, verbose=None, time=False):
@@ -902,18 +988,21 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             return self.__timed_transform(
                 X=X, y=y, exraise=exraise, verbose=verbose)
         inter_df = X
+        self._application_context = PdpApplicationContext()
         for i, stage in enumerate(self._stages):
             try:
+                stage._application_context = self._application_context
                 inter_df = stage.transform(
                     X=inter_df,
                     y=None,
                     exraise=exraise,
                     verbose=verbose,
                 )
-            except Exception:
+            except Exception as e:
                 raise PipelineApplicationError(
                     f"Exception raised in stage [ {i}] {stage}"
-                )
+                ) from e
+        self._post_transform_lock()
         return inter_df
 
     __call__ = apply
