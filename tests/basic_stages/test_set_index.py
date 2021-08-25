@@ -17,3 +17,8 @@ def test_set_index():
     assert 'num' not in res_df.columns
     assert 'char' in res_df.columns
     assert res_df.index.name == 'num'
+
+    res_df = SetIndex(['w', 'num'], drop=True).apply(df)
+    assert 'w' not in res_df.columns
+    assert 'num' not in res_df.columns
+    assert 'char' in res_df.columns
