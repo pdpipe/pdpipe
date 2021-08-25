@@ -656,7 +656,7 @@ class ColByFrameFunc(PdPipelineStage):
         3  1  5  False
     """
 
-    _BASE_STR = "Applying a function{} to column {}"
+    _BASE_STR = "Applying a function{} to generate column {}"
     _DEF_EXC_MSG_SUFFIX = " failed."
     _DEF_DESCRIPTION_SUFFIX = "."
 
