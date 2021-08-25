@@ -5,7 +5,8 @@ import pytest
 
 from pdpipe.core import (
     PdPipelineStage,
-    FailedPreconditionError
+    FailedPreconditionError,
+    FailedPostconditionError,
 )
 
 
@@ -153,9 +154,9 @@ def test_stage_name():
 class FittableDropByCharStage(PdPipelineStage):
     """A pipeline stage for testing"""
 
-    def __init__(self, char):
+    def __init__(self, char, **kwargs):
         self.char = char
-        super().__init__()
+        super().__init__(**kwargs)
 
     def _prec(self, df):
         return True
@@ -212,3 +213,45 @@ def test_fittable_stage():
     res3 = stage(_test_df2())
     assert 'abo' not in res3.columns
     assert 'aoo' not in res3.columns
+
+
+def _no_a_in_cols(df):
+    for lbl in df.columns:
+        if 'a' in lbl:
+            return False
+    return True
+
+
+def test_fittable_stage_with_postcond():
+    stage = FittableDropByCharStage('a', post=_no_a_in_cols)
+    assert stage._is_fittable()
+
+    res1 = stage(_test_df2())
+    assert 'abo' not in res1.columns
+    assert 'coo' in res1.columns
+
+    with pytest.raises(FailedPostconditionError):
+        stage(_test_df3())
+
+    with pytest.raises(FailedPostconditionError):
+        stage.transform(_test_df3())
+
+
+def test_failing_postcond():
+    stage = SomeStage(post=_no_a_in_cols)
+
+    with pytest.raises(FailedPostconditionError):
+        stage(_test_df2())
+
+    res = stage(_test_df2(), exraise=False)
+    assert 'abo' in res.columns
+    assert 'coo' in res.columns
+
+    with pytest.raises(FailedPostconditionError):
+        stage.fit_transform(_test_df2(), exraise=True)
+
+    with pytest.raises(FailedPostconditionError):
+        stage.fit(_test_df2(), exraise=True)
+
+    with pytest.raises(FailedPostconditionError):
+        stage.transform(_test_df2(), exraise=True)

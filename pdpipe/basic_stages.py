@@ -11,6 +11,8 @@ from pdpipe.shared import (
     _list_str
 )
 
+import pdpipe.cond as cond
+
 
 class ColDrop(ColumnsBasedPipelineStage):
     """A pipeline stage that drops columns by name.
@@ -41,6 +43,7 @@ class ColDrop(ColumnsBasedPipelineStage):
 
     def __init__(self, columns, errors=None, **kwargs):
         self._errors = errors
+        self._post_cond = cond.HasNoColumn(columns)
         super_kwargs = {
             'columns': columns,
             'desc_temp': 'Drop columns {}',
@@ -53,6 +56,9 @@ class ColDrop(ColumnsBasedPipelineStage):
         if self._errors != 'ignore':
             return super()._prec(df)
         return True
+
+    def _post(self, df):
+        return self._post_cond(df)
 
     def _transformation(self, df, verbose, fit):
         return df.drop(
@@ -166,14 +172,7 @@ class ValKeep(ColumnsBasedPipelineStage):
 
 
 class ColRename(PdPipelineStage):
-    """A pipeline stage that renames a column or columns.
-
-    Parameters
-    ----------
-    rename_mapper : dict-like or function
-        Maps old column names to new ones.
-
-    Example
+    """A pipeline stage that renames a column or columns. Parameters ---------- rename_mapper : dict-like or function Maps old column names to new ones. Example
     -------
         >>> import pandas as pd; import pdpipe as pdp;
         >>> df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'char'])
@@ -296,15 +295,12 @@ class SetIndex(PdPipelineStage):
         common = set(kwargs.keys()).intersection(SetIndex._SETINDEX_KWARGS)
         self.setindex_kwargs = {key: kwargs.pop(key) for key in common}
         self.keys = keys
-        if isinstance(keys, str):
-            def _tprec(df):
-                return keys in df.columns
-        elif hasattr(keys, '__iter__'):
+        if hasattr(keys, '__iter__') and not isinstance(keys, str):
             def _tprec(df):
                 return all([k in df.columns for k in keys])
         else:
             def _tprec(df):
-                return True
+                return keys in df.columns
         self._tprec = _tprec
         super_kwargs = {
             'exmsg': SetIndex._DEF_SETIDX_EXC_MSG,

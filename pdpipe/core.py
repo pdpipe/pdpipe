@@ -100,6 +100,7 @@ from .cq import is_fittable_column_qualifier, AllColumns
 
 from .exceptions import (
     FailedPreconditionError,
+    FailedPostconditionError,
     UnfittedPipelineStageError,
     PipelineApplicationError
 )
@@ -154,7 +155,10 @@ class PdPipelineStage(abc.ABC):
     exraise : bool, default True
         If true, a pdpipe.FailedPreconditionError is raised when this
         stage is applied to a dataframe for which the precondition does
-        not hold. Otherwise the stage is skipped.
+        not hold. Otherwise the stage is skipped. Additionally, if true, a
+        pdpipe.FailedPostconditionError is raised if an expected post-codnition
+        does not hold for an output dataframe (after pipeline application).
+        Otherwise pipeline application continues uninterrupted.
     exmsg : str, default None
         The message of the exception that is raised on a failed
         precondition if exraise is set to True. A default message is used
@@ -167,6 +171,12 @@ class PdPipelineStage(abc.ABC):
         dataframes, which will be used to determine whether input dataframes
         satisfy the preconditions for this pipeline stage (see the `exraise`
         parameter for the behaviour of failed preconditions). See pdp.cond for
+        more information on specialised Condition objects.
+    post : callable, default None
+        This can be assigned a callable that returns boolean values for input
+        dataframes, which will be used to determine whether input dataframes
+        satisfy the postconditions for this pipeline stage (see the `exraise`
+        parameter for the behaviour of failed postconditions). See pdp.cond for
         more information on specialised Condition objects.
     skip : callable, default None
         This can be assigned a callable that returns boolean values for input
@@ -183,7 +193,7 @@ class PdPipelineStage(abc.ABC):
     _INIT_KWARGS = ['exraise', 'exmsg', 'desc', 'prec', 'skip', 'name']
 
     def __init__(self, exraise=True, exmsg=None, desc=None, prec=None,
-                 skip=None, name=''):
+                 post=None, skip=None, name=''):
         if not isinstance(name, str):
             raise ValueError(
                 f"'name' must be a str, not {type(name).__name__}."
@@ -195,8 +205,12 @@ class PdPipelineStage(abc.ABC):
 
         self._exraise = exraise
         self._exmsg = exmsg
+        self._exmsg_post = exmsg.replace(
+            'precondition', 'postcondition').replace(
+            'Precondition', 'Postcondition')
         self._desc = desc
         self._prec_arg = prec
+        self._post_arg = post
         self._skip = skip
         self._appmsg = f"{name + ': ' if name else ''}{desc}"
         self._name = name
@@ -215,6 +229,15 @@ class PdPipelineStage(abc.ABC):
         if self._prec_arg:
             return self._prec_arg(df)
         return self._prec(df)
+
+    def _post(self, df):  # pylint: disable=R0201,W0613
+        """Returns True if this stage resulted in an expected output frame."""
+        return True
+
+    def _compound_post(self, df):
+        if self._post_arg:
+            return self._post_arg(df)
+        return self._post(df)
 
     def _fit_transform(self, df, verbose):
         """Fits this stage and transforms the input dataframe."""
@@ -241,11 +264,9 @@ class PdPipelineStage(abc.ABC):
         df : pandas.DataFrame
             The dataframe to which this pipeline stage will be applied.
         exraise : bool, default None
-            Determines behaviour if the precondition of this stage is not
-            fulfilled by the given dataframe: If True,
-            a pdpipe.FailedPreconditionError is raised. If False, the stage is
-            skipped. If None, the default behaviour of this stage is used, as
-            determined by the exraise constructor parameter.
+            Override preconditions and postconditions behaviour for this call.
+            If None, the default behaviour of this stage is used, as determined
+            by the exraise constructor parameter.
         verbose : bool, default False
             If True an explanation message is printed after the precondition
             is checked but before the application of the pipeline stage.
@@ -265,8 +286,12 @@ class PdPipelineStage(abc.ABC):
                 msg = '- ' + '\n  '.join(textwrap.wrap(self._appmsg))
                 print(msg, flush=True)
             if self.is_fitted:
-                return self._transform(df, verbose=verbose)
-            return self._fit_transform(df, verbose=verbose)
+                res_df = self._transform(df, verbose=verbose)
+            else:
+                res_df = self._fit_transform(df, verbose=verbose)
+            if exraise and not self._compound_post(df=res_df):
+                raise FailedPostconditionError(self._exmsg_post)
+            return res_df
         if exraise:
             raise FailedPreconditionError(self._exmsg)
         return df
@@ -283,11 +308,9 @@ class PdPipelineStage(abc.ABC):
         y : array-like, optional
             Targets for supervised learning.
         exraise : bool, default None
-            Determines behaviour if the precondition of this stage is not
-            fulfilled by the given dataframe: If True,
-            a pdpipe.FailedPreconditionError is raised. If False, the stage is
-            skipped. If None, the default behaviour of this stage is used, as
-            determined by the exraise constructor parameter.
+            Override preconditions and postconditions behaviour for this call.
+            If None, the default behaviour of this stage is used, as determined
+            by the exraise constructor parameter.
         verbose : bool, default False
             If True an explanation message is printed after the precondition
             is checked but before the application of the pipeline stage.
@@ -300,11 +323,14 @@ class PdPipelineStage(abc.ABC):
         """
         if exraise is None:
             exraise = self._exraise
-        if self._prec(X):
+        if self._compound_prec(X):
             if verbose:
                 msg = '- ' + '\n  '.join(textwrap.wrap(self._appmsg))
                 print(msg, flush=True)
-            return self._fit_transform(X, verbose=verbose)
+            res_df = self._fit_transform(X, verbose=verbose)
+            if exraise and not self._compound_post(df=res_df):
+                raise FailedPostconditionError(self._exmsg_post)
+            return res_df
         if exraise:
             raise FailedPreconditionError(self._exmsg)
         return X
@@ -319,11 +345,9 @@ class PdPipelineStage(abc.ABC):
         y : array-like, optional
             Targets for supervised learning.
         exraise : bool, default None
-            Determines behaviour if the precondition of this stage is not
-            fulfilled by the given dataframe: If True,
-            a pdpipe.FailedPreconditionError is raised. If False, the stage is
-            skipped. If None, the default behaviour of this stage is used, as
-            determined by the exraise constructor parameter.
+            Override preconditions and postconditions behaviour for this call.
+            If None, the default behaviour of this stage is used, as determined
+            by the exraise constructor parameter.
         verbose : bool, default False
             If True an explanation message is printed after the precondition
             is checked but before the application of the pipeline stage.
@@ -336,11 +360,13 @@ class PdPipelineStage(abc.ABC):
         """
         if exraise is None:
             exraise = self._exraise
-        if self._prec(X):
+        if self._compound_prec(X):
             if verbose:
                 msg = '- ' + '\n  '.join(textwrap.wrap(self._appmsg))
                 print(msg, flush=True)
-            self._fit_transform(X, verbose=verbose)
+            res_df = self._fit_transform(X, verbose=verbose)
+            if exraise and not self._compound_post(df=res_df):
+                raise FailedPostconditionError(self._exmsg_post)
             return X
         if exraise:
             raise FailedPreconditionError(self._exmsg)
@@ -359,11 +385,9 @@ class PdPipelineStage(abc.ABC):
         y : array-like, optional
             Targets for supervised learning.
         exraise : bool, default None
-            Determines behaviour if the precondition of this stage is not
-            fulfilled by the given dataframe: If True,
-            a pdpipe.FailedPreconditionError is raised. If False, the stage is
-            skipped. If None, the default behaviour of this stage is used, as
-            determined by the exraise constructor parameter.
+            Override preconditions and postconditions behaviour for this call.
+            If None, the default behaviour of this stage is used, as determined
+            by the exraise constructor parameter.
         verbose : bool, default False
             If True an explanation message is printed after the precondition
             is checked but before the application of the pipeline stage.
@@ -382,10 +406,16 @@ class PdPipelineStage(abc.ABC):
                 print(msg, flush=True)
             if self._is_fittable():
                 if self.is_fitted:
-                    return self._transform(X, verbose=verbose)
+                    res_df = self._transform(X, verbose=verbose)
+                    if exraise and not self._compound_post(df=res_df):
+                        raise FailedPostconditionError(self._exmsg_post)
+                    return res_df
                 raise UnfittedPipelineStageError(
                     "transform of an unfitted pipeline stage was called!")
-            return self._transform(X, verbose=verbose)
+            res_df = self._transform(X, verbose=verbose)
+            if exraise and not self._compound_post(df=res_df):
+                raise FailedPostconditionError(self._exmsg_post)
+            return res_df
         if exraise:
             raise FailedPreconditionError(self._exmsg)
         return X
@@ -679,6 +709,10 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         return len(self._stages)
 
     def _prec(self, df):
+        # PdPipeline overrides apply in a way which makes this moot
+        raise NotImplementedError
+
+    def _post(self, df):
         # PdPipeline overrides apply in a way which makes this moot
         raise NotImplementedError
 

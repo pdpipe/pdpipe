@@ -7,6 +7,12 @@ class FailedPreconditionError(Exception):
     """
 
 
+class FailedPostconditionError(Exception):
+    """An exception raised when an expected post-condition does not hold after
+    and application of the apipine stage to a dataframe.
+    """
+
+
 class PipelineApplicationError(Exception):
     """An exception raised when an exception is thrown during the application
     of a pipeline or a pipeline stage to a dataframe.
