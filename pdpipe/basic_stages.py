@@ -172,7 +172,14 @@ class ValKeep(ColumnsBasedPipelineStage):
 
 
 class ColRename(PdPipelineStage):
-    """A pipeline stage that renames a column or columns. Parameters ---------- rename_mapper : dict-like or function Maps old column names to new ones. Example
+    """A pipeline stage that renames a column or columns.
+
+    Parameters
+    ----------
+    rename_mapper : dict-like or function
+        Maps old column names to new ones.
+
+    Example
     -------
         >>> import pandas as pd; import pdpipe as pdp;
         >>> df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'char'])
