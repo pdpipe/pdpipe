@@ -97,7 +97,7 @@ except ImportError:
     from sys import getsizeof as asizeof
 
 from .cq import is_fittable_column_qualifier, AllColumns
-
+from .shared import _get_args_list
 from .exceptions import (
     FailedPreconditionError,
     FailedPostconditionError,
@@ -148,6 +148,10 @@ def __load_stage_attributes_from_module__(module_name):
 
 class PdpApplicationContext(dict):
     """An object encapsulating the application context of a pipeline.
+
+    It is meant to communicate data, information and variables between
+    different stages of a pipeline.
+
     Parameters
     ----------
     fit_context : PdpApplicationContext, optional
@@ -158,7 +162,7 @@ class PdpApplicationContext(dict):
 
     def __init__(self, fit_context=None):
         self.__locked__ = False
-        self.__fit_context__ = fit_context
+        self._fit_context__ = fit_context
 
     def __setitem__(self, key, value):
         if not self.__locked__:
@@ -203,7 +207,7 @@ class PdpApplicationContext(dict):
 
     def fit_context(self):
         """Returns a locked PdpApplicationContext object of a previous fit."""
-        return self.__fit_context__
+        return self._fit_context__
 
 
 class PdPipelineStage(abc.ABC):
@@ -245,6 +249,18 @@ class PdPipelineStage(abc.ABC):
     name : str, default ''
         The name of this stage.
         Pipelines can be sliced by this name.
+    
+    Attributes
+    ----------
+    fit_context : PdpApplicationContext
+        An application context object that is only re-initialized before
+        `fit_transform` calls, and is locked after pipeline application. It is
+        injected into the PipelineStage by the encapsulating pipeline object.
+    application_context : PdpApplicationContext
+        An application context object that is re-initialized before every
+        pipeline application (so, also during transform operations of fitted
+        pipelines), and is locked after pipeline application.It is injected
+        into the PipelineStage by the encapsulating pipeline object.
     """
 
     _DEF_EXC_MSG = 'Precondition failed in stage {}!'
@@ -273,8 +289,8 @@ class PdPipelineStage(abc.ABC):
         self._skip = skip
         self._appmsg = f"{name + ': ' if name else ''}{desc}"
         self._name = name
-        self._fit_context: PdpApplicationContext = None
-        self._application_context: PdpApplicationContext = None
+        self.fit_context: PdpApplicationContext = None
+        self.application_context: PdpApplicationContext = None
         self.is_fitted = False
 
     @classmethod
@@ -672,15 +688,28 @@ def _always_true(x):
 class AdHocStage(PdPipelineStage):
     """An ad-hoc stage of a pandas DataFrame-processing pipeline.
 
+    The signature for both the `transform` and the optional `fit_transform`
+    callables is adaptive: The first argument is used positionally (so no 
+    specific name is assumed or used) to supply the callable with the pandas
+    DataFrame object to transform. The following additional keyword arguments
+    are supplied if the are included in the callable's signature:
+    `verbose` - Passed on from pdpipe's `fit`, `fit_transform`
+    and `apply` methods.
+    `fit_context` and `application_context` - Provides fit-specific and
+    application-specific contexts, in the form of PdpApplicationContext
+    objects, usually available to pipeline stages using `self.fit_context` and
+    `self.application_context`.
+
     Parameters
     ----------
     transform : callable
         The transformation this stage applies to dataframes. If the
         fit_transform parameter is also populated than this transformation is
-        only applied on calls to transform.
+        only applied on calls to transform. See documentation for the exact
+        signature.
     fit_transform : callable, optional
         The transformation this stage applies to dataframes, only on
-        fit_transform. Optional.
+        fit_transform. Optional. See documentation for the exact signature.
     prec : callable, default None
         A callable that returns a boolean value. Represent a a precondition
         used to determine whether this stage can be applied to a given
@@ -693,6 +722,12 @@ class AdHocStage(PdPipelineStage):
         self._adhoc_transform = transform
         self._adhoc_fit_transform = fit_transform
         self._adhoc_prec = prec
+        self._transform_kwargs = _get_args_list(self._adhoc_transform)
+        try:
+            self._fit_transform_kwargs = _get_args_list(
+                self._adhoc_fit_transform)
+        except TypeError:  # fit_transform is None
+            self._fit_transform_kwargs = {}
         super().__init__(**kwargs)
 
     def _prec(self, df):
@@ -702,18 +737,25 @@ class AdHocStage(PdPipelineStage):
         self.is_fitted = True
         if self._adhoc_fit_transform is None:
             self.is_fitted = True
-            return self._transform(df, verbose=verbose)
-        try:
-            print("Blah!")
-            return self._adhoc_fit_transform(df, verbose=verbose)
-        except TypeError:
-            return self._adhoc_fit_transform(df)
+            return self._transform(df, verbose)
+        kwargs = {
+            'verbose': verbose,
+            'fit_context': self.fit_context,
+            'application_context': self.application_context,
+        }
+        kwargs = {
+            k: v for k, v in kwargs.items() if k in self._fit_transform_kwargs}
+        return self._adhoc_fit_transform(df, **kwargs)
 
     def _transform(self, df, verbose):
-        try:
-            return self._adhoc_transform(df, verbose=verbose)
-        except TypeError:
-            return self._adhoc_transform(df)
+        kwargs = {
+            'verbose': verbose,
+            'fit_context': self.fit_context,
+            'application_context': self.application_context,
+        }
+        kwargs = {
+            k: v for k, v in kwargs.items() if k in self._transform_kwargs}
+        return self._adhoc_transform(df, **kwargs)
 
 
 class PdPipeline(PdPipelineStage, collections.abc.Sequence):
@@ -782,30 +824,30 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         raise NotImplementedError
 
     def _post_transform_lock(self):
-        self._application_context.lock()
-        self._fit_context.lock()
+        self.application_context.lock()
+        self.fit_context.lock()
 
     def apply(self, df, exraise=None, verbose=False):
-        self._application_context = PdpApplicationContext()
+        self.application_context = PdpApplicationContext()
         if self.is_fitted:
             res = self.transform(X=df, exraise=exraise, verbose=verbose)
             self._post_transform_lock()
             return res
-        self._fit_context = PdpApplicationContext()
+        self.fit_context = PdpApplicationContext()
         res = self.fit_transform(X=df, exraise=exraise, verbose=verbose)
         self._post_transform_lock()
         return res
 
     def __timed_fit_transform(self, X, y=None, exraise=None, verbose=None):
-        self._application_context = PdpApplicationContext()
-        self._fit_context = PdpApplicationContext()
+        self.application_context = PdpApplicationContext()
+        self.fit_context = PdpApplicationContext()
         inter_x = X
         times = []
         prev = time.time()
         for i, stage in enumerate(self._stages):
             try:
-                stage._fit_context = self._fit_context
-                stage._application_context = self._application_context
+                stage.fit_context = self.fit_context
+                stage.application_context = self.application_context
                 inter_x = stage.fit_transform(
                     X=inter_x,
                     y=None,
@@ -859,12 +901,12 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             return self.__timed_fit_transform(
                 X=X, y=y, exraise=exraise, verbose=verbose)
         inter_x = X
-        self._application_context = PdpApplicationContext()
-        self._fit_context = PdpApplicationContext()
+        self.application_context = PdpApplicationContext()
+        self.fit_context = PdpApplicationContext()
         for i, stage in enumerate(self._stages):
             try:
-                stage._fit_context = self._fit_context
-                stage._application_context = self._application_context
+                stage.fit_context = self.fit_context
+                stage.application_context = self.application_context
                 inter_x = stage.fit_transform(
                     X=inter_x,
                     y=None,
@@ -921,12 +963,12 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         inter_x = X
         times = []
         prev = time.time()
-        self._application_context = PdpApplicationContext()
-        self._fit_context = PdpApplicationContext()
+        self.application_context = PdpApplicationContext()
+        self.fit_context = PdpApplicationContext()
         for i, stage in enumerate(self._stages):
             try:
-                stage._fit_context = self._fit_context
-                stage._application_context = self._application_context
+                stage.fit_context = self.fit_context
+                stage.application_context = self.application_context
                 inter_x = stage.transform(
                     X=inter_x,
                     y=None,
@@ -988,10 +1030,10 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             return self.__timed_transform(
                 X=X, y=y, exraise=exraise, verbose=verbose)
         inter_df = X
-        self._application_context = PdpApplicationContext()
+        self.application_context = PdpApplicationContext()
         for i, stage in enumerate(self._stages):
             try:
-                stage._application_context = self._application_context
+                stage.application_context = self.application_context
                 inter_df = stage.transform(
                     X=inter_df,
                     y=None,

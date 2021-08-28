@@ -1,17 +1,15 @@
 """Testing application context.."""
 
 from random import randint
-from builtins import ValueError
 
 import pandas as pd
 import pytest
 
 from pdpipe.core import (
     PdPipelineStage,
+    AdHocStage,
     PdPipeline
 )
-from pdpipe import make_pdpipeline, ColByFrameFunc, ColDrop
-from pdpipe.exceptions import PipelineApplicationError
 from pdpipe.util import out_of_place_col_insert
 from pdpipe.core import PdpApplicationContext
 
@@ -36,7 +34,7 @@ class PutContextStage(PdPipelineStage):
         return self.colname in df.columns
 
     def _transform(self, df, verbose):
-        self._fit_context['a'] = self.randi
+        self.fit_context['a'] = self.randi
         return df.drop([self.colname], axis=1)
 
 
@@ -51,7 +49,7 @@ class UseContextStage(PdPipelineStage):
         return self.colname in df.columns
 
     def _transform(self, df, verbose):
-        val = self._fit_context['a']
+        val = self.fit_context['a']
         source_col = df[self.colname]
         loc = df.columns.get_loc(self.colname) + 1
         series = source_col.apply(lambda x: x + val)
@@ -82,20 +80,20 @@ def test_application_context():
     assert resnum.iloc[0] == val + num1.iloc[0]
     assert resnum.iloc[1] == val + num1.iloc[1]
 
-    val2 = pipeline._fit_context['a']
+    val2 = pipeline.fit_context['a']
     assert val2 == val
     # check locking works
-    pipeline._fit_context['a'] = 0
-    val2 = pipeline._fit_context['a']
+    pipeline.fit_context['a'] = 0
+    val2 = pipeline.fit_context['a']
     assert val2 == val
-    del pipeline._fit_context['a']
-    val2 = pipeline._fit_context['a']
+    del pipeline.fit_context['a']
+    val2 = pipeline.fit_context['a']
     assert val2 == val
-    pipeline._fit_context.pop('a', 0)
-    val2 = pipeline._fit_context['a']
+    pipeline.fit_context.pop('a', 0)
+    val2 = pipeline.fit_context['a']
     assert val2 == val
-    pipeline._fit_context.clear()
-    val2 = pipeline._fit_context['a']
+    pipeline.fit_context.clear()
+    val2 = pipeline.fit_context['a']
     assert val2 == val
 
 
@@ -131,3 +129,48 @@ def test_application_context_unit():
     context.update({'c': 3})
     with pytest.raises(KeyError):
         context['c']
+
+
+CONTEXT_VAR = 'a'
+CONTEXT_NUM = 5
+SRC_LBL = 'num1'
+TRGT_LBL = 'res'
+
+
+def put_context(df, fit_context, verbose):
+    if verbose:
+        print('Verbose in put_context test!')
+    fit_context[CONTEXT_VAR] = CONTEXT_NUM
+    return df
+
+
+def use_context(df, fit_context):
+    val = fit_context[CONTEXT_VAR]
+    source_col = df[SRC_LBL]
+    loc = df.columns.get_loc(SRC_LBL) + 1
+    series = source_col.apply(lambda x: x + val)
+    inter_df = out_of_place_col_insert(
+        df=df,
+        series=series,
+        loc=loc,
+        column_name=TRGT_LBL,
+    )
+    return inter_df
+
+
+def test_context_with_adhoc_stage():
+    pipeline = PdPipeline([
+        AdHocStage(transform=put_context),
+        AdHocStage(transform=use_context),
+    ])
+    assert len(pipeline) == 2
+    df = _test_df()
+    res_df = pipeline.apply(df, verbose=True)
+    assert 'num1' in res_df.columns
+    assert TRGT_LBL in res_df.columns
+    assert 'num2' in res_df.columns
+    assert 'char' in res_df.columns
+    num1 = df[SRC_LBL]
+    resnum = res_df[TRGT_LBL]
+    assert resnum.iloc[0] == CONTEXT_NUM + num1.iloc[0]
+    assert resnum.iloc[1] == CONTEXT_NUM + num1.iloc[1]
