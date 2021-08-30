@@ -125,3 +125,43 @@ def test_scale_transform_exception():
     df2 = _bad_dtype_df1()
     with pytest.raises(PipelineApplicationError):
         scale_stage(df2)
+
+
+def _some_df3():
+    return pd.DataFrame(
+        data=[[1, 1], [2, 4]],
+        index=[1, 2],
+        columns=["a", "b"],
+    )
+
+
+def _some_df3b():
+    return pd.DataFrame(
+        data=[[1, 1], [2, 3]],
+        index=[1, 2],
+        columns=["a", "b"],
+    )
+
+
+def test_scale_with_joint():
+    df = _some_df3()
+    scale_stage = Scale("MinMaxScaler")
+    res_df = scale_stage(df)
+    assert "a" in res_df.columns
+    assert "b" in res_df.columns
+    assert res_df["a"][2] == 1
+    assert res_df["b"][2] == 1
+
+    df = _some_df3()
+    scale_stage = Scale("MinMaxScaler", joint=True)
+    res_df = scale_stage(df)
+    assert "a" in res_df.columns
+    assert "b" in res_df.columns
+    assert res_df["a"][2] == (1 / 3)
+    assert res_df["b"][2] == 1
+
+    df = _some_df3b()
+    res_df = scale_stage(df)
+    assert "a" in res_df.columns
+    assert "b" in res_df.columns
+    assert (res_df >= 1).sum().sum() == 0

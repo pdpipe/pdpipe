@@ -19,7 +19,10 @@ from sklearn.feature_extraction.text import (
 )
 
 from pdpipe.core import PdPipelineStage, ColumnsBasedPipelineStage
-from pdpipe.util import out_of_place_col_insert
+from pdpipe.util import (
+    out_of_place_col_insert,
+    per_column_valus_sklearn_transform,
+)
 from pdpipe.cq import OfDtypes
 from pdpipe.shared import (
     _get_args_list,
@@ -149,6 +152,10 @@ class Scale(ColumnsBasedPipelineStage):
         Label or labels of columns to be excluded from encoding. Alternatively,
         this parameter can be assigned a callable returning an iterable of
         labels from an input pandas.DataFrame. See pdpipe.cq.
+    joint : bool, default False
+        If set to True, all scaled columns will be scaled as a single value
+        set (meaning, only the single largest value among all input columns
+        will be scaled to 1, and not the largest one for each column).
     **kwargs : extra keyword arguments
         All valid extra keyword arguments are forwarded to the scaler
         constructor on scaler creation (e.g. 'n_quantiles' for
@@ -173,9 +180,11 @@ class Scale(ColumnsBasedPipelineStage):
         scaler,
         columns=None,
         exclude_columns=None,
+        joint=False,
         **kwargs
     ):
         self.scaler = scaler
+        self.joint = joint
         self._kwargs = kwargs
         super_kwargs = {
             'columns': columns,
@@ -202,16 +211,23 @@ class Scale(ColumnsBasedPipelineStage):
         inter_df = df[self._columns_to_scale]
         self._scaler = scaler_by_params(self.scaler, **self._kwargs)
         try:
-            inter_df = pd.DataFrame(
-                data=self._scaler.fit_transform(inter_df.values),
-                index=inter_df.index,
-                columns=inter_df.columns,
-            )
-        except Exception:
+            if self.joint:
+                self._scaler.fit(np.array([inter_df.values.flatten()]).T)
+                inter_df = per_column_valus_sklearn_transform(
+                    df=inter_df,
+                    transform=self._scaler.transform
+                )
+            else:
+                inter_df = pd.DataFrame(
+                    data=self._scaler.fit_transform(inter_df.values),
+                    index=inter_df.index,
+                    columns=inter_df.columns,
+                )
+        except Exception as e:
             raise PipelineApplicationError(
                 "Exception raised when Scale applied to columns"
                 f" {self._columns_to_scale} by class {self.__class__}"
-            )
+            ) from e
         if len(unscaled_cols) > 0:
             unscaled = df[unscaled_cols]
             inter_df = pd.concat([inter_df, unscaled], axis=1)
@@ -227,11 +243,17 @@ class Scale(ColumnsBasedPipelineStage):
         col_order = list(df.columns)
         inter_df = df[self._columns_to_scale]
         try:
-            inter_df = pd.DataFrame(
-                data=self._scaler.transform(inter_df.values),
-                index=inter_df.index,
-                columns=inter_df.columns,
-            )
+            if self.joint:
+                inter_df = per_column_valus_sklearn_transform(
+                    df=inter_df,
+                    transform=self._scaler.transform
+                )
+            else:
+                inter_df = pd.DataFrame(
+                    data=self._scaler.transform(inter_df.values),
+                    index=inter_df.index,
+                    columns=inter_df.columns,
+                )
         except Exception:
             raise PipelineApplicationError(
                 "Exception raised when Scale applied to columns"

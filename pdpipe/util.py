@@ -1,6 +1,7 @@
 """Utility methods for pdpipe."""
 
 import numpy as np
+import pandas as pd
 
 
 def out_of_place_col_insert(df, series, loc, column_name=None):
@@ -71,3 +72,28 @@ def get_numeric_column_names(df):
         if np.issubdtype(dtype, np.number):
             num_cols.append(colbl)
     return num_cols
+
+
+def per_column_valus_sklearn_transform(df: pd.DataFrame, transform: callable):
+    """Applies a 2d-array sklearn transform to 1d values arrays of a dataframe.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        The dataframe to transform.
+    transform : callable
+        The numpy.array-ingesting per-column transform to apply.
+
+    Returns
+    -------
+    res_df : pandas.DataFrame
+        The transformed dataframe.
+    """
+    return pd.DataFrame(
+        data=np.array([
+            transform(np.array([series.values]).T)[:, 0]
+            for lbl, series in df.iteritems()
+        ]).T,
+        index=df.index,
+        columns=df.columns,
+    )
