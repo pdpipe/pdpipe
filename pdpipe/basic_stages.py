@@ -8,10 +8,116 @@ from pdpipe.core import PdPipelineStage, ColumnsBasedPipelineStage
 # from pdpipe.util import out_of_place_col_insert
 from pdpipe.shared import (
     _interpret_columns_param,
-    _list_str
+    _list_str, _str2list
 )
 
 import pdpipe.cond as cond
+
+
+class MergeDf(PdPipelineStage):
+    """A pipeline stage to Merge two dataframes.
+
+    Parameters
+    ----------
+    right : DataFrame
+        right/second dataframe to merge.
+
+    Example
+    -------
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> df1 = pd.DataFrame([[26,'D'],[21,'J'],[25,'N']],columns=['a','b'])
+        >>> df2 =pd.DataFrame([[3,'J'],[2,'N'],[5,'B']],columns=['c','b'])
+        >>> pdp.MergeDf(df2, on=['b'], how='inner').apply(df1);
+            a  b  c
+        0  21  J  3
+        1  25  N  2
+    """
+    _DEF_MERGE_EXC_MSG = ("Merge stage failed because not all columns"
+                          " {} were found in input dataframe.")
+    _MERGE_KWARGS = ['on', 'how', 'left_on', 'right_on']
+
+    def __init__(self, right, **kwargs):
+        # right dataframe
+        self._right = right
+        # filter the merge kwargs
+        common = set(kwargs.keys()).intersection(MergeDf._MERGE_KWARGS)
+        self.merge_kwargs = {key: kwargs.pop(key) for key in common}
+        # get the cols list for the pd.merge
+        self._on_col = _str2list(self.merge_kwargs.get('on', []))
+        if not len(self._on_col):
+            right_on_list = _str2list(self.merge_kwargs.get('right_on', []))
+            left_on_list = _str2list(self.merge_kwargs.get('left_on', []))
+            self._on_col = left_on_list + right_on_list
+        # store the error messages
+        super_kwargs = {
+            'exmsg': MergeDf._DEF_MERGE_EXC_MSG.format(self._on_col),
+            'desc': "Merge the right df provided with Input(left) dataframe."
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        # check if columns to merg on are present in both dfs.
+        if set(self._on_col).issubset(df.columns) and \
+           set(self._on_col).issubset(self._right.columns):
+            return True
+        return False
+
+    def _transform(self, df, verbose):
+        # left table = df, right table = self._right
+        merge_df = df.merge(self._right, **self.merge_kwargs)
+        return merge_df
+
+
+class AppendDf(PdPipelineStage):
+    """A pipeline stage to Append a dataframe to other.
+
+    Parameters
+    ----------
+    other : DataFrame
+        other/second dataframe to append.
+
+
+    Example
+    -------
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> df1 = pd.DataFrame([[26,'D'],[21,'J']],columns=['a','b'])
+        >>> df2 =pd.DataFrame([[25,'N'],[27,'B']],columns=['a','b'])
+        >>> pdp.AppendDf(df2).apply(df1);
+            a  b
+        0  26  D
+        1  21  J
+        0  25  N
+        1  27  B
+    """
+    _DEF_APPEND_EXC_MSG = ("Append stage failed because not all columns"
+                           " {} were found in the other dataframe.")
+    _APPEND_KWARGS = ['ignore_index', 'verify_integrity', 'sort']
+
+    def __init__(self, other, **kwargs):
+        # other/second dataframe
+        self._other = other
+        # filter the merge kwargs
+        common = set(kwargs.keys()).intersection(AppendDf._APPEND_KWARGS)
+        self.append_kwargs = {key: kwargs.pop(key) for key in common}
+        # store the error messages
+        super_kwargs = {
+            'exmsg': AppendDf._DEF_APPEND_EXC_MSG.format(self._other.columns),
+            'desc': "Append the other df provided with Input dataframe."
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        # check if columns all columns are present other df.
+        if set(df.columns).issubset(self._other.columns):
+            return True
+        return False
+
+    def _transform(self, df, verbose):
+        # first table = df, second/other table = self._other
+        merge_df = df.append(self._other[df.columns], **self.append_kwargs)
+        return merge_df
 
 
 class ColDrop(ColumnsBasedPipelineStage):
