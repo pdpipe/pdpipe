@@ -249,7 +249,7 @@ class PdPipelineStage(abc.ABC):
     name : str, default ''
         The name of this stage.
         Pipelines can be sliced by this name.
-    
+
     Attributes
     ----------
     fit_context : PdpApplicationContext
@@ -689,7 +689,7 @@ class AdHocStage(PdPipelineStage):
     """An ad-hoc stage of a pandas DataFrame-processing pipeline.
 
     The signature for both the `transform` and the optional `fit_transform`
-    callables is adaptive: The first argument is used positionally (so no 
+    callables is adaptive: The first argument is used positionally (so no
     specific name is assumed or used) to supply the callable with the pandas
     DataFrame object to transform. The following additional keyword arguments
     are supplied if the are included in the callable's signature:
