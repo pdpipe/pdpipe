@@ -247,8 +247,7 @@ class PdPipelineStage(abc.ABC):
         be skipped for input dataframes. See pdp.cond for more information on
         specialised Condition objects.
     name : str, default ''
-        The name of this stage.
-        Pipelines can be sliced by this name.
+        The name of this stage. Pipelines can be sliced by this name.
 
     Attributes
     ----------

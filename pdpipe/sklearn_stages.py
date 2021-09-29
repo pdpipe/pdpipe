@@ -185,7 +185,7 @@ class Scale(ColumnsBasedPipelineStage):
     ):
         self.scaler = scaler
         self.joint = joint
-        self._kwargs = kwargs
+        self._kwargs = kwargs.copy()
         super_kwargs = {
             'columns': columns,
             'exclude_columns': exclude_columns,
@@ -195,6 +195,7 @@ class Scale(ColumnsBasedPipelineStage):
         for key in kwargs:
             if key in valid_super_kwargs:
                 super_kwargs[key] = kwargs[key]
+                self._kwargs.pop(key)
         super_kwargs['none_columns'] = OfDtypes([np.number])
         super().__init__(**super_kwargs)
 
