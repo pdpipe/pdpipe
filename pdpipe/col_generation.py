@@ -1,6 +1,7 @@
 """Basic pdpipe PdPipelineStages."""
 
 import abc
+from typing import Union, Tuple, Optional, Dict
 
 import numpy as np
 import pandas as pd
@@ -10,6 +11,7 @@ import tqdm
 from pdpipe.core import PdPipelineStage, ColumnsBasedPipelineStage
 from pdpipe.util import out_of_place_col_insert
 from pdpipe.cq import OfDtypes
+from pdpipe.types import ColumnsParamType, ColumnLabelsType
 
 from pdpipe.shared import _interpret_columns_param, _list_str
 
@@ -377,16 +379,23 @@ class MapColVals(ColumnTransformer):
 
     Parameters
     ----------
-    columns : single label, list-like of callable
+    columns : single label, list-like or callable
         Column labels in the DataFrame to be mapped. Alternatively, this
         parameter can be assigned a callable returning an iterable of labels
         from an input pandas.DataFrame. See pdpipe.cq. If None is provided all
         input columns are mapped.
-    value_map : dict, function or pandas.Series
-        A dictionary mapping existing values to new ones. Values not in the
-        dictionary as keys will be converted to NaN. If a function is given, it
-        is applied element-wise to given columns. If a Series is given, values
-        are mapped by its index to its values.
+    value_map : dict, pandas.Series, callable, str or tuple
+        The value-to-value map to use, mapping existing values to new one. If a
+        dictionary is provided, its mapping is used. Values not in the
+        dictionary as keys will be converted to NaN. If a Series is given,
+        values are mapped by its index to its values. If a callable is given,
+        it is applied element-wise to given columns. If a string is given, it
+        is interpreted as the name of an attribute or a property of the series
+        values to use as target values. If a tuple is provided, its first
+        element is expected to be a string, interpreted as a name of a method
+        of the series values to call, and its second element is expected to be
+        a dict - possibly empty - mapping additional keyword arguments names
+        to their values.
     result_columns : single label or list-like, default None
         Labels for the new columns resulting from the mapping operation. Must
         be of the same length as columns. If None, behavior depends on the
@@ -412,14 +421,26 @@ class MapColVals(ColumnTransformer):
 
     def __init__(
         self,
-        columns,
-        value_map,
-        result_columns=None,
-        drop=True,
-        suffix=None,
-        **kwargs
+        columns: ColumnsParamType,
+        value_map: Union[dict, pd.Series, callable, str, Tuple[str, dict]],
+        result_columns: Optional[ColumnLabelsType] = None,
+        drop: Optional[bool] = True,
+        suffix: Optional[str] = None,
+        **kwargs: Dict[str, object],
     ):
         self._value_map = value_map
+        self._applied_value_map = value_map
+        if type(value_map) == str:
+            def _app_vmap(val):
+                return getattr(val, value_map)
+            self._applied_value_map = _app_vmap
+        elif type(value_map) == tuple:
+            method_name = value_map[0]
+            method_kwargs = value_map[1]
+
+            def _app_vmap(val):
+                return getattr(val, method_name)(**method_kwargs)
+            self._applied_value_map = _app_vmap
         if suffix is None:
             suffix = "_map"
         _, colstr = ColumnsBasedPipelineStage._interpret_columns_param(
@@ -435,7 +456,7 @@ class MapColVals(ColumnTransformer):
         super().__init__(**super_kwargs)
 
     def _col_transform(self, series, label):
-        return series.map(self._value_map)
+        return series.map(self._applied_value_map)
 
 
 def _always_true(x):

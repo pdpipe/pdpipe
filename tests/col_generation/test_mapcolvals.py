@@ -1,5 +1,7 @@
 """Testing MapColVals pipeline stages."""
 
+import datetime
+
 import pandas as pd
 import pytest
 
@@ -64,3 +66,33 @@ def test_mapcolvals_bad_res_name_len():
     with pytest.raises(ValueError):
         map_stage = MapColVals('Medal', value_map, result_columns=['A', 'B'])
         assert isinstance(map_stage, MapColVals)
+
+
+def _2nd_test_df():
+    return pd.DataFrame(
+        data=[
+            [datetime.timedelta(days=2, minutes=5)],
+            [datetime.timedelta(days=3, minutes=10)],
+            [datetime.timedelta(days=4, minutes=15)]
+        ],
+        index=['UK', 'USSR', 'US'],
+        columns=['Duration'],
+    )
+
+
+def test_mapcolvals_with_attr_name():
+    """Testing MapColVals pipeline stages."""
+    df = _2nd_test_df()
+    res_df = MapColVals('Duration', 'days').apply(df)
+    assert res_df['Duration']['UK'] == 2
+    assert res_df['Duration']['USSR'] == 3
+    assert res_df['Duration']['US'] == 4
+
+
+def test_mapcolvals_with_method_name():
+    """Testing MapColVals pipeline stages."""
+    df = _2nd_test_df()
+    res_df = MapColVals('Duration', ('total_seconds', {})).apply(df)
+    assert res_df['Duration']['UK'] == df['Duration']['UK'].total_seconds()
+    assert res_df['Duration']['USSR'] == df['Duration']['USSR'].total_seconds()
+    assert res_df['Duration']['US'] == df['Duration']['US'].total_seconds()
