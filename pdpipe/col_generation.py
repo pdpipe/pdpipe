@@ -627,16 +627,27 @@ class ApplyByCols(ColumnTransformer):
 class ColByFrameFunc(PdPipelineStage):
     """A pipeline stage adding a column by applying a dataframw-wide function.
 
+    Note that assigning `column` with the label of an existing column and
+    providing the same label to the `before_column` parameter will result in
+    replacing the original column at the same location.
+
     Parameters
     ----------
     column : str
-        The name of the resulting column.
+        The label of the resulting column. If its the label of an existing
+        column it will replace that column.
     func : function
         The function to be applied to the input dataframe. The function should
         return a pandas.Series object.
     follow_column : str, default None
-        Resulting columns will be inserted after this column. If None, new
-        columns are inserted at the end of the processed DataFrame.
+        Resulting columns will be inserted after this column. If both this
+        parameter and `before_column` are None, new columns are inserted at the
+        end of the processed DataFrame.
+    before_column : str, default None
+        Resulting columns will be inserted before this column. If both this
+        parameter and `follow_colum` are None, new columns are inserted at the
+        end of the processed DataFrame. If both are provided, `before_column`
+        takes precedence.
     func_desc : str, default None
         A function description of the given function; e.g. 'normalizing revenue
         by company size'. A default description is used if None is given.
@@ -661,11 +672,13 @@ class ColByFrameFunc(PdPipelineStage):
     _DEF_DESCRIPTION_SUFFIX = "."
 
     def __init__(
-        self, column, func, follow_column=None, func_desc=None, **kwargs
+        self, column, func, follow_column=None, before_column=None,
+        func_desc=None, **kwargs
     ):
         self._column = column
         self._func = func
         self._follow_column = follow_column
+        self._before_column = before_column
         if func_desc is None:
             func_desc = ""
         else:
@@ -693,6 +706,8 @@ class ColByFrameFunc(PdPipelineStage):
             )
         if self._follow_column:
             loc = df.columns.get_loc(self._follow_column) + 1
+        elif self._before_column:
+            loc = df.columns.get_loc(self._before_column)
         else:
             loc = len(df.columns)
         inter_df = out_of_place_col_insert(

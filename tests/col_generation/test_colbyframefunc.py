@@ -51,3 +51,25 @@ def test_colbyframefunc_error():
     cbf_stage = ColByFrameFunc('A==B', _are_a_c_equal)
     with pytest.raises(PipelineApplicationError):
         cbf_stage(df)
+
+
+def test_colbyframefunc_before_column():
+    df = _some_df()
+    cbf_stage = ColByFrameFunc(
+        'A==B', _are_a_b_equal, before_column='B', func_desc='R')
+    res_df = cbf_stage(df)
+    assert res_df.columns.get_loc('A==B') == 1
+    assert res_df['A==B'][1]
+    assert not res_df['A==B'][2]
+    assert not res_df['A==B'][3]
+
+
+def test_colbyframefunc_replace():
+    df = _some_df()
+    cbf_stage = ColByFrameFunc(
+        'B', _are_a_b_equal, before_column='B', func_desc='R')
+    res_df = cbf_stage(df)
+    assert res_df.columns.get_loc('B') == 1
+    assert res_df['B'][1]
+    assert not res_df['B'][2]
+    assert not res_df['B'][3]
