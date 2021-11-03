@@ -1,7 +1,9 @@
 """Basic pdpipe PdPipelineStages."""
 
+from typing import Optional, List, Dict
 from collections import deque
 
+import pandas
 from strct.dicts import reverse_dict_partial
 
 from pdpipe.core import PdPipelineStage, ColumnsBasedPipelineStage
@@ -12,6 +14,7 @@ from pdpipe.shared import (
 )
 
 import pdpipe.cond as cond
+from pdpipe.types import ColumnsParamType
 
 
 class ColDrop(ColumnsBasedPipelineStage):
@@ -23,11 +26,6 @@ class ColDrop(ColumnsBasedPipelineStage):
         The label, or an iterable of labels, of columns to drop. Alternatively,
         this parameter can be assigned a callable returning an iterable of
         labels from an input pandas.DataFrame. See pdpipe.cq.
-    exclude_columns : object, iterable or callable, optional
-        The label, or an iterable of labels, of columns to exclude, given the
-        `columns` parameter. Alternatively, this parameter can be assigned a
-        callable returning a labels iterable from an input pandas.DataFrame.
-        See pdpipe.cq. Optional. By default no columns are excluded.
     errors : {‘ignore’, ‘raise’}, default ‘raise’
         If ‘ignore’, suppress error and existing labels are dropped.
 
@@ -41,7 +39,12 @@ class ColDrop(ColumnsBasedPipelineStage):
         2    b
     """
 
-    def __init__(self, columns, errors=None, **kwargs):
+    def __init__(
+        self,
+        columns: ColumnsParamType,
+        errors: Optional[str] = None,
+        **kwargs: object,
+    ) -> None:
         self._errors = errors
         self._post_cond = cond.HasNoColumn(columns)
         super_kwargs = {
@@ -52,15 +55,17 @@ class ColDrop(ColumnsBasedPipelineStage):
         super_kwargs['none_columns'] = 'error'
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
+    def _prec(self, df: pandas.DataFrame) -> bool:
         if self._errors != 'ignore':
             return super()._prec(df)
         return True
 
-    def _post(self, df):
+    def _post(self, df: pandas.DataFrame) -> bool:
         return self._post_cond(df)
 
-    def _transformation(self, df, verbose, fit):
+    def _transformation(
+        self, df: pandas.DataFrame, verbose: bool, fit: bool,
+    ) -> pandas.DataFrame:
         return df.drop(
             self._get_columns(df, fit=fit), axis=1, errors=self._errors)
 
@@ -96,7 +101,12 @@ class ValDrop(ColumnsBasedPipelineStage):
         3  18  11
     """
 
-    def __init__(self, values, columns=None, **kwargs):
+    def __init__(
+        self,
+        values: List[object],
+        columns: ColumnsParamType = None,
+        **kwargs: object,
+    ) -> None:
         self._values = values
         self._values_str = _list_str(self._values)
         super_kwargs = {
@@ -107,7 +117,9 @@ class ValDrop(ColumnsBasedPipelineStage):
         super_kwargs['none_columns'] = 'all'
         super().__init__(**super_kwargs)
 
-    def _transformation(self, df, verbose, fit):
+    def _transformation(
+        self, df: pandas.DataFrame, verbose: bool, fit: bool,
+    ) -> pandas.DataFrame:
         inter_df = df
         before_count = len(inter_df)
         columns_to_check = self._get_columns(df, fit=fit)
@@ -635,3 +647,69 @@ class DropDuplicates(ColumnsBasedPipelineStage):
         if verbose:
             print(f"{len(df) - len(inter_df)} rows dropped.")
         return inter_df
+
+
+class ColumnDtypeEnforcer(PdPipelineStage):
+    """A pipeline stage enforcing column dtypes.
+
+    Parameters
+    ----------
+    column_to_dtype: dict of column name -> data type
+        Use {col: dtype, …}, where col is a column label and dtype is a
+        numpy.dtype or Python type to cast one or more of the DataFrame’s
+        columns to column-specific types.
+    errors: {‘raise’, ‘ignore’}, default ‘raise’
+        Control raising of exceptions on invalid data for provided dtype.
+        - raise : allow exceptions to be raised
+        - ignore : suppress exceptions. On error return original object.
+
+    Example
+    -------
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'initial'])
+        >>> pdp.ColumnDtypeEnforcer({'num': float}).apply(df)
+           num initial
+        1  8.0       a
+        2  5.0       b
+    """
+
+    _DEF_COL_DTYPE_ENF_EXC_MSG = (
+        "ColumnDtypeEnforcer stage failed because not all columns"
+        " {} were found in input dataframe.")
+
+    def __init__(
+        self,
+        column_to_dtype: Dict[str, object],
+        errors: Optional[str] = 'raise',
+        **kwargs: object,
+    ) -> None:
+        self._column_to_dtype = column_to_dtype
+        self._errors = errors
+        columns_str = _list_str(list(column_to_dtype.keys()))
+        suffix = 's' if len(column_to_dtype) > 1 else ''
+        keys_set = set(column_to_dtype.keys())
+
+        def _tprec(df: pandas.DataFrame) -> bool:
+            return keys_set.issubset(df.columns)
+        self._tprec = _tprec
+        super_kwargs = {
+            'exmsg': ColumnDtypeEnforcer._DEF_COL_DTYPE_ENF_EXC_MSG.format(
+                columns_str),
+            'desc': f"Renam column{suffix} with {column_to_dtype}",
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df: pandas.DataFrame) -> bool:
+        return self._tprec(df)
+
+    def _transform(
+        self,
+        df: pandas.DataFrame,
+        verbose: bool,
+    ) -> pandas.DataFrame:
+        return df.astype(
+            dtype=self._column_to_dtype,
+            copy=True,
+            errors=self._errors,
+        )

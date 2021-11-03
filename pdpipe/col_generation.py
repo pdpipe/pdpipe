@@ -1,7 +1,7 @@
 """Basic pdpipe PdPipelineStages."""
 
 import abc
-from typing import Union, Tuple, Optional, Dict
+from typing import Union, Tuple, Optional, Dict, Callable
 
 import numpy as np
 import pandas as pd
@@ -282,7 +282,7 @@ class OneHotEncode(ColumnsBasedPipelineStage):
 
 
 class ColumnTransformer(ColumnsBasedPipelineStage):
-    """A pipeline stage that applies transformation to dataframe columns..
+    """A pipeline stage that applies transformation to dataframe columns.
 
     Parameters
     ----------
@@ -355,7 +355,7 @@ class ColumnTransformer(ColumnsBasedPipelineStage):
                 result_columns = columns
             else:
                 result_columns = [
-                    col + self.suffix for col in columns
+                    f'{col}{self.suffix}' for col in columns
                 ]
         inter_df = df
         for i, colname in enumerate(columns):
@@ -422,7 +422,7 @@ class MapColVals(ColumnTransformer):
     def __init__(
         self,
         columns: ColumnsParamType,
-        value_map: Union[dict, pd.Series, callable, str, Tuple[str, dict]],
+        value_map: Union[dict, pd.Series, Callable, str, Tuple[str, dict]],
         result_columns: Optional[ColumnLabelsType] = None,
         drop: Optional[bool] = True,
         suffix: Optional[str] = None,
@@ -827,8 +827,8 @@ class Log(ColumnsBasedPipelineStage):
         and the resulting encoded columns retain the names of the source
         columns. Otherwise, encoded columns gain the suffix '_log'.
     non_neg : bool, default False
-        If True, each transformed column is first shifted by smallest negative
-        value it includes (non-negative columns are thus not shifted).
+        If True, each transformed column is first shifted by the smallest
+        negative value it includes (non-negative columns are thus not shifted).
     const_shift : int, optional
         If given, each transformed column is first shifted by this constant. If
         non_neg is True then that transformation is applied first, and only

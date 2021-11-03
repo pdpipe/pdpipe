@@ -381,7 +381,7 @@ def is_fittable_column_qualifier(obj):
 
 
 class AllColumns(ColumnQualifier):
-    """Selectes all columns in input dataframes..
+    """Selectes all columns in input dataframes.
 
     Parameters
     ----------
