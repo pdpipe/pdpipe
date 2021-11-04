@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
-<title>pdpipe.exceptions API documentation</title>
-<meta name="description" content="Custom exceptions for pdpipe." />
+<title>pdpipe.types API documentation</title>
+<meta name="description" content="Custom types for pdpipe." />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -19,39 +19,21 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>pdpipe.exceptions</code></h1>
+<h1 class="title">Module <code>pdpipe.types</code></h1>
 </header>
 <section id="section-intro">
-<p>Custom exceptions for pdpipe.</p>
+<p>Custom types for pdpipe.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34;Custom exceptions for pdpipe.&#34;&#34;&#34;
+<pre><code class="python">&#34;&#34;&#34;Custom types for pdpipe.&#34;&#34;&#34;
+
+from typing import Union, List
 
 
-class FailedPreconditionError(Exception):
-    &#34;&#34;&#34;An exception raised when a pipeline stage is applied to a dataframe for
-    which the stage precondition does not hold.
-    &#34;&#34;&#34;
-
-
-class FailedPostconditionError(Exception):
-    &#34;&#34;&#34;An exception raised when an expected post-condition does not hold after
-    and application of the apipine stage to a dataframe.
-    &#34;&#34;&#34;
-
-
-class PipelineApplicationError(Exception):
-    &#34;&#34;&#34;An exception raised when an exception is thrown during the application
-    of a pipeline or a pipeline stage to a dataframe.
-    &#34;&#34;&#34;
-
-
-class UnfittedPipelineStageError(Exception):
-    &#34;&#34;&#34;An exception raised when a (non-fit) transform is attempted with an
-    unfitted pipeline stage.
-    &#34;&#34;&#34;</code></pre>
+ColumnsParamType = Union[object, List[object], callable]
+ColumnLabelsType = Union[object, List[object]]</code></pre>
 </details>
 </section>
 <section>
@@ -61,97 +43,6 @@ class UnfittedPipelineStageError(Exception):
 <section>
 </section>
 <section>
-<h2 class="section-title" id="header-classes">Classes</h2>
-<dl>
-<dt id="pdpipe.exceptions.FailedPostconditionError"><code class="flex name class">
-<span>class <span class="ident">FailedPostconditionError</span></span>
-<span>(</span><span>*args, **kwargs)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>An exception raised when an expected post-condition does not hold after
-and application of the apipine stage to a dataframe.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class FailedPostconditionError(Exception):
-    &#34;&#34;&#34;An exception raised when an expected post-condition does not hold after
-    and application of the apipine stage to a dataframe.
-    &#34;&#34;&#34;</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>builtins.Exception</li>
-<li>builtins.BaseException</li>
-</ul>
-</dd>
-<dt id="pdpipe.exceptions.FailedPreconditionError"><code class="flex name class">
-<span>class <span class="ident">FailedPreconditionError</span></span>
-<span>(</span><span>*args, **kwargs)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>An exception raised when a pipeline stage is applied to a dataframe for
-which the stage precondition does not hold.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class FailedPreconditionError(Exception):
-    &#34;&#34;&#34;An exception raised when a pipeline stage is applied to a dataframe for
-    which the stage precondition does not hold.
-    &#34;&#34;&#34;</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>builtins.Exception</li>
-<li>builtins.BaseException</li>
-</ul>
-</dd>
-<dt id="pdpipe.exceptions.PipelineApplicationError"><code class="flex name class">
-<span>class <span class="ident">PipelineApplicationError</span></span>
-<span>(</span><span>*args, **kwargs)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>An exception raised when an exception is thrown during the application
-of a pipeline or a pipeline stage to a dataframe.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class PipelineApplicationError(Exception):
-    &#34;&#34;&#34;An exception raised when an exception is thrown during the application
-    of a pipeline or a pipeline stage to a dataframe.
-    &#34;&#34;&#34;</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>builtins.Exception</li>
-<li>builtins.BaseException</li>
-</ul>
-</dd>
-<dt id="pdpipe.exceptions.UnfittedPipelineStageError"><code class="flex name class">
-<span>class <span class="ident">UnfittedPipelineStageError</span></span>
-<span>(</span><span>*args, **kwargs)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>An exception raised when a (non-fit) transform is attempted with an
-unfitted pipeline stage.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class UnfittedPipelineStageError(Exception):
-    &#34;&#34;&#34;An exception raised when a (non-fit) transform is attempted with an
-    unfitted pipeline stage.
-    &#34;&#34;&#34;</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>builtins.Exception</li>
-<li>builtins.BaseException</li>
-</ul>
-</dd>
-</dl>
 </section>
 </article>
 <nav id="sidebar">
@@ -163,22 +54,6 @@ unfitted pipeline stage.</p></div>
 <li><h3>Super-module</h3>
 <ul>
 <li><code><a title="pdpipe" href="index.html">pdpipe</a></code></li>
-</ul>
-</li>
-<li><h3><a href="#header-classes">Classes</a></h3>
-<ul>
-<li>
-<h4><code><a title="pdpipe.exceptions.FailedPostconditionError" href="#pdpipe.exceptions.FailedPostconditionError">FailedPostconditionError</a></code></h4>
-</li>
-<li>
-<h4><code><a title="pdpipe.exceptions.FailedPreconditionError" href="#pdpipe.exceptions.FailedPreconditionError">FailedPreconditionError</a></code></h4>
-</li>
-<li>
-<h4><code><a title="pdpipe.exceptions.PipelineApplicationError" href="#pdpipe.exceptions.PipelineApplicationError">PipelineApplicationError</a></code></h4>
-</li>
-<li>
-<h4><code><a title="pdpipe.exceptions.UnfittedPipelineStageError" href="#pdpipe.exceptions.UnfittedPipelineStageError">UnfittedPipelineStageError</a></code></h4>
-</li>
 </ul>
 </li>
 </ul>

@@ -3,18 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.7.2" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>pdpipe.cond API documentation</title>
 <meta name="description" content="Fittable conditions for pdpipe …" />
-<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
-<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
-<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
-<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
 <style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
-<style>.homelink{display:block;font-size:2em;font-weight:bold;color:#555;padding-bottom:.5em;border-bottom:1px solid silver}.homelink:hover{color:inherit}.homelink img{max-width:20%;max-height:5em;margin:auto;margin-bottom:.3em}</style>
-<link rel="canonical" href="https://pdpipe.github.io/pdpipe/doc/pdpipe/cond.html">
-<link rel="icon" href="https://pdpipe.github.io/pdpipe/logo.png">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
 </head>
 <body>
 <main>
@@ -33,7 +32,7 @@ representing the stage's skip condition - determines whether it <em>should</em> 
 applied. Accordingly, a stage throws a <code>FailedPreconditionError</code> if its
 precondition is not statisfied, while it is skipped if its skip-condition is
 not statisfied.</p>
-<p>This module - <a title="pdpipe.cond" href="#pdpipe.cond"><code>pdpipe.cond</code></a> - provides a way to easily generate <a title="pdpipe.cond.Condition" href="#pdpipe.cond.Condition"><code>Condition</code></a>
+<p>This module - <code><a title="pdpipe.cond" href="#pdpipe.cond">pdpipe.cond</a></code> - provides a way to easily generate <code><a title="pdpipe.cond.Condition" href="#pdpipe.cond.Condition">Condition</a></code>
 objects, which are callable, and can easily be made fittable - to have their
 result determined in fit time and preserved for future transforms - by
 assigning the constructor parameter <code>fittable=True</code>. This enables the creation
@@ -86,7 +85,6 @@ False
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/cond.py#L0-L642" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Fittable conditions for pdpipe.
 
@@ -262,8 +260,8 @@ class Condition(object):
     def __repr__(self):
         fstr = &#39;&#39;
         if self._func.__doc__:  # pragma: no cover
-            fstr = &#39; - {}&#39;.format(self._func.__doc__)
-        return &#34;&lt;pdpipe.Condition: By function{}&gt;&#34;.format(fstr)
+            fstr = f&#39; - {self._func.__doc__}&#39;
+        return f&#34;&lt;pdpipe.Condition: By function{fstr}&gt;&#34;
 
     # --- overriding boolean operators ---
 
@@ -280,9 +278,9 @@ class Condition(object):
     def __and__(self, other):
         try:
             _func = Condition._AndCondition(self._func, other._func)
-            _func.__doc__ = &#39;{} AND {}&#39;.format(
-                self._func.__doc__ or &#39;Anonymous condition 1&#39;,
-                other._func.__doc__ or &#39;Anonymous condition 2&#39;,
+            _func.__doc__ = (
+                f&#34;{self._func.__doc__ or &#39;Anonymous condition 1&#39;} AND &#34;
+                f&#34;{other._func.__doc__ or &#39;Anonymous condition 2&#39;}&#34;
             )
             return Condition(func=_func)
         except AttributeError:
@@ -300,9 +298,9 @@ class Condition(object):
     def __xor__(self, other):
         try:
             _func = Condition._XorCondition(self._func, other._func)
-            _func.__doc__ = &#39;{} XOR {}&#39;.format(
-                self._func.__doc__ or &#39;Anonymous condition 1&#39;,
-                other._func.__doc__ or &#39;Anonymous condition 2&#39;,
+            _func.__doc__ = (
+                f&#34;{self._func.__doc__ or &#39;Anonymous condition 1&#39;} XOR &#34;
+                f&#34;{other._func.__doc__ or &#39;Anonymous condition 2&#39;}&#34;
             )
             return Condition(func=_func)
         except AttributeError:
@@ -320,9 +318,9 @@ class Condition(object):
     def __or__(self, other):
         try:
             _func = Condition._OrCondition(self._func, other._func)
-            _func.__doc__ = &#39;{} OR {}&#39;.format(
-                self._func.__doc__ or &#39;Anonymous condition 1&#39;,
-                other._func.__doc__ or &#39;Anonymous condition 2&#39;,
+            _func.__doc__ = (
+                f&#34;{self._func.__doc__ or &#39;Anonymous condition 1&#39;} OR &#34;
+                f&#34;{other._func.__doc__ or &#39;Anonymous condition 2&#39;}&#34;
             )
             return Condition(func=_func)
         except AttributeError:
@@ -338,9 +336,7 @@ class Condition(object):
 
     def __invert__(self):
         _func = Condition._NotCondition(self._func)
-        _func.__doc__ = &#39;NOT {}&#39;.format(
-            self._func.__doc__ or &#39;Anonymous condition&#39;
-        )
+        _func.__doc__ = f&#34;NOT {self._func.__doc__ or &#39;Anonymous condition&#39;}&#34;
         return Condition(func=_func)
 
 
@@ -470,7 +466,7 @@ conditions: anonymous condition&gt;
         super().__init__(**kwargs)
 
     def __repr__(self):
-        return &#34;&lt;pdpipe.Condition: {}&gt;&#34;.format(self._func_doc)
+        return f&#34;&lt;pdpipe.Condition: {self._func_doc}&gt;&#34;
 
 
 class HasAllColumns(Condition):
@@ -512,14 +508,12 @@ class HasAllColumns(Condition):
                 lbl in df.columns
                 for lbl in self._labels
             ])
-        _func.__doc__ = &#34;Dataframes with colums {}&#34;.format(
-            self._labels_str)
+        _func.__doc__ = f&#34;Dataframes with colums {self._labels_str}&#34;
         kwargs[&#39;func&#39;] = _func
         super().__init__(**kwargs)
 
     def __repr__(self):
-        return &#34;&lt;pdpipe.Condition: Has all columns in {}&gt;&#34;.format(
-            self._labels_str)
+        return f&#34;&lt;pdpipe.Condition: Has all columns in {self._labels_str}&gt;&#34;
 
 
 class ColumnsFromList(PerColumnCondition):
@@ -571,8 +565,7 @@ conditions: Series with labels in num&gt;
         self._labels = labels
         self._labels_str = _list_str(self._labels)
         _func = ColumnsFromList._SeriesLblCondition(self._labels)
-        _func.__doc__ = &#34;Series with labels in {}&#34;.format(
-            self._labels_str)
+        _func.__doc__ = f&#34;Series with labels in {self._labels_str}&#34;
         kwargs[&#39;conditions&#39;] = [_func]
         kwargs[&#39;columns_reduce&#39;] = columns_reduce
         super().__init__(**kwargs)
@@ -624,14 +617,12 @@ class HasNoColumn(Condition):
         self._labels = labels
         self._labels_str = _list_str(self._labels)
         _func = HasNoColumn._NoColumnsFunc(self._labels)
-        _func.__doc__ = &#34;Dataframes with no colum from {}&#34;.format(
-            self._labels_str)
+        _func.__doc__ = f&#34;Dataframes with no colum from {self._labels_str}&#34;
         kwargs[&#39;func&#39;] = _func
         super().__init__(**kwargs)
 
     def __repr__(self):
-        return &#34;&lt;pdpipe.Condition: Has no column in {}&gt;&#34;.format(
-            self._labels_str)
+        return f&#34;&lt;pdpipe.Condition: Has no column in {self._labels_str}&gt;&#34;
 
 
 class HasAtMostMissingValues(Condition):
@@ -694,14 +685,15 @@ class HasAtMostMissingValues(Condition):
             _func = HasAtMostMissingValues._FloatMissingValuesFunc(n_missing)
         else:
             raise ValueError(&#34;n_missing should be of type int or float!&#34;)
-        _func.__doc__ = &#34;Dataframes with at most {} missing values&#34;.format(
-            self._n_missing)
+        _func.__doc__ = (
+            f&#34;Dataframes with at most {self._n_missing} missing values&#34;
+        )
         kwargs[&#39;func&#39;] = _func
         super().__init__(**kwargs)
 
     def __repr__(self):
-        return &#34;&lt;pdpipe.Condition: Has at most {} missing values&gt;&#34;.format(
-            self._n_missing)
+        return f&#34;&lt;pdpipe.Condition: &#34; \
+               f&#34;Has at most {self._n_missing} missing values&gt;&#34;
 
 
 class HasNoMissingValues(HasAtMostMissingValues):
@@ -747,10 +739,10 @@ class HasNoMissingValues(HasAtMostMissingValues):
 <span>(</span><span>labels, columns_reduce=None, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Checks whether input dataframes contain columns from a list.</p>
+<div class="desc"><p>Checks whether input dataframes contain columns from a list.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>labels</code></strong> :&ensp;<code>single</code> <code>label</code> or <code>list</code>-<code>like</code></dt>
+<dt><strong><code>labels</code></strong> :&ensp;<code>single label</code> or <code>list-like</code></dt>
 <dd>Column labels to check for.</dd>
 <dt><strong><code>columns_reduce</code></strong> :&ensp;<code>str</code>, default <code>'all'</code></dt>
 <dd>How condition satisfaction results are reduced among multiple columns.
@@ -776,11 +768,10 @@ True
 ...     ['num', 'gar'], columns_reduce='any')
 &gt;&gt;&gt; cond(df)
 True
-</code></pre></section>
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/cond.py#L435-L488" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ColumnsFromList(PerColumnCondition):
     &#34;&#34;&#34;Checks whether input dataframes contain columns from a list.
@@ -831,8 +822,7 @@ conditions: Series with labels in num&gt;
         self._labels = labels
         self._labels_str = _list_str(self._labels)
         _func = ColumnsFromList._SeriesLblCondition(self._labels)
-        _func.__doc__ = &#34;Series with labels in {}&#34;.format(
-            self._labels_str)
+        _func.__doc__ = f&#34;Series with labels in {self._labels_str}&#34;
         kwargs[&#39;conditions&#39;] = [_func]
         kwargs[&#39;columns_reduce&#39;] = columns_reduce
         super().__init__(**kwargs)</code></pre>
@@ -858,7 +848,7 @@ conditions: Series with labels in num&gt;
 <span>(</span><span>func, fittable=None)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>A fittable condition that returns a boolean value from a dataframe.</p>
+<div class="desc"><p>A fittable condition that returns a boolean value from a dataframe.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>func</code></strong> :&ensp;<code>callable</code></dt>
@@ -876,11 +866,10 @@ default.</dd>
 &gt;&gt;&gt; cond
 &lt;pdpipe.Condition: By function&gt;
 &gt;&gt;&gt; col_drop = pdp.ColDrop(['lbl'], prec=cond)
-</code></pre></section>
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/cond.py#L77-L254" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Condition(object):
     &#34;&#34;&#34;A fittable condition that returns a boolean value from a dataframe.
@@ -980,8 +969,8 @@ default.</dd>
     def __repr__(self):
         fstr = &#39;&#39;
         if self._func.__doc__:  # pragma: no cover
-            fstr = &#39; - {}&#39;.format(self._func.__doc__)
-        return &#34;&lt;pdpipe.Condition: By function{}&gt;&#34;.format(fstr)
+            fstr = f&#39; - {self._func.__doc__}&#39;
+        return f&#34;&lt;pdpipe.Condition: By function{fstr}&gt;&#34;
 
     # --- overriding boolean operators ---
 
@@ -998,9 +987,9 @@ default.</dd>
     def __and__(self, other):
         try:
             _func = Condition._AndCondition(self._func, other._func)
-            _func.__doc__ = &#39;{} AND {}&#39;.format(
-                self._func.__doc__ or &#39;Anonymous condition 1&#39;,
-                other._func.__doc__ or &#39;Anonymous condition 2&#39;,
+            _func.__doc__ = (
+                f&#34;{self._func.__doc__ or &#39;Anonymous condition 1&#39;} AND &#34;
+                f&#34;{other._func.__doc__ or &#39;Anonymous condition 2&#39;}&#34;
             )
             return Condition(func=_func)
         except AttributeError:
@@ -1018,9 +1007,9 @@ default.</dd>
     def __xor__(self, other):
         try:
             _func = Condition._XorCondition(self._func, other._func)
-            _func.__doc__ = &#39;{} XOR {}&#39;.format(
-                self._func.__doc__ or &#39;Anonymous condition 1&#39;,
-                other._func.__doc__ or &#39;Anonymous condition 2&#39;,
+            _func.__doc__ = (
+                f&#34;{self._func.__doc__ or &#39;Anonymous condition 1&#39;} XOR &#34;
+                f&#34;{other._func.__doc__ or &#39;Anonymous condition 2&#39;}&#34;
             )
             return Condition(func=_func)
         except AttributeError:
@@ -1038,9 +1027,9 @@ default.</dd>
     def __or__(self, other):
         try:
             _func = Condition._OrCondition(self._func, other._func)
-            _func.__doc__ = &#39;{} OR {}&#39;.format(
-                self._func.__doc__ or &#39;Anonymous condition 1&#39;,
-                other._func.__doc__ or &#39;Anonymous condition 2&#39;,
+            _func.__doc__ = (
+                f&#34;{self._func.__doc__ or &#39;Anonymous condition 1&#39;} OR &#34;
+                f&#34;{other._func.__doc__ or &#39;Anonymous condition 2&#39;}&#34;
             )
             return Condition(func=_func)
         except AttributeError:
@@ -1056,17 +1045,15 @@ default.</dd>
 
     def __invert__(self):
         _func = Condition._NotCondition(self._func)
-        _func.__doc__ = &#39;NOT {}&#39;.format(
-            self._func.__doc__ or &#39;Anonymous condition&#39;
-        )
+        _func.__doc__ = f&#34;NOT {self._func.__doc__ or &#39;Anonymous condition&#39;}&#34;
         return Condition(func=_func)</code></pre>
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li><a title="pdpipe.cond.PerColumnCondition" href="#pdpipe.cond.PerColumnCondition">PerColumnCondition</a></li>
 <li><a title="pdpipe.cond.HasAllColumns" href="#pdpipe.cond.HasAllColumns">HasAllColumns</a></li>
-<li><a title="pdpipe.cond.HasNoColumn" href="#pdpipe.cond.HasNoColumn">HasNoColumn</a></li>
 <li><a title="pdpipe.cond.HasAtMostMissingValues" href="#pdpipe.cond.HasAtMostMissingValues">HasAtMostMissingValues</a></li>
+<li><a title="pdpipe.cond.HasNoColumn" href="#pdpipe.cond.HasNoColumn">HasNoColumn</a></li>
+<li><a title="pdpipe.cond.PerColumnCondition" href="#pdpipe.cond.PerColumnCondition">PerColumnCondition</a></li>
 </ul>
 <h3>Methods</h3>
 <dl>
@@ -1074,16 +1061,15 @@ default.</dd>
 <span>def <span class="ident">fit</span></span>(<span>self, df)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Fits this condition on the input dataframe.</p>
+<div class="desc"><p>Fits this condition on the input dataframe.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>df</code></strong> :&ensp;<code>pandas.DataFrame</code></dt>
 <dd>The input dataframe on which the condition is checked.</dd>
-</dl></section>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/cond.py#L138-L146" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def fit(self, df):
     &#34;&#34;&#34;Fits this condition on the input dataframe.
@@ -1100,7 +1086,7 @@ default.</dd>
 <span>def <span class="ident">fit_transform</span></span>(<span>self, df)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Fits this condition and returns the result.</p>
+<div class="desc"><p>Fits this condition and returns the result.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>df</code></strong> :&ensp;<code>pandas.DataFrame</code></dt>
@@ -1110,11 +1096,10 @@ default.</dd>
 <dl>
 <dt><code>bool</code></dt>
 <dd>Either True of False.</dd>
-</dl></section>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/cond.py#L122-L136" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def fit_transform(self, df):
     &#34;&#34;&#34;Fits this condition and returns the result.
@@ -1137,7 +1122,7 @@ default.</dd>
 <span>def <span class="ident">transform</span></span>(<span>self, df)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Returns the result of this condition.</p>
+<div class="desc"><p>Returns the result of this condition.</p>
 <p>Is this Condition is fittable, it will return the result that was
 determined when fitted, if it's fitted, and throw an exception
 if it is not.</p>
@@ -1150,11 +1135,10 @@ if it is not.</p>
 <dl>
 <dt><code>bool</code></dt>
 <dd>Either True of False.</dd>
-</dl></section>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/cond.py#L148-L170" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def transform(self, df):
     &#34;&#34;&#34;Returns the result of this condition.
@@ -1188,10 +1172,10 @@ if it is not.</p>
 <span>(</span><span>labels, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Checks whether input dataframes contain a list of columns.</p>
+<div class="desc"><p>Checks whether input dataframes contain a list of columns.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>labels</code></strong> :&ensp;<code>single</code> <code>label</code> or <code>list</code>-<code>like</code></dt>
+<dt><strong><code>labels</code></strong> :&ensp;<code>single label</code> or <code>list-like</code></dt>
 <dd>Column labels to check for.</dd>
 <dt><strong><code>**kwargs</code></strong></dt>
 <dd>Additionaly accepts all keyword arguments of the constructor of
@@ -1212,11 +1196,10 @@ True
 &gt;&gt;&gt; cond = pdp.cond.HasAllColumns(['num', 'gar'])
 &gt;&gt;&gt; cond(df)
 False
-</code></pre></section>
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/cond.py#L386-L432" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class HasAllColumns(Condition):
     &#34;&#34;&#34;Checks whether input dataframes contain a list of columns.
@@ -1257,14 +1240,12 @@ False
                 lbl in df.columns
                 for lbl in self._labels
             ])
-        _func.__doc__ = &#34;Dataframes with colums {}&#34;.format(
-            self._labels_str)
+        _func.__doc__ = f&#34;Dataframes with colums {self._labels_str}&#34;
         kwargs[&#39;func&#39;] = _func
         super().__init__(**kwargs)
 
     def __repr__(self):
-        return &#34;&lt;pdpipe.Condition: Has all columns in {}&gt;&#34;.format(
-            self._labels_str)</code></pre>
+        return f&#34;&lt;pdpipe.Condition: Has all columns in {self._labels_str}&gt;&#34;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1286,7 +1267,7 @@ False
 <span>(</span><span>n_missing, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Checks whether input dataframes has no more than X missing values.</p>
+<div class="desc"><p>Checks whether input dataframes has no more than X missing values.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>n_missing</code></strong> :&ensp;<code>int</code> or <code>float</code></dt>
@@ -1315,11 +1296,10 @@ True
 &gt;&gt;&gt; cond = pdp.cond.HasAtMostMissingValues(0.2)
 &gt;&gt;&gt; cond(df)
 False
-</code></pre></section>
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/cond.py#L547-L614" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class HasAtMostMissingValues(Condition):
     &#34;&#34;&#34;Checks whether input dataframes has no more than X missing values.
@@ -1381,14 +1361,15 @@ False
             _func = HasAtMostMissingValues._FloatMissingValuesFunc(n_missing)
         else:
             raise ValueError(&#34;n_missing should be of type int or float!&#34;)
-        _func.__doc__ = &#34;Dataframes with at most {} missing values&#34;.format(
-            self._n_missing)
+        _func.__doc__ = (
+            f&#34;Dataframes with at most {self._n_missing} missing values&#34;
+        )
         kwargs[&#39;func&#39;] = _func
         super().__init__(**kwargs)
 
     def __repr__(self):
-        return &#34;&lt;pdpipe.Condition: Has at most {} missing values&gt;&#34;.format(
-            self._n_missing)</code></pre>
+        return f&#34;&lt;pdpipe.Condition: &#34; \
+               f&#34;Has at most {self._n_missing} missing values&gt;&#34;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1414,10 +1395,10 @@ False
 <span>(</span><span>labels, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Checks whether input dataframes contains no column from a list.</p>
+<div class="desc"><p>Checks whether input dataframes contains no column from a list.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>labels</code></strong> :&ensp;<code>single</code> <code>label</code> or <code>list</code>-<code>like</code></dt>
+<dt><strong><code>labels</code></strong> :&ensp;<code>single label</code> or <code>list-like</code></dt>
 <dd>Column labels to check for.</dd>
 <dt><strong><code>**kwargs</code></strong></dt>
 <dd>Additionaly accepts all keyword arguments of the constructor of
@@ -1438,11 +1419,10 @@ False
 &gt;&gt;&gt; cond = pdp.cond.HasNoColumn(['ph', 'gar'])
 &gt;&gt;&gt; cond(df)
 True
-</code></pre></section>
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/cond.py#L491-L544" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class HasNoColumn(Condition):
     &#34;&#34;&#34;Checks whether input dataframes contains no column from a list.
@@ -1490,14 +1470,12 @@ True
         self._labels = labels
         self._labels_str = _list_str(self._labels)
         _func = HasNoColumn._NoColumnsFunc(self._labels)
-        _func.__doc__ = &#34;Dataframes with no colum from {}&#34;.format(
-            self._labels_str)
+        _func.__doc__ = f&#34;Dataframes with no colum from {self._labels_str}&#34;
         kwargs[&#39;func&#39;] = _func
         super().__init__(**kwargs)
 
     def __repr__(self):
-        return &#34;&lt;pdpipe.Condition: Has no column in {}&gt;&#34;.format(
-            self._labels_str)</code></pre>
+        return f&#34;&lt;pdpipe.Condition: Has no column in {self._labels_str}&gt;&#34;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1519,7 +1497,7 @@ True
 <span>(</span><span>**kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Checks whether input dataframes has no missing values.</p>
+<div class="desc"><p>Checks whether input dataframes has no missing values.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>**kwargs</code></strong></dt>
@@ -1535,11 +1513,10 @@ documentation of Condition for details.</dd>
 &lt;pdpipe.Condition: Has no missing values&gt;
 &gt;&gt;&gt; cond(df)
 False
-</code></pre></section>
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/cond.py#L617-L643" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class HasNoMissingValues(HasAtMostMissingValues):
     &#34;&#34;&#34;Checks whether input dataframes has no missing values.
@@ -1590,10 +1567,10 @@ False
 <span>(</span><span>conditions, conditions_reduce=None, columns_reduce=None, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>Checks whether the columns of input dataframes statisfy a condition set.</p>
+<div class="desc"><p>Checks whether the columns of input dataframes statisfy a condition set.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>conditions</code></strong> :&ensp;<code>callable</code> or <code>list</code>-<code>like</code></dt>
+<dt><strong><code>conditions</code></strong> :&ensp;<code>callable</code> or <code>list-like</code></dt>
 <dd>The condition, or set of conditions, that columns of input dataframes
 must satisfy. Conditions are callables that accept a <code>pandas.Series</code>
 object and return a <code>bool</code> value.</dd>
@@ -1645,11 +1622,10 @@ False
 ... )
 &gt;&gt;&gt; cond(df)
 True
-</code></pre></section>
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/cond.py#L257-L383" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class PerColumnCondition(Condition):
     &#34;&#34;&#34;Checks whether the columns of input dataframes statisfy a condition set.
@@ -1777,7 +1753,7 @@ conditions: anonymous condition&gt;
         super().__init__(**kwargs)
 
     def __repr__(self):
-        return &#34;&lt;pdpipe.Condition: {}&gt;&#34;.format(self._func_doc)</code></pre>
+        return f&#34;&lt;pdpipe.Condition: {self._func_doc}&gt;&#34;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1803,12 +1779,11 @@ conditions: anonymous condition&gt;
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
-<section class="desc"><p>An exception raised when a (non-fit) transform is attempted with an
-unfitted condition.</p></section>
+<div class="desc"><p>An exception raised when a (non-fit) transform is attempted with an
+unfitted condition.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/pdpipe/pdpipe/blob/1b9928dba3c713b32ef26eb651142f9b78a9abc5/pdpipe/cond.py#L71-L74" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class UnfittedConditionError(Exception):
     &#34;&#34;&#34;An exception raised when a (non-fit) transform is attempted with an
@@ -1825,11 +1800,6 @@ unfitted condition.</p></section>
 </section>
 </article>
 <nav id="sidebar">
-<header>
-<a class="homelink" rel="home" title="pdpipe Home" href="https://pdpipe.github.io/pdpipe/">
-<img src="https://pdpipe.github.io/pdpipe/logo.png" alt=""> pdpipe
-</a>
-</header>
 <h1>Index</h1>
 <div class="toc">
 <ul></ul>
@@ -1877,10 +1847,7 @@ unfitted condition.</p></section>
 </nav>
 </main>
 <footer id="footer">
-<p><span style="color:#ddd">&#21328;</span></p>
-<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.2</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
-<script>hljs.initHighlightingOnLoad()</script>
 </body>
 </html>
