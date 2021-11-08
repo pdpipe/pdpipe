@@ -29,7 +29,7 @@
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Basic pdpipe PdPipelineStages.&#34;&#34;&#34;
 
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Union, Callable
 from collections import deque
 
 import pandas
@@ -44,6 +44,7 @@ from pdpipe.shared import (
 
 import pdpipe.cond as cond
 from pdpipe.types import ColumnsParamType
+from pdpipe.exceptions import FailedConditionError
 
 
 class ColDrop(ColumnsBasedPipelineStage):
@@ -290,7 +291,6 @@ class DropNa(PdPipelineStage):
     &#34;&#34;&#34;
 
     _DEF_DROPNA_EXC_MSG = &#34;DropNa stage failed.&#34;
-    _DEF_DROPNA_APP_MSG = &#34;Dropping null values...&#34;
     _DROPNA_KWARGS = [&#39;axis&#39;, &#39;how&#39;, &#39;thresh&#39;, &#39;subset&#39;, &#39;inplace&#39;]
 
     def __init__(self, **kwargs):
@@ -741,7 +741,97 @@ class ColumnDtypeEnforcer(PdPipelineStage):
             dtype=self._column_to_dtype,
             copy=True,
             errors=self._errors,
-        )</code></pre>
+        )
+
+
+class ConditionValidator(PdPipelineStage):
+    &#34;&#34;&#34;A pipeline stage that validates boolean conditions on dataframes.
+
+    The stage does not change the input dataframe in any way.
+
+    The constructor expects either a single callable or a list-like of callable
+    objects, and checks that all these callable return True - meaning all
+    defined conditions hold - for input dataframes.
+
+    Naturally, pdpipe Condition objects from the pdpipe.cond module can be
+    used.
+
+    Parameters
+    ----------
+    conditions : callable or list-like of callable
+        The conditions to check for input dataframes. Naturally, pdpipe
+        Condition objects from the pdpipe.cond module can be used.
+    reducer : callable, optional
+        The callable that reduces the list of boolean result to a single
+        result. By default the built-in `all` function is used, so all
+        conditions must hold for this pipeline stage to validate an input
+        dataframe. The built-in `any` function may be used to validate at least
+        one condition holds, and of course custom reducing functions can be
+        used.
+    errors : str, default &#39;raise&#39;
+        If set to &#39;raise&#39;, the default, then if the result boolean result is
+        False a FailedConditionError is raised on stage application. If set to
+        &#39;ignore&#39;, then conditions are checked, the results are printed if the
+        application was called with `verbose=True`, and pipeline application
+        continues. Any other value is interpreted as &#39;raise&#39;.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,None],[1,11]], [1,2,3], [&#39;a&#39;,&#39;b&#39;])
+        &gt;&gt;&gt; pdp.ConditionValidator(pdp.cond.HasNoMissingValues())(df)
+        Traceback (most recent call last):
+           ...
+        pdpipe.exceptions.FailedConditionError: ConditionValidator stage failed; some conditions did not hold for the input dataframe!
+    &#34;&#34;&#34;  # noqa: E501
+
+    def __init__(
+        self,
+        conditions: Union[Callable, List[Callable]],
+        reducer: Optional[Callable] = all,
+        errors: Optional[str] = &#39;raise&#39;,
+        **kwargs: object,
+    ):
+        if callable(conditions):
+            conditions = [conditions]
+        self._conditions = conditions
+        self._reducer = reducer
+        self._errors = &#39;raise&#39;
+        self._raise = True
+        if errors == &#39;ignore&#39;:
+            self._errors = &#39;ignore&#39;
+            self._raise = False
+        super_kwargs = {
+            &#39;desc&#39;: &#34;Validates conditions&#34;
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        return True
+
+    def _transform(self, df, verbose):
+        results = []
+        for cond_obj in self._conditions:
+            try:
+                res = cond_obj(df)
+            except Exception as e:
+                raise ValueError(
+                    f&#34;Supplied condition raised a {e} exception when applied &#34;
+                    &#34;to input dataframe!&#34;
+                ) from e
+            if verbose and not res:
+                cond_repr = cond_obj.__doc__
+                if cond_repr is None:
+                    cond_repr = str(cond_obj)
+                print(f&#34;  + Condition failed for input dataframe: {cond_repr}&#34;)
+            results.append(res)
+        reduced_result = self._reducer(results)
+        if self._raise and not reduced_result:
+            raise FailedConditionError(
+                &#34;ConditionValidator stage failed; some conditions did not hold&#34;
+                &#34; for the input dataframe!&#34;)
+        return df</code></pre>
 </details>
 </section>
 <section>
@@ -854,6 +944,7 @@ labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
@@ -992,6 +1083,7 @@ labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
@@ -1120,6 +1212,7 @@ positions over the non-mapped colums.</dd>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
@@ -1268,6 +1361,194 @@ columns to column-specific types.</dd>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByLength" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByList" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Encode" href="core.html#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.FitOnly" href="core.html#pdpipe.core.PdPipelineStage.FitOnly">FitOnly</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.FreqDrop" href="core.html#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Log" href="core.html#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.MapColVals" href="core.html#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.OneHotEncode" href="core.html#pdpipe.core.PdPipelineStage.OneHotEncode">OneHotEncode</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.PdPipeline" href="core.html#pdpipe.core.PdPipelineStage.PdPipeline">PdPipeline</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RegexReplace" href="core.html#pdpipe.core.PdPipelineStage.RegexReplace">RegexReplace</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RemoveStopwords" href="core.html#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RowDrop" href="core.html#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Scale" href="core.html#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Schematize" href="core.html#pdpipe.core.PdPipelineStage.Schematize">Schematize</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.SetIndex" href="core.html#pdpipe.core.PdPipelineStage.SetIndex">SetIndex</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.SnowballStem" href="core.html#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists" href="core.html#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.TokenizeText" href="core.html#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.UntokenizeText" href="core.html#pdpipe.core.PdPipelineStage.UntokenizeText">UntokenizeText</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ValDrop" href="core.html#pdpipe.core.PdPipelineStage.ValDrop">ValDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ValKeep" href="core.html#pdpipe.core.PdPipelineStage.ValKeep">ValKeep</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.apply" href="core.html#pdpipe.core.PdPipelineStage.apply">apply</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.description" href="core.html#pdpipe.core.PdPipelineStage.description">description</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.fit" href="core.html#pdpipe.core.PdPipelineStage.fit">fit</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.fit_transform" href="core.html#pdpipe.core.PdPipelineStage.fit_transform">fit_transform</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.transform" href="core.html#pdpipe.core.PdPipelineStage.transform">transform</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pdpipe.basic_stages.ConditionValidator"><code class="flex name class">
+<span>class <span class="ident">ConditionValidator</span></span>
+<span>(</span><span>conditions: Union[Callable, List[Callable]], reducer: Optional[Callable] = &lt;built-in function all&gt;, errors: Optional[str] = 'raise', **kwargs: object)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A pipeline stage that validates boolean conditions on dataframes.</p>
+<p>The stage does not change the input dataframe in any way.</p>
+<p>The constructor expects either a single callable or a list-like of callable
+objects, and checks that all these callable return True - meaning all
+defined conditions hold - for input dataframes.</p>
+<p>Naturally, pdpipe Condition objects from the pdpipe.cond module can be
+used.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>conditions</code></strong> :&ensp;<code>callable</code> or <code>list-like</code> of <code>callable</code></dt>
+<dd>The conditions to check for input dataframes. Naturally, pdpipe
+Condition objects from the pdpipe.cond module can be used.</dd>
+<dt><strong><code>reducer</code></strong> :&ensp;<code>callable</code>, optional</dt>
+<dd>The callable that reduces the list of boolean result to a single
+result. By default the built-in <code>all</code> function is used, so all
+conditions must hold for this pipeline stage to validate an input
+dataframe. The built-in <code>any</code> function may be used to validate at least
+one condition holds, and of course custom reducing functions can be
+used.</dd>
+<dt><strong><code>errors</code></strong> :&ensp;<code>str</code>, default <code>'raise'</code></dt>
+<dd>If set to 'raise', the default, then if the result boolean result is
+False a FailedConditionError is raised on stage application. If set to
+'ignore', then conditions are checked, the results are printed if the
+application was called with <code>verbose=True</code>, and pipeline application
+continues. Any other value is interpreted as 'raise'.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,None],[1,11]], [1,2,3], ['a','b'])
+&gt;&gt;&gt; pdp.ConditionValidator(pdp.cond.HasNoMissingValues())(df)
+Traceback (most recent call last):
+   ...
+pdpipe.exceptions.FailedConditionError: ConditionValidator stage failed; some conditions did not hold for the input dataframe!
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ConditionValidator(PdPipelineStage):
+    &#34;&#34;&#34;A pipeline stage that validates boolean conditions on dataframes.
+
+    The stage does not change the input dataframe in any way.
+
+    The constructor expects either a single callable or a list-like of callable
+    objects, and checks that all these callable return True - meaning all
+    defined conditions hold - for input dataframes.
+
+    Naturally, pdpipe Condition objects from the pdpipe.cond module can be
+    used.
+
+    Parameters
+    ----------
+    conditions : callable or list-like of callable
+        The conditions to check for input dataframes. Naturally, pdpipe
+        Condition objects from the pdpipe.cond module can be used.
+    reducer : callable, optional
+        The callable that reduces the list of boolean result to a single
+        result. By default the built-in `all` function is used, so all
+        conditions must hold for this pipeline stage to validate an input
+        dataframe. The built-in `any` function may be used to validate at least
+        one condition holds, and of course custom reducing functions can be
+        used.
+    errors : str, default &#39;raise&#39;
+        If set to &#39;raise&#39;, the default, then if the result boolean result is
+        False a FailedConditionError is raised on stage application. If set to
+        &#39;ignore&#39;, then conditions are checked, the results are printed if the
+        application was called with `verbose=True`, and pipeline application
+        continues. Any other value is interpreted as &#39;raise&#39;.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,None],[1,11]], [1,2,3], [&#39;a&#39;,&#39;b&#39;])
+        &gt;&gt;&gt; pdp.ConditionValidator(pdp.cond.HasNoMissingValues())(df)
+        Traceback (most recent call last):
+           ...
+        pdpipe.exceptions.FailedConditionError: ConditionValidator stage failed; some conditions did not hold for the input dataframe!
+    &#34;&#34;&#34;  # noqa: E501
+
+    def __init__(
+        self,
+        conditions: Union[Callable, List[Callable]],
+        reducer: Optional[Callable] = all,
+        errors: Optional[str] = &#39;raise&#39;,
+        **kwargs: object,
+    ):
+        if callable(conditions):
+            conditions = [conditions]
+        self._conditions = conditions
+        self._reducer = reducer
+        self._errors = &#39;raise&#39;
+        self._raise = True
+        if errors == &#39;ignore&#39;:
+            self._errors = &#39;ignore&#39;
+            self._raise = False
+        super_kwargs = {
+            &#39;desc&#39;: &#34;Validates conditions&#34;
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        return True
+
+    def _transform(self, df, verbose):
+        results = []
+        for cond_obj in self._conditions:
+            try:
+                res = cond_obj(df)
+            except Exception as e:
+                raise ValueError(
+                    f&#34;Supplied condition raised a {e} exception when applied &#34;
+                    &#34;to input dataframe!&#34;
+                ) from e
+            if verbose and not res:
+                cond_repr = cond_obj.__doc__
+                if cond_repr is None:
+                    cond_repr = str(cond_obj)
+                print(f&#34;  + Condition failed for input dataframe: {cond_repr}&#34;)
+            results.append(res)
+        reduced_result = self._reducer(results)
+        if self._raise and not reduced_result:
+            raise FailedConditionError(
+                &#34;ConditionValidator stage failed; some conditions did not hold&#34;
+                &#34; for the input dataframe!&#34;)
+        return df</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pdpipe.core.PdPipelineStage.AdHocStage" href="core.html#pdpipe.core.PdPipelineStage.AdHocStage">AdHocStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.AggByCols" href="core.html#pdpipe.core.PdPipelineStage.AggByCols">AggByCols</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ApplyByCols" href="core.html#pdpipe.core.PdPipelineStage.ApplyByCols">ApplyByCols</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ApplyToRows" href="core.html#pdpipe.core.PdPipelineStage.ApplyToRows">ApplyToRows</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Bin" href="core.html#pdpipe.core.PdPipelineStage.Bin">Bin</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColByFrameFunc" href="core.html#pdpipe.core.PdPipelineStage.ColByFrameFunc">ColByFrameFunc</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColDrop" href="core.html#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColRename" href="core.html#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColReorder" href="core.html#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
@@ -1392,6 +1673,7 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
@@ -1460,7 +1742,6 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
     &#34;&#34;&#34;
 
     _DEF_DROPNA_EXC_MSG = &#34;DropNa stage failed.&#34;
-    _DEF_DROPNA_APP_MSG = &#34;Dropping null values...&#34;
     _DROPNA_KWARGS = [&#39;axis&#39;, &#39;how&#39;, &#39;thresh&#39;, &#39;subset&#39;, &#39;inplace&#39;]
 
     def __init__(self, **kwargs):
@@ -1508,6 +1789,7 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
@@ -1635,6 +1917,7 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
@@ -1878,6 +2161,7 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
@@ -2005,6 +2289,7 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
@@ -2125,6 +2410,7 @@ a
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
@@ -2275,6 +2561,7 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
@@ -2418,6 +2705,7 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
@@ -2478,6 +2766,9 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 </li>
 <li>
 <h4><code><a title="pdpipe.basic_stages.ColumnDtypeEnforcer" href="#pdpipe.basic_stages.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pdpipe.basic_stages.ConditionValidator" href="#pdpipe.basic_stages.ConditionValidator">ConditionValidator</a></code></h4>
 </li>
 <li>
 <h4><code><a title="pdpipe.basic_stages.DropDuplicates" href="#pdpipe.basic_stages.DropDuplicates">DropDuplicates</a></code></h4>

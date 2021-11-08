@@ -38,7 +38,13 @@ class FailedPreconditionError(Exception):
 
 class FailedPostconditionError(Exception):
     &#34;&#34;&#34;An exception raised when an expected post-condition does not hold after
-    and application of the apipine stage to a dataframe.
+    an application of the a pipeline stage to a dataframe.
+    &#34;&#34;&#34;
+
+
+class FailedConditionError(Exception):
+    &#34;&#34;&#34;An exception raised when an expected condition does not hold for an
+    input dataframe.
     &#34;&#34;&#34;
 
 
@@ -63,20 +69,42 @@ class UnfittedPipelineStageError(Exception):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="pdpipe.exceptions.FailedConditionError"><code class="flex name class">
+<span>class <span class="ident">FailedConditionError</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An exception raised when an expected condition does not hold for an
+input dataframe.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class FailedConditionError(Exception):
+    &#34;&#34;&#34;An exception raised when an expected condition does not hold for an
+    input dataframe.
+    &#34;&#34;&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
+</dd>
 <dt id="pdpipe.exceptions.FailedPostconditionError"><code class="flex name class">
 <span>class <span class="ident">FailedPostconditionError</span></span>
 <span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>An exception raised when an expected post-condition does not hold after
-and application of the apipine stage to a dataframe.</p></div>
+an application of the a pipeline stage to a dataframe.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class FailedPostconditionError(Exception):
     &#34;&#34;&#34;An exception raised when an expected post-condition does not hold after
-    and application of the apipine stage to a dataframe.
+    an application of the a pipeline stage to a dataframe.
     &#34;&#34;&#34;</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -167,6 +195,9 @@ unfitted pipeline stage.</p></div>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
+<li>
+<h4><code><a title="pdpipe.exceptions.FailedConditionError" href="#pdpipe.exceptions.FailedConditionError">FailedConditionError</a></code></h4>
+</li>
 <li>
 <h4><code><a title="pdpipe.exceptions.FailedPostconditionError" href="#pdpipe.exceptions.FailedPostconditionError">FailedPostconditionError</a></code></h4>
 </li>

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
 <title>pdpipe.core API documentation</title>
-<meta name="description" content="Defines pipelines for processing Pandas.DataFrame-based datasets …" />
+<meta name="description" content="Defines pipelines for processing pandas.DataFrame-based datasets …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -22,7 +22,7 @@
 <h1 class="title">Module <code>pdpipe.core</code></h1>
 </header>
 <section id="section-intro">
-<p>Defines pipelines for processing Pandas.DataFrame-based datasets.</p>
+<p>Defines pipelines for processing pandas.DataFrame-based datasets.</p>
 <pre><code class="language-python-repl">&gt;&gt;&gt; import pdpipe as pdp
 &gt;&gt;&gt; pipeline = pdp.ColDrop('Name') + pdp.Bin({'Speed': [0,5]})
 &gt;&gt;&gt; pipeline = pdp.ColDrop('Name').Bin({'Speed': [0,5]}, drop=True)
@@ -114,7 +114,7 @@ use those implementations as a template for yours.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34;Defines pipelines for processing Pandas.DataFrame-based datasets.
+<pre><code class="python">&#34;&#34;&#34;Defines pipelines for processing pandas.DataFrame-based datasets.
 
 &gt;&gt;&gt; import pdpipe as pdp
 &gt;&gt;&gt; pipeline = pdp.ColDrop(&#39;Name&#39;) + pdp.Bin({&#39;Speed&#39;: [0,5]})
@@ -360,8 +360,9 @@ class PdPipelineStage(abc.ABC):
     skip : callable, default None
         This can be assigned a callable that returns boolean values for input
         dataframes, which will be used to determine whether this stage should
-        be skipped for input dataframes. See pdp.cond for more information on
-        specialised Condition objects.
+        be skipped for input dataframes - if the callable returns True for an
+        input dataframe, this stage will be skipped. See pdp.cond for more
+        information on specialised Condition objects.
     name : str, default &#39;&#39;
         The name of this stage. Pipelines can be sliced by this name.
 
@@ -1472,6 +1473,7 @@ dataframe. If None is given, set to a function always returning True.</dd>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer" href="#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnTransformer" href="#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage" href="#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ConditionValidator" href="#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropDuplicates" href="#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
@@ -1724,6 +1726,7 @@ the default column qualifier that determines input columns when
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer" href="#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnTransformer" href="#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage" href="#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ConditionValidator" href="#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropDuplicates" href="#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
@@ -2531,6 +2534,7 @@ pipeline application is done.</dd>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer" href="#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnTransformer" href="#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage" href="#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ConditionValidator" href="#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropDuplicates" href="#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
@@ -2598,8 +2602,9 @@ more information on specialised Condition objects.</dd>
 <dt><strong><code>skip</code></strong> :&ensp;<code>callable</code>, default <code>None</code></dt>
 <dd>This can be assigned a callable that returns boolean values for input
 dataframes, which will be used to determine whether this stage should
-be skipped for input dataframes. See pdp.cond for more information on
-specialised Condition objects.</dd>
+be skipped for input dataframes - if the callable returns True for an
+input dataframe, this stage will be skipped. See pdp.cond for more
+information on specialised Condition objects.</dd>
 <dt><strong><code>name</code></strong> :&ensp;<code>str</code>, default <code>''</code></dt>
 <dd>The name of this stage. Pipelines can be sliced by this name.</dd>
 </dl>
@@ -2653,8 +2658,9 @@ into the PipelineStage by the encapsulating pipeline object.</dd>
     skip : callable, default None
         This can be assigned a callable that returns boolean values for input
         dataframes, which will be used to determine whether this stage should
-        be skipped for input dataframes. See pdp.cond for more information on
-        specialised Condition objects.
+        be skipped for input dataframes - if the callable returns True for an
+        input dataframe, this stage will be skipped. See pdp.cond for more
+        information on specialised Condition objects.
     name : str, default &#39;&#39;
         The name of this stage. Pipelines can be sliced by this name.
 
@@ -2950,6 +2956,7 @@ into the PipelineStage by the encapsulating pipeline object.</dd>
 <li><a title="pdpipe.basic_stages.ColRename" href="basic_stages.html#pdpipe.basic_stages.ColRename">ColRename</a></li>
 <li><a title="pdpipe.basic_stages.ColReorder" href="basic_stages.html#pdpipe.basic_stages.ColReorder">ColReorder</a></li>
 <li><a title="pdpipe.basic_stages.ColumnDtypeEnforcer" href="basic_stages.html#pdpipe.basic_stages.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></li>
+<li><a title="pdpipe.basic_stages.ConditionValidator" href="basic_stages.html#pdpipe.basic_stages.ConditionValidator">ConditionValidator</a></li>
 <li><a title="pdpipe.basic_stages.DropNa" href="basic_stages.html#pdpipe.basic_stages.DropNa">DropNa</a></li>
 <li><a title="pdpipe.basic_stages.FreqDrop" href="basic_stages.html#pdpipe.basic_stages.FreqDrop">FreqDrop</a></li>
 <li><a title="pdpipe.basic_stages.Schematize" href="basic_stages.html#pdpipe.basic_stages.Schematize">Schematize</a></li>
@@ -3057,8 +3064,10 @@ is None and drop is set to False. Of not given, defaults to '_agg'.</dd>
 <div class="desc"><p>Creates and adds a pipeline stage applying an element-wise function to columns to this pipeline stage.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list-like</code></dt>
-<dd>Names of columns on which to apply the given function.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> of <code>callable</code></dt>
+<dd>Column labels in the DataFrame to be transformed. Alternatively, this
+parameter can be assigned a callable returning an iterable of labels
+from an input pandas.DataFrame. See pdpipe.cq.</dd>
 <dt><strong><code>func</code></strong> :&ensp;<code>function</code></dt>
 <dd>The function to be applied to each element of the given columns.</dd>
 <dt><strong><code>result_columns</code></strong> :&ensp;<code>str</code> or <code>list-like</code>, default <code>None</code></dt>
@@ -3441,6 +3450,53 @@ the default column qualifier that determines input columns when
 <dt><strong><code>**kwargs</code></strong></dt>
 <dd>Additionally supports all constructor parameters of PdPipelineStage.</dd>
 </dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def _append_stage_func(self, *args, **kwds):
+    # self is always a PdPipelineStage
+    return self + class_obj(*args, **kwds)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.core.PdPipelineStage.ConditionValidator"><code class="name flex">
+<span>def <span class="ident">ConditionValidator</span></span>(<span>self, conditions: Union[Callable, List[Callable]], reducer: Optional[Callable] = &lt;built-in function all&gt;, errors: Optional[str] = 'raise', **kwargs: object)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Creates and adds a pipeline stage that validates boolean conditions on dataframes to this pipeline stage.</p>
+<p>The stage does not change the input dataframe in any way.</p>
+<p>The constructor expects either a single callable or a list-like of callable
+objects, and checks that all these callable return True - meaning all
+defined conditions hold - for input dataframes.</p>
+<p>Naturally, pdpipe Condition objects from the pdpipe.cond module can be
+used.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>conditions</code></strong> :&ensp;<code>callable</code> or <code>list-like</code> of <code>callable</code></dt>
+<dd>The conditions to check for input dataframes. Naturally, pdpipe
+Condition objects from the pdpipe.cond module can be used.</dd>
+<dt><strong><code>reducer</code></strong> :&ensp;<code>callable</code>, optional</dt>
+<dd>The callable that reduces the list of boolean result to a single
+result. By default the built-in <code>all</code> function is used, so all
+conditions must hold for this pipeline stage to validate an input
+dataframe. The built-in <code>any</code> function may be used to validate at least
+one condition holds, and of course custom reducing functions can be
+used.</dd>
+<dt><strong><code>errors</code></strong> :&ensp;<code>str</code>, default <code>'raise'</code></dt>
+<dd>If set to 'raise', the default, then if the result boolean result is
+False a FailedConditionError is raised on stage application. If set to
+'ignore', then conditions are checked, the results are printed if the
+application was called with <code>verbose=True</code>, and pipeline application
+continues. Any other value is interpreted as 'raise'.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,None],[1,11]], [1,2,3], ['a','b'])
+&gt;&gt;&gt; pdp.ConditionValidator(pdp.cond.HasNoMissingValues())(df)
+Traceback (most recent call last):
+   ...
+pdpipe.exceptions.FailedConditionError: ConditionValidator stage failed; some conditions did not hold for the input dataframe!
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -3922,24 +3978,28 @@ entirely.</dd>
 </details>
 </dd>
 <dt id="pdpipe.core.PdPipelineStage.RegexReplace"><code class="name flex">
-<span>def <span class="ident">RegexReplace</span></span>(<span>self, columns, pattern, replace, result_columns=None, drop=True, func_desc=None, **kwargs)</span>
+<span>def <span class="ident">RegexReplace</span></span>(<span>self, columns: Union[object, List[object], <built-in function callable>], pattern: str, replace: str, flags: Optional[int] = 0, result_columns: Union[object, List[object], None] = None, drop: Optional[bool] = True, func_desc: Optional[str] = None, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Creates and adds a pipeline stage replacing regex occurences in a text column to this pipeline stage.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list-like</code></dt>
-<dd>Names of columns on which to apply regex replacement.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> of <code>callable</code></dt>
+<dd>Column labels in the DataFrame which regex replacement be applied to.
+Alternatively, this parameter can be assigned a callable returning an
+iterable of labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
 <dt><strong><code>pattern</code></strong> :&ensp;<code>str</code></dt>
 <dd>The regex whose occurences will be replaced.</dd>
 <dt><strong><code>replace</code></strong> :&ensp;<code>str</code></dt>
 <dd>The replacement string to use. This is equivalent to repl in re.sub.</dd>
-<dt><strong><code>result_columns</code></strong> :&ensp;<code>str</code> or <code>list-like</code>, default <code>None</code></dt>
-<dd>The names of the new columns resulting from the mapping operation. Must
-be of the same length as columns. If None, behavior depends on the
-drop parameter: If drop is True, the name of the source column is used;
-otherwise, the name of the source column is used with the suffix
-'_reg'.</dd>
+<dt><strong><code>flags</code></strong> :&ensp;<code>int</code>, default <code>0</code></dt>
+<dd>&nbsp;</dd>
+<dt><strong><code>result_columns</code></strong> :&ensp;<code>label</code> or <code>list-like</code> of <code>labels</code>, default <code>None</code></dt>
+<dd>The labels of the new columns resulting from the mapping operation.
+Must be of the same length as columns. If None, behavior depends on the
+drop parameter: If drop is True, the label of the source column is
+used; otherwise, the label of the source column is caster to a string
+and concatenated with the suffix '_reg'.</dd>
 <dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
 <dd>If set to True, source columns are dropped after being transformed.</dd>
 </dl>
@@ -4962,6 +5022,7 @@ those key/value pairs: d.update(red=1, blue=2).</p></div>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer" href="#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnTransformer" href="#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage" href="#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ConditionValidator" href="#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropDuplicates" href="#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>

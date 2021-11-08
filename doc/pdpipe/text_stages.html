@@ -30,8 +30,10 @@
 <pre><code class="python">&#34;&#34;&#34;Text processing pdpipe pipeline stages.&#34;&#34;&#34;
 
 import re
+from typing import Optional
 
 from pdpipe.col_generation import ApplyByCols
+from pdpipe.types import ColumnsParamType, ColumnLabelsType
 
 
 class RegexReplace(ApplyByCols):
@@ -39,18 +41,21 @@ class RegexReplace(ApplyByCols):
 
     Parameters
     ----------
-    columns : str or list-like
-        Names of columns on which to apply regex replacement.
+    columns : single label, list-like of callable
+        Column labels in the DataFrame which regex replacement be applied to.
+        Alternatively, this parameter can be assigned a callable returning an
+        iterable of labels from an input pandas.DataFrame. See pdpipe.cq.
     pattern : str
         The regex whose occurences will be replaced.
     replace : str
         The replacement string to use. This is equivalent to repl in re.sub.
-    result_columns : str or list-like, default None
-        The names of the new columns resulting from the mapping operation. Must
-        be of the same length as columns. If None, behavior depends on the
-        drop parameter: If drop is True, the name of the source column is used;
-        otherwise, the name of the source column is used with the suffix
-        &#39;_reg&#39;.
+    flags : int, default 0
+    result_columns : label or list-like of labels, default None
+        The labels of the new columns resulting from the mapping operation.
+        Must be of the same length as columns. If None, behavior depends on the
+        drop parameter: If drop is True, the label of the source column is
+        used; otherwise, the label of the source column is caster to a string
+        and concatenated with the suffix &#39;_reg&#39;.
     drop : bool, default True
         If set to True, source columns are dropped after being transformed.
 
@@ -69,32 +74,40 @@ class RegexReplace(ApplyByCols):
     class RegexReplacer(object):
         &#34;&#34;&#34;A pickle-able regex replacement function.&#34;&#34;&#34;
 
-        def __init__(self, pattern_obj, replace_text):
-            self.pattern_obj = pattern_obj
+        def __init__(
+            self,
+            pattern_str: str,
+            replace_text: str,
+            flags: Optional[int] = 0,
+        ) -&gt; None:
+            self.pattern_str = pattern_str
             self.replace_text = replace_text
+            self.flags = flags
+            self.pattern_obj = re.compile(pattern_str, flags=flags)
 
-        def __call__(self, x):
-            return self.pattern_obj.sub(self.replace_text, x)
+        def __call__(self, string: str):
+            return self.pattern_obj.sub(self.replace_text, string)
 
     def __init__(
         self,
-        columns,
-        pattern,
-        replace,
-        result_columns=None,
-        drop=True,
-        func_desc=None,
-        **kwargs
+        columns: ColumnsParamType,
+        pattern: str,
+        replace: str,
+        flags: Optional[int] = 0,
+        result_columns: Optional[ColumnLabelsType] = None,
+        drop: Optional[bool] = True,
+        func_desc: Optional[str] = None,
+        **kwargs,
     ):
-        self._pattern = pattern
+        self._pattern_str = pattern
         self._replace = replace
-        self._pattern_obj = re.compile(pattern)
+        self._flags = flags
         desc_temp = &#34;Replacing appearances of {} with &#39;{}&#39; in column {{}}&#34;
         desc_temp = desc_temp.format(pattern, replace)
         super_kwargs = {
             &#39;columns&#39;: columns,
             &#39;func&#39;: RegexReplace.RegexReplacer(
-                self._pattern_obj, self._replace),
+                self._pattern_str, self._replace, self._flags),
             &#39;suffix&#39;: &#39;_regex&#39;,
             &#39;result_columns&#39;: result_columns,
             &#39;drop&#39;: drop,
@@ -406,6 +419,7 @@ suffix '_filtered'.</dd>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.col_generation.ApplyByCols.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
@@ -564,6 +578,7 @@ suffix '_filtered'.</dd>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.col_generation.ApplyByCols.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
@@ -599,24 +614,28 @@ suffix '_filtered'.</dd>
 </dd>
 <dt id="pdpipe.text_stages.RegexReplace"><code class="flex name class">
 <span>class <span class="ident">RegexReplace</span></span>
-<span>(</span><span>columns, pattern, replace, result_columns=None, drop=True, func_desc=None, **kwargs)</span>
+<span>(</span><span>columns: Union[object, List[object], <built-in function callable>], pattern: str, replace: str, flags: Optional[int] = 0, result_columns: Union[object, List[object], None] = None, drop: Optional[bool] = True, func_desc: Optional[str] = None, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A pipeline stage replacing regex occurences in a text column.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list-like</code></dt>
-<dd>Names of columns on which to apply regex replacement.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> of <code>callable</code></dt>
+<dd>Column labels in the DataFrame which regex replacement be applied to.
+Alternatively, this parameter can be assigned a callable returning an
+iterable of labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
 <dt><strong><code>pattern</code></strong> :&ensp;<code>str</code></dt>
 <dd>The regex whose occurences will be replaced.</dd>
 <dt><strong><code>replace</code></strong> :&ensp;<code>str</code></dt>
 <dd>The replacement string to use. This is equivalent to repl in re.sub.</dd>
-<dt><strong><code>result_columns</code></strong> :&ensp;<code>str</code> or <code>list-like</code>, default <code>None</code></dt>
-<dd>The names of the new columns resulting from the mapping operation. Must
-be of the same length as columns. If None, behavior depends on the
-drop parameter: If drop is True, the name of the source column is used;
-otherwise, the name of the source column is used with the suffix
-'_reg'.</dd>
+<dt><strong><code>flags</code></strong> :&ensp;<code>int</code>, default <code>0</code></dt>
+<dd>&nbsp;</dd>
+<dt><strong><code>result_columns</code></strong> :&ensp;<code>label</code> or <code>list-like</code> of <code>labels</code>, default <code>None</code></dt>
+<dd>The labels of the new columns resulting from the mapping operation.
+Must be of the same length as columns. If None, behavior depends on the
+drop parameter: If drop is True, the label of the source column is
+used; otherwise, the label of the source column is caster to a string
+and concatenated with the suffix '_reg'.</dd>
 <dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
 <dd>If set to True, source columns are dropped after being transformed.</dd>
 </dl>
@@ -639,18 +658,21 @@ otherwise, the name of the source column is used with the suffix
 
     Parameters
     ----------
-    columns : str or list-like
-        Names of columns on which to apply regex replacement.
+    columns : single label, list-like of callable
+        Column labels in the DataFrame which regex replacement be applied to.
+        Alternatively, this parameter can be assigned a callable returning an
+        iterable of labels from an input pandas.DataFrame. See pdpipe.cq.
     pattern : str
         The regex whose occurences will be replaced.
     replace : str
         The replacement string to use. This is equivalent to repl in re.sub.
-    result_columns : str or list-like, default None
-        The names of the new columns resulting from the mapping operation. Must
-        be of the same length as columns. If None, behavior depends on the
-        drop parameter: If drop is True, the name of the source column is used;
-        otherwise, the name of the source column is used with the suffix
-        &#39;_reg&#39;.
+    flags : int, default 0
+    result_columns : label or list-like of labels, default None
+        The labels of the new columns resulting from the mapping operation.
+        Must be of the same length as columns. If None, behavior depends on the
+        drop parameter: If drop is True, the label of the source column is
+        used; otherwise, the label of the source column is caster to a string
+        and concatenated with the suffix &#39;_reg&#39;.
     drop : bool, default True
         If set to True, source columns are dropped after being transformed.
 
@@ -669,32 +691,40 @@ otherwise, the name of the source column is used with the suffix
     class RegexReplacer(object):
         &#34;&#34;&#34;A pickle-able regex replacement function.&#34;&#34;&#34;
 
-        def __init__(self, pattern_obj, replace_text):
-            self.pattern_obj = pattern_obj
+        def __init__(
+            self,
+            pattern_str: str,
+            replace_text: str,
+            flags: Optional[int] = 0,
+        ) -&gt; None:
+            self.pattern_str = pattern_str
             self.replace_text = replace_text
+            self.flags = flags
+            self.pattern_obj = re.compile(pattern_str, flags=flags)
 
-        def __call__(self, x):
-            return self.pattern_obj.sub(self.replace_text, x)
+        def __call__(self, string: str):
+            return self.pattern_obj.sub(self.replace_text, string)
 
     def __init__(
         self,
-        columns,
-        pattern,
-        replace,
-        result_columns=None,
-        drop=True,
-        func_desc=None,
-        **kwargs
+        columns: ColumnsParamType,
+        pattern: str,
+        replace: str,
+        flags: Optional[int] = 0,
+        result_columns: Optional[ColumnLabelsType] = None,
+        drop: Optional[bool] = True,
+        func_desc: Optional[str] = None,
+        **kwargs,
     ):
-        self._pattern = pattern
+        self._pattern_str = pattern
         self._replace = replace
-        self._pattern_obj = re.compile(pattern)
+        self._flags = flags
         desc_temp = &#34;Replacing appearances of {} with &#39;{}&#39; in column {{}}&#34;
         desc_temp = desc_temp.format(pattern, replace)
         super_kwargs = {
             &#39;columns&#39;: columns,
             &#39;func&#39;: RegexReplace.RegexReplacer(
-                self._pattern_obj, self._replace),
+                self._pattern_str, self._replace, self._flags),
             &#39;suffix&#39;: &#39;_regex&#39;,
             &#39;result_columns&#39;: result_columns,
             &#39;drop&#39;: drop,
@@ -734,6 +764,7 @@ otherwise, the name of the source column is used with the suffix
 <li><code><a title="pdpipe.col_generation.ApplyByCols.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.col_generation.ApplyByCols.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.col_generation.ApplyByCols.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>

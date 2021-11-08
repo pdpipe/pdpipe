@@ -260,6 +260,7 @@ from .basic_stages import (
     Schematize,
     DropDuplicates,
     ColumnDtypeEnforcer,
+    ConditionValidator,
 )
 
 core.__load_stage_attributes_from_module__(&#34;pdpipe.basic_stages&#34;)
@@ -383,7 +384,7 @@ __pdoc__ = {
 </dd>
 <dt><code class="name"><a title="pdpipe.core" href="core.html">pdpipe.core</a></code></dt>
 <dd>
-<div class="desc"><p>Defines pipelines for processing Pandas.DataFrame-based datasets …</p></div>
+<div class="desc"><p>Defines pipelines for processing pandas.DataFrame-based datasets …</p></div>
 </dd>
 <dt><code class="name"><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code></dt>
 <dd>
@@ -396,6 +397,10 @@ __pdoc__ = {
 <dt><code class="name"><a title="pdpipe.nltk_stages" href="nltk_stages.html">pdpipe.nltk_stages</a></code></dt>
 <dd>
 <div class="desc"><p>PdPipeline stages dependent on the nltk Python library …</p></div>
+</dd>
+<dt><code class="name"><a title="pdpipe.skintegrate" href="skintegrate.html">pdpipe.skintegrate</a></code></dt>
+<dd>
+<div class="desc"><p>Classes for sklearn integration.</p></div>
 </dd>
 <dt><code class="name"><a title="pdpipe.sklearn_stages" href="sklearn_stages.html">pdpipe.sklearn_stages</a></code></dt>
 <dd>
@@ -479,6 +484,7 @@ __pdoc__ = {
 <li><code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code></li>
 <li><code><a title="pdpipe.exceptions" href="exceptions.html">pdpipe.exceptions</a></code></li>
 <li><code><a title="pdpipe.nltk_stages" href="nltk_stages.html">pdpipe.nltk_stages</a></code></li>
+<li><code><a title="pdpipe.skintegrate" href="skintegrate.html">pdpipe.skintegrate</a></code></li>
 <li><code><a title="pdpipe.sklearn_stages" href="sklearn_stages.html">pdpipe.sklearn_stages</a></code></li>
 <li><code><a title="pdpipe.text_stages" href="text_stages.html">pdpipe.text_stages</a></code></li>
 <li><code><a title="pdpipe.types" href="types.html">pdpipe.types</a></code></li>

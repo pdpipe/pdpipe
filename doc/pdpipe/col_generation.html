@@ -611,8 +611,10 @@ class ApplyByCols(ColumnTransformer):
 
     Parameters
     ----------
-    columns : str or list-like
-        Names of columns on which to apply the given function.
+    columns : single label, list-like of callable
+        Column labels in the DataFrame to be transformed. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See pdpipe.cq.
     func : function
         The function to be applied to each element of the given columns.
     result_columns : str or list-like, default None
@@ -1114,6 +1116,7 @@ is None and drop is set to False. Of not given, defaults to '_agg'.</dd>
 <li><code><a title="pdpipe.col_generation.ColumnTransformer.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
 <li><code><a title="pdpipe.col_generation.ColumnTransformer.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
 <li><code><a title="pdpipe.col_generation.ColumnTransformer.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
 <li><code><a title="pdpipe.col_generation.ColumnTransformer.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.col_generation.ColumnTransformer.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.col_generation.ColumnTransformer.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
@@ -1155,8 +1158,10 @@ is None and drop is set to False. Of not given, defaults to '_agg'.</dd>
 <div class="desc"><p>A pipeline stage applying an element-wise function to columns.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list-like</code></dt>
-<dd>Names of columns on which to apply the given function.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> of <code>callable</code></dt>
+<dd>Column labels in the DataFrame to be transformed. Alternatively, this
+parameter can be assigned a callable returning an iterable of labels
+from an input pandas.DataFrame. See pdpipe.cq.</dd>
 <dt><strong><code>func</code></strong> :&ensp;<code>function</code></dt>
 <dd>The function to be applied to each element of the given columns.</dd>
 <dt><strong><code>result_columns</code></strong> :&ensp;<code>str</code> or <code>list-like</code>, default <code>None</code></dt>
@@ -1194,8 +1199,10 @@ of '_app'.</dd>
 
     Parameters
     ----------
-    columns : str or list-like
-        Names of columns on which to apply the given function.
+    columns : single label, list-like of callable
+        Column labels in the DataFrame to be transformed. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See pdpipe.cq.
     func : function
         The function to be applied to each element of the given columns.
     result_columns : str or list-like, default None
@@ -1285,6 +1292,7 @@ of '_app'.</dd>
 <li><code><a title="pdpipe.col_generation.ColumnTransformer.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
 <li><code><a title="pdpipe.col_generation.ColumnTransformer.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
 <li><code><a title="pdpipe.col_generation.ColumnTransformer.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
 <li><code><a title="pdpipe.col_generation.ColumnTransformer.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.col_generation.ColumnTransformer.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.col_generation.ColumnTransformer.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
@@ -1503,6 +1511,7 @@ returning True is used.</dd>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
@@ -1712,6 +1721,7 @@ list [0, 5, 8] is interpreted as the bins (-∞, 0), [0-5), [5-8) and
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
@@ -1903,6 +1913,7 @@ by company size'. A default description is used if None is given.</dd>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
@@ -2094,6 +2105,7 @@ US    Silver
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
@@ -2332,6 +2344,7 @@ then is the column shifted by this constant.</dd>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
@@ -2529,6 +2542,7 @@ US    Silver
 <li><code><a title="pdpipe.col_generation.ColumnTransformer.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
 <li><code><a title="pdpipe.col_generation.ColumnTransformer.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
 <li><code><a title="pdpipe.col_generation.ColumnTransformer.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
 <li><code><a title="pdpipe.col_generation.ColumnTransformer.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.col_generation.ColumnTransformer.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.col_generation.ColumnTransformer.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
@@ -2779,6 +2793,7 @@ category will still be dropped.</dd>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
 <li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
