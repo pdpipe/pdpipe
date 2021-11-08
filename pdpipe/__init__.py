@@ -34,6 +34,7 @@ from .basic_stages import (
     Schematize,
     DropDuplicates,
     ColumnDtypeEnforcer,
+    ConditionValidator,
 )
 
 core.__load_stage_attributes_from_module__("pdpipe.basic_stages")

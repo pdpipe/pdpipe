@@ -1,6 +1,6 @@
 """Basic pdpipe PdPipelineStages."""
 
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Union, Callable
 from collections import deque
 
 import pandas
@@ -15,6 +15,7 @@ from pdpipe.shared import (
 
 import pdpipe.cond as cond
 from pdpipe.types import ColumnsParamType
+from pdpipe.exceptions import FailedConditionError
 
 
 class ColDrop(ColumnsBasedPipelineStage):
@@ -261,7 +262,6 @@ class DropNa(PdPipelineStage):
     """
 
     _DEF_DROPNA_EXC_MSG = "DropNa stage failed."
-    _DEF_DROPNA_APP_MSG = "Dropping null values..."
     _DROPNA_KWARGS = ['axis', 'how', 'thresh', 'subset', 'inplace']
 
     def __init__(self, **kwargs):
@@ -713,3 +713,93 @@ class ColumnDtypeEnforcer(PdPipelineStage):
             copy=True,
             errors=self._errors,
         )
+
+
+class ConditionValidator(PdPipelineStage):
+    """A pipeline stage that validates boolean conditions on dataframes.
+
+    The stage does not change the input dataframe in any way.
+
+    The constructor expects either a single callable or a list-like of callable
+    objects, and checks that all these callable return True - meaning all
+    defined conditions hold - for input dataframes.
+
+    Naturally, pdpipe Condition objects from the pdpipe.cond module can be
+    used.
+
+    Parameters
+    ----------
+    conditions : callable or list-like of callable
+        The conditions to check for input dataframes. Naturally, pdpipe
+        Condition objects from the pdpipe.cond module can be used.
+    reducer : callable, optional
+        The callable that reduces the list of boolean result to a single
+        result. By default the built-in `all` function is used, so all
+        conditions must hold for this pipeline stage to validate an input
+        dataframe. The built-in `any` function may be used to validate at least
+        one condition holds, and of course custom reducing functions can be
+        used.
+    errors : str, default 'raise'
+        If set to 'raise', the default, then if the result boolean result is
+        False a FailedConditionError is raised on stage application. If set to
+        'ignore', then conditions are checked, the results are printed if the
+        application was called with `verbose=True`, and pipeline application
+        continues. Any other value is interpreted as 'raise'.
+
+    Example
+    -------
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> df = pd.DataFrame([[1,4],[4,None],[1,11]], [1,2,3], ['a','b'])
+        >>> pdp.ConditionValidator(pdp.cond.HasNoMissingValues())(df)
+        Traceback (most recent call last):
+           ...
+        pdpipe.exceptions.FailedConditionError: ConditionValidator stage failed; some conditions did not hold for the input dataframe!
+    """  # noqa: E501
+
+    def __init__(
+        self,
+        conditions: Union[Callable, List[Callable]],
+        reducer: Optional[Callable] = all,
+        errors: Optional[str] = 'raise',
+        **kwargs: object,
+    ):
+        if callable(conditions):
+            conditions = [conditions]
+        self._conditions = conditions
+        self._reducer = reducer
+        self._errors = 'raise'
+        self._raise = True
+        if errors == 'ignore':
+            self._errors = 'ignore'
+            self._raise = False
+        super_kwargs = {
+            'desc': "Validates conditions"
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        return True
+
+    def _transform(self, df, verbose):
+        results = []
+        for cond_obj in self._conditions:
+            try:
+                res = cond_obj(df)
+            except Exception as e:
+                raise ValueError(
+                    f"Supplied condition raised a {e} exception when applied "
+                    "to input dataframe!"
+                ) from e
+            if verbose and not res:
+                cond_repr = cond_obj.__doc__
+                if cond_repr is None:
+                    cond_repr = str(cond_obj)
+                print(f"  + Condition failed for input dataframe: {cond_repr}")
+            results.append(res)
+        reduced_result = self._reducer(results)
+        if self._raise and not reduced_result:
+            raise FailedConditionError(
+                "ConditionValidator stage failed; some conditions did not hold"
+                " for the input dataframe!")
+        return df
