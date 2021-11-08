@@ -582,8 +582,10 @@ class ApplyByCols(ColumnTransformer):
 
     Parameters
     ----------
-    columns : str or list-like
-        Names of columns on which to apply the given function.
+    columns : single label, list-like of callable
+        Column labels in the DataFrame to be transformed. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See pdpipe.cq.
     func : function
         The function to be applied to each element of the given columns.
     result_columns : str or list-like, default None

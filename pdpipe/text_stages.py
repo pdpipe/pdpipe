@@ -1,8 +1,10 @@
 """Text processing pdpipe pipeline stages."""
 
 import re
+from typing import Optional
 
 from pdpipe.col_generation import ApplyByCols
+from pdpipe.types import ColumnsParamType, ColumnLabelsType
 
 
 class RegexReplace(ApplyByCols):
@@ -10,18 +12,21 @@ class RegexReplace(ApplyByCols):
 
     Parameters
     ----------
-    columns : str or list-like
-        Names of columns on which to apply regex replacement.
+    columns : single label, list-like of callable
+        Column labels in the DataFrame which regex replacement be applied to.
+        Alternatively, this parameter can be assigned a callable returning an
+        iterable of labels from an input pandas.DataFrame. See pdpipe.cq.
     pattern : str
         The regex whose occurences will be replaced.
     replace : str
         The replacement string to use. This is equivalent to repl in re.sub.
-    result_columns : str or list-like, default None
-        The names of the new columns resulting from the mapping operation. Must
-        be of the same length as columns. If None, behavior depends on the
-        drop parameter: If drop is True, the name of the source column is used;
-        otherwise, the name of the source column is used with the suffix
-        '_reg'.
+    flags : int, default 0
+    result_columns : label or list-like of labels, default None
+        The labels of the new columns resulting from the mapping operation.
+        Must be of the same length as columns. If None, behavior depends on the
+        drop parameter: If drop is True, the label of the source column is
+        used; otherwise, the label of the source column is caster to a string
+        and concatenated with the suffix '_reg'.
     drop : bool, default True
         If set to True, source columns are dropped after being transformed.
 
@@ -40,32 +45,40 @@ class RegexReplace(ApplyByCols):
     class RegexReplacer(object):
         """A pickle-able regex replacement function."""
 
-        def __init__(self, pattern_obj, replace_text):
-            self.pattern_obj = pattern_obj
+        def __init__(
+            self,
+            pattern_str: str,
+            replace_text: str,
+            flags: Optional[int] = 0,
+        ) -> None:
+            self.pattern_str = pattern_str
             self.replace_text = replace_text
+            self.flags = flags
+            self.pattern_obj = re.compile(pattern_str, flags=flags)
 
-        def __call__(self, x):
-            return self.pattern_obj.sub(self.replace_text, x)
+        def __call__(self, string: str):
+            return self.pattern_obj.sub(self.replace_text, string)
 
     def __init__(
         self,
-        columns,
-        pattern,
-        replace,
-        result_columns=None,
-        drop=True,
-        func_desc=None,
-        **kwargs
+        columns: ColumnsParamType,
+        pattern: str,
+        replace: str,
+        flags: Optional[int] = 0,
+        result_columns: Optional[ColumnLabelsType] = None,
+        drop: Optional[bool] = True,
+        func_desc: Optional[str] = None,
+        **kwargs,
     ):
-        self._pattern = pattern
+        self._pattern_str = pattern
         self._replace = replace
-        self._pattern_obj = re.compile(pattern)
+        self._flags = flags
         desc_temp = "Replacing appearances of {} with '{}' in column {{}}"
         desc_temp = desc_temp.format(pattern, replace)
         super_kwargs = {
             'columns': columns,
             'func': RegexReplace.RegexReplacer(
-                self._pattern_obj, self._replace),
+                self._pattern_str, self._replace, self._flags),
             'suffix': '_regex',
             'result_columns': result_columns,
             'drop': drop,
