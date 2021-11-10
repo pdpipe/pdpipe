@@ -16,6 +16,7 @@ from pdpipe.shared import (
 import pdpipe.cond as cond
 from pdpipe.types import ColumnsParamType
 from pdpipe.exceptions import FailedConditionError
+from pdpipe.cq import ColumnQualifier
 
 
 class ColDrop(ColumnsBasedPipelineStage):
@@ -654,10 +655,16 @@ class ColumnDtypeEnforcer(PdPipelineStage):
 
     Parameters
     ----------
-    column_to_dtype: dict of column name -> data type
+    column_to_dtype: dict of labels / ColumnQualifiers to dtypes
         Use {col: dtype, …}, where col is a column label and dtype is a
         numpy.dtype or Python type to cast one or more of the DataFrame’s
-        columns to column-specific types.
+        columns to column-specific types. Alternatively, you can provide
+        ColumnQualifier objects as keys. If at least one such key is present,
+        the lbl-to-dtype dict is dynamically inferred each time the pipeline
+        stage is applied (note that ColumnQualifier objects are fittable by
+        default, so to have column labels re-inferred after the first stage
+        application you'll have to set `fittable=False` for the ColumnQualifier
+        you use).
     errors: {‘raise’, ‘ignore’}, default ‘raise’
         Control raising of exceptions on invalid data for provided dtype.
         - raise : allow exceptions to be raised
@@ -679,26 +686,52 @@ class ColumnDtypeEnforcer(PdPipelineStage):
 
     def __init__(
         self,
-        column_to_dtype: Dict[str, object],
+        column_to_dtype: Dict,
         errors: Optional[str] = 'raise',
         **kwargs: object,
     ) -> None:
-        self._column_to_dtype = column_to_dtype
+        # if none of the keys in column_to_dtype is a ColumnQualifier
+        if not any(isinstance(
+                x, ColumnQualifier) for x in column_to_dtype.keys()):
+            # its a static map; use it as is
+            self._column_to_dtype = column_to_dtype
+            keys_set = set(column_to_dtype.keys())
+
+            def _tprec(df: pandas.DataFrame) -> bool:
+                return keys_set.issubset(df.columns)
+        else:
+            # else, it's at least partly dynamic, and will have to infer it
+            # on run time
+            self._dynamic_column_to_dtype = column_to_dtype
+
+            def _tprec(df: pandas.DataFrame) -> bool:
+                return True
+        self._tprec = _tprec
         self._errors = errors
         columns_str = _list_str(list(column_to_dtype.keys()))
         suffix = 's' if len(column_to_dtype) > 1 else ''
-        keys_set = set(column_to_dtype.keys())
-
-        def _tprec(df: pandas.DataFrame) -> bool:
-            return keys_set.issubset(df.columns)
-        self._tprec = _tprec
         super_kwargs = {
             'exmsg': ColumnDtypeEnforcer._DEF_COL_DTYPE_ENF_EXC_MSG.format(
                 columns_str),
-            'desc': f"Renam column{suffix} with {column_to_dtype}",
+            'desc': f"Enforce column{suffix} dtype with {column_to_dtype}",
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
+
+    def _col_to_dtype_from_df(self, df: pandas.DataFrame) -> Dict:
+        try:
+            return self._column_to_dtype
+        except AttributeError:
+            column_to_dtype = {}
+            for k, dtype in self._dynamic_column_to_dtype.items():
+                try:
+                    column_to_dtype.update({
+                        lbl: dtype
+                        for lbl in k(df)
+                    })
+                except TypeError:  # k is not a callable
+                    column_to_dtype[k] = dtype
+            return column_to_dtype
 
     def _prec(self, df: pandas.DataFrame) -> bool:
         return self._tprec(df)
@@ -708,8 +741,9 @@ class ColumnDtypeEnforcer(PdPipelineStage):
         df: pandas.DataFrame,
         verbose: bool,
     ) -> pandas.DataFrame:
+        lbl_to_dtype = self._col_to_dtype_from_df(df)
         return df.astype(
-            dtype=self._column_to_dtype,
+            dtype=lbl_to_dtype,
             copy=True,
             errors=self._errors,
         )
