@@ -827,14 +827,53 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         self.application_context.lock()
         self.fit_context.lock()
 
-    def apply(self, df, exraise=None, verbose=False):
+    def apply(self, df, exraise=None, verbose=False, time=False):
+        """Applies this pipeline stage to the given dataframe.
+
+        If the stage is not fitted fit_transform is called. Otherwise,
+        transform is called.
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            The dataframe to which this pipeline stage will be applied.
+        exraise : bool, default None
+            Determines behaviour if the precondition of composing stages is not
+            fulfilled by the input dataframe: If True, a
+            pdpipe.FailedPreconditionError is raised. If False, the stage is
+            skipped. If not given, or set to None, the default behaviour of
+            each stage is used, as determined by its 'exraise' constructor
+            parameter.
+        verbose : bool, default False
+            If True an explanation message is printed after the precondition
+            is checked but before the application of the pipeline stage.
+            Defaults to False.
+        time : bool, default False
+            If True, per-stage application time is measured and reported when
+            pipeline application is done.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The resulting dataframe.
+        """
         self.application_context = PdpApplicationContext()
         if self.is_fitted:
-            res = self.transform(X=df, exraise=exraise, verbose=verbose)
+            res = self.transform(
+                X=df,
+                exraise=exraise,
+                verbose=verbose,
+                time=time
+            )
             self._post_transform_lock()
             return res
         self.fit_context = PdpApplicationContext()
-        res = self.fit_transform(X=df, exraise=exraise, verbose=verbose)
+        res = self.fit_transform(
+            X=df,
+            exraise=exraise,
+            verbose=verbose,
+            time=time
+        )
         self._post_transform_lock()
         return res
 
