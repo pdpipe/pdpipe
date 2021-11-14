@@ -55,6 +55,13 @@ def test_two_stage_pipeline_stage(time):
     for x in ['num1', 'num2', 'char']:
         assert x in res_df.columns
 
+    # test apply
+    df = _test_df()
+    res_df = pipeline.apply(df, verbose=True, time=time)
+    assert 'num1' not in res_df.columns
+    assert 'num2' not in res_df.columns
+    assert 'char' in res_df.columns
+
     # test transform
     df = _test_df()
     res_df = pipeline.transform(df, verbose=True, time=time)
@@ -65,6 +72,9 @@ def test_two_stage_pipeline_stage(time):
     # test fit_transform
     df = _test_df()
     res_df = pipeline.fit_transform(df, verbose=True, time=time)
+    assert 'num1' not in res_df.columns
+    assert 'num2' not in res_df.columns
+    assert 'char' in res_df.columns
 
     # test get_transformer
     trs = lambda pipline: pipeline[:1]  # noqa: E731
@@ -221,6 +231,11 @@ def test_pipeline_error(time):
     pipeline = PdPipeline([ColByFrameFunc("Equality", _func), ColDrop("B")])
     with pytest.raises(PipelineApplicationError):
         pipeline.fit(df, verbose=True, time=time)
+
+    # test apply
+    df = _test_df()
+    with pytest.raises(PipelineApplicationError):
+        pipeline.apply(df, verbose=True, time=time)
 
     # test transform
     df = _test_df()
