@@ -21,7 +21,7 @@ from sklearn.feature_extraction.text import (
 from pdpipe.core import PdPipelineStage, ColumnsBasedPipelineStage
 from pdpipe.util import (
     out_of_place_col_insert,
-    per_column_valus_sklearn_transform,
+    per_column_values_sklearn_transform,
 )
 from pdpipe.cq import OfDtypes
 from pdpipe.shared import (
@@ -46,15 +46,22 @@ class Encode(ColumnsBasedPipelineStage):
         all the columns with object or category dtype will be converted, except
         those given in the exclude_columns parameter. Alternatively,
         this parameter can be assigned a callable returning an iterable of
-        labels from an input pandas.DataFrame. See pdpipe.cq.
-    exclude_columns : str or list-like, default None
+        labels from an input pandas.DataFrame. See `pdpipe.cq`.
+    exclude_columns : single label, list-like or callable, default None
         Label or labels of columns to be excluded from encoding. If None then
         no column is excluded. Alternatively, this parameter can be assigned a
         callable returning an iterable of labels from an input
+        pandas.DataFrame. See `pdpipe.cq`.
     drop : bool, default True
         If set to True, the source columns are dropped after being encoded,
         and the resulting encoded columns retain the names of the source
         columns. Otherwise, encoded columns gain the suffix '_enc'.
+
+    Attributes
+    ----------
+    encoders : dict
+        A dictionary mapping each encoded column name to the corresponding
+        sklearn.preprocessing.LabelEncoder object. Empty object if not fitted.
 
     Example
     -------
@@ -141,17 +148,17 @@ class Scale(ColumnsBasedPipelineStage):
     scaler : str
         The type of scaler to use to scale the data. One of 'StandardScaler',
         'MinMaxScaler', 'MaxAbsScaler', 'RobustScaler', 'QuantileTransformer'
-        and 'Normalizer'.
+        and 'Normalizer'. Refer to scikit-learn's documentation for usage.
     columns : single label, list-like or callable, default None
-        Column labels in the DataFrame to be scale. If columns is None then
+        Column labels in the DataFrame to be scaled. If columns is None then
         all columns of numeric dtype will be scaled, except those given in the
         exclude_columns parameter. Alternatively, this parameter can be
         assigned a callable returning an iterable of labels from an input
-        pandas.DataFrame. See pdpipe.cq.
-    exclude_columns : str or list-like, optional
+        pandas.DataFrame. See `pdpipe.cq`.
+    exclude_columns : single label, list-like or callable, default None
         Label or labels of columns to be excluded from encoding. Alternatively,
         this parameter can be assigned a callable returning an iterable of
-        labels from an input pandas.DataFrame. See pdpipe.cq.
+        labels from an input pandas.DataFrame. See `pdpipe.cq`.
     joint : bool, default False
         If set to True, all scaled columns will be scaled as a single value
         set (meaning, only the single largest value among all input columns
@@ -214,7 +221,7 @@ class Scale(ColumnsBasedPipelineStage):
         try:
             if self.joint:
                 self._scaler.fit(np.array([inter_df.values.flatten()]).T)
-                inter_df = per_column_valus_sklearn_transform(
+                inter_df = per_column_values_sklearn_transform(
                     df=inter_df,
                     transform=self._scaler.transform
                 )
@@ -245,7 +252,7 @@ class Scale(ColumnsBasedPipelineStage):
         inter_df = df[self._columns_to_scale]
         try:
             if self.joint:
-                inter_df = per_column_valus_sklearn_transform(
+                inter_df = per_column_values_sklearn_transform(
                     df=inter_df,
                     transform=self._scaler.transform
                 )
@@ -277,10 +284,10 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
 
     The resulting columns are concatenated to the end of the dataframe.
 
-    All valid sklearn.TfidfVectorizer keyword arguemnts can be provided as
-    keyword arguments to the constructor, except 'input' and 'analyzer', which
-    will be ignored. As usual, all valid PdPipelineStage constructor parameters
-    can also be provided as keyword arguments.
+    All valid sklearn.feature_extraction.text.TfidfVectorizer keyword arguments
+    can be provided as keyword arguments to the constructor, except 'input' and
+    'analyzer', which will be ignored. As usual, all valid PdPipelineStage
+    constructor parameters can also be provided as keyword arguments.
 
     Parameters
     ----------

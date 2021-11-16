@@ -1,4 +1,4 @@
-"""Wrapper-kind pdpipe pipline stages."""
+"""Wrapper-kind pdpipe pipeline stages."""
 
 
 from pdpipe.core import PdPipelineStage
@@ -6,6 +6,9 @@ from pdpipe.core import PdPipelineStage
 
 class FitOnly(PdPipelineStage):
     """A wrapper that applies a stage to input data only when fitting.
+
+    In other words, the input data is not transformed if the stage has
+    already been fitted once.
 
     Parameters
     ----------

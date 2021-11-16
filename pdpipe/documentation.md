@@ -8,7 +8,7 @@ Features
 * Chaining pipeline stages constructor calls for easy, one-liners pipelines.
 * Pipeline arithmetics.
 * Easier handling of mixed data (numeric, categorical and others).
-* [Fully tested on Linux, macOS and Windows systems](https://travis-ci.org/pdpipe/pdpipe>).
+* [Fully tested on Linux, macOS and Windows systems](https://travis-ci.org/pdpipe/pdpipe).
 * Compatible with Python 3.5+.
 * Pure Python.
 
@@ -16,7 +16,7 @@ Features
 Design Decisions
 ----------------
 
-* **Extra infromative naming:** Meant to make pipelines very readable, understanding their entire flow by pipeline stages names; e.g. ColDrop vs. ValDrop instead of an all-encompassing Drop stage emulating the `pandas.DataFrame.drop` method.
+* **Extra informative naming:** Meant to make pipelines very readable, understanding their entire flow by pipeline stages names; e.g. ColDrop vs. ValDrop instead of an all-encompassing Drop stage emulating the `pandas.DataFrame.drop` method.
 * **Data science-oriented naming** (rather than statistics).
 * **A functional approach:** Pipelines never change input DataFrames. Nothing is done "in place".
 * **Opinionated operations:** Help novices avoid mistake by default appliance of good practices; e.g., one-hot-encoding (creating dummy variables) a column will drop one of the resulting columns by default, to avoid [the dummy variable trap](http://www.algosome.com/articles/dummy-variable-trap-regression.html) (perfect [multicollinearity](https://en.wikipedia.org/wiki/Multicollinearity)).
@@ -129,7 +129,7 @@ Additionally, the  method can be used to give stages as positional arguments.
 
 ### Printing Pipelines
 
-A pipeline structre can be clearly displayed by printing the object:
+A pipeline structure can be clearly displayed by printing the object:
 
 ```python
   >>> drop_name = pdp.ColDrop("Name")
@@ -213,13 +213,13 @@ Additionally, passing ``verbose=True`` to a pipeline apply call will apply all p
   res_df = pipeline.apply(df, verbose=True)
 ```
 
-Finally, `fit`, `transform` and `fit_transform` all call the corresponding pipeline stage methods of all stages composing the pipeline
+Finally, `fit`, `transform` and `fit_transform` all call the corresponding pipeline stage methods of all stages composing the pipeline.
 
 
 Column Qualifiers
 -----------------
 
-All `pdpipe` pipeline stages that posses the `columns` parameter can accept callables - instead of lists of labels - as valid arguments to that parameter. These callables are assumed to be column qualifiers - functions that can be applied to an input dataframe to extract the list of labels to operate on in run time.
+All `pdpipe` pipeline stages that possess the `columns` parameter can accept callables - instead of lists of labels - as valid arguments to that parameter. These callables are assumed to be column qualifiers - functions that can be applied to an input dataframe to extract the list of labels to operate on in run time.
 
 The module `pdpipe.cq` provides a powerful class - `ColumnQualifier` - implementing this idea with various enhancements, like the ability to fit a list of labels in fit time to be retained for future transforms and support for various boolean operators between column qualifiers.
 
@@ -237,6 +237,8 @@ All built-in stages are thoroughly documented, including examples; if you find a
 Basic Stages
 ------------
 
+Refer to submodule `pdpipe.basic_stages`
+
 * AdHocStage - Define custom pipeline stages on the fly.
 * ColDrop - Drop columns by name.
 * ValDrop - Drop rows by by their value in specific or all columns.
@@ -252,6 +254,8 @@ Basic Stages
 Column Generation
 -----------------
 
+Refer to submodule `pdpipe.col_generation`
+
 * Bin - Convert a continuous valued column to categoric data using binning.
 * OneHotEncode - Convert a categorical column to the several binary columns corresponding to it.
 * MapColVals - Replace column values by a map.
@@ -264,6 +268,8 @@ Column Generation
 Text Stages
 -----------
 
+Refer to submodule `pdpipe.text_stages`
+
 * RegexReplace - Replace regex occurences in columns of strings.
 * DropTokensByLength - Drop tokens in token lists by token length.
 * DropTokensByList - Drop every occurence of a given set of string tokens in token lists.
@@ -271,12 +277,16 @@ Text Stages
 Scikit-learn-dependent Stages
 -----------------------------
 
+Refer to submodule `pdpipe.sklearn_stages`
+
 * Encode - Encode a categorical column to corresponding number values.
 * Scale - Scale data with any of the sklearn scalers.
 * TfidfVectorizeTokenLists - Transform a column of token lists into the correponding set of tfidf vector columns.
 
 nltk-dependent Stages
 ---------------------
+
+Refer to submodule `pdpipe.nltk_stages`
 
 * TokenizeWords - Tokenize a sentence into a list of tokens by whitespaces.
 * UntokenizeWords - Joins token lists into whitespace-seperated strings.
@@ -291,7 +301,7 @@ Creating additional stages
 Extending PdPipelineStage
 -------------------------
 
-To use other stages than the built-in ones (see [Types of Pipeline Stages](#types-of-pipeline-stages) you can extend the  class. The constructor must pass the `PdPipelineStage` constructor the `exmsg`, `appmsg` and `desc` keyword arguments to set the exception message, application message and description for the pipeline stage, respectively. Additionally, the `_prec` and `_transform` abstract methods must be implemented to define the precondition and the effect of the new pipeline stage, respectively.
+To use other stages than the built-in ones (see [Types of Pipeline Stages](#types-of-pipeline-stages)) you can extend the  class. The constructor must pass the `PdPipelineStage` constructor the `exmsg`, `appmsg` and `desc` keyword arguments to set the exception message, application message and description for the pipeline stage, respectively. Additionally, the `_prec` and `_transform` abstract methods must be implemented to define the precondition and the effect of the new pipeline stage, respectively.
 
 Fittable custom pipeline stages should implement, additionally to the  method, the `_fit_transform` method, which should both fit pipeline stage by the input dataframe and transform transform the dataframe, while also setting `self.is_fitted = True`.
 

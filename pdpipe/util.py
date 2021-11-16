@@ -74,7 +74,7 @@ def get_numeric_column_names(df):
     return num_cols
 
 
-def per_column_valus_sklearn_transform(df: pd.DataFrame, transform: callable):
+def per_column_values_sklearn_transform(df: pd.DataFrame, transform: callable):
     """Applies a 2d-array sklearn transform to 1d values arrays of a dataframe.
 
     Parameters

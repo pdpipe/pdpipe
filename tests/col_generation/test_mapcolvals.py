@@ -96,3 +96,24 @@ def test_mapcolvals_with_method_name():
     assert res_df['Duration']['UK'] == df['Duration']['UK'].total_seconds()
     assert res_df['Duration']['USSR'] == df['Duration']['USSR'].total_seconds()
     assert res_df['Duration']['US'] == df['Duration']['US'].total_seconds()
+
+
+def _3rd_test_df():
+    return pd.DataFrame(
+        data=[
+            [datetime.timedelta(weeks=2)],
+            [datetime.timedelta(weeks=4)],
+            [datetime.timedelta(weeks=10)]
+        ],
+        index=['proposal', 'midterm', 'finals'],
+        columns=['Due'],
+    )
+
+
+def test_mapcolvals_with_method_name_for_documentation():
+    """Testing MapColVals pipeline stages."""
+    df = _3rd_test_df()
+    res_df = MapColVals('Due', ('total_seconds', {})).apply(df)
+    assert res_df['Due']['proposal'] == df['Due']['proposal'].total_seconds()
+    assert res_df['Due']['midterm'] == df['Due']['midterm'].total_seconds()
+    assert res_df['Due']['finals'] == df['Due']['finals'].total_seconds()

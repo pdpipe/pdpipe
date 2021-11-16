@@ -18,7 +18,7 @@ from pdpipe.skintegrate import (
 )
 
 
-DF = pd.DataFrame(
+DF1 = pd.DataFrame(
     data=[
         [23, 'Jo', 'M', True, 0.07, 'USA', 'Living life to its fullest'],
         [52, 'Regina', 'F', False, 0.26, 'Germany', 'I hate cats'],
@@ -91,7 +91,7 @@ def test_pdpipeline_and_sklearn_model():
     assert isinstance(repr(mp), str)
 
     # X-y subsets
-    df = DF.copy()
+    df = DF1.copy()
     x_lbls = ['Age', 'Gender', 'Savings', 'Country']
     all_x = df[x_lbls]
     all_y = df['Smoking']
@@ -149,3 +149,24 @@ def test_pdpipeline_and_sklearn_model():
     assert isinstance(gcv.best_estimator_, PdPipelineAndSklearnEstimator)
     score2 = gcv.best_score_
     assert score2 < score1
+
+
+DF2 = pd.DataFrame(
+    data=[['-1', 0], ['-1', 0], ['1', 1], ['1', 1]],
+    index=[1, 2, 3, 4],
+    columns=['feature1', 'target']
+)
+
+
+def test_pdpipeline_and_sklearn_model_documentation():
+    all_x = DF2[['feature1']]
+    all_y = DF2['target']
+    mp = PdPipelineAndSklearnEstimator(
+        pipeline=pdp.ColumnDtypeEnforcer({'feature1': int}),
+        estimator=LogisticRegression()
+    )
+    mp.fit(all_x, all_y)
+    res = mp.predict(all_x)
+    assert isinstance(res, np.ndarray)
+    assert len(res) == len(DF2)
+    assert res.dtype == all_y.dtype

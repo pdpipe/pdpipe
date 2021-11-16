@@ -63,6 +63,10 @@ def test_condition_validator_lambda_fail():
     with pytest.raises(FailedConditionError):
         stage(DF1, verbose=True)
 
+    # Used as documentation example
+    with pytest.raises(FailedConditionError):
+        ConditionValidator(lambda df: len(df.columns) == 5).apply(DF1)
+
 
 def test_condition_validator_custom_func():
     def _foo(df: pd.DataFrame) -> bool:

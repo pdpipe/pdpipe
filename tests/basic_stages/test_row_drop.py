@@ -85,7 +85,7 @@ def test_row_drop_all_reducer():
     assert 3 in res_df.index
 
 
-def test_row_droo_bad_columns():
+def test_row_drop_bad_columns():
     """Testing the ColDrop pipeline stage."""
     with pytest.raises(FailedPreconditionError):
         RowDrop([lambda x: x < 2], columns=['d']).apply(DF1)

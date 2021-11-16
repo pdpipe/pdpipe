@@ -1,4 +1,17 @@
-"""Classes for sklearn integration."""
+"""Classes for sklearn integration.
+
+Despite similar names, there is a difference between pdpipe PdPipeline and
+sklearn.pipeline.Pipeline. PdPipeline can only chain transformers while
+scikit-learn Pipeline objects can further include the final estimator to
+provide additional methods such as `predict` and `predict_proba`.
+
+This means that by itself, pdpipe PdPipeline does not integrate well with some
+of scikit-learn utility classes such as sklearn.model_selection.GridSearchCV
+compared to sklearn.pipeline.Pipeline.
+
+This module resolves such integration issues. Refer to the notebooks folder of
+the pdpipe repository for complete examples.
+"""
 
 from typing import Callable
 from functools import update_wrapper
@@ -106,6 +119,26 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
         The preprocssing pipeline to connect.
     model : sklearn.base.BaseEstimator
         The model to connect to the pipeline.
+
+    Example
+    ----------
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> from pdpipe.skintegrate import PdPipelineAndSklearnEstimator;
+        >>> from sklearn.linear_model import LogisticRegression;
+        >>> DF2 = pd.DataFrame(
+        ...    data=[['-1',0], ['-1',0], ['1',1], ['1',1]],
+        ...    index=[1, 2, 3, 4],
+        ...    columns=['feature1', 'target']
+        ... )
+        >>> all_x = DF2[['feature1']]
+        >>> all_y = DF2['target']
+        >>> mp = PdPipelineAndSklearnEstimator(
+        ...    pipeline=pdp.ColumnDtypeEnforcer({'feature1': int}),
+        ...    estimator=LogisticRegression()
+        ... )
+        >>> mp.fit(all_x, all_y)
+        <PdPipeline -> LogisticRegression>
+        >>> res = mp.predict(all_x)
     """
 
     def __init__(
@@ -194,8 +227,9 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
     @available_if(_estimator_has("predict_proba"))
     def predict_proba(self, X):
         """Call predict_proba on the estimator with the best found parameters.
-        Only available if ``refit=True`` and the underlying estimator supports
+        Only available if the underlying estimator supports
         ``predict_proba``.
+
         Parameters
         ----------
         X : indexable, length n_samples
@@ -216,8 +250,9 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
     @available_if(_estimator_has("predict_log_proba"))
     def predict_log_proba(self, X):
         """Call predict_log_proba on the estimator with the best found parameters.
-        Only available if ``refit=True`` and the underlying estimator supports
+        Only available if the underlying estimator supports
         ``predict_log_proba``.
+
         Parameters
         ----------
         X : indexable, length n_samples
@@ -238,8 +273,9 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
     @available_if(_estimator_has("decision_function"))
     def decision_function(self, X):
         """Call decision_function on the estimator with the best found parameters.
-        Only available if ``refit=True`` and the underlying estimator supports
+        Only available if the underlying estimator supports
         ``decision_function``.
+
         Parameters
         ----------
         X : indexable, length n_samples
@@ -299,7 +335,10 @@ def pdpipe_scorer_from_sklearn_scorer(scorer: Callable) -> Callable:
     model-evaluation tools using cross-validation (such as
     model_selection.cross_val_score and model_selection.GridSearchCV), when
     searching over the hyperparameter space of a PdPipelineAndSklearnEstimator
-    object
+    object.
+
+    See the pipeline_and_model_with_test_test.ipynb notebook in the notebooks
+    folder of the pdpipe repository for a complete example.
 
     Parameters
     ----------
