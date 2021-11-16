@@ -25,3 +25,7 @@ def test_dtype_enf_col_qualifier():
     assert res['num1'].dtype == float
     assert res['num2'].dtype == float
     assert res['rank'].dtype == bool
+
+    # Only col_qualifier as key, used as documentation example
+    res = ColumnDtypeEnforcer({cq.StartWith('n'): float}).apply(DF)
+    assert res['num'].dtype == float

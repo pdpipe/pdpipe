@@ -20,7 +20,7 @@ that stage, and (2) lead to a change in schema, which might cause errors down
 the pipeline, especially if there's a fitted machine learning model down the
 pipeline.
 
-Of course, this might be the desired behaviour ― to tranform coloumns 'alec'
+Of course, this might be the desired behaviour ― to transform columns 'alec'
 and 'alex' on the first `apply` call and 'alec' and 'apoxy' in transform time ―
 but usually this is not the case. In fact, in common machine learning
 scenarios ― whether it is fitting pre-processing parameters on the train set
@@ -34,7 +34,7 @@ explicitly fails if either once of the two columns, 'alec' and 'alex', is
 missing. This kind of behaviour is the only way to ensure preservation of both
 form and semantics of input vectors to our models down the pipeline.
 
-To enable this more sophicticated behaviour this module - `pdpipe.cq` - exposes
+To enable this more sophisticated behaviour, this module - `pdpipe.cq` - exposes
 a way to easily generate `ColumnQualifier` objects, which are callables that do
 exactly what was described above: Apply some criteria to determine a set of
 input columns when a pipeline is being fitted, but fixing it afterwards, on
@@ -43,7 +43,7 @@ future calls.
 Practically, this objects all expose `fit`, `transform` and `fit_transform`
 methods, and while the first time they are called the `fit_transform` method is
 called, future calls will actually call the `transform` method. Also, since
-they already expose this more poweful API, pipeline stages use it to enable
+they already expose this more powerful API, pipeline stages use it to enable
 an even more powerful (and quite frankly, expected) behavior: When a pipeline's
 `fit_transfrom` or `fit` methods are called, it calls the `fit_transform`
 method of the column qualifier it uses, so the qualifier itself is refitted
@@ -197,10 +197,10 @@ class ColumnQualifier(object):
     def transform(self, df):
         """Applies and returns the labels of the qualifying columns.
 
-        Is this ColumnQualifier is fittable, it will return the list of column
+        If this ColumnQualifier is fittable, it will return the list of column
         labels that was determined when fitted (or the subset of it that can
-        be found in the input datarame), if it's fitted, and throw an exception
-        if it is not.
+        be found in the input dataframe). It will throw an exception if it 
+        is not.
 
         Parameters
         ----------
@@ -381,13 +381,13 @@ def is_fittable_column_qualifier(obj):
 
 
 class AllColumns(ColumnQualifier):
-    """Selectes all columns in input dataframes.
+    """Selects all columns in input dataframes.
 
     Parameters
     ----------
     **kwargs
         Accepts all keyword arguments of the constructor of
-        ColumnQualifier. See the documentation of ColumnQualifier for details.
+        ColumnQualifier. See the documentation of `ColumnQualifier` for details.
 
     Example
     -------
@@ -432,7 +432,7 @@ class ByColumnCondition(ColumnQualifier):
     Parameters
     ----------
     cond : callable
-        A callaable that given an input pandas.Series object returns a boolean
+        A callable that given an input pandas.Series object returns a boolean
         value.
     safe : bool, default False
         If set to True, every call to given condition `cond` is is wrapped in
@@ -441,7 +441,7 @@ class ByColumnCondition(ColumnQualifier):
         assume a specific datatype for the checked column.
     **kwargs
         Additionaly accepts all keyword arguments of the constructor of
-        ColumnQualifier. See the documentation of ColumnQualifier for details.
+        ColumnQualifier. See the documentation of `ColumnQualifier` for details.
 
     Example
     -------
@@ -484,7 +484,7 @@ class ByColumnCondition(ColumnQualifier):
 
 
 class ByLabels(ColumnQualifier):
-    """Selectes all columns with the given label or labels.
+    """Selects all columns with the given label or labels.
 
     Parameters
     ----------
@@ -492,7 +492,7 @@ class ByLabels(ColumnQualifier):
         Column labels which qualify.
     **kwargs
         Additionaly accepts all keyword arguments of the constructor of
-        ColumnQualifier. See the documentation of ColumnQualifier for details.
+        ColumnQualifier. See the documentation of `ColumnQualifier` for details.
 
     Example
     -------
@@ -544,7 +544,7 @@ def columns_to_qualifier(columns):
     columns : single label, list-like or callable
         The label, or an iterable of labels, of columns. Alternatively,
         this parameter can be assigned a callable returning an iterable of
-        labels from an input pandas.DataFrame. See pdpipe.cq.
+        labels from an input pandas.DataFrame. See `pdpipe.cq`.
 
     Returns
     -------
@@ -577,7 +577,7 @@ class StartWith(ColumnQualifier):
         The prefix which qualifies columns.
     **kwargs
         Additionaly accepts all keyword arguments of the constructor of
-        ColumnQualifier. See the documentation of ColumnQualifier for details.
+        ColumnQualifier. See the documentation of `ColumnQualifier` for details.
 
     Example
     -------
@@ -633,7 +633,7 @@ class OfDtypes(ColumnQualifier):
         to the `include` parameter of pandas.DataFrame.select_dtypes().
     **kwargs
         Additionaly accepts all keyword arguments of the constructor of
-        ColumnQualifier. See the documentation of ColumnQualifier for details.
+        ColumnQualifier. See the documentation of `ColumnQualifier` for details.
 
     Example
     -------
@@ -684,7 +684,7 @@ class WithAtMostMissingValues(ColumnQualifier):
         qualify.
     **kwargs
         Additionaly accepts all keyword arguments of the constructor of
-        ColumnQualifier. See the documentation of ColumnQualifier for details.
+        ColumnQualifier. See the documentation of `ColumnQualifier` for details.
 
     Example
     -------
@@ -728,7 +728,7 @@ class WithoutMissingValues(WithAtMostMissingValues):
     ----------
     **kwargs
         Accepts all keyword arguments of the constructor of ColumnQualifier.
-        See the documentation of ColumnQualifier for details.
+        See the documentation of `ColumnQualifier` for details.
 
     Example
     -------

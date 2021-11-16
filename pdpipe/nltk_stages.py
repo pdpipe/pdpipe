@@ -27,7 +27,7 @@ from pdpipe.shared import (
 
 
 class TokenizeText(MapColVals):
-    """A pipeline stage that tokenize a text column into token lists.
+    """A pipeline stage that tokenizes a text column into token lists.
 
     Note: The nltk package must be installed for this pipeline stage to work.
 
@@ -36,7 +36,7 @@ class TokenizeText(MapColVals):
     columns : single label, list-like of callable
         Column labels in the DataFrame to be transformed. Alternatively, this
         parameter can be assigned a callable returning an iterable of labels
-        from an input pandas.DataFrame. See pdpipe.cq.
+        from an input pandas.DataFrame. See `pdpipe.cq`.
     drop : bool, default True
         If set to True, the source columns are dropped after being tokenized,
         and the resulting tokenized columns retain the names of the source
@@ -92,7 +92,7 @@ class TokenizeText(MapColVals):
 
 
 class UntokenizeText(MapColVals):
-    """A pipeline stage that joins token lists to whitespace-seperated strings.
+    """A pipeline stage that joins token lists to whitespace-separated strings.
 
     Target columns must be series of token lists; i.e. every cell in the series
     is an iterable of string tokens.
@@ -104,7 +104,7 @@ class UntokenizeText(MapColVals):
     columns : single label, list-like of callable
         Column labels in the DataFrame to be transformed. Alternatively, this
         parameter can be assigned a callable returning an iterable of labels
-        from an input pandas.DataFrame. See pdpipe.cq.
+        from an input pandas.DataFrame. See `pdpipe.cq`.
     drop : bool, default True
         If set to True, the source columns are dropped after being untokenized,
         and the resulting columns retain the names of the source columns.
@@ -121,7 +121,7 @@ class UntokenizeText(MapColVals):
         1   3.2  Shake and bake!
     """
 
-    _DEF_UNTOKENIZE_EXC_MSG = ("Unokenize stage failed because not all columns"
+    _DEF_UNTOKENIZE_EXC_MSG = ("Untokenize stage failed because not all columns"
                                " {} are present in input dataframe and are of"
                                " dtype object.")
 
@@ -159,15 +159,15 @@ class RemoveStopwords(MapColVals):
 
     Parameters
     ----------
-    langugae : str or array-like
+    language : str or array-like
         If a string is given, interpreted as the language of the stopwords, and
         should then be one of the languages supported by the NLTK Stopwords
         Corpus. If a list is given, it is assumed to be the list of stopwords
         to remove.
-    columns : single label, list-like of callable
+    columns : single label, list-like or callable
         Column labels in the DataFrame to be transformed. Alternatively, this
         parameter can be assigned a callable returning an iterable of labels
-        from an input pandas.DataFrame. See pdpipe.cq.
+        from an input pandas.DataFrame. See `pdpipe.cq`.
     drop : bool, default True
         If set to True, the source columns are dropped after stopword removal,
         and the resulting columns retain the names of the source columns.
@@ -254,10 +254,10 @@ class SnowballStem(MapColVals):
     stemmer_name : str
         The name of the Snowball stemmer to use. Should be one of the Snowball
         stemmers implemented by nltk. E.g. 'EnglishStemmer'.
-    columns : single label, list-like of callable
+    columns : single label, list-like or callable
         Column labels in the DataFrame to be transformed. Alternatively, this
         parameter can be assigned a callable returning an iterable of labels
-        from an input pandas.DataFrame. See pdpipe.cq.
+        from an input pandas.DataFrame. See `pdpipe.cq`.
     drop : bool, default True
         If set to True, the source columns are dropped after stemming, and the
         resulting columns retain the names of the source columns. Otherwise,
@@ -395,10 +395,10 @@ class DropRareTokens(ColumnsBasedPipelineStage):
 
     Parameters
     ----------
-    columns : single label, list-like of callable
+    columns : single label, list-like or callable
         Column labels in the DataFrame to be transformed. Alternatively, this
         parameter can be assigned a callable returning an iterable of labels
-        from an input pandas.DataFrame. See pdpipe.cq.
+        from an input pandas.DataFrame. See `pdpipe.cq`.
     threshold : int
         The rarity threshold to use. Only tokens appearing more than this
         number of times in a column will remain in token lists in that column.

@@ -7,17 +7,17 @@
 ## Creating pipeline stages that operate on column subsets
 
 Many pipeline stages in pdpipe operate on a subset of columns, allowing the
-caller to deteremine this subset by either providing a fixed set of column
+caller to determine this subset by either providing a fixed set of column
 labels or by providing a callable that determines the column subset dynamically
 from input dataframes. The `pdpipe.cq` module addresses a unique but important
-use case of fittable column qualifier, which dynamically extract a column
+use case of fittable column qualifier, which is to dynamically extract a column
 subset on stage fit time, but keep it fixed for future transformations.
 
 As a general rule, every pipeline stage in pdpipe that supports the `columns`
 parameter should inherently support fittable column qualifier, and generally
 the correct interpretation of both single and multiple labels as arguments. To
 unify the implementation of such functionality, and ease of creation of new
-pipeline stages, such columns shoul be created by extending the
+pipeline stages, such columns should be created by extending the
 ColumnsBasedPipelineStage base class, found in this module (`pdpipe.core`).
 
 The main interface of sub-classes of this base class with it is through the
@@ -38,11 +38,11 @@ The main interface of sub-classes of this base class with it is through the
   providing `columns=cq.OfDtype(np.number),
   exclude_columns=cq.OfDtype(np.int64)`. However, exposing the
   `exclude_columns` parameter can allow for specific unique behaviours; for
-  example, if the `none_columns` parametet - which configures the behavior
+  example, if the `none_columns` parameter - which configures the behavior
   when `columns` is provided with `None` - is set with
   a `cq.OfDtypes('category')` column qualifier, which means that all
   categorical columns are selected when `columns=None`, then exposing
-  `exclude_columns` allows easy specification of the "all categorical
+  `exclude_columns` allows for easy specification of the "all categorical
   columns except X" by just giving a column qualifier capturing X to
   `exclude_columns`, instead of having to reconstruct the default column
   qualifier by hand and substract from it the one representing X.
@@ -80,8 +80,8 @@ stage you're creating is inherently fittable or not:
    transforming.
 
 Again, taking a look at the VERY concise implementation of simple columns-based
-stages, like ColDrop or ValDrop, will probably make things clearer, and you can
-use those implementations as a template for yours.
+stages, like ColDrop or ValDrop in `pdpipe.basic_stages`, will probably make
+things clearer, and you can use those implementations as a template for yours.
 """
 
 import sys
@@ -219,7 +219,7 @@ class PdPipelineStage(abc.ABC):
         If true, a pdpipe.FailedPreconditionError is raised when this
         stage is applied to a dataframe for which the precondition does
         not hold. Otherwise the stage is skipped. Additionally, if true, a
-        pdpipe.FailedPostconditionError is raised if an expected post-codnition
+        pdpipe.FailedPostconditionError is raised if an expected post-condition
         does not hold for an output dataframe (after pipeline application).
         Otherwise pipeline application continues uninterrupted.
     exmsg : str, default None
@@ -233,30 +233,30 @@ class PdPipelineStage(abc.ABC):
         This can be assigned a callable that returns boolean values for input
         dataframes, which will be used to determine whether input dataframes
         satisfy the preconditions for this pipeline stage (see the `exraise`
-        parameter for the behaviour of failed preconditions). See pdp.cond for
-        more information on specialised Condition objects.
+        parameter for the behaviour of failed preconditions). See `pdpipe.cond`
+        for more information on specialised Condition objects.
     post : callable, default None
         This can be assigned a callable that returns boolean values for input
         dataframes, which will be used to determine whether input dataframes
         satisfy the postconditions for this pipeline stage (see the `exraise`
-        parameter for the behaviour of failed postconditions). See pdp.cond for
-        more information on specialised Condition objects.
+        parameter for the behaviour of failed postconditions). See `pdpipe.cond`
+        for more information on specialised Condition objects.
     skip : callable, default None
         This can be assigned a callable that returns boolean values for input
         dataframes, which will be used to determine whether this stage should
         be skipped for input dataframes - if the callable returns True for an
-        input dataframe, this stage will be skipped. See pdp.cond for more
+        input dataframe, this stage will be skipped. See `pdpipe.cond` for more
         information on specialised Condition objects.
     name : str, default ''
         The name of this stage. Pipelines can be sliced by this name.
 
     Attributes
     ----------
-    fit_context : PdpApplicationContext
+    fit_context : `PdpApplicationContext`
         An application context object that is only re-initialized before
         `fit_transform` calls, and is locked after pipeline application. It is
         injected into the PipelineStage by the encapsulating pipeline object.
-    application_context : PdpApplicationContext
+    application_context : `PdpApplicationContext`
         An application context object that is re-initialized before every
         pipeline application (so, also during transform operations of fitted
         pipelines), and is locked after pipeline application.It is injected
@@ -539,15 +539,15 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
 
     Parameters
     ---------
-    columns : object, iterable or callable
+    columns : single label, iterable or callable
         The label, or an iterable of labels, of columns to use. Alternatively,
         this parameter can be assigned a callable returning an iterable of
-        labels from an input pandas.DataFrame. See pdpipe.cq.
-    exclude_columns : object, iterable or callable, optional
+        labels from an input pandas.DataFrame. See `pdpipe.cq`.
+    exclude_columns : single label, iterable or callable, optional
         The label, or an iterable of labels, of columns to exclude, given the
         `columns` parameter. Alternatively, this parameter can be assigned a
         callable returning a labels iterable from an input pandas.DataFrame.
-        See pdpipe.cq. Optional. By default no columns are excluded.
+        See `pdpipe.cq`. Optional. By default no columns are excluded.
     desc_temp : str, optional
         If given, assumed to be a format string, and every appearance of {} in
         it is replaced with an appropriate string representation of the columns
@@ -693,12 +693,12 @@ class AdHocStage(PdPipelineStage):
     specific name is assumed or used) to supply the callable with the pandas
     DataFrame object to transform. The following additional keyword arguments
     are supplied if the are included in the callable's signature:
-    `verbose` - Passed on from pdpipe's `fit`, `fit_transform`
+    `verbose` - Passed on from PdPipelineStage's `fit`, `fit_transform`
     and `apply` methods.
+    
     `fit_context` and `application_context` - Provides fit-specific and
-    application-specific contexts, in the form of PdpApplicationContext
-    objects, usually available to pipeline stages using `self.fit_context` and
-    `self.application_context`.
+    application-specific contexts (see `PdpApplicationContext`) usually available 
+    to pipeline stages using `self.fit_context` and `self.application_context`.
 
     Parameters
     ----------
@@ -714,6 +714,19 @@ class AdHocStage(PdPipelineStage):
         A callable that returns a boolean value. Represent a a precondition
         used to determine whether this stage can be applied to a given
         dataframe. If None is given, set to a function always returning True.
+
+    Example
+    -------
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> df = pd.DataFrame([[1, 'a'], [2, 'b']], [1, 2], ['num', 'char'])
+        >>> drop_num = pdp.AdHocStage(
+        ...   transform=lambda df: df.drop(['num'], axis=1),
+        ...   prec=lambda df: 'num' in df.columns
+        ... )
+        >>> drop_num.apply(df)
+          char
+        1    a
+        2    b
     """
 
     def __init__(self, transform, fit_transform=None, prec=None, **kwargs):
@@ -761,7 +774,7 @@ class AdHocStage(PdPipelineStage):
 class PdPipeline(PdPipelineStage, collections.abc.Sequence):
     """A pipeline for processing pandas DataFrame objects.
 
-    transformer_getter is usefull to avoid applying pipeline stages that are
+    `transformer_getter` is useful to avoid applying pipeline stages that are
     aimed to filter out items in a big dataset to create a training set for a
     machine learning model, for example, but should not be applied on future
     individual items to be transformed by the fitted pipeline.
@@ -934,7 +947,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         Returns
         -------
         pandas.DataFrame
-            The resulting dacaframe.
+            The resulting dataframe.
         """
         if time:
             return self.__timed_fit_transform(
@@ -1205,7 +1218,7 @@ def make_pdpipeline(*stages):
 
     Examples
     --------
-    import pdpipe as pdp
-    make_pdpipeline(pdp.ColDrop('a'), pdp.Bin('speed'))
+        >>> import pdpipe as pdp
+        >>> p = make_pdpipeline(pdp.ColDrop('count'), pdp.DropDuplicates())
     """
     return PdPipeline(stages=stages)

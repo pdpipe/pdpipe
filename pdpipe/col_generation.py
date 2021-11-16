@@ -1,4 +1,4 @@
-"""Basic pdpipe PdPipelineStages."""
+"""Column generation pdpipe PdPipelineStages."""
 
 import abc
 from typing import Union, Tuple, Optional, Dict, Callable
@@ -21,7 +21,7 @@ from .exceptions import PipelineApplicationError
 class Bin(PdPipelineStage):
     """A pipeline stage that adds a binned version of a column or columns.
 
-    If drop is set to True the new columns retain the names of the source
+    If drop is set to True, the new columns retain the names of the source
     columns; otherwise, the resulting column gain the suffix '_bin'
 
     Parameters
@@ -41,7 +41,7 @@ class Bin(PdPipelineStage):
     Example
     -------
         >>> import pandas as pd; import pdpipe as pdp;
-        >>> df = pd.DataFrame([[-3],[4],[5], [9]], [1,2,3, 4], ['speed'])
+        >>> df = pd.DataFrame([[-3],[4],[5],[9]], [1,2,3,4], ['speed'])
         >>> pdp.Bin({'speed': [5]}, drop=False).apply(df)
            speed speed_bin
         1     -3        <5
@@ -137,7 +137,7 @@ class OneHotEncode(ColumnsBasedPipelineStage):
 
     By default only k-1 dummies are created fo k categorical levels, as to
     avoid perfect multicollinearity between the dummy features (also called
-    the dummy variabletrap). This is done since features are usually one-hot
+    the dummy variable trap). This is done since features are usually one-hot
     encoded for use with linear models, which require this behaviour.
 
     Parameters
@@ -147,14 +147,14 @@ class OneHotEncode(ColumnsBasedPipelineStage):
         all the columns with object or category dtype will be converted, except
         those given in the exclude_columns parameter. Alternatively,
         this parameter can be assigned a callable returning an iterable of
-        labels from an input pandas.DataFrame. See pdpipe.cq.
+        labels from an input pandas.DataFrame. See `pdpipe.cq`.
     dummy_na : bool, default False
         Add a column to indicate NaNs, if False NaNs are ignored.
-    exclude_columns : str or list-like, default None
+    exclude_columns : single label, list-like or callable, default None
         Label or labels of columns to be excluded from encoding. If None then
         no column is excluded. Alternatively, this parameter can be assigned a
         callable returning an iterable of labels from an input
-        pandas.DataFrame. See pdpipe.cq. Optional.
+        pandas.DataFrame. See `pdpipe.cq`. Optional.
     drop_first : bool or single label, default True
         Whether to get k-1 dummies out of k categorical levels by removing the
         first level. If a non bool argument matching one of the categories is
@@ -286,10 +286,10 @@ class ColumnTransformer(ColumnsBasedPipelineStage):
 
     Parameters
     ----------
-    columns : single label, list-like of callable
+    columns : single label, list-like or callable
         Column labels in the DataFrame to be transformed. Alternatively, this
         parameter can be assigned a callable returning an iterable of labels
-        from an input pandas.DataFrame. See pdpipe.cq. If None is provided all
+        from an input pandas.DataFrame. See `pdpipe.cq`. If None is provided all
         input columns are transformed.
     result_columns : single label or list-like, default None
         Labels for the new columns resulting from the transformations. Must
@@ -301,17 +301,6 @@ class ColumnTransformer(ColumnsBasedPipelineStage):
         If set to True, source columns are dropped after being transformed.
     suffix : str, default '_transformed'
         The suffix transformed columns gain if no new column labels are given.
-
-    Example
-    -------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> df = pd.DataFrame([[1], [3], [2]], ['UK', 'USSR', 'US'], ['Medal'])
-        >>> value_map = {1: 'Gold', 2: 'Silver', 3: 'Bronze'}
-        >>> pdp.MapColVals('Medal', value_map).apply(df)
-               Medal
-        UK      Gold
-        USSR  Bronze
-        US    Silver
     """
 
     def __init__(
@@ -382,7 +371,7 @@ class MapColVals(ColumnTransformer):
     columns : single label, list-like or callable
         Column labels in the DataFrame to be mapped. Alternatively, this
         parameter can be assigned a callable returning an iterable of labels
-        from an input pandas.DataFrame. See pdpipe.cq. If None is provided all
+        from an input pandas.DataFrame. See `pdpipe.cq`. If None is provided all
         input columns are mapped.
     value_map : dict, pandas.Series, callable, str or tuple
         The value-to-value map to use, mapping existing values to new one. If a
@@ -401,7 +390,7 @@ class MapColVals(ColumnTransformer):
         be of the same length as columns. If None, behavior depends on the
         drop parameter: If drop is True, then the label of the source column is
         used; otherwise, the label of the source column is used with the suffix
-        '_map'.
+        given ("_map" by default).
     drop : bool, default True
         If set to True, source columns are dropped after being mapped.
     suffix : str, default '_map'
@@ -417,6 +406,22 @@ class MapColVals(ColumnTransformer):
         UK      Gold
         USSR  Bronze
         US    Silver
+
+        >>> from datetime import timedelta;
+        >>> df = pd.DataFrame(
+        ...    data=[
+        ...       [timedelta(weeks=2)],
+        ...       [timedelta(weeks=4)],
+        ...       [timedelta(weeks=10)]
+        ...    ],
+        ...    index=['proposal', 'midterm', 'finals'],
+        ...    columns=['Due'],
+        ... )
+        >>> pdp.MapColVals('Due', ('total_seconds', {})).apply(df)
+                        Due
+        proposal  1209600.0
+        midterm	  2419200.0
+        finals	  6048000.0
     """
 
     def __init__(
@@ -474,7 +479,7 @@ class ApplyToRows(PdPipelineStage):
         The label of the new column resulting from the function application. If
         None, 'new_col' is used. Ignored if a DataFrame is generated by the
         function (i.e. each row generates a Series rather than a value), in
-        which case the laebl of each column in the resulting DataFrame is used.
+        which case the label of each column in the resulting DataFrame is used.
     follow_column : str, default None
         Resulting columns will be inserted after this column. If None, new
         columns are inserted at the end of the processed DataFrame.
@@ -482,7 +487,7 @@ class ApplyToRows(PdPipelineStage):
         A function description of the given function; e.g. 'normalizing revenue
         by company size'. A default description is used if None is given.
     prec : function, default None
-        A function taking a DataFrame, returning True if it this stage is
+        A function taking a DataFrame, returning True if this stage is
         applicable to the given DataFrame. If None is given, a function always
         returning True is used.
 
@@ -499,6 +504,7 @@ class ApplyToRows(PdPipelineStage):
         1      3         2143           6429
         2     10         1321          13210
         3      7         1255           8785
+
         >>> def halfer(row):
         ...     new = {'year/2': row['years']/2, 'rev/2': row['avg_revenue']/2}
         ...     return pd.Series(new)
@@ -579,13 +585,14 @@ class ApplyToRows(PdPipelineStage):
 
 class ApplyByCols(ColumnTransformer):
     """A pipeline stage applying an element-wise function to columns.
+    For applying series-wise function, see `AggByCols`.
 
     Parameters
     ----------
-    columns : single label, list-like of callable
+    columns : single label, list-like or callable
         Column labels in the DataFrame to be transformed. Alternatively, this
         parameter can be assigned a callable returning an iterable of labels
-        from an input pandas.DataFrame. See pdpipe.cq.
+        from an input pandas.DataFrame. See `pdpipe.cq`.
     func : function
         The function to be applied to each element of the given columns.
     result_columns : str or list-like, default None
@@ -648,7 +655,7 @@ class ApplyByCols(ColumnTransformer):
 
 
 class ColByFrameFunc(PdPipelineStage):
-    """A pipeline stage adding a column by applying a dataframw-wide function.
+    """A pipeline stage adding a column by applying a dataframe-wide function.
 
     Note that assigning `column` with the label of an existing column and
     providing the same label to the `before_column` parameter will result in
@@ -741,13 +748,19 @@ class ColByFrameFunc(PdPipelineStage):
 
 class AggByCols(ColumnTransformer):
     """A pipeline stage applying a series-wise function to columns.
+    For applying element-wise function, see `ApplyByCols`.
 
     Parameters
     ----------
-    columns : str or list-like
-        Names of columns on which to apply the given function.
+    columns : single label, list-like or callable
+        Column labels in the DataFrame to be transformed. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See `pdpipe.cq`.
     func : function
-        The function to be applied to each of the given columns.
+        The function to be applied to each of the given columns. Must work when 
+        given a pandas.Series object and return either a Scaler or pandas.Series.
+        If a Scaler is returned, the result is broadcasted into a column of the 
+        original length.
     result_columns : str or list-like, default None
         The names of the new columns resulting from the mapping operation. Must
         be of the same length as columns. If None, behavior depends on the
@@ -768,12 +781,19 @@ class AggByCols(ColumnTransformer):
         >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
         >>> data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
         >>> df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
-        >>> log_ph = pdp.ApplyByCols("ph", np.log)
+        >>> log_ph = pdp.AggByCols("ph", np.log)
         >>> log_ph(df)
                  ph  lbl
         1  1.163151  acd
         2  1.974081  alk
         3  2.493205  alk
+
+        >>> min_ph = pdp.AggByCols("ph", min, drop=False, suffix='_min')
+        >>> min_ph(df)
+             ph  ph_min  lbl
+        1   3.2     3.2  acd
+        2   7.2     3.2  alk
+        3  12.1     3.2  alk
     """
 
     def __init__(
@@ -813,17 +833,17 @@ class Log(ColumnsBasedPipelineStage):
 
     Parameters
     ----------
-    columns : str or list-like, default None
+    columns : single label, list-like or callable, default None
         Column names in the DataFrame to be encoded. If columns is None then
         all the columns with a numeric dtype will be transformed, except those
         given in the exclude_columns parameter. Alternatively,
         this parameter can be assigned a callable returning an iterable of
-        labels from an input pandas.DataFrame. See pdpipe.cq.
-    exclude_columns : str or list-like, default None
+        labels from an input pandas.DataFrame. See `pdpipe.cq`.
+    exclude_columns : single label, list-like or callable, default None
         Label or labels of columns to be excluded from encoding. If None then
         no column is excluded. Alternatively, this parameter can be assigned a
         callable returning an iterable of labels from an input
-        pandas.DataFrame. See pdpipe.cq. Optional.
+        pandas.DataFrame. See `pdpipe.cq`. Optional.
     drop : bool, default False
         If set to True, the source columns are dropped after being encoded,
         and the resulting encoded columns retain the names of the source

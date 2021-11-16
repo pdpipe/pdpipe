@@ -41,6 +41,13 @@ DF2 = pd.DataFrame(
 )
 
 
+DF3 = pd.DataFrame(
+    data=[["Mr. John", 18], ["MR. Bob", 25]],
+    index=[1, 2],
+    columns=["name","age"],
+)
+
+
 def test_regex_replace_with_flags():
     tokenizer = pdp.RegexReplace('text', r'.+', "TOKEN")
     res_df = tokenizer(DF2)
@@ -56,3 +63,11 @@ def test_regex_replace_with_flags():
     assert 'text' in res_df.columns
     assert res_df.loc[1]['text'] == 'TOKEN'
     assert res_df.loc[2]['text'] == 'TOKEN'
+
+    # documentation example
+    tokenizer = pdp.RegexReplace('name', r'^mr.*', "x", flags=re.IGNORECASE)
+    res_df = tokenizer(DF3)
+    assert 'name' in res_df.columns
+    assert 'age' in res_df.columns
+    assert res_df.loc[1]['name'] == 'x'
+    assert res_df.loc[2]['name'] == 'x'

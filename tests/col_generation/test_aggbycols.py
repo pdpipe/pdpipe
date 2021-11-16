@@ -21,22 +21,33 @@ def ph_df():
     )
 
 
-def test_aggbycols():
+def test_aggbycols_func_series():
     """Testing AggByCols pipeline stages."""
     df = ph_df()
-    round_ph = AggByCols("ph", np.log)
-    res_df = round_ph(df)
+    log_ph = AggByCols("ph", np.log)
+    res_df = log_ph(df)
     assert res_df.columns.get_loc('ph') == 0
     assert_approx_equal(res_df['ph'][1], _LOG32, significant=5)
     assert_approx_equal(res_df['ph'][2], _LOG72, significant=5)
     assert_approx_equal(res_df['ph'][3], _LOG121, significant=5)
 
 
+def test_aggbycols_func_scaler():
+    """Testing AggByCols pipeline stages."""
+    df = ph_df()
+    min_ph = AggByCols("ph", min)
+    res_df = min_ph(df)
+    assert res_df.columns.get_loc('ph') == 0
+    assert res_df['ph'][1], min(res_df['ph'])
+    assert res_df['ph'][2], min(res_df['ph'])
+    assert res_df['ph'][3], min(res_df['ph'])
+
+
 def test_aggbycols_func_desc():
     """Testing AggByCols pipeline stages."""
     df = ph_df()
-    round_ph = AggByCols("ph", np.log, func_desc='Round PH values')
-    res_df = round_ph(df)
+    log_ph = AggByCols("ph", np.log, func_desc='Round PH values')
+    res_df = log_ph(df)
     assert res_df.columns.get_loc('ph') == 0
     assert_approx_equal(res_df['ph'][1], _LOG32, significant=5)
     assert_approx_equal(res_df['ph'][2], _LOG72, significant=5)
@@ -46,8 +57,8 @@ def test_aggbycols_func_desc():
 def test_aggbycols_with_result_columns():
     """Testing AggByCols pipeline stages."""
     df = ph_df()
-    round_ph = AggByCols("ph", np.log, result_columns='log_ph')
-    res_df = round_ph(df)
+    log_ph = AggByCols("ph", np.log, result_columns='log_ph')
+    res_df = log_ph(df)
     assert 'ph' not in res_df.columns
     assert res_df.columns.get_loc('log_ph') == 0
     assert_approx_equal(res_df['log_ph'][1], _LOG32, significant=5)
@@ -58,8 +69,8 @@ def test_aggbycols_with_result_columns():
 def test_aggbycols_with_drop():
     """Testing AggByCols pipeline stages."""
     df = ph_df()
-    round_ph = AggByCols("ph", np.log, drop=False)
-    res_df = round_ph(df)
+    log_ph = AggByCols("ph", np.log, drop=False)
+    res_df = log_ph(df)
     assert 'ph' in res_df.columns
     assert 'ph_agg' in res_df.columns
     assert res_df.columns.get_loc('ph') == 0
@@ -72,8 +83,8 @@ def test_aggbycols_with_drop():
 def test_aggbycols_no_drop_custom_suffix():
     """Testing AggByCols pipeline stages."""
     df = ph_df()
-    round_ph = AggByCols("ph", np.log, drop=False, suffix='_log')
-    res_df = round_ph(df)
+    log_ph = AggByCols("ph", np.log, drop=False, suffix='_log')
+    res_df = log_ph(df)
     assert 'ph' in res_df.columns
     assert 'ph_log' in res_df.columns
     assert res_df.columns.get_loc('ph') == 0
