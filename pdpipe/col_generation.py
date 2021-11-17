@@ -1,5 +1,6 @@
 """Column generation pdpipe PdPipelineStages."""
 
+import re
 import abc
 from typing import Union, Tuple, Optional, Dict, Callable
 
@@ -1000,3 +1001,126 @@ class Log(ColumnsBasedPipelineStage):
                 df=inter_df, series=new_col, loc=loc, column_name=new_name
             )
         return inter_df
+
+
+_FAIL_FLOAT_MRK = 'PDP_FAILED_FLOATIZATION'
+
+
+class _StringCharSetCleaner(object):
+    """An object that cleans certain characters from string columns.
+
+    Parameters
+    ----------
+    clean_char_set : str, default '%$,'
+        The character set to clean from string values before trying to cast
+        values to float. If not provided, is set to '%$,' by default.
+    fail_marker : str, optional
+        A string to return for failed cleaning attempts. If not set, a value
+        error is raised.
+    """
+
+    def __init__(self, charset: str, fail_marker: Optional[str]) -> None:
+        self.charset = charset
+        self.clean_pat = re.compile('[{}]+'.format(re.escape(charset)))
+        if fail_marker is not None:
+            self.fail_marker = fail_marker
+
+    def __call__(self, val: str) -> str:
+        try:
+            return self.clean_pat.sub('', val)
+        except TypeError:
+            try:
+                return self.fail_marker
+            except AttributeError:
+                raise ValueError(f"Character cleaning failes for {val}")
+
+
+class FloatizeStringColumns(ColumnsBasedPipelineStage):
+    """A pipeline stage that converts string columns to be of float dtype.
+
+    The function is meant to succesfully deal with numbers in strings, such as
+    '23.55%' or '12$' and numbers that include commas to seperate digits, such
+    as '122,000'.
+
+    Columns are floatized sequentialy, in the order they are given.
+
+    Parameters
+    ----------
+    columns : single label, list-like or callable
+        The label, or an iterable of labels, of columns to drop. Alternatively,
+        this parameter can be assigned a callable returning an iterable of
+        labels from an input pandas.DataFrame. See pdpipe.cq.
+    on_fail : {'raise', 'skip', 'drop'}, default 'raise'
+        The strategy to use when floatization of some - or all - of a column
+        values fail. If set to 'raise' - the default - an exception is raised.
+        If set to to 'skip', conversion is skipped for this column. If set to
+        'drop', rows with (any or enough, see `fail_threshold`) uncastable
+        values are dropped from the entire dataframe.
+    fail_threshold : float, default 0
+        The rate of failed floatization attempts to tolerate per column.
+    fail_placeholder : object, default `np.nan`
+        Interpreted as the value to assign to all uncastable values. If the
+        value if of float dtype (as defined by
+        `pandas.api.types.is_float_dtype`) the column is converted to a float
+        dtype (or to `float_dtype`, if is provided). Otherwise, it is left as
+        a `object` dtype column.
+    float_dtype : object, optional
+        A specific float dtype to cast columns to; e.g. numpy.float32. If not
+        provided, columns are casted to `numpy.float` by default.
+    clean_char_set : str, default '%$,'
+        The character set to clean from string values before trying to cast
+        values to float. Set to `None` to avoid character cleaning. If not
+        provided, is set to '%$,' by default.
+
+    Example
+    -------
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> df = pd.DataFrame([['8','a'],['1.2$','b']], [1,2], ['num', 'char'])
+        >>> pdp.Floatize('num').apply(df)
+           num char
+        1  8.0    a
+        2  1.2    b
+    """
+
+    def __init__(
+        self,
+        columns: ColumnsParamType,
+        on_fail: Optional[object] = 'raise',
+        fail_threshold: Optional[float] = 0.0,
+        fail_placeholder: Optional[object] = np.nan,
+        float_dtype: Optional[object] = np.float,
+        clean_char_set: Optional[str] = '%$,',
+        **kwargs: object,
+    ) -> None:
+        self._onfail = on_fail
+        self._fail_threshold = fail_threshold
+        self._fail_placeholder = fail_placeholder
+        self._cast_to_float_dtype = False
+        if pd.api.types.is_float_dtype(type(fail_placeholder)):
+            self._cast_to_float_dtype = True
+        self._float_dtype = float_dtype
+        self._clean_char_set = clean_char_set
+        self._clean_pat = re.compile("[\\" + "\\".join('$%,') + "]+")
+        super_kwargs = {
+            'columns': columns,
+            'desc_temp': 'Drop columns {}',
+        }
+        super_kwargs.update(**kwargs)
+        super_kwargs['none_columns'] = 'error'
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df: pd.DataFrame) -> bool:
+        if self._errors != 'ignore':
+            return super()._prec(df)
+        return True
+
+    def _post(self, df: pd.DataFrame) -> bool:
+        return self._post_cond(df)
+
+    def _transformation(
+        self, df: pd.DataFrame, verbose: bool, fit: bool,
+    ) -> pd.DataFrame:
+        original_n = len(df)
+
+        return df.drop(
+            self._get_columns(df, fit=fit), axis=1, errors=self._errors)

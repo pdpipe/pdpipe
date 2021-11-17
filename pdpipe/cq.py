@@ -99,6 +99,8 @@ that start with 'b' can be generated with:
     ['abe', 'cry']
 """
 
+import re
+
 from .shared import _list_str
 
 
