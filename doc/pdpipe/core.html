@@ -29,16 +29,16 @@
 </code></pre>
 <h2 id="creating-pipeline-stages-that-operate-on-column-subsets">Creating pipeline stages that operate on column subsets</h2>
 <p>Many pipeline stages in pdpipe operate on a subset of columns, allowing the
-caller to deteremine this subset by either providing a fixed set of column
+caller to determine this subset by either providing a fixed set of column
 labels or by providing a callable that determines the column subset dynamically
 from input dataframes. The <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code> module addresses a unique but important
-use case of fittable column qualifier, which dynamically extract a column
+use case of fittable column qualifier, which is to dynamically extract a column
 subset on stage fit time, but keep it fixed for future transformations.</p>
 <p>As a general rule, every pipeline stage in pdpipe that supports the <code>columns</code>
 parameter should inherently support fittable column qualifier, and generally
 the correct interpretation of both single and multiple labels as arguments. To
 unify the implementation of such functionality, and ease of creation of new
-pipeline stages, such columns shoul be created by extending the
+pipeline stages, such columns should be created by extending the
 ColumnsBasedPipelineStage base class, found in this module (<code><a title="pdpipe.core" href="#pdpipe.core">pdpipe.core</a></code>).</p>
 <p>The main interface of sub-classes of this base class with it is through the
 <code>columns</code>, <code>exclude_columns</code> and <code>none_columns</code> constructor arguments, and the
@@ -60,11 +60,11 @@ qualifier object that is a difference between two column qualifiers; e.g.
 providing <code>columns=cq.OfDtype(np.number),
 exclude_columns=cq.OfDtype(np.int64)</code>. However, exposing the
 <code>exclude_columns</code> parameter can allow for specific unique behaviours; for
-example, if the <code>none_columns</code> parametet - which configures the behavior
+example, if the <code>none_columns</code> parameter - which configures the behavior
 when <code>columns</code> is provided with <code>None</code> - is set with
 a <code>cq.OfDtypes('category')</code> column qualifier, which means that all
 categorical columns are selected when <code>columns=None</code>, then exposing
-<code>exclude_columns</code> allows easy specification of the "all categorical
+<code>exclude_columns</code> allows for easy specification of the "all categorical
 columns except X" by just giving a column qualifier capturing X to
 <code>exclude_columns</code>, instead of having to reconstruct the default column
 qualifier by hand and substract from it the one representing X.</p>
@@ -108,8 +108,8 @@ transforming.</p>
 </li>
 </ol>
 <p>Again, taking a look at the VERY concise implementation of simple columns-based
-stages, like ColDrop or ValDrop, will probably make things clearer, and you can
-use those implementations as a template for yours.</p>
+stages, like ColDrop or ValDrop in <code><a title="pdpipe.basic_stages" href="basic_stages.html">pdpipe.basic_stages</a></code>, will probably make
+things clearer, and you can use those implementations as a template for yours.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -123,17 +123,17 @@ use those implementations as a template for yours.</p>
 ## Creating pipeline stages that operate on column subsets
 
 Many pipeline stages in pdpipe operate on a subset of columns, allowing the
-caller to deteremine this subset by either providing a fixed set of column
+caller to determine this subset by either providing a fixed set of column
 labels or by providing a callable that determines the column subset dynamically
 from input dataframes. The `pdpipe.cq` module addresses a unique but important
-use case of fittable column qualifier, which dynamically extract a column
+use case of fittable column qualifier, which is to dynamically extract a column
 subset on stage fit time, but keep it fixed for future transformations.
 
 As a general rule, every pipeline stage in pdpipe that supports the `columns`
 parameter should inherently support fittable column qualifier, and generally
 the correct interpretation of both single and multiple labels as arguments. To
 unify the implementation of such functionality, and ease of creation of new
-pipeline stages, such columns shoul be created by extending the
+pipeline stages, such columns should be created by extending the
 ColumnsBasedPipelineStage base class, found in this module (`pdpipe.core`).
 
 The main interface of sub-classes of this base class with it is through the
@@ -154,11 +154,11 @@ The main interface of sub-classes of this base class with it is through the
   providing `columns=cq.OfDtype(np.number),
   exclude_columns=cq.OfDtype(np.int64)`. However, exposing the
   `exclude_columns` parameter can allow for specific unique behaviours; for
-  example, if the `none_columns` parametet - which configures the behavior
+  example, if the `none_columns` parameter - which configures the behavior
   when `columns` is provided with `None` - is set with
   a `cq.OfDtypes(&#39;category&#39;)` column qualifier, which means that all
   categorical columns are selected when `columns=None`, then exposing
-  `exclude_columns` allows easy specification of the &#34;all categorical
+  `exclude_columns` allows for easy specification of the &#34;all categorical
   columns except X&#34; by just giving a column qualifier capturing X to
   `exclude_columns`, instead of having to reconstruct the default column
   qualifier by hand and substract from it the one representing X.
@@ -196,8 +196,8 @@ stage you&#39;re creating is inherently fittable or not:
    transforming.
 
 Again, taking a look at the VERY concise implementation of simple columns-based
-stages, like ColDrop or ValDrop, will probably make things clearer, and you can
-use those implementations as a template for yours.
+stages, like ColDrop or ValDrop in `pdpipe.basic_stages`, will probably make
+things clearer, and you can use those implementations as a template for yours.
 &#34;&#34;&#34;
 
 import sys
@@ -335,7 +335,7 @@ class PdPipelineStage(abc.ABC):
         If true, a pdpipe.FailedPreconditionError is raised when this
         stage is applied to a dataframe for which the precondition does
         not hold. Otherwise the stage is skipped. Additionally, if true, a
-        pdpipe.FailedPostconditionError is raised if an expected post-codnition
+        pdpipe.FailedPostconditionError is raised if an expected post-condition
         does not hold for an output dataframe (after pipeline application).
         Otherwise pipeline application continues uninterrupted.
     exmsg : str, default None
@@ -349,30 +349,30 @@ class PdPipelineStage(abc.ABC):
         This can be assigned a callable that returns boolean values for input
         dataframes, which will be used to determine whether input dataframes
         satisfy the preconditions for this pipeline stage (see the `exraise`
-        parameter for the behaviour of failed preconditions). See pdp.cond for
-        more information on specialised Condition objects.
+        parameter for the behaviour of failed preconditions). See `pdpipe.cond`
+        for more information on specialised Condition objects.
     post : callable, default None
         This can be assigned a callable that returns boolean values for input
         dataframes, which will be used to determine whether input dataframes
         satisfy the postconditions for this pipeline stage (see the `exraise`
-        parameter for the behaviour of failed postconditions). See pdp.cond for
-        more information on specialised Condition objects.
+        parameter for the behaviour of failed postconditions). See
+        `pdpipe.cond` for more information on specialised Condition objects.
     skip : callable, default None
         This can be assigned a callable that returns boolean values for input
         dataframes, which will be used to determine whether this stage should
         be skipped for input dataframes - if the callable returns True for an
-        input dataframe, this stage will be skipped. See pdp.cond for more
+        input dataframe, this stage will be skipped. See `pdpipe.cond` for more
         information on specialised Condition objects.
     name : str, default &#39;&#39;
         The name of this stage. Pipelines can be sliced by this name.
 
     Attributes
     ----------
-    fit_context : PdpApplicationContext
+    fit_context : `PdpApplicationContext`
         An application context object that is only re-initialized before
         `fit_transform` calls, and is locked after pipeline application. It is
         injected into the PipelineStage by the encapsulating pipeline object.
-    application_context : PdpApplicationContext
+    application_context : `PdpApplicationContext`
         An application context object that is re-initialized before every
         pipeline application (so, also during transform operations of fitted
         pipelines), and is locked after pipeline application.It is injected
@@ -655,15 +655,15 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
 
     Parameters
     ---------
-    columns : object, iterable or callable
+    columns : single label, iterable or callable
         The label, or an iterable of labels, of columns to use. Alternatively,
         this parameter can be assigned a callable returning an iterable of
-        labels from an input pandas.DataFrame. See pdpipe.cq.
-    exclude_columns : object, iterable or callable, optional
+        labels from an input pandas.DataFrame. See `pdpipe.cq`.
+    exclude_columns : single label, iterable or callable, optional
         The label, or an iterable of labels, of columns to exclude, given the
         `columns` parameter. Alternatively, this parameter can be assigned a
         callable returning a labels iterable from an input pandas.DataFrame.
-        See pdpipe.cq. Optional. By default no columns are excluded.
+        See `pdpipe.cq`. Optional. By default no columns are excluded.
     desc_temp : str, optional
         If given, assumed to be a format string, and every appearance of {} in
         it is replaced with an appropriate string representation of the columns
@@ -809,11 +809,12 @@ class AdHocStage(PdPipelineStage):
     specific name is assumed or used) to supply the callable with the pandas
     DataFrame object to transform. The following additional keyword arguments
     are supplied if the are included in the callable&#39;s signature:
-    `verbose` - Passed on from pdpipe&#39;s `fit`, `fit_transform`
+    `verbose` - Passed on from PdPipelineStage&#39;s `fit`, `fit_transform`
     and `apply` methods.
+
     `fit_context` and `application_context` - Provides fit-specific and
-    application-specific contexts, in the form of PdpApplicationContext
-    objects, usually available to pipeline stages using `self.fit_context` and
+    application-specific contexts (see `PdpApplicationContext`) usually
+    available to pipeline stages using `self.fit_context` and
     `self.application_context`.
 
     Parameters
@@ -830,6 +831,19 @@ class AdHocStage(PdPipelineStage):
         A callable that returns a boolean value. Represent a a precondition
         used to determine whether this stage can be applied to a given
         dataframe. If None is given, set to a function always returning True.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[1, &#39;a&#39;], [2, &#39;b&#39;]], [1, 2], [&#39;num&#39;, &#39;char&#39;])
+        &gt;&gt;&gt; drop_num = pdp.AdHocStage(
+        ...   transform=lambda df: df.drop([&#39;num&#39;], axis=1),
+        ...   prec=lambda df: &#39;num&#39; in df.columns
+        ... )
+        &gt;&gt;&gt; drop_num.apply(df)
+          char
+        1    a
+        2    b
     &#34;&#34;&#34;
 
     def __init__(self, transform, fit_transform=None, prec=None, **kwargs):
@@ -877,7 +891,7 @@ class AdHocStage(PdPipelineStage):
 class PdPipeline(PdPipelineStage, collections.abc.Sequence):
     &#34;&#34;&#34;A pipeline for processing pandas DataFrame objects.
 
-    transformer_getter is usefull to avoid applying pipeline stages that are
+    `transformer_getter` is useful to avoid applying pipeline stages that are
     aimed to filter out items in a big dataset to create a training set for a
     machine learning model, for example, but should not be applied on future
     individual items to be transformed by the fitted pipeline.
@@ -943,14 +957,53 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         self.application_context.lock()
         self.fit_context.lock()
 
-    def apply(self, df, exraise=None, verbose=False):
+    def apply(self, df, exraise=None, verbose=False, time=False):
+        &#34;&#34;&#34;Applies this pipeline stage to the given dataframe.
+
+        If the stage is not fitted fit_transform is called. Otherwise,
+        transform is called.
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            The dataframe to which this pipeline stage will be applied.
+        exraise : bool, default None
+            Determines behaviour if the precondition of composing stages is not
+            fulfilled by the input dataframe: If True, a
+            pdpipe.FailedPreconditionError is raised. If False, the stage is
+            skipped. If not given, or set to None, the default behaviour of
+            each stage is used, as determined by its &#39;exraise&#39; constructor
+            parameter.
+        verbose : bool, default False
+            If True an explanation message is printed after the precondition
+            is checked but before the application of the pipeline stage.
+            Defaults to False.
+        time : bool, default False
+            If True, per-stage application time is measured and reported when
+            pipeline application is done.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The resulting dataframe.
+        &#34;&#34;&#34;
         self.application_context = PdpApplicationContext()
         if self.is_fitted:
-            res = self.transform(X=df, exraise=exraise, verbose=verbose)
+            res = self.transform(
+                X=df,
+                exraise=exraise,
+                verbose=verbose,
+                time=time
+            )
             self._post_transform_lock()
             return res
         self.fit_context = PdpApplicationContext()
-        res = self.fit_transform(X=df, exraise=exraise, verbose=verbose)
+        res = self.fit_transform(
+            X=df,
+            exraise=exraise,
+            verbose=verbose,
+            time=time
+        )
         self._post_transform_lock()
         return res
 
@@ -1011,7 +1064,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         Returns
         -------
         pandas.DataFrame
-            The resulting dacaframe.
+            The resulting dataframe.
         &#34;&#34;&#34;
         if time:
             return self.__timed_fit_transform(
@@ -1282,8 +1335,8 @@ def make_pdpipeline(*stages):
 
     Examples
     --------
-    import pdpipe as pdp
-    make_pdpipeline(pdp.ColDrop(&#39;a&#39;), pdp.Bin(&#39;speed&#39;))
+        &gt;&gt;&gt; import pdpipe as pdp
+        &gt;&gt;&gt; p = make_pdpipeline(pdp.ColDrop(&#39;count&#39;), pdp.DropDuplicates())
     &#34;&#34;&#34;
     return PdPipeline(stages=stages)</code></pre>
 </details>
@@ -1312,8 +1365,9 @@ def make_pdpipeline(*stages):
 <dd>The resulting pipeline.</dd>
 </dl>
 <h2 id="examples">Examples</h2>
-<p>import pdpipe as pdp
-make_pdpipeline(pdp.ColDrop('a'), pdp.Bin('speed'))</p></div>
+<pre><code>&gt;&gt;&gt; import pdpipe as pdp
+&gt;&gt;&gt; p = make_pdpipeline(pdp.ColDrop('count'), pdp.DropDuplicates())
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1333,8 +1387,8 @@ make_pdpipeline(pdp.ColDrop('a'), pdp.Bin('speed'))</p></div>
 
     Examples
     --------
-    import pdpipe as pdp
-    make_pdpipeline(pdp.ColDrop(&#39;a&#39;), pdp.Bin(&#39;speed&#39;))
+        &gt;&gt;&gt; import pdpipe as pdp
+        &gt;&gt;&gt; p = make_pdpipeline(pdp.ColDrop(&#39;count&#39;), pdp.DropDuplicates())
     &#34;&#34;&#34;
     return PdPipeline(stages=stages)</code></pre>
 </details>
@@ -1355,11 +1409,11 @@ callables is adaptive: The first argument is used positionally (so no
 specific name is assumed or used) to supply the callable with the pandas
 DataFrame object to transform. The following additional keyword arguments
 are supplied if the are included in the callable's signature:
-<code>verbose</code> - Passed on from pdpipe's <code>fit</code>, <code>fit_transform</code>
-and <code>apply</code> methods.
-<code>fit_context</code> and <code>application_context</code> - Provides fit-specific and
-application-specific contexts, in the form of PdpApplicationContext
-objects, usually available to pipeline stages using <code>self.fit_context</code> and
+<code>verbose</code> - Passed on from PdPipelineStage's <code>fit</code>, <code>fit_transform</code>
+and <code>apply</code> methods.</p>
+<p><code>fit_context</code> and <code>application_context</code> - Provides fit-specific and
+application-specific contexts (see <code><a title="pdpipe.core.PdpApplicationContext" href="#pdpipe.core.PdpApplicationContext">PdpApplicationContext</a></code>) usually
+available to pipeline stages using <code>self.fit_context</code> and
 <code>self.application_context</code>.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
@@ -1375,7 +1429,19 @@ fit_transform. Optional. See documentation for the exact signature.</dd>
 <dd>A callable that returns a boolean value. Represent a a precondition
 used to determine whether this stage can be applied to a given
 dataframe. If None is given, set to a function always returning True.</dd>
-</dl></div>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame([[1, 'a'], [2, 'b']], [1, 2], ['num', 'char'])
+&gt;&gt;&gt; drop_num = pdp.AdHocStage(
+...   transform=lambda df: df.drop(['num'], axis=1),
+...   prec=lambda df: 'num' in df.columns
+... )
+&gt;&gt;&gt; drop_num.apply(df)
+  char
+1    a
+2    b
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -1388,11 +1454,12 @@ dataframe. If None is given, set to a function always returning True.</dd>
     specific name is assumed or used) to supply the callable with the pandas
     DataFrame object to transform. The following additional keyword arguments
     are supplied if the are included in the callable&#39;s signature:
-    `verbose` - Passed on from pdpipe&#39;s `fit`, `fit_transform`
+    `verbose` - Passed on from PdPipelineStage&#39;s `fit`, `fit_transform`
     and `apply` methods.
+
     `fit_context` and `application_context` - Provides fit-specific and
-    application-specific contexts, in the form of PdpApplicationContext
-    objects, usually available to pipeline stages using `self.fit_context` and
+    application-specific contexts (see `PdpApplicationContext`) usually
+    available to pipeline stages using `self.fit_context` and
     `self.application_context`.
 
     Parameters
@@ -1409,6 +1476,19 @@ dataframe. If None is given, set to a function always returning True.</dd>
         A callable that returns a boolean value. Represent a a precondition
         used to determine whether this stage can be applied to a given
         dataframe. If None is given, set to a function always returning True.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[1, &#39;a&#39;], [2, &#39;b&#39;]], [1, 2], [&#39;num&#39;, &#39;char&#39;])
+        &gt;&gt;&gt; drop_num = pdp.AdHocStage(
+        ...   transform=lambda df: df.drop([&#39;num&#39;], axis=1),
+        ...   prec=lambda df: &#39;num&#39; in df.columns
+        ... )
+        &gt;&gt;&gt; drop_num.apply(df)
+          char
+        1    a
+        2    b
     &#34;&#34;&#34;
 
     def __init__(self, transform, fit_transform=None, prec=None, **kwargs):
@@ -1515,15 +1595,15 @@ dataframe. If None is given, set to a function always returning True.</dd>
 <div class="desc"><p>A pipeline stage that operates on a subset of dataframe columns.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>object, iterable</code> or <code>callable</code></dt>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, iterable</code> or <code>callable</code></dt>
 <dd>The label, or an iterable of labels, of columns to use. Alternatively,
 this parameter can be assigned a callable returning an iterable of
-labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
-<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>object, iterable</code> or <code>callable</code>, optional</dt>
+labels from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
+<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>single label, iterable</code> or <code>callable</code>, optional</dt>
 <dd>The label, or an iterable of labels, of columns to exclude, given the
 <code>columns</code> parameter. Alternatively, this parameter can be assigned a
 callable returning a labels iterable from an input pandas.DataFrame.
-See pdpipe.cq. Optional. By default no columns are excluded.</dd>
+See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>. Optional. By default no columns are excluded.</dd>
 <dt><strong><code>desc_temp</code></strong> :&ensp;<code>str</code>, optional</dt>
 <dd>If given, assumed to be a format string, and every appearance of {} in
 it is replaced with an appropriate string representation of the columns
@@ -1550,15 +1630,15 @@ the default column qualifier that determines input columns when
 
     Parameters
     ---------
-    columns : object, iterable or callable
+    columns : single label, iterable or callable
         The label, or an iterable of labels, of columns to use. Alternatively,
         this parameter can be assigned a callable returning an iterable of
-        labels from an input pandas.DataFrame. See pdpipe.cq.
-    exclude_columns : object, iterable or callable, optional
+        labels from an input pandas.DataFrame. See `pdpipe.cq`.
+    exclude_columns : single label, iterable or callable, optional
         The label, or an iterable of labels, of columns to exclude, given the
         `columns` parameter. Alternatively, this parameter can be assigned a
         callable returning a labels iterable from an input pandas.DataFrame.
-        See pdpipe.cq. Optional. By default no columns are excluded.
+        See `pdpipe.cq`. Optional. By default no columns are excluded.
     desc_temp : str, optional
         If given, assumed to be a format string, and every appearance of {} in
         it is replaced with an appropriate string representation of the columns
@@ -1766,7 +1846,7 @@ the default column qualifier that determines input columns when
 </code></dt>
 <dd>
 <div class="desc"><p>A pipeline for processing pandas DataFrame objects.</p>
-<p>transformer_getter is usefull to avoid applying pipeline stages that are
+<p><code>transformer_getter</code> is useful to avoid applying pipeline stages that are
 aimed to filter out items in a big dataset to create a training set for a
 machine learning model, for example, but should not be applied on future
 individual items to be transformed by the fitted pipeline.</p>
@@ -1787,7 +1867,7 @@ entirely.</dd>
 <pre><code class="python">class PdPipeline(PdPipelineStage, collections.abc.Sequence):
     &#34;&#34;&#34;A pipeline for processing pandas DataFrame objects.
 
-    transformer_getter is usefull to avoid applying pipeline stages that are
+    `transformer_getter` is useful to avoid applying pipeline stages that are
     aimed to filter out items in a big dataset to create a training set for a
     machine learning model, for example, but should not be applied on future
     individual items to be transformed by the fitted pipeline.
@@ -1853,14 +1933,53 @@ entirely.</dd>
         self.application_context.lock()
         self.fit_context.lock()
 
-    def apply(self, df, exraise=None, verbose=False):
+    def apply(self, df, exraise=None, verbose=False, time=False):
+        &#34;&#34;&#34;Applies this pipeline stage to the given dataframe.
+
+        If the stage is not fitted fit_transform is called. Otherwise,
+        transform is called.
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            The dataframe to which this pipeline stage will be applied.
+        exraise : bool, default None
+            Determines behaviour if the precondition of composing stages is not
+            fulfilled by the input dataframe: If True, a
+            pdpipe.FailedPreconditionError is raised. If False, the stage is
+            skipped. If not given, or set to None, the default behaviour of
+            each stage is used, as determined by its &#39;exraise&#39; constructor
+            parameter.
+        verbose : bool, default False
+            If True an explanation message is printed after the precondition
+            is checked but before the application of the pipeline stage.
+            Defaults to False.
+        time : bool, default False
+            If True, per-stage application time is measured and reported when
+            pipeline application is done.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The resulting dataframe.
+        &#34;&#34;&#34;
         self.application_context = PdpApplicationContext()
         if self.is_fitted:
-            res = self.transform(X=df, exraise=exraise, verbose=verbose)
+            res = self.transform(
+                X=df,
+                exraise=exraise,
+                verbose=verbose,
+                time=time
+            )
             self._post_transform_lock()
             return res
         self.fit_context = PdpApplicationContext()
-        res = self.fit_transform(X=df, exraise=exraise, verbose=verbose)
+        res = self.fit_transform(
+            X=df,
+            exraise=exraise,
+            verbose=verbose,
+            time=time
+        )
         self._post_transform_lock()
         return res
 
@@ -1921,7 +2040,7 @@ entirely.</dd>
         Returns
         -------
         pandas.DataFrame
-            The resulting dacaframe.
+            The resulting dataframe.
         &#34;&#34;&#34;
         if time:
             return self.__timed_fit_transform(
@@ -2183,6 +2302,92 @@ entirely.</dd>
 </ul>
 <h3>Methods</h3>
 <dl>
+<dt id="pdpipe.core.PdPipeline.apply"><code class="name flex">
+<span>def <span class="ident">apply</span></span>(<span>self, df, exraise=None, verbose=False, time=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Applies this pipeline stage to the given dataframe.</p>
+<p>If the stage is not fitted fit_transform is called. Otherwise,
+transform is called.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>pandas.DataFrame</code></dt>
+<dd>The dataframe to which this pipeline stage will be applied.</dd>
+<dt><strong><code>exraise</code></strong> :&ensp;<code>bool</code>, default <code>None</code></dt>
+<dd>Determines behaviour if the precondition of composing stages is not
+fulfilled by the input dataframe: If True, a
+pdpipe.FailedPreconditionError is raised. If False, the stage is
+skipped. If not given, or set to None, the default behaviour of
+each stage is used, as determined by its 'exraise' constructor
+parameter.</dd>
+<dt><strong><code>verbose</code></strong> :&ensp;<code>bool</code>, default <code>False</code></dt>
+<dd>If True an explanation message is printed after the precondition
+is checked but before the application of the pipeline stage.
+Defaults to False.</dd>
+<dt><strong><code>time</code></strong> :&ensp;<code>bool</code>, default <code>False</code></dt>
+<dd>If True, per-stage application time is measured and reported when
+pipeline application is done.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>pandas.DataFrame</code></dt>
+<dd>The resulting dataframe.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def apply(self, df, exraise=None, verbose=False, time=False):
+    &#34;&#34;&#34;Applies this pipeline stage to the given dataframe.
+
+    If the stage is not fitted fit_transform is called. Otherwise,
+    transform is called.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        The dataframe to which this pipeline stage will be applied.
+    exraise : bool, default None
+        Determines behaviour if the precondition of composing stages is not
+        fulfilled by the input dataframe: If True, a
+        pdpipe.FailedPreconditionError is raised. If False, the stage is
+        skipped. If not given, or set to None, the default behaviour of
+        each stage is used, as determined by its &#39;exraise&#39; constructor
+        parameter.
+    verbose : bool, default False
+        If True an explanation message is printed after the precondition
+        is checked but before the application of the pipeline stage.
+        Defaults to False.
+    time : bool, default False
+        If True, per-stage application time is measured and reported when
+        pipeline application is done.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The resulting dataframe.
+    &#34;&#34;&#34;
+    self.application_context = PdpApplicationContext()
+    if self.is_fitted:
+        res = self.transform(
+            X=df,
+            exraise=exraise,
+            verbose=verbose,
+            time=time
+        )
+        self._post_transform_lock()
+        return res
+    self.fit_context = PdpApplicationContext()
+    res = self.fit_transform(
+        X=df,
+        exraise=exraise,
+        verbose=verbose,
+        time=time
+    )
+    self._post_transform_lock()
+    return res</code></pre>
+</details>
+</dd>
 <dt id="pdpipe.core.PdPipeline.fit"><code class="name flex">
 <span>def <span class="ident">fit</span></span>(<span>self, X, y=None, exraise=None, verbose=None, time=None)</span>
 </code></dt>
@@ -2286,7 +2491,7 @@ pipeline application is done.</dd>
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><code>pandas.DataFrame</code></dt>
-<dd>The resulting dacaframe.</dd>
+<dd>The resulting dataframe.</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -2319,7 +2524,7 @@ pipeline application is done.</dd>
     Returns
     -------
     pandas.DataFrame
-        The resulting dacaframe.
+        The resulting dataframe.
     &#34;&#34;&#34;
     if time:
         return self.__timed_fit_transform(
@@ -2559,7 +2764,6 @@ pipeline application is done.</dd>
 <li><code><a title="pdpipe.core.PdPipelineStage.UntokenizeText" href="#pdpipe.core.PdPipelineStage.UntokenizeText">UntokenizeText</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ValDrop" href="#pdpipe.core.PdPipelineStage.ValDrop">ValDrop</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.ValKeep" href="#pdpipe.core.PdPipelineStage.ValKeep">ValKeep</a></code></li>
-<li><code><a title="pdpipe.core.PdPipelineStage.apply" href="#pdpipe.core.PdPipelineStage.apply">apply</a></code></li>
 <li><code><a title="pdpipe.core.PdPipelineStage.description" href="#pdpipe.core.PdPipelineStage.description">description</a></code></li>
 </ul>
 </li>
@@ -2577,7 +2781,7 @@ pipeline application is done.</dd>
 <dd>If true, a pdpipe.FailedPreconditionError is raised when this
 stage is applied to a dataframe for which the precondition does
 not hold. Otherwise the stage is skipped. Additionally, if true, a
-pdpipe.FailedPostconditionError is raised if an expected post-codnition
+pdpipe.FailedPostconditionError is raised if an expected post-condition
 does not hold for an output dataframe (after pipeline application).
 Otherwise pipeline application continues uninterrupted.</dd>
 <dt><strong><code>exmsg</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
@@ -2591,19 +2795,19 @@ A default description is used if None is given.</dd>
 <dd>This can be assigned a callable that returns boolean values for input
 dataframes, which will be used to determine whether input dataframes
 satisfy the preconditions for this pipeline stage (see the <code>exraise</code>
-parameter for the behaviour of failed preconditions). See pdp.cond for
-more information on specialised Condition objects.</dd>
+parameter for the behaviour of failed preconditions). See <code><a title="pdpipe.cond" href="cond.html">pdpipe.cond</a></code>
+for more information on specialised Condition objects.</dd>
 <dt><strong><code>post</code></strong> :&ensp;<code>callable</code>, default <code>None</code></dt>
 <dd>This can be assigned a callable that returns boolean values for input
 dataframes, which will be used to determine whether input dataframes
 satisfy the postconditions for this pipeline stage (see the <code>exraise</code>
-parameter for the behaviour of failed postconditions). See pdp.cond for
-more information on specialised Condition objects.</dd>
+parameter for the behaviour of failed postconditions). See
+<code><a title="pdpipe.cond" href="cond.html">pdpipe.cond</a></code> for more information on specialised Condition objects.</dd>
 <dt><strong><code>skip</code></strong> :&ensp;<code>callable</code>, default <code>None</code></dt>
 <dd>This can be assigned a callable that returns boolean values for input
 dataframes, which will be used to determine whether this stage should
 be skipped for input dataframes - if the callable returns True for an
-input dataframe, this stage will be skipped. See pdp.cond for more
+input dataframe, this stage will be skipped. See <code><a title="pdpipe.cond" href="cond.html">pdpipe.cond</a></code> for more
 information on specialised Condition objects.</dd>
 <dt><strong><code>name</code></strong> :&ensp;<code>str</code>, default <code>''</code></dt>
 <dd>The name of this stage. Pipelines can be sliced by this name.</dd>
@@ -2633,7 +2837,7 @@ into the PipelineStage by the encapsulating pipeline object.</dd>
         If true, a pdpipe.FailedPreconditionError is raised when this
         stage is applied to a dataframe for which the precondition does
         not hold. Otherwise the stage is skipped. Additionally, if true, a
-        pdpipe.FailedPostconditionError is raised if an expected post-codnition
+        pdpipe.FailedPostconditionError is raised if an expected post-condition
         does not hold for an output dataframe (after pipeline application).
         Otherwise pipeline application continues uninterrupted.
     exmsg : str, default None
@@ -2647,30 +2851,30 @@ into the PipelineStage by the encapsulating pipeline object.</dd>
         This can be assigned a callable that returns boolean values for input
         dataframes, which will be used to determine whether input dataframes
         satisfy the preconditions for this pipeline stage (see the `exraise`
-        parameter for the behaviour of failed preconditions). See pdp.cond for
-        more information on specialised Condition objects.
+        parameter for the behaviour of failed preconditions). See `pdpipe.cond`
+        for more information on specialised Condition objects.
     post : callable, default None
         This can be assigned a callable that returns boolean values for input
         dataframes, which will be used to determine whether input dataframes
         satisfy the postconditions for this pipeline stage (see the `exraise`
-        parameter for the behaviour of failed postconditions). See pdp.cond for
-        more information on specialised Condition objects.
+        parameter for the behaviour of failed postconditions). See
+        `pdpipe.cond` for more information on specialised Condition objects.
     skip : callable, default None
         This can be assigned a callable that returns boolean values for input
         dataframes, which will be used to determine whether this stage should
         be skipped for input dataframes - if the callable returns True for an
-        input dataframe, this stage will be skipped. See pdp.cond for more
+        input dataframe, this stage will be skipped. See `pdpipe.cond` for more
         information on specialised Condition objects.
     name : str, default &#39;&#39;
         The name of this stage. Pipelines can be sliced by this name.
 
     Attributes
     ----------
-    fit_context : PdpApplicationContext
+    fit_context : `PdpApplicationContext`
         An application context object that is only re-initialized before
         `fit_transform` calls, and is locked after pipeline application. It is
         injected into the PipelineStage by the encapsulating pipeline object.
-    application_context : PdpApplicationContext
+    application_context : `PdpApplicationContext`
         An application context object that is re-initialized before every
         pipeline application (so, also during transform operations of fitted
         pipelines), and is locked after pipeline application.It is injected
@@ -2982,11 +3186,11 @@ callables is adaptive: The first argument is used positionally (so no
 specific name is assumed or used) to supply the callable with the pandas
 DataFrame object to transform. The following additional keyword arguments
 are supplied if the are included in the callable's signature:
-<code>verbose</code> - Passed on from pdpipe's <code>fit</code>, <code>fit_transform</code>
-and <code>apply</code> methods.
-<code>fit_context</code> and <code>application_context</code> - Provides fit-specific and
-application-specific contexts, in the form of PdpApplicationContext
-objects, usually available to pipeline stages using <code>self.fit_context</code> and
+<code>verbose</code> - Passed on from PdPipelineStage's <code>fit</code>, <code>fit_transform</code>
+and <code>apply</code> methods.</p>
+<p><code>fit_context</code> and <code>application_context</code> - Provides fit-specific and
+application-specific contexts (see <code><a title="pdpipe.core.PdpApplicationContext" href="#pdpipe.core.PdpApplicationContext">PdpApplicationContext</a></code>) usually
+available to pipeline stages using <code>self.fit_context</code> and
 <code>self.application_context</code>.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
@@ -3002,7 +3206,19 @@ fit_transform. Optional. See documentation for the exact signature.</dd>
 <dd>A callable that returns a boolean value. Represent a a precondition
 used to determine whether this stage can be applied to a given
 dataframe. If None is given, set to a function always returning True.</dd>
-</dl></div>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame([[1, 'a'], [2, 'b']], [1, 2], ['num', 'char'])
+&gt;&gt;&gt; drop_num = pdp.AdHocStage(
+...   transform=lambda df: df.drop(['num'], axis=1),
+...   prec=lambda df: 'num' in df.columns
+... )
+&gt;&gt;&gt; drop_num.apply(df)
+  char
+1    a
+2    b
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -3016,13 +3232,19 @@ dataframe. If None is given, set to a function always returning True.</dd>
 <span>def <span class="ident">AggByCols</span></span>(<span>self, columns, func, result_columns=None, drop=True, func_desc=None, suffix=None, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Creates and adds a pipeline stage applying a series-wise function to columns to this pipeline stage.</p>
+<div class="desc"><p>Creates and adds a pipeline stage applying a series-wise function to columns to this pipeline stage.
+For applying element-wise function, see <code>ApplyByCols</code>.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list-like</code></dt>
-<dd>Names of columns on which to apply the given function.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code></dt>
+<dd>Column labels in the DataFrame to be transformed. Alternatively, this
+parameter can be assigned a callable returning an iterable of labels
+from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
 <dt><strong><code>func</code></strong> :&ensp;<code>function</code></dt>
-<dd>The function to be applied to each of the given columns.</dd>
+<dd>The function to be applied to each of the given columns. Must work when
+given a pandas.Series object and return either a Scaler or
+`pandas.Series``. If a Scaler is returned, the result is broadcasted
+into a column of the original length.</dd>
 <dt><strong><code>result_columns</code></strong> :&ensp;<code>str</code> or <code>list-like</code>, default <code>None</code></dt>
 <dd>The names of the new columns resulting from the mapping operation. Must
 be of the same length as columns. If None, behavior depends on the
@@ -3041,12 +3263,19 @@ is None and drop is set to False. Of not given, defaults to '_agg'.</dd>
 <pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import numpy as np;
 &gt;&gt;&gt; data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
 &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
-&gt;&gt;&gt; log_ph = pdp.ApplyByCols("ph", np.log)
+&gt;&gt;&gt; log_ph = pdp.AggByCols("ph", np.log)
 &gt;&gt;&gt; log_ph(df)
          ph  lbl
 1  1.163151  acd
 2  1.974081  alk
 3  2.493205  alk
+
+&gt;&gt;&gt; min_ph = pdp.AggByCols("ph", min, drop=False, suffix='_min')
+&gt;&gt;&gt; min_ph(df)
+     ph  ph_min  lbl
+1   3.2     3.2  acd
+2   7.2     3.2  alk
+3  12.1     3.2  alk
 </code></pre></div>
 <details class="source">
 <summary>
@@ -3061,13 +3290,14 @@ is None and drop is set to False. Of not given, defaults to '_agg'.</dd>
 <span>def <span class="ident">ApplyByCols</span></span>(<span>self, columns, func, result_columns=None, drop=True, func_desc=None, suffix=None, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Creates and adds a pipeline stage applying an element-wise function to columns to this pipeline stage.</p>
+<div class="desc"><p>Creates and adds a pipeline stage applying an element-wise function to columns to this pipeline stage.
+For applying series-wise function, see <code>AggByCols</code>.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> of <code>callable</code></dt>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code></dt>
 <dd>Column labels in the DataFrame to be transformed. Alternatively, this
 parameter can be assigned a callable returning an iterable of labels
-from an input pandas.DataFrame. See pdpipe.cq.</dd>
+from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
 <dt><strong><code>func</code></strong> :&ensp;<code>function</code></dt>
 <dd>The function to be applied to each element of the given columns.</dd>
 <dt><strong><code>result_columns</code></strong> :&ensp;<code>str</code> or <code>list-like</code>, default <code>None</code></dt>
@@ -3118,7 +3348,7 @@ of '_app'.</dd>
 <dd>The label of the new column resulting from the function application. If
 None, 'new_col' is used. Ignored if a DataFrame is generated by the
 function (i.e. each row generates a Series rather than a value), in
-which case the laebl of each column in the resulting DataFrame is used.</dd>
+which case the label of each column in the resulting DataFrame is used.</dd>
 <dt><strong><code>follow_column</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
 <dd>Resulting columns will be inserted after this column. If None, new
 columns are inserted at the end of the processed DataFrame.</dd>
@@ -3126,7 +3356,7 @@ columns are inserted at the end of the processed DataFrame.</dd>
 <dd>A function description of the given function; e.g. 'normalizing revenue
 by company size'. A default description is used if None is given.</dd>
 <dt><strong><code>prec</code></strong> :&ensp;<code>function</code>, default <code>None</code></dt>
-<dd>A function taking a DataFrame, returning True if it this stage is
+<dd>A function taking a DataFrame, returning True if this stage is
 applicable to the given DataFrame. If None is given, a function always
 returning True is used.</dd>
 </dl>
@@ -3141,6 +3371,7 @@ returning True is used.</dd>
 1      3         2143           6429
 2     10         1321          13210
 3      7         1255           8785
+
 &gt;&gt;&gt; def halfer(row):
 ...     new = {'year/2': row['years']/2, 'rev/2': row['avg_revenue']/2}
 ...     return pd.Series(new)
@@ -3165,7 +3396,7 @@ returning True is used.</dd>
 </code></dt>
 <dd>
 <div class="desc"><p>Creates and adds a pipeline stage that adds a binned version of a column or columns to this pipeline stage.</p>
-<p>If drop is set to True the new columns retain the names of the source
+<p>If drop is set to True, the new columns retain the names of the source
 columns; otherwise, the resulting column gain the suffix '_bin'</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
@@ -3183,7 +3414,7 @@ list [0, 5, 8] is interpreted as the bins (-∞, 0), [0-5), [5-8) and
 </dl>
 <h2 id="example">Example</h2>
 <pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-&gt;&gt;&gt; df = pd.DataFrame([[-3],[4],[5], [9]], [1,2,3, 4], ['speed'])
+&gt;&gt;&gt; df = pd.DataFrame([[-3],[4],[5],[9]], [1,2,3,4], ['speed'])
 &gt;&gt;&gt; pdp.Bin({'speed': [5]}, drop=False).apply(df)
    speed speed_bin
 1     -3        &lt;5
@@ -3210,7 +3441,7 @@ list [0, 5, 8] is interpreted as the bins (-∞, 0), [0-5), [5-8) and
 <span>def <span class="ident">ColByFrameFunc</span></span>(<span>self, column, func, follow_column=None, before_column=None, func_desc=None, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Creates and adds a pipeline stage adding a column by applying a dataframw-wide function to this pipeline stage.</p>
+<div class="desc"><p>Creates and adds a pipeline stage adding a column by applying a dataframe-wide function to this pipeline stage.</p>
 <p>Note that assigning <code>column</code> with the label of an existing column and
 providing the same label to the <code>before_column</code> parameter will result in
 replacing the original column at the same location.</p>
@@ -3257,7 +3488,7 @@ by company size'. A default description is used if None is given.</dd>
 </details>
 </dd>
 <dt id="pdpipe.core.PdPipelineStage.ColDrop"><code class="name flex">
-<span>def <span class="ident">ColDrop</span></span>(<span>self, columns: Union[object, List[object], <built-in function callable>], errors: Optional[str] = None, **kwargs: object)</span>
+<span>def <span class="ident">ColDrop</span></span>(<span>self, columns: Union[object, List[object], Callable], errors: Optional[str] = None, **kwargs: object)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Creates and adds a pipeline stage that drops columns by name to this pipeline stage.</p>
@@ -3266,7 +3497,7 @@ by company size'. A default description is used if None is given.</dd>
 <dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code></dt>
 <dd>The label, or an iterable of labels, of columns to drop. Alternatively,
 this parameter can be assigned a callable returning an iterable of
-labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
+labels from an input pandas.DataFrame (see <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>).</dd>
 <dt><strong><code>errors</code></strong> :&ensp;<code>{‘ignore’, ‘raise’}</code>, default <code>‘raise’</code></dt>
 <dd>If ‘ignore’, suppress error and existing labels are dropped.</dd>
 </dl>
@@ -3288,13 +3519,13 @@ labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
 </details>
 </dd>
 <dt id="pdpipe.core.PdPipelineStage.ColRename"><code class="name flex">
-<span>def <span class="ident">ColRename</span></span>(<span>self, rename_mapper, **kwargs)</span>
+<span>def <span class="ident">ColRename</span></span>(<span>self, rename_mapper: Union[Dict[~KT, ~VT], Callable], **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Creates and adds a pipeline stage that renames a column or columns to this pipeline stage.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>rename_mapper</code></strong> :&ensp;<code>dict-like</code> or <code>function</code></dt>
+<dt><strong><code>rename_mapper</code></strong> :&ensp;<code>dict-like</code> or <code>callable</code></dt>
 <dd>Maps old column names to new ones.</dd>
 </dl>
 <h2 id="example">Example</h2>
@@ -3304,6 +3535,15 @@ labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
    len initial
 1    8       a
 2    5       b
+
+&gt;&gt;&gt; def renamer(lbl: str):
+...    if lbl.startswith('n'):
+...       return 'foo'
+...    return lbl
+&gt;&gt;&gt; pdp.ColRename(renamer).apply(df)
+   foo char
+1    8    a
+2    5    b
 </code></pre></div>
 <details class="source">
 <summary>
@@ -3343,16 +3583,22 @@ positions over the non-mapped colums.</dd>
 </details>
 </dd>
 <dt id="pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer"><code class="name flex">
-<span>def <span class="ident">ColumnDtypeEnforcer</span></span>(<span>self, column_to_dtype: Dict[str, object], errors: Optional[str] = 'raise', **kwargs: object)</span>
+<span>def <span class="ident">ColumnDtypeEnforcer</span></span>(<span>self, column_to_dtype: Dict[~KT, ~VT], errors: Optional[str] = 'raise', **kwargs: object)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Creates and adds a pipeline stage enforcing column dtypes to this pipeline stage.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>column_to_dtype</code></strong> :&ensp;<code>dict</code> of <code>column name -&gt; data type</code></dt>
+<dt><strong><code>column_to_dtype</code></strong> :&ensp;<code>dict</code> of <code>labels / ColumnQualifiers to dtypes</code></dt>
 <dd>Use {col: dtype, …}, where col is a column label and dtype is a
 numpy.dtype or Python type to cast one or more of the DataFrame’s
-columns to column-specific types.</dd>
+columns to column-specific types. Alternatively, you can provide
+<code>ColumnQualifier</code> objects as keys. If at least one such key is present,
+the lbl-to-dtype dict is dynamically inferred each time the pipeline
+stage is applied (note that <code>ColumnQualifier</code> objects are fittable by
+default, so to have column labels re-inferred after the first stage
+application you'll have to set <code>fittable=False</code> for the
+<code>ColumnQualifier</code> you use, see <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>).</dd>
 <dt><strong><code>errors</code></strong> :&ensp;<code>{‘raise’, ‘ignore’}</code>, default <code>‘raise’</code></dt>
 <dd>Control raising of exceptions on invalid data for provided dtype.
 - raise : allow exceptions to be raised
@@ -3362,6 +3608,11 @@ columns to column-specific types.</dd>
 <pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
 &gt;&gt;&gt; df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'initial'])
 &gt;&gt;&gt; pdp.ColumnDtypeEnforcer({'num': float}).apply(df)
+   num initial
+1  8.0       a
+2  5.0       b
+
+&gt;&gt;&gt; pdp.ColumnDtypeEnforcer({pdp.cq.StartWith('n'): float}).apply(df)
    num initial
 1  8.0       a
 2  5.0       b
@@ -3382,11 +3633,11 @@ columns to column-specific types.</dd>
 <div class="desc"><p>Creates and adds a pipeline stage that applies transformation to dataframe columns to this pipeline stage.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> of <code>callable</code></dt>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code></dt>
 <dd>Column labels in the DataFrame to be transformed. Alternatively, this
 parameter can be assigned a callable returning an iterable of labels
-from an input pandas.DataFrame. See pdpipe.cq. If None is provided all
-input columns are transformed.</dd>
+from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>. If None is provided
+all input columns are transformed.</dd>
 <dt><strong><code>result_columns</code></strong> :&ensp;<code>single label</code> or <code>list-like</code>, default <code>None</code></dt>
 <dd>Labels for the new columns resulting from the transformations. Must
 be of the same length as columns. If None, behavior depends on the
@@ -3397,17 +3648,7 @@ the source column.</dd>
 <dd>If set to True, source columns are dropped after being transformed.</dd>
 <dt><strong><code>suffix</code></strong> :&ensp;<code>str</code>, default <code>'_transformed'</code></dt>
 <dd>The suffix transformed columns gain if no new column labels are given.</dd>
-</dl>
-<h2 id="example">Example</h2>
-<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
-&gt;&gt;&gt; df = pd.DataFrame([[1], [3], [2]], ['UK', 'USSR', 'US'], ['Medal'])
-&gt;&gt;&gt; value_map = {1: 'Gold', 2: 'Silver', 3: 'Bronze'}
-&gt;&gt;&gt; pdp.MapColVals('Medal', value_map).apply(df)
-       Medal
-UK      Gold
-USSR  Bronze
-US    Silver
-</code></pre></div>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -3424,15 +3665,15 @@ US    Silver
 <div class="desc"><p>Creates and adds a pipeline stage that operates on a subset of dataframe columns to this pipeline stage.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>object, iterable</code> or <code>callable</code></dt>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, iterable</code> or <code>callable</code></dt>
 <dd>The label, or an iterable of labels, of columns to use. Alternatively,
 this parameter can be assigned a callable returning an iterable of
-labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
-<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>object, iterable</code> or <code>callable</code>, optional</dt>
+labels from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
+<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>single label, iterable</code> or <code>callable</code>, optional</dt>
 <dd>The label, or an iterable of labels, of columns to exclude, given the
 <code>columns</code> parameter. Alternatively, this parameter can be assigned a
 callable returning a labels iterable from an input pandas.DataFrame.
-See pdpipe.cq. Optional. By default no columns are excluded.</dd>
+See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>. Optional. By default no columns are excluded.</dd>
 <dt><strong><code>desc_temp</code></strong> :&ensp;<code>str</code>, optional</dt>
 <dd>If given, assumed to be a format string, and every appearance of {} in
 it is replaced with an appropriate string representation of the columns
@@ -3468,13 +3709,12 @@ the default column qualifier that determines input columns when
 <p>The constructor expects either a single callable or a list-like of callable
 objects, and checks that all these callable return True - meaning all
 defined conditions hold - for input dataframes.</p>
-<p>Naturally, pdpipe Condition objects from the pdpipe.cond module can be
-used.</p>
+<p>Naturally, pdpipe <code>Condition</code> objects from the <code><a title="pdpipe.cond" href="cond.html">pdpipe.cond</a></code> module can be used.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>conditions</code></strong> :&ensp;<code>callable</code> or <code>list-like</code> of <code>callable</code></dt>
 <dd>The conditions to check for input dataframes. Naturally, pdpipe
-Condition objects from the pdpipe.cond module can be used.</dd>
+<code>Condition</code> objects from the <code><a title="pdpipe.cond" href="cond.html">pdpipe.cond</a></code> module can be used.</dd>
 <dt><strong><code>reducer</code></strong> :&ensp;<code>callable</code>, optional</dt>
 <dd>The callable that reduces the list of boolean result to a single
 result. By default the built-in <code>all</code> function is used, so all
@@ -3492,7 +3732,12 @@ continues. Any other value is interpreted as 'raise'.</dd>
 <h2 id="example">Example</h2>
 <pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
 &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,None],[1,11]], [1,2,3], ['a','b'])
-&gt;&gt;&gt; pdp.ConditionValidator(pdp.cond.HasNoMissingValues())(df)
+&gt;&gt;&gt; pdp.ConditionValidator(lambda df: len(df.columns) == 5).apply(df)
+Traceback (most recent call last):
+   ...
+pdpipe.exceptions.FailedConditionError: ConditionValidator stage failed; some conditions did not hold for the input dataframe!
+
+&gt;&gt;&gt; pdp.ConditionValidator(pdp.cond.HasNoMissingValues()).apply(df)
 Traceback (most recent call last):
    ...
 pdpipe.exceptions.FailedConditionError: ConditionValidator stage failed; some conditions did not hold for the input dataframe!
@@ -3520,7 +3765,7 @@ populated, duplicates are dropped from all columns.</dd>
 <dd>The label, or an iterable of labels, of columns to exclude, given the
 <code>columns</code> parameter. Alternatively, this parameter can be assigned a
 callable returning a labels iterable from an input pandas.DataFrame.
-See pdpipe.cq. Optional. By default no columns are excluded.</dd>
+See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>. Optional. By default no columns are excluded.</dd>
 </dl>
 <h2 id="examples">Examples</h2>
 <pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
@@ -3572,10 +3817,10 @@ is an iterable of string tokens.</p>
 <p>Note: The nltk package must be installed for this pipeline stage to work.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> of <code>callable</code></dt>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code></dt>
 <dd>Column labels in the DataFrame to be transformed. Alternatively, this
 parameter can be assigned a callable returning an iterable of labels
-from an input pandas.DataFrame. See pdpipe.cq.</dd>
+from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
 <dt><strong><code>threshold</code></strong> :&ensp;<code>int</code></dt>
 <dd>The rarity threshold to use. Only tokens appearing more than this
 number of times in a column will remain in token lists in that column.</dd>
@@ -3610,8 +3855,10 @@ Otherwise, the new columns gain the suffix '_norare'.</dd>
 <div class="desc"><p>Creates and adds a pipeline stage removing tokens by length in string-token list columns to this pipeline stage.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list-like</code></dt>
-<dd>Names of token list columns on which to apply token filtering.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code></dt>
+<dd>Names of token list columns on which to apply token filtering.
+Alternatively, this parameter can be assigned a callable returning an
+iterable of labels from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
 <dt><strong><code>min_len</code></strong> :&ensp;<code>int</code></dt>
 <dd>The minimum length of tokens to keep. Tokens of shorter length are
 removed from all token lists.</dd>
@@ -3653,8 +3900,10 @@ suffix '_filtered'.</dd>
 <div class="desc"><p>Creates and adds a pipeline stage removing specific tokens in string-token list columns to this pipeline stage.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list-like</code></dt>
-<dd>Names of token list columns on which to apply token filtering.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code></dt>
+<dd>Names of token list columns on which to apply token filtering.
+Alternatively, this parameter can be assigned a callable returning an
+iterable of labels from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
 <dt><strong><code>bad_tokens</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
 <dd>The list of string tokens to remove from all token lists.</dd>
 <dt><strong><code>result_columns</code></strong> :&ensp;<code>str</code> or <code>list-like</code>, default <code>None</code></dt>
@@ -3700,15 +3949,22 @@ sklearn.preprocessing.LabelEncoder object used to encode it.</p>
 all the columns with object or category dtype will be converted, except
 those given in the exclude_columns parameter. Alternatively,
 this parameter can be assigned a callable returning an iterable of
-labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
-<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>str</code> or <code>list-like</code>, default <code>None</code></dt>
+labels from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
+<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code>, default <code>None</code></dt>
 <dd>Label or labels of columns to be excluded from encoding. If None then
 no column is excluded. Alternatively, this parameter can be assigned a
-callable returning an iterable of labels from an input</dd>
+callable returning an iterable of labels from an input
+pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
 <dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
 <dd>If set to True, the source columns are dropped after being encoded,
 and the resulting encoded columns retain the names of the source
 columns. Otherwise, encoded columns gain the suffix '_enc'.</dd>
+</dl>
+<h2 id="attributes">Attributes</h2>
+<dl>
+<dt><strong><code>encoders</code></strong> :&ensp;<code>dict</code></dt>
+<dd>A dictionary mapping each encoded column name to the corresponding
+sklearn.preprocessing.LabelEncoder object. Empty object if not fitted.</dd>
 </dl>
 <h2 id="example">Example</h2>
 <pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
@@ -3737,6 +3993,8 @@ array(['acd', 'alk', 'alk'], dtype=object)
 </code></dt>
 <dd>
 <div class="desc"><p>Creates and adds a wrapper that applies a stage to input data only when fitting to this pipeline stage.</p>
+<p>In other words, the input data is not transformed if the stage has
+already been fitted once.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>stage</code></strong> :&ensp;<code><a title="pdpipe.core.PdPipelineStage" href="#pdpipe.core.PdPipelineStage">PdPipelineStage</a></code></dt>
@@ -3766,7 +4024,7 @@ array(['acd', 'alk', 'alk'], dtype=object)
 </details>
 </dd>
 <dt id="pdpipe.core.PdPipelineStage.FreqDrop"><code class="name flex">
-<span>def <span class="ident">FreqDrop</span></span>(<span>self, threshold, column, **kwargs)</span>
+<span>def <span class="ident">FreqDrop</span></span>(<span>self, threshold: int, column: str, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Creates and adds a pipeline stage that drops rows by value frequency to this pipeline stage.</p>
@@ -3801,17 +4059,17 @@ array(['acd', 'alk', 'alk'], dtype=object)
 <div class="desc"><p>Creates and adds a pipeline stage that log-transforms numeric data to this pipeline stage.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list-like</code>, default <code>None</code></dt>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code>, default <code>None</code></dt>
 <dd>Column names in the DataFrame to be encoded. If columns is None then
 all the columns with a numeric dtype will be transformed, except those
 given in the exclude_columns parameter. Alternatively,
 this parameter can be assigned a callable returning an iterable of
-labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
-<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>str</code> or <code>list-like</code>, default <code>None</code></dt>
+labels from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
+<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code>, default <code>None</code></dt>
 <dd>Label or labels of columns to be excluded from encoding. If None then
 no column is excluded. Alternatively, this parameter can be assigned a
 callable returning an iterable of labels from an input
-pandas.DataFrame. See pdpipe.cq. Optional.</dd>
+pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>. Optional.</dd>
 <dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>False</code></dt>
 <dd>If set to True, the source columns are dropped after being encoded,
 and the resulting encoded columns retain the names of the source
@@ -3845,7 +4103,7 @@ then is the column shifted by this constant.</dd>
 </details>
 </dd>
 <dt id="pdpipe.core.PdPipelineStage.MapColVals"><code class="name flex">
-<span>def <span class="ident">MapColVals</span></span>(<span>self, columns: Union[object, List[object], <built-in function callable>], value_map: Union[dict, pandas.core.series.Series, Callable, str, Tuple[str, dict]], result_columns: Union[object, List[object], None] = None, drop: Optional[bool] = True, suffix: Optional[str] = None, **kwargs: Dict[str, object])</span>
+<span>def <span class="ident">MapColVals</span></span>(<span>self, columns: Union[object, List[object], Callable], value_map: Union[dict, pandas.core.series.Series, Callable, str, Tuple[str, dict]], result_columns: Union[object, List[object], None] = None, drop: Optional[bool] = True, suffix: Optional[str] = None, **kwargs: Dict[str, object])</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Creates and adds a pipeline stage that replaces the values of a column by a map to this pipeline stage.</p>
@@ -3854,8 +4112,8 @@ then is the column shifted by this constant.</dd>
 <dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code></dt>
 <dd>Column labels in the DataFrame to be mapped. Alternatively, this
 parameter can be assigned a callable returning an iterable of labels
-from an input pandas.DataFrame. See pdpipe.cq. If None is provided all
-input columns are mapped.</dd>
+from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>. If None is provided
+all input columns are mapped.</dd>
 <dt><strong><code>value_map</code></strong> :&ensp;<code>dict, pandas.Series, callable, str</code> or <code>tuple</code></dt>
 <dd>The value-to-value map to use, mapping existing values to new one. If a
 dictionary is provided, its mapping is used. Values not in the
@@ -3873,7 +4131,7 @@ to their values.</dd>
 be of the same length as columns. If None, behavior depends on the
 drop parameter: If drop is True, then the label of the source column is
 used; otherwise, the label of the source column is used with the suffix
-'_map'.</dd>
+given ("_map" by default).</dd>
 <dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
 <dd>If set to True, source columns are dropped after being mapped.</dd>
 <dt><strong><code>suffix</code></strong> :&ensp;<code>str</code>, default <code>'_map'</code></dt>
@@ -3888,6 +4146,22 @@ used; otherwise, the label of the source column is used with the suffix
 UK      Gold
 USSR  Bronze
 US    Silver
+
+&gt;&gt;&gt; from datetime import timedelta;
+&gt;&gt;&gt; df = pd.DataFrame(
+...    data=[
+...       [timedelta(weeks=2)],
+...       [timedelta(weeks=4)],
+...       [timedelta(weeks=10)]
+...    ],
+...    index=['proposal', 'midterm', 'finals'],
+...    columns=['Due'],
+... )
+&gt;&gt;&gt; pdp.MapColVals('Due', ('total_seconds', {})).apply(df)
+                Due
+proposal  1209600.0
+midterm   2419200.0
+finals    6048000.0
 </code></pre></div>
 <details class="source">
 <summary>
@@ -3905,7 +4179,7 @@ US    Silver
 <div class="desc"><p>Creates and adds a pipeline stage that one-hot-encodes categorical columns to this pipeline stage.</p>
 <p>By default only k-1 dummies are created fo k categorical levels, as to
 avoid perfect multicollinearity between the dummy features (also called
-the dummy variabletrap). This is done since features are usually one-hot
+the dummy variable trap). This is done since features are usually one-hot
 encoded for use with linear models, which require this behaviour.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
@@ -3914,14 +4188,14 @@ encoded for use with linear models, which require this behaviour.</p>
 all the columns with object or category dtype will be converted, except
 those given in the exclude_columns parameter. Alternatively,
 this parameter can be assigned a callable returning an iterable of
-labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
+labels from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
 <dt><strong><code>dummy_na</code></strong> :&ensp;<code>bool</code>, default <code>False</code></dt>
 <dd>Add a column to indicate NaNs, if False NaNs are ignored.</dd>
-<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>str</code> or <code>list-like</code>, default <code>None</code></dt>
+<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code>, default <code>None</code></dt>
 <dd>Label or labels of columns to be excluded from encoding. If None then
 no column is excluded. Alternatively, this parameter can be assigned a
 callable returning an iterable of labels from an input
-pandas.DataFrame. See pdpipe.cq. Optional.</dd>
+pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>. Optional.</dd>
 <dt><strong><code>drop_first</code></strong> :&ensp;<code>bool</code> or <code>single label</code>, default <code>True</code></dt>
 <dd>Whether to get k-1 dummies out of k categorical levels by removing the
 first level. If a non bool argument matching one of the categories is
@@ -3954,7 +4228,7 @@ category will still be dropped.</dd>
 </code></dt>
 <dd>
 <div class="desc"><p>Creates and adds a pipeline for processing pandas DataFrame objects to this pipeline stage.</p>
-<p>transformer_getter is usefull to avoid applying pipeline stages that are
+<p><code>transformer_getter</code> is useful to avoid applying pipeline stages that are
 aimed to filter out items in a big dataset to create a training set for a
 machine learning model, for example, but should not be applied on future
 individual items to be transformed by the fitted pipeline.</p>
@@ -3978,33 +4252,33 @@ entirely.</dd>
 </details>
 </dd>
 <dt id="pdpipe.core.PdPipelineStage.RegexReplace"><code class="name flex">
-<span>def <span class="ident">RegexReplace</span></span>(<span>self, columns: Union[object, List[object], <built-in function callable>], pattern: str, replace: str, flags: Optional[int] = 0, result_columns: Union[object, List[object], None] = None, drop: Optional[bool] = True, func_desc: Optional[str] = None, **kwargs)</span>
+<span>def <span class="ident">RegexReplace</span></span>(<span>self, columns: Union[object, List[object], Callable], pattern: str, replace: str, flags: Optional[int] = 0, result_columns: Union[object, List[object], None] = None, drop: Optional[bool] = True, func_desc: Optional[str] = None, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Creates and adds a pipeline stage replacing regex occurences in a text column to this pipeline stage.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> of <code>callable</code></dt>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code></dt>
 <dd>Column labels in the DataFrame which regex replacement be applied to.
 Alternatively, this parameter can be assigned a callable returning an
-iterable of labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
+iterable of labels from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
 <dt><strong><code>pattern</code></strong> :&ensp;<code>str</code></dt>
 <dd>The regex whose occurences will be replaced.</dd>
 <dt><strong><code>replace</code></strong> :&ensp;<code>str</code></dt>
 <dd>The replacement string to use. This is equivalent to repl in re.sub.</dd>
 <dt><strong><code>flags</code></strong> :&ensp;<code>int</code>, default <code>0</code></dt>
-<dd>&nbsp;</dd>
+<dd>Regex flags that are compatible with Python's <code>re</code> module.</dd>
 <dt><strong><code>result_columns</code></strong> :&ensp;<code>label</code> or <code>list-like</code> of <code>labels</code>, default <code>None</code></dt>
 <dd>The labels of the new columns resulting from the mapping operation.
 Must be of the same length as columns. If None, behavior depends on the
 drop parameter: If drop is True, the label of the source column is
-used; otherwise, the label of the source column is caster to a string
+used; otherwise, the label of the source column is casted to a string
 and concatenated with the suffix '_reg'.</dd>
 <dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
 <dd>If set to True, source columns are dropped after being transformed.</dd>
 </dl>
 <h2 id="example">Example</h2>
-<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import re;
 &gt;&gt;&gt; data = [[4, "more than 12"], [5, "with 5 more"]]
 &gt;&gt;&gt; df = pd.DataFrame(data, [1,2], ["age","text"])
 &gt;&gt;&gt; clean_num = pdp.RegexReplace('text', r'\b[0-9]+\b', "NUM")
@@ -4012,6 +4286,17 @@ and concatenated with the suffix '_reg'.</dd>
    age           text
 1    4  more than NUM
 2    5  with NUM more
+
+&gt;&gt;&gt; data = [["Mr. John", 18], ["MR. Bob", 25]]
+&gt;&gt;&gt; df = pd.DataFrame(data, [1,2], ["name","age"])
+&gt;&gt;&gt; match_men = r'^mr.*'
+&gt;&gt;&gt; censor_men = pdp.RegexReplace(
+...    'name', match_men, "x", flags=re.IGNORECASE
+... )
+&gt;&gt;&gt; censor_men(df)
+  name  age
+1    x   18
+2    x   25
 </code></pre></div>
 <details class="source">
 <summary>
@@ -4032,15 +4317,15 @@ is an iterable of string tokens.</p>
 <p>Note: The nltk package must be installed for this pipeline stage to work.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>langugae</code></strong> :&ensp;<code>str</code> or <code>array-like</code></dt>
+<dt><strong><code>language</code></strong> :&ensp;<code>str</code> or <code>array-like</code></dt>
 <dd>If a string is given, interpreted as the language of the stopwords, and
 should then be one of the languages supported by the NLTK Stopwords
 Corpus. If a list is given, it is assumed to be the list of stopwords
 to remove.</dd>
-<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> of <code>callable</code></dt>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code></dt>
 <dd>Column labels in the DataFrame to be transformed. Alternatively, this
 parameter can be assigned a callable returning an iterable of labels
-from an input pandas.DataFrame. See pdpipe.cq.</dd>
+from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
 <dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
 <dd>If set to True, the source columns are dropped after stopword removal,
 and the resulting columns retain the names of the source columns.
@@ -4068,7 +4353,7 @@ Otherwise, resulting columns gain the suffix '_nostop'.</dd>
 <span>def <span class="ident">RowDrop</span></span>(<span>self, conditions, reduce=None, columns=None, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Creates and adds a pipeline stage that drop rows by callable conditions to this pipeline stage.</p>
+<div class="desc"><p>Creates and adds a pipeline stage that drops rows by callable conditions to this pipeline stage.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>conditions</code></strong> :&ensp;<code>list-like</code> or <code>dict</code></dt>
@@ -4084,20 +4369,20 @@ satisfy all given conditions to be dropped. If set to 'any', rows
 satisfying at least one of the conditions are dropped. If set to 'xor',
 rows satisfying exactly one of the conditions will be dropped. Set to
 'any' by default.</dd>
-<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>iterable</code>, optional</dt>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, iterable</code> or <code>callable</code>, optional</dt>
 <dd>The label, or an iterable of labels, of columns. Alternatively,
 this parameter can be assigned a callable returning an iterable of
-labels from an input pandas.DataFrame. See pdpipe.cq. If given,
+labels from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>. If given,
 input conditions will be applied to the sub-dataframe made up of
 these columns to determine which rows to drop. Ignored if <code>conditions</code>
 is provided with a dict object. If <code>conditions</code> is a list and this
 parameter is not provided, all columns are checked (unless
 <code>exclude_columns</code> is additionally provided)</dd>
-<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>object, iterable</code> or <code>callable</code>, optional</dt>
+<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>single label, iterable</code> or <code>callable</code>, optional</dt>
 <dd>The label, or an iterable of labels, of columns to exclude, given the
 <code>columns</code> parameter. Alternatively, this parameter can be assigned a
 callable returning a labels iterable from an input pandas.DataFrame.
-See pdpipe.cq. Optional. By default no columns are excluded.</dd>
+See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>. Optional. By default no columns are excluded.</dd>
 </dl>
 <h2 id="example">Example</h2>
 <pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
@@ -4130,17 +4415,17 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 <dt><strong><code>scaler</code></strong> :&ensp;<code>str</code></dt>
 <dd>The type of scaler to use to scale the data. One of 'StandardScaler',
 'MinMaxScaler', 'MaxAbsScaler', 'RobustScaler', 'QuantileTransformer'
-and 'Normalizer'.</dd>
+and 'Normalizer'. Refer to scikit-learn's documentation for usage.</dd>
 <dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code>, default <code>None</code></dt>
-<dd>Column labels in the DataFrame to be scale. If columns is None then
+<dd>Column labels in the DataFrame to be scaled. If columns is None then
 all columns of numeric dtype will be scaled, except those given in the
 exclude_columns parameter. Alternatively, this parameter can be
 assigned a callable returning an iterable of labels from an input
-pandas.DataFrame. See pdpipe.cq.</dd>
-<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>str</code> or <code>list-like</code>, optional</dt>
+pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
+<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code>, default <code>None</code></dt>
 <dd>Label or labels of columns to be excluded from encoding. Alternatively,
 this parameter can be assigned a callable returning an iterable of
-labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
+labels from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
 <dt><strong><code>joint</code></strong> :&ensp;<code>bool</code>, default <code>False</code></dt>
 <dd>If set to True, all scaled columns will be scaled as a single value
 set (meaning, only the single largest value among all input columns
@@ -4179,7 +4464,7 @@ to override Scale class defaults.</dd>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>columns</code></strong> :&ensp;<code>sequence</code> of <code>labels</code></dt>
-<dd>The dataframe schema to enfore on input dataframes.</dd>
+<dd>The dataframe schema to enforce on input dataframes.</dd>
 </dl>
 <h2 id="example">Example</h2>
 <pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
@@ -4240,10 +4525,10 @@ is an iterable of string tokens.</p>
 <dt><strong><code>stemmer_name</code></strong> :&ensp;<code>str</code></dt>
 <dd>The name of the Snowball stemmer to use. Should be one of the Snowball
 stemmers implemented by nltk. E.g. 'EnglishStemmer'.</dd>
-<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> of <code>callable</code></dt>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code></dt>
 <dd>Column labels in the DataFrame to be transformed. Alternatively, this
 parameter can be assigned a callable returning an iterable of labels
-from an input pandas.DataFrame. See pdpipe.cq.</dd>
+from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
 <dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
 <dd>If set to True, the source columns are dropped after stemming, and the
 resulting columns retain the names of the source columns. Otherwise,
@@ -4281,10 +4566,10 @@ representing a single token. The resulting TF-IDF vector is exploded into
 individual columns, each with the label 'lbl_i' where lbl is the original
 column label and i is the index of column in the count vector.</p>
 <p>The resulting columns are concatenated to the end of the dataframe.</p>
-<p>All valid sklearn.TfidfVectorizer keyword arguemnts can be provided as
-keyword arguments to the constructor, except 'input' and 'analyzer', which
-will be ignored. As usual, all valid PdPipelineStage constructor parameters
-can also be provided as keyword arguments.</p>
+<p>All valid sklearn.feature_extraction.text.TfidfVectorizer keyword arguments
+can be provided as keyword arguments to the constructor, except 'input' and
+'analyzer', which will be ignored. As usual, all valid PdPipelineStage
+constructor parameters can also be provided as keyword arguments.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>column</code></strong> :&ensp;<code>str</code></dt>
@@ -4323,14 +4608,14 @@ originating in different text columns do not overwrite one another.</dd>
 <span>def <span class="ident">TokenizeText</span></span>(<span>self, columns, drop=True, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Creates and adds a pipeline stage that tokenize a text column into token lists to this pipeline stage.</p>
+<div class="desc"><p>Creates and adds a pipeline stage that tokenizes a text column into token lists to this pipeline stage.</p>
 <p>Note: The nltk package must be installed for this pipeline stage to work.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> of <code>callable</code></dt>
 <dd>Column labels in the DataFrame to be transformed. Alternatively, this
 parameter can be assigned a callable returning an iterable of labels
-from an input pandas.DataFrame. See pdpipe.cq.</dd>
+from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
 <dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
 <dd>If set to True, the source columns are dropped after being tokenized,
 and the resulting tokenized columns retain the names of the source
@@ -4358,7 +4643,7 @@ columns. Otherwise, tokenized columns gain the suffix '_tok'.</dd>
 <span>def <span class="ident">UntokenizeText</span></span>(<span>self, columns, drop=True, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Creates and adds a pipeline stage that joins token lists to whitespace-seperated strings to this pipeline stage.</p>
+<div class="desc"><p>Creates and adds a pipeline stage that joins token lists to whitespace-separated strings to this pipeline stage.</p>
 <p>Target columns must be series of token lists; i.e. every cell in the series
 is an iterable of string tokens.</p>
 <p>Note: The nltk package must be installed for this pipeline stage to work.</p>
@@ -4367,7 +4652,7 @@ is an iterable of string tokens.</p>
 <dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> of <code>callable</code></dt>
 <dd>Column labels in the DataFrame to be transformed. Alternatively, this
 parameter can be assigned a callable returning an iterable of labels
-from an input pandas.DataFrame. See pdpipe.cq.</dd>
+from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
 <dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
 <dd>If set to True, the source columns are dropped after being untokenized,
 and the resulting columns retain the names of the source columns.
@@ -4392,7 +4677,7 @@ Otherwise, untokenized columns gain the suffix '_untok'.</dd>
 </details>
 </dd>
 <dt id="pdpipe.core.PdPipelineStage.ValDrop"><code class="name flex">
-<span>def <span class="ident">ValDrop</span></span>(<span>self, values: List[object], columns: Union[object, List[object], <built-in function callable>] = None, **kwargs: object)</span>
+<span>def <span class="ident">ValDrop</span></span>(<span>self, values: List[object], columns: Union[object, List[object], Callable] = None, **kwargs: object)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Creates and adds a pipeline stage that drops rows by value to this pipeline stage.</p>
@@ -4404,12 +4689,12 @@ Otherwise, untokenized columns gain the suffix '_untok'.</dd>
 <dd>The label, or an iterable of labels, of columns to check for the given
 values. Alternatively, this parameter can be assigned a callable
 returning an iterable of labels from an input pandas.DataFrame. See
-pdpipe.cq. If set to None, all columns are checked.</dd>
-<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>object, iterable</code> or <code>callable</code>, optional</dt>
+<code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>. If set to None, all columns are checked.</dd>
+<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>label, iterable</code> or <code>callable</code>, optional</dt>
 <dd>The label, or an iterable of labels, of columns to exclude, given the
 <code>columns</code> parameter. Alternatively, this parameter can be assigned a
 callable returning a labels iterable from an input pandas.DataFrame.
-See pdpipe.cq. Optional. By default no columns are excluded.</dd>
+See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>. Optional. By default no columns are excluded.</dd>
 </dl>
 <h2 id="example">Example</h2>
 <pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
@@ -4444,12 +4729,12 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 <dd>The label, or an iterable of labels, of columns to check for the given
 values. Alternatively, this parameter can be assigned a callable
 returning an iterable of labels from an input pandas.DataFrame. See
-pdpipe.cq. If set to None, all columns are checked.</dd>
-<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>object, iterable</code> or <code>callable</code>, optional</dt>
+<code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>. If set to None, all columns are checked.</dd>
+<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>single label, iterable</code> or <code>callable</code>, optional</dt>
 <dd>The label, or an iterable of labels, of columns to exclude, given the
 <code>columns</code> parameter. Alternatively, this parameter can be assigned a
 callable returning a labels iterable from an input pandas.DataFrame.
-See pdpipe.cq. Optional. By default no columns are excluded.</dd>
+See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>. Optional. By default no columns are excluded.</dd>
 </dl>
 <h2 id="example">Example</h2>
 <pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
@@ -4999,7 +5284,8 @@ those key/value pairs: d.update(red=1, blue=2).</p></div>
 </li>
 <li>
 <h4><code><a title="pdpipe.core.PdPipeline" href="#pdpipe.core.PdPipeline">PdPipeline</a></code></h4>
-<ul class="">
+<ul class="two-column">
+<li><code><a title="pdpipe.core.PdPipeline.apply" href="#pdpipe.core.PdPipeline.apply">apply</a></code></li>
 <li><code><a title="pdpipe.core.PdPipeline.fit" href="#pdpipe.core.PdPipeline.fit">fit</a></code></li>
 <li><code><a title="pdpipe.core.PdPipeline.fit_transform" href="#pdpipe.core.PdPipeline.fit_transform">fit_transform</a></code></li>
 <li><code><a title="pdpipe.core.PdPipeline.get_transformer" href="#pdpipe.core.PdPipeline.get_transformer">get_transformer</a></code></li>

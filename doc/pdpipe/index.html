@@ -36,13 +36,13 @@ mixed-type data.</p>
 <li>Chaining pipeline stages constructor calls for easy, one-liners pipelines.</li>
 <li>Pipeline arithmetics.</li>
 <li>Easier handling of mixed data (numeric, categorical and others).</li>
-<li><a href="https://travis-ci.org/pdpipe/pdpipe&gt;">Fully tested on Linux, macOS and Windows systems</a>.</li>
+<li><a href="https://travis-ci.org/pdpipe/pdpipe">Fully tested on Linux, macOS and Windows systems</a>.</li>
 <li>Compatible with Python 3.5+.</li>
 <li>Pure Python.</li>
 </ul>
 <h2 id="design-decisions">Design Decisions</h2>
 <ul>
-<li><strong>Extra infromative naming:</strong> Meant to make pipelines very readable, understanding their entire flow by pipeline stages names; e.g. ColDrop vs. ValDrop instead of an all-encompassing Drop stage emulating the <code>pandas.DataFrame.drop</code> method.</li>
+<li><strong>Extra informative naming:</strong> Meant to make pipelines very readable, understanding their entire flow by pipeline stages names; e.g. ColDrop vs. ValDrop instead of an all-encompassing Drop stage emulating the <code>pandas.DataFrame.drop</code> method.</li>
 <li><strong>Data science-oriented naming</strong> (rather than statistics).</li>
 <li><strong>A functional approach:</strong> Pipelines never change input DataFrames. Nothing is done "in place".</li>
 <li><strong>Opinionated operations:</strong> Help novices avoid mistake by default appliance of good practices; e.g., one-hot-encoding (creating dummy variables) a column will drop one of the resulting columns by default, to avoid <a href="http://www.algosome.com/articles/dummy-variable-trap-regression.html">the dummy variable trap</a> (perfect <a href="https://en.wikipedia.org/wiki/Multicollinearity">multicollinearity</a>).</li>
@@ -103,7 +103,7 @@ method can be used to give stages as positional arguments.</p>
 <pre><code class="language-python">    pipeline = pdp.make_pdpipeline(pdp.ColDrop(&quot;Name&quot;), pdp.OneHotEncode(&quot;Label&quot;))
 </code></pre>
 <h3 id="printing-pipelines">Printing Pipelines</h3>
-<p>A pipeline structre can be clearly displayed by printing the object:</p>
+<p>A pipeline structure can be clearly displayed by printing the object:</p>
 <pre><code class="language-python">  &gt;&gt;&gt; drop_name = pdp.ColDrop(&quot;Name&quot;)
   &gt;&gt;&gt; binar_label = pdp.OneHotEncode(&quot;Label&quot;)
   &gt;&gt;&gt; map_job = pdp.MapColVals(&quot;Job&quot;, {&quot;Part&quot;: True, &quot;Full&quot;:True, &quot;No&quot;: False})
@@ -158,15 +158,16 @@ parameter to a pipeline apply call with a bool sets or unsets exception raising 
 <p>Additionally, passing <code>verbose=True</code> to a pipeline apply call will apply all pipeline stages verbosely:</p>
 <pre><code class="language-python">  res_df = pipeline.apply(df, verbose=True)
 </code></pre>
-<p>Finally, <code>fit</code>, <code>transform</code> and <code>fit_transform</code> all call the corresponding pipeline stage methods of all stages composing the pipeline</p>
+<p>Finally, <code>fit</code>, <code>transform</code> and <code>fit_transform</code> all call the corresponding pipeline stage methods of all stages composing the pipeline.</p>
 <h2 id="column-qualifiers">Column Qualifiers</h2>
-<p>All <code><a title="pdpipe" href="#pdpipe">pdpipe</a></code> pipeline stages that posses the <code>columns</code> parameter can accept callables - instead of lists of labels - as valid arguments to that parameter. These callables are assumed to be column qualifiers - functions that can be applied to an input dataframe to extract the list of labels to operate on in run time.</p>
+<p>All <code><a title="pdpipe" href="#pdpipe">pdpipe</a></code> pipeline stages that possess the <code>columns</code> parameter can accept callables - instead of lists of labels - as valid arguments to that parameter. These callables are assumed to be column qualifiers - functions that can be applied to an input dataframe to extract the list of labels to operate on in run time.</p>
 <p>The module <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code> provides a powerful class - <code>ColumnQualifier</code> - implementing this idea with various enhancements, like the ability to fit a list of labels in fit time to be retained for future transforms and support for various boolean operators between column qualifiers.</p>
 <p>It also provides ready implementations for qualifiers qualifying columns by label, dtype and the number of missing values. This enable powerful behaviours like dropping columns by missing value frequency, scaling only integer columns or performing PCA on the subset of columns starting with the string <code>'tfidf_token_'</code>.</p>
 <p>Read more on column qualifiers in the documentation of the <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code> module.</p>
 <h1 id="types-of-pipeline-stages">Types of Pipeline Stages</h1>
 <p>All built-in stages are thoroughly documented, including examples; if you find any documentation lacking please open an issue. A list of briefly described available built-in stages follows:</p>
 <h2 id="basic-stages">Basic Stages</h2>
+<p>Refer to submodule <code><a title="pdpipe.basic_stages" href="basic_stages.html">pdpipe.basic_stages</a></code></p>
 <ul>
 <li>AdHocStage - Define custom pipeline stages on the fly.</li>
 <li>ColDrop - Drop columns by name.</li>
@@ -181,6 +182,7 @@ parameter to a pipeline apply call with a bool sets or unsets exception raising 
 <li>DropDuplicates - Drop duplicate values in a subset of columns.</li>
 </ul>
 <h2 id="column-generation">Column Generation</h2>
+<p>Refer to submodule <code><a title="pdpipe.col_generation" href="col_generation.html">pdpipe.col_generation</a></code></p>
 <ul>
 <li>Bin - Convert a continuous valued column to categoric data using binning.</li>
 <li>OneHotEncode - Convert a categorical column to the several binary columns corresponding to it.</li>
@@ -192,18 +194,21 @@ parameter to a pipeline apply call with a bool sets or unsets exception raising 
 <li>Log - Log-transform numeric data, possibly shifting data before.</li>
 </ul>
 <h2 id="text-stages">Text Stages</h2>
+<p>Refer to submodule <code><a title="pdpipe.text_stages" href="text_stages.html">pdpipe.text_stages</a></code></p>
 <ul>
 <li>RegexReplace - Replace regex occurences in columns of strings.</li>
 <li>DropTokensByLength - Drop tokens in token lists by token length.</li>
 <li>DropTokensByList - Drop every occurence of a given set of string tokens in token lists.</li>
 </ul>
 <h2 id="scikit-learn-dependent-stages">Scikit-learn-dependent Stages</h2>
+<p>Refer to submodule <code><a title="pdpipe.sklearn_stages" href="sklearn_stages.html">pdpipe.sklearn_stages</a></code></p>
 <ul>
 <li>Encode - Encode a categorical column to corresponding number values.</li>
 <li>Scale - Scale data with any of the sklearn scalers.</li>
 <li>TfidfVectorizeTokenLists - Transform a column of token lists into the correponding set of tfidf vector columns.</li>
 </ul>
 <h2 id="nltk-dependent-stages">nltk-dependent Stages</h2>
+<p>Refer to submodule <code><a title="pdpipe.nltk_stages" href="nltk_stages.html">pdpipe.nltk_stages</a></code></p>
 <ul>
 <li>TokenizeWords - Tokenize a sentence into a list of tokens by whitespaces.</li>
 <li>UntokenizeWords - Joins token lists into whitespace-seperated strings.</li>
@@ -213,7 +218,7 @@ parameter to a pipeline apply call with a bool sets or unsets exception raising 
 </ul>
 <h1 id="creating-additional-stages">Creating additional stages</h1>
 <h2 id="extending-pdpipelinestage">Extending Pdpipelinestage</h2>
-<p>To use other stages than the built-in ones (see <a href="#types-of-pipeline-stages">Types of Pipeline Stages</a> you can extend the
+<p>To use other stages than the built-in ones (see <a href="#types-of-pipeline-stages">Types of Pipeline Stages</a>) you can extend the
 class. The constructor must pass the <code>PdPipelineStage</code> constructor the <code>exmsg</code>, <code>appmsg</code> and <code>desc</code> keyword arguments to set the exception message, application message and description for the pipeline stage, respectively. Additionally, the <code>_prec</code> and <code>_transform</code> abstract methods must be implemented to define the precondition and the effect of the new pipeline stage, respectively.</p>
 <p>Fittable custom pipeline stages should implement, additionally to the
 method, the <code>_fit_transform</code> method, which should both fit pipeline stage by the input dataframe and transform transform the dataframe, while also setting <code>self.is_fitted = True</code>.</p>
@@ -376,7 +381,7 @@ __pdoc__ = {
 </dd>
 <dt><code class="name"><a title="pdpipe.col_generation" href="col_generation.html">pdpipe.col_generation</a></code></dt>
 <dd>
-<div class="desc"><p>Basic pdpipe PdPipelineStages.</p></div>
+<div class="desc"><p>Column generation pdpipe PdPipelineStages.</p></div>
 </dd>
 <dt><code class="name"><a title="pdpipe.cond" href="cond.html">pdpipe.cond</a></code></dt>
 <dd>
@@ -400,7 +405,7 @@ __pdoc__ = {
 </dd>
 <dt><code class="name"><a title="pdpipe.skintegrate" href="skintegrate.html">pdpipe.skintegrate</a></code></dt>
 <dd>
-<div class="desc"><p>Classes for sklearn integration.</p></div>
+<div class="desc"><p>Classes for sklearn integration …</p></div>
 </dd>
 <dt><code class="name"><a title="pdpipe.sklearn_stages" href="sklearn_stages.html">pdpipe.sklearn_stages</a></code></dt>
 <dd>
@@ -420,7 +425,7 @@ __pdoc__ = {
 </dd>
 <dt><code class="name"><a title="pdpipe.wrappers" href="wrappers.html">pdpipe.wrappers</a></code></dt>
 <dd>
-<div class="desc"><p>Wrapper-kind pdpipe pipline stages.</p></div>
+<div class="desc"><p>Wrapper-kind pdpipe pipeline stages.</p></div>
 </dd>
 </dl>
 </section>

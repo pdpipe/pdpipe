@@ -45,6 +45,7 @@ from pdpipe.shared import (
 import pdpipe.cond as cond
 from pdpipe.types import ColumnsParamType
 from pdpipe.exceptions import FailedConditionError
+from pdpipe.cq import ColumnQualifier
 
 
 class ColDrop(ColumnsBasedPipelineStage):
@@ -55,7 +56,7 @@ class ColDrop(ColumnsBasedPipelineStage):
     columns : single label, list-like or callable
         The label, or an iterable of labels, of columns to drop. Alternatively,
         this parameter can be assigned a callable returning an iterable of
-        labels from an input pandas.DataFrame. See pdpipe.cq.
+        labels from an input pandas.DataFrame (see `pdpipe.cq`).
     errors : {‘ignore’, ‘raise’}, default ‘raise’
         If ‘ignore’, suppress error and existing labels are dropped.
 
@@ -111,12 +112,12 @@ class ValDrop(ColumnsBasedPipelineStage):
         The label, or an iterable of labels, of columns to check for the given
         values. Alternatively, this parameter can be assigned a callable
         returning an iterable of labels from an input pandas.DataFrame. See
-        pdpipe.cq. If set to None, all columns are checked.
-    exclude_columns : object, iterable or callable, optional
+        `pdpipe.cq`. If set to None, all columns are checked.
+    exclude_columns : label, iterable or callable, optional
         The label, or an iterable of labels, of columns to exclude, given the
         `columns` parameter. Alternatively, this parameter can be assigned a
         callable returning a labels iterable from an input pandas.DataFrame.
-        See pdpipe.cq. Optional. By default no columns are excluded.
+        See `pdpipe.cq`. Optional. By default no columns are excluded.
 
     Example
     -------
@@ -171,12 +172,12 @@ class ValKeep(ColumnsBasedPipelineStage):
         The label, or an iterable of labels, of columns to check for the given
         values. Alternatively, this parameter can be assigned a callable
         returning an iterable of labels from an input pandas.DataFrame. See
-        pdpipe.cq. If set to None, all columns are checked.
-    exclude_columns : object, iterable or callable, optional
+        `pdpipe.cq`. If set to None, all columns are checked.
+    exclude_columns : single label, iterable or callable, optional
         The label, or an iterable of labels, of columns to exclude, given the
         `columns` parameter. Alternatively, this parameter can be assigned a
         callable returning a labels iterable from an input pandas.DataFrame.
-        See pdpipe.cq. Optional. By default no columns are excluded.
+        See `pdpipe.cq`. Optional. By default no columns are excluded.
 
     Example
     -------
@@ -218,7 +219,7 @@ class ColRename(PdPipelineStage):
 
     Parameters
     ----------
-    rename_mapper : dict-like or function
+    rename_mapper : dict-like or callable
         Maps old column names to new ones.
 
     Example
@@ -229,12 +230,21 @@ class ColRename(PdPipelineStage):
            len initial
         1    8       a
         2    5       b
+
+        &gt;&gt;&gt; def renamer(lbl: str):
+        ...    if lbl.startswith(&#39;n&#39;):
+        ...       return &#39;foo&#39;
+        ...    return lbl
+        &gt;&gt;&gt; pdp.ColRename(renamer).apply(df)
+           foo char
+        1    8    a
+        2    5    b
     &#34;&#34;&#34;
 
     _DEF_COLDRENAME_EXC_MSG = (&#34;ColRename stage failed because not all columns&#34;
                                &#34; {} were found in input dataframe.&#34;)
 
-    def __init__(self, rename_mapper, **kwargs):
+    def __init__(self, rename_mapper: Union[Dict, Callable], **kwargs):
         self._rename_mapper = rename_mapper
         try:
             columns_str = _list_str(list(rename_mapper.keys()))
@@ -388,7 +398,7 @@ class FreqDrop(PdPipelineStage):
                              &#34; found in input dataframe.&#34;)
     _DEF_FREQDROP_DESC = &#34;Drop values with frequency &lt; {} in column {}.&#34;
 
-    def __init__(self, threshold, column, **kwargs):
+    def __init__(self, threshold: int, column: str, **kwargs):
         self._threshold = threshold
         self._column = column
         super_kwargs = {
@@ -465,7 +475,7 @@ class ColReorder(PdPipelineStage):
 
 
 class RowDrop(ColumnsBasedPipelineStage):
-    &#34;&#34;&#34;A pipeline stage that drop rows by callable conditions.
+    &#34;&#34;&#34;A pipeline stage that drops rows by callable conditions.
 
     Parameters
     ----------
@@ -482,20 +492,20 @@ class RowDrop(ColumnsBasedPipelineStage):
         satisfying at least one of the conditions are dropped. If set to &#39;xor&#39;,
         rows satisfying exactly one of the conditions will be dropped. Set to
         &#39;any&#39; by default.
-    columns : str or iterable, optional
+    columns : single label, iterable or callable, optional
         The label, or an iterable of labels, of columns. Alternatively,
         this parameter can be assigned a callable returning an iterable of
-        labels from an input pandas.DataFrame. See pdpipe.cq. If given,
+        labels from an input pandas.DataFrame. See `pdpipe.cq`. If given,
         input conditions will be applied to the sub-dataframe made up of
         these columns to determine which rows to drop. Ignored if `conditions`
         is provided with a dict object. If `conditions` is a list and this
         parameter is not provided, all columns are checked (unless
         `exclude_columns` is additionally provided)
-    exclude_columns : object, iterable or callable, optional
+    exclude_columns : single label, iterable or callable, optional
         The label, or an iterable of labels, of columns to exclude, given the
         `columns` parameter. Alternatively, this parameter can be assigned a
         callable returning a labels iterable from an input pandas.DataFrame.
-        See pdpipe.cq. Optional. By default no columns are excluded.
+        See `pdpipe.cq`. Optional. By default no columns are excluded.
 
     Example
     -------
@@ -596,7 +606,7 @@ class Schematize(PdPipelineStage):
     Parameters
     ----------
     columns: sequence of labels
-        The dataframe schema to enfore on input dataframes.
+        The dataframe schema to enforce on input dataframes.
 
     Example
     -------
@@ -649,7 +659,7 @@ class DropDuplicates(ColumnsBasedPipelineStage):
         The label, or an iterable of labels, of columns to exclude, given the
         `columns` parameter. Alternatively, this parameter can be assigned a
         callable returning a labels iterable from an input pandas.DataFrame.
-        See pdpipe.cq. Optional. By default no columns are excluded.
+        See `pdpipe.cq`. Optional. By default no columns are excluded.
 
     Examples
     --------
@@ -683,10 +693,16 @@ class ColumnDtypeEnforcer(PdPipelineStage):
 
     Parameters
     ----------
-    column_to_dtype: dict of column name -&gt; data type
+    column_to_dtype: dict of labels / ColumnQualifiers to dtypes
         Use {col: dtype, …}, where col is a column label and dtype is a
         numpy.dtype or Python type to cast one or more of the DataFrame’s
-        columns to column-specific types.
+        columns to column-specific types. Alternatively, you can provide
+        `ColumnQualifier` objects as keys. If at least one such key is present,
+        the lbl-to-dtype dict is dynamically inferred each time the pipeline
+        stage is applied (note that `ColumnQualifier` objects are fittable by
+        default, so to have column labels re-inferred after the first stage
+        application you&#39;ll have to set `fittable=False` for the
+        `ColumnQualifier` you use, see `pdpipe.cq`).
     errors: {‘raise’, ‘ignore’}, default ‘raise’
         Control raising of exceptions on invalid data for provided dtype.
         - raise : allow exceptions to be raised
@@ -700,6 +716,11 @@ class ColumnDtypeEnforcer(PdPipelineStage):
            num initial
         1  8.0       a
         2  5.0       b
+
+        &gt;&gt;&gt; pdp.ColumnDtypeEnforcer({pdp.cq.StartWith(&#39;n&#39;): float}).apply(df)
+           num initial
+        1  8.0       a
+        2  5.0       b
     &#34;&#34;&#34;
 
     _DEF_COL_DTYPE_ENF_EXC_MSG = (
@@ -708,26 +729,52 @@ class ColumnDtypeEnforcer(PdPipelineStage):
 
     def __init__(
         self,
-        column_to_dtype: Dict[str, object],
+        column_to_dtype: Dict,
         errors: Optional[str] = &#39;raise&#39;,
         **kwargs: object,
     ) -&gt; None:
-        self._column_to_dtype = column_to_dtype
+        # if none of the keys in column_to_dtype is a ColumnQualifier
+        if not any(isinstance(
+                x, ColumnQualifier) for x in column_to_dtype.keys()):
+            # its a static map; use it as is
+            self._column_to_dtype = column_to_dtype
+            keys_set = set(column_to_dtype.keys())
+
+            def _tprec(df: pandas.DataFrame) -&gt; bool:
+                return keys_set.issubset(df.columns)
+        else:
+            # else, it&#39;s at least partly dynamic, and will have to infer it
+            # on run time
+            self._dynamic_column_to_dtype = column_to_dtype
+
+            def _tprec(df: pandas.DataFrame) -&gt; bool:
+                return True
+        self._tprec = _tprec
         self._errors = errors
         columns_str = _list_str(list(column_to_dtype.keys()))
         suffix = &#39;s&#39; if len(column_to_dtype) &gt; 1 else &#39;&#39;
-        keys_set = set(column_to_dtype.keys())
-
-        def _tprec(df: pandas.DataFrame) -&gt; bool:
-            return keys_set.issubset(df.columns)
-        self._tprec = _tprec
         super_kwargs = {
             &#39;exmsg&#39;: ColumnDtypeEnforcer._DEF_COL_DTYPE_ENF_EXC_MSG.format(
                 columns_str),
-            &#39;desc&#39;: f&#34;Renam column{suffix} with {column_to_dtype}&#34;,
+            &#39;desc&#39;: f&#34;Enforce column{suffix} dtype with {column_to_dtype}&#34;,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
+
+    def _col_to_dtype_from_df(self, df: pandas.DataFrame) -&gt; Dict:
+        try:
+            return self._column_to_dtype
+        except AttributeError:
+            column_to_dtype = {}
+            for k, dtype in self._dynamic_column_to_dtype.items():
+                try:
+                    column_to_dtype.update({
+                        lbl: dtype
+                        for lbl in k(df)
+                    })
+                except TypeError:  # k is not a callable
+                    column_to_dtype[k] = dtype
+            return column_to_dtype
 
     def _prec(self, df: pandas.DataFrame) -&gt; bool:
         return self._tprec(df)
@@ -737,8 +784,9 @@ class ColumnDtypeEnforcer(PdPipelineStage):
         df: pandas.DataFrame,
         verbose: bool,
     ) -&gt; pandas.DataFrame:
+        lbl_to_dtype = self._col_to_dtype_from_df(df)
         return df.astype(
-            dtype=self._column_to_dtype,
+            dtype=lbl_to_dtype,
             copy=True,
             errors=self._errors,
         )
@@ -753,14 +801,13 @@ class ConditionValidator(PdPipelineStage):
     objects, and checks that all these callable return True - meaning all
     defined conditions hold - for input dataframes.
 
-    Naturally, pdpipe Condition objects from the pdpipe.cond module can be
-    used.
+    Naturally, pdpipe `Condition` objects from the `pdpipe.cond` module can be used.
 
     Parameters
     ----------
     conditions : callable or list-like of callable
         The conditions to check for input dataframes. Naturally, pdpipe
-        Condition objects from the pdpipe.cond module can be used.
+        `Condition` objects from the `pdpipe.cond` module can be used.
     reducer : callable, optional
         The callable that reduces the list of boolean result to a single
         result. By default the built-in `all` function is used, so all
@@ -779,7 +826,12 @@ class ConditionValidator(PdPipelineStage):
     -------
         &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
         &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,None],[1,11]], [1,2,3], [&#39;a&#39;,&#39;b&#39;])
-        &gt;&gt;&gt; pdp.ConditionValidator(pdp.cond.HasNoMissingValues())(df)
+        &gt;&gt;&gt; pdp.ConditionValidator(lambda df: len(df.columns) == 5).apply(df)
+        Traceback (most recent call last):
+           ...
+        pdpipe.exceptions.FailedConditionError: ConditionValidator stage failed; some conditions did not hold for the input dataframe!
+
+        &gt;&gt;&gt; pdp.ConditionValidator(pdp.cond.HasNoMissingValues()).apply(df)
         Traceback (most recent call last):
            ...
         pdpipe.exceptions.FailedConditionError: ConditionValidator stage failed; some conditions did not hold for the input dataframe!
@@ -845,7 +897,7 @@ class ConditionValidator(PdPipelineStage):
 <dl>
 <dt id="pdpipe.basic_stages.ColDrop"><code class="flex name class">
 <span>class <span class="ident">ColDrop</span></span>
-<span>(</span><span>columns: Union[object, List[object], <built-in function callable>], errors: Optional[str] = None, **kwargs: object)</span>
+<span>(</span><span>columns: Union[object, List[object], Callable], errors: Optional[str] = None, **kwargs: object)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A pipeline stage that drops columns by name.</p>
@@ -854,7 +906,7 @@ class ConditionValidator(PdPipelineStage):
 <dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code></dt>
 <dd>The label, or an iterable of labels, of columns to drop. Alternatively,
 this parameter can be assigned a callable returning an iterable of
-labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
+labels from an input pandas.DataFrame (see <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>).</dd>
 <dt><strong><code>errors</code></strong> :&ensp;<code>{‘ignore’, ‘raise’}</code>, default <code>‘raise’</code></dt>
 <dd>If ‘ignore’, suppress error and existing labels are dropped.</dd>
 </dl>
@@ -878,7 +930,7 @@ labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
     columns : single label, list-like or callable
         The label, or an iterable of labels, of columns to drop. Alternatively,
         this parameter can be assigned a callable returning an iterable of
-        labels from an input pandas.DataFrame. See pdpipe.cq.
+        labels from an input pandas.DataFrame (see `pdpipe.cq`).
     errors : {‘ignore’, ‘raise’}, default ‘raise’
         If ‘ignore’, suppress error and existing labels are dropped.
 
@@ -980,13 +1032,13 @@ labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
 </dd>
 <dt id="pdpipe.basic_stages.ColRename"><code class="flex name class">
 <span>class <span class="ident">ColRename</span></span>
-<span>(</span><span>rename_mapper, **kwargs)</span>
+<span>(</span><span>rename_mapper: Union[Dict[~KT, ~VT], Callable], **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A pipeline stage that renames a column or columns.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>rename_mapper</code></strong> :&ensp;<code>dict-like</code> or <code>function</code></dt>
+<dt><strong><code>rename_mapper</code></strong> :&ensp;<code>dict-like</code> or <code>callable</code></dt>
 <dd>Maps old column names to new ones.</dd>
 </dl>
 <h2 id="example">Example</h2>
@@ -996,6 +1048,15 @@ labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
    len initial
 1    8       a
 2    5       b
+
+&gt;&gt;&gt; def renamer(lbl: str):
+...    if lbl.startswith('n'):
+...       return 'foo'
+...    return lbl
+&gt;&gt;&gt; pdp.ColRename(renamer).apply(df)
+   foo char
+1    8    a
+2    5    b
 </code></pre></div>
 <details class="source">
 <summary>
@@ -1006,7 +1067,7 @@ labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
 
     Parameters
     ----------
-    rename_mapper : dict-like or function
+    rename_mapper : dict-like or callable
         Maps old column names to new ones.
 
     Example
@@ -1017,12 +1078,21 @@ labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
            len initial
         1    8       a
         2    5       b
+
+        &gt;&gt;&gt; def renamer(lbl: str):
+        ...    if lbl.startswith(&#39;n&#39;):
+        ...       return &#39;foo&#39;
+        ...    return lbl
+        &gt;&gt;&gt; pdp.ColRename(renamer).apply(df)
+           foo char
+        1    8    a
+        2    5    b
     &#34;&#34;&#34;
 
     _DEF_COLDRENAME_EXC_MSG = (&#34;ColRename stage failed because not all columns&#34;
                                &#34; {} were found in input dataframe.&#34;)
 
-    def __init__(self, rename_mapper, **kwargs):
+    def __init__(self, rename_mapper: Union[Dict, Callable], **kwargs):
         self._rename_mapper = rename_mapper
         try:
             columns_str = _list_str(list(rename_mapper.keys()))
@@ -1248,16 +1318,22 @@ positions over the non-mapped colums.</dd>
 </dd>
 <dt id="pdpipe.basic_stages.ColumnDtypeEnforcer"><code class="flex name class">
 <span>class <span class="ident">ColumnDtypeEnforcer</span></span>
-<span>(</span><span>column_to_dtype: Dict[str, object], errors: Optional[str] = 'raise', **kwargs: object)</span>
+<span>(</span><span>column_to_dtype: Dict[~KT, ~VT], errors: Optional[str] = 'raise', **kwargs: object)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A pipeline stage enforcing column dtypes.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>column_to_dtype</code></strong> :&ensp;<code>dict</code> of <code>column name -&gt; data type</code></dt>
+<dt><strong><code>column_to_dtype</code></strong> :&ensp;<code>dict</code> of <code>labels / ColumnQualifiers to dtypes</code></dt>
 <dd>Use {col: dtype, …}, where col is a column label and dtype is a
 numpy.dtype or Python type to cast one or more of the DataFrame’s
-columns to column-specific types.</dd>
+columns to column-specific types. Alternatively, you can provide
+<code>ColumnQualifier</code> objects as keys. If at least one such key is present,
+the lbl-to-dtype dict is dynamically inferred each time the pipeline
+stage is applied (note that <code>ColumnQualifier</code> objects are fittable by
+default, so to have column labels re-inferred after the first stage
+application you'll have to set <code>fittable=False</code> for the
+<code>ColumnQualifier</code> you use, see <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>).</dd>
 <dt><strong><code>errors</code></strong> :&ensp;<code>{‘raise’, ‘ignore’}</code>, default <code>‘raise’</code></dt>
 <dd>Control raising of exceptions on invalid data for provided dtype.
 - raise : allow exceptions to be raised
@@ -1267,6 +1343,11 @@ columns to column-specific types.</dd>
 <pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
 &gt;&gt;&gt; df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'initial'])
 &gt;&gt;&gt; pdp.ColumnDtypeEnforcer({'num': float}).apply(df)
+   num initial
+1  8.0       a
+2  5.0       b
+
+&gt;&gt;&gt; pdp.ColumnDtypeEnforcer({pdp.cq.StartWith('n'): float}).apply(df)
    num initial
 1  8.0       a
 2  5.0       b
@@ -1280,10 +1361,16 @@ columns to column-specific types.</dd>
 
     Parameters
     ----------
-    column_to_dtype: dict of column name -&gt; data type
+    column_to_dtype: dict of labels / ColumnQualifiers to dtypes
         Use {col: dtype, …}, where col is a column label and dtype is a
         numpy.dtype or Python type to cast one or more of the DataFrame’s
-        columns to column-specific types.
+        columns to column-specific types. Alternatively, you can provide
+        `ColumnQualifier` objects as keys. If at least one such key is present,
+        the lbl-to-dtype dict is dynamically inferred each time the pipeline
+        stage is applied (note that `ColumnQualifier` objects are fittable by
+        default, so to have column labels re-inferred after the first stage
+        application you&#39;ll have to set `fittable=False` for the
+        `ColumnQualifier` you use, see `pdpipe.cq`).
     errors: {‘raise’, ‘ignore’}, default ‘raise’
         Control raising of exceptions on invalid data for provided dtype.
         - raise : allow exceptions to be raised
@@ -1297,6 +1384,11 @@ columns to column-specific types.</dd>
            num initial
         1  8.0       a
         2  5.0       b
+
+        &gt;&gt;&gt; pdp.ColumnDtypeEnforcer({pdp.cq.StartWith(&#39;n&#39;): float}).apply(df)
+           num initial
+        1  8.0       a
+        2  5.0       b
     &#34;&#34;&#34;
 
     _DEF_COL_DTYPE_ENF_EXC_MSG = (
@@ -1305,26 +1397,52 @@ columns to column-specific types.</dd>
 
     def __init__(
         self,
-        column_to_dtype: Dict[str, object],
+        column_to_dtype: Dict,
         errors: Optional[str] = &#39;raise&#39;,
         **kwargs: object,
     ) -&gt; None:
-        self._column_to_dtype = column_to_dtype
+        # if none of the keys in column_to_dtype is a ColumnQualifier
+        if not any(isinstance(
+                x, ColumnQualifier) for x in column_to_dtype.keys()):
+            # its a static map; use it as is
+            self._column_to_dtype = column_to_dtype
+            keys_set = set(column_to_dtype.keys())
+
+            def _tprec(df: pandas.DataFrame) -&gt; bool:
+                return keys_set.issubset(df.columns)
+        else:
+            # else, it&#39;s at least partly dynamic, and will have to infer it
+            # on run time
+            self._dynamic_column_to_dtype = column_to_dtype
+
+            def _tprec(df: pandas.DataFrame) -&gt; bool:
+                return True
+        self._tprec = _tprec
         self._errors = errors
         columns_str = _list_str(list(column_to_dtype.keys()))
         suffix = &#39;s&#39; if len(column_to_dtype) &gt; 1 else &#39;&#39;
-        keys_set = set(column_to_dtype.keys())
-
-        def _tprec(df: pandas.DataFrame) -&gt; bool:
-            return keys_set.issubset(df.columns)
-        self._tprec = _tprec
         super_kwargs = {
             &#39;exmsg&#39;: ColumnDtypeEnforcer._DEF_COL_DTYPE_ENF_EXC_MSG.format(
                 columns_str),
-            &#39;desc&#39;: f&#34;Renam column{suffix} with {column_to_dtype}&#34;,
+            &#39;desc&#39;: f&#34;Enforce column{suffix} dtype with {column_to_dtype}&#34;,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
+
+    def _col_to_dtype_from_df(self, df: pandas.DataFrame) -&gt; Dict:
+        try:
+            return self._column_to_dtype
+        except AttributeError:
+            column_to_dtype = {}
+            for k, dtype in self._dynamic_column_to_dtype.items():
+                try:
+                    column_to_dtype.update({
+                        lbl: dtype
+                        for lbl in k(df)
+                    })
+                except TypeError:  # k is not a callable
+                    column_to_dtype[k] = dtype
+            return column_to_dtype
 
     def _prec(self, df: pandas.DataFrame) -&gt; bool:
         return self._tprec(df)
@@ -1334,8 +1452,9 @@ columns to column-specific types.</dd>
         df: pandas.DataFrame,
         verbose: bool,
     ) -&gt; pandas.DataFrame:
+        lbl_to_dtype = self._col_to_dtype_from_df(df)
         return df.astype(
-            dtype=self._column_to_dtype,
+            dtype=lbl_to_dtype,
             copy=True,
             errors=self._errors,
         )</code></pre>
@@ -1405,13 +1524,12 @@ columns to column-specific types.</dd>
 <p>The constructor expects either a single callable or a list-like of callable
 objects, and checks that all these callable return True - meaning all
 defined conditions hold - for input dataframes.</p>
-<p>Naturally, pdpipe Condition objects from the pdpipe.cond module can be
-used.</p>
+<p>Naturally, pdpipe <code>Condition</code> objects from the <code><a title="pdpipe.cond" href="cond.html">pdpipe.cond</a></code> module can be used.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>conditions</code></strong> :&ensp;<code>callable</code> or <code>list-like</code> of <code>callable</code></dt>
 <dd>The conditions to check for input dataframes. Naturally, pdpipe
-Condition objects from the pdpipe.cond module can be used.</dd>
+<code>Condition</code> objects from the <code><a title="pdpipe.cond" href="cond.html">pdpipe.cond</a></code> module can be used.</dd>
 <dt><strong><code>reducer</code></strong> :&ensp;<code>callable</code>, optional</dt>
 <dd>The callable that reduces the list of boolean result to a single
 result. By default the built-in <code>all</code> function is used, so all
@@ -1429,7 +1547,12 @@ continues. Any other value is interpreted as 'raise'.</dd>
 <h2 id="example">Example</h2>
 <pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
 &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,None],[1,11]], [1,2,3], ['a','b'])
-&gt;&gt;&gt; pdp.ConditionValidator(pdp.cond.HasNoMissingValues())(df)
+&gt;&gt;&gt; pdp.ConditionValidator(lambda df: len(df.columns) == 5).apply(df)
+Traceback (most recent call last):
+   ...
+pdpipe.exceptions.FailedConditionError: ConditionValidator stage failed; some conditions did not hold for the input dataframe!
+
+&gt;&gt;&gt; pdp.ConditionValidator(pdp.cond.HasNoMissingValues()).apply(df)
 Traceback (most recent call last):
    ...
 pdpipe.exceptions.FailedConditionError: ConditionValidator stage failed; some conditions did not hold for the input dataframe!
@@ -1447,14 +1570,13 @@ pdpipe.exceptions.FailedConditionError: ConditionValidator stage failed; some co
     objects, and checks that all these callable return True - meaning all
     defined conditions hold - for input dataframes.
 
-    Naturally, pdpipe Condition objects from the pdpipe.cond module can be
-    used.
+    Naturally, pdpipe `Condition` objects from the `pdpipe.cond` module can be used.
 
     Parameters
     ----------
     conditions : callable or list-like of callable
         The conditions to check for input dataframes. Naturally, pdpipe
-        Condition objects from the pdpipe.cond module can be used.
+        `Condition` objects from the `pdpipe.cond` module can be used.
     reducer : callable, optional
         The callable that reduces the list of boolean result to a single
         result. By default the built-in `all` function is used, so all
@@ -1473,7 +1595,12 @@ pdpipe.exceptions.FailedConditionError: ConditionValidator stage failed; some co
     -------
         &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
         &gt;&gt;&gt; df = pd.DataFrame([[1,4],[4,None],[1,11]], [1,2,3], [&#39;a&#39;,&#39;b&#39;])
-        &gt;&gt;&gt; pdp.ConditionValidator(pdp.cond.HasNoMissingValues())(df)
+        &gt;&gt;&gt; pdp.ConditionValidator(lambda df: len(df.columns) == 5).apply(df)
+        Traceback (most recent call last):
+           ...
+        pdpipe.exceptions.FailedConditionError: ConditionValidator stage failed; some conditions did not hold for the input dataframe!
+
+        &gt;&gt;&gt; pdp.ConditionValidator(pdp.cond.HasNoMissingValues()).apply(df)
         Traceback (most recent call last):
            ...
         pdpipe.exceptions.FailedConditionError: ConditionValidator stage failed; some conditions did not hold for the input dataframe!
@@ -1597,7 +1724,7 @@ populated, duplicates are dropped from all columns.</dd>
 <dd>The label, or an iterable of labels, of columns to exclude, given the
 <code>columns</code> parameter. Alternatively, this parameter can be assigned a
 callable returning a labels iterable from an input pandas.DataFrame.
-See pdpipe.cq. Optional. By default no columns are excluded.</dd>
+See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>. Optional. By default no columns are excluded.</dd>
 </dl>
 <h2 id="examples">Examples</h2>
 <pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
@@ -1623,7 +1750,7 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
         The label, or an iterable of labels, of columns to exclude, given the
         `columns` parameter. Alternatively, this parameter can be assigned a
         callable returning a labels iterable from an input pandas.DataFrame.
-        See pdpipe.cq. Optional. By default no columns are excluded.
+        See `pdpipe.cq`. Optional. By default no columns are excluded.
 
     Examples
     --------
@@ -1825,7 +1952,7 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 </dd>
 <dt id="pdpipe.basic_stages.FreqDrop"><code class="flex name class">
 <span>class <span class="ident">FreqDrop</span></span>
-<span>(</span><span>threshold, column, **kwargs)</span>
+<span>(</span><span>threshold: int, column: str, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A pipeline stage that drops rows by value frequency.</p>
@@ -1872,7 +1999,7 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
                              &#34; found in input dataframe.&#34;)
     _DEF_FREQDROP_DESC = &#34;Drop values with frequency &lt; {} in column {}.&#34;
 
-    def __init__(self, threshold, column, **kwargs):
+    def __init__(self, threshold: int, column: str, **kwargs):
         self._threshold = threshold
         self._column = column
         super_kwargs = {
@@ -1956,7 +2083,7 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 <span>(</span><span>conditions, reduce=None, columns=None, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>A pipeline stage that drop rows by callable conditions.</p>
+<div class="desc"><p>A pipeline stage that drops rows by callable conditions.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>conditions</code></strong> :&ensp;<code>list-like</code> or <code>dict</code></dt>
@@ -1972,20 +2099,20 @@ satisfy all given conditions to be dropped. If set to 'any', rows
 satisfying at least one of the conditions are dropped. If set to 'xor',
 rows satisfying exactly one of the conditions will be dropped. Set to
 'any' by default.</dd>
-<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>iterable</code>, optional</dt>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, iterable</code> or <code>callable</code>, optional</dt>
 <dd>The label, or an iterable of labels, of columns. Alternatively,
 this parameter can be assigned a callable returning an iterable of
-labels from an input pandas.DataFrame. See pdpipe.cq. If given,
+labels from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>. If given,
 input conditions will be applied to the sub-dataframe made up of
 these columns to determine which rows to drop. Ignored if <code>conditions</code>
 is provided with a dict object. If <code>conditions</code> is a list and this
 parameter is not provided, all columns are checked (unless
 <code>exclude_columns</code> is additionally provided)</dd>
-<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>object, iterable</code> or <code>callable</code>, optional</dt>
+<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>single label, iterable</code> or <code>callable</code>, optional</dt>
 <dd>The label, or an iterable of labels, of columns to exclude, given the
 <code>columns</code> parameter. Alternatively, this parameter can be assigned a
 callable returning a labels iterable from an input pandas.DataFrame.
-See pdpipe.cq. Optional. By default no columns are excluded.</dd>
+See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>. Optional. By default no columns are excluded.</dd>
 </dl>
 <h2 id="example">Example</h2>
 <pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
@@ -2004,7 +2131,7 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class RowDrop(ColumnsBasedPipelineStage):
-    &#34;&#34;&#34;A pipeline stage that drop rows by callable conditions.
+    &#34;&#34;&#34;A pipeline stage that drops rows by callable conditions.
 
     Parameters
     ----------
@@ -2021,20 +2148,20 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
         satisfying at least one of the conditions are dropped. If set to &#39;xor&#39;,
         rows satisfying exactly one of the conditions will be dropped. Set to
         &#39;any&#39; by default.
-    columns : str or iterable, optional
+    columns : single label, iterable or callable, optional
         The label, or an iterable of labels, of columns. Alternatively,
         this parameter can be assigned a callable returning an iterable of
-        labels from an input pandas.DataFrame. See pdpipe.cq. If given,
+        labels from an input pandas.DataFrame. See `pdpipe.cq`. If given,
         input conditions will be applied to the sub-dataframe made up of
         these columns to determine which rows to drop. Ignored if `conditions`
         is provided with a dict object. If `conditions` is a list and this
         parameter is not provided, all columns are checked (unless
         `exclude_columns` is additionally provided)
-    exclude_columns : object, iterable or callable, optional
+    exclude_columns : single label, iterable or callable, optional
         The label, or an iterable of labels, of columns to exclude, given the
         `columns` parameter. Alternatively, this parameter can be assigned a
         callable returning a labels iterable from an input pandas.DataFrame.
-        See pdpipe.cq. Optional. By default no columns are excluded.
+        See `pdpipe.cq`. Optional. By default no columns are excluded.
 
     Example
     -------
@@ -2204,7 +2331,7 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>columns</code></strong> :&ensp;<code>sequence</code> of <code>labels</code></dt>
-<dd>The dataframe schema to enfore on input dataframes.</dd>
+<dd>The dataframe schema to enforce on input dataframes.</dd>
 </dl>
 <h2 id="example">Example</h2>
 <pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
@@ -2228,7 +2355,7 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
     Parameters
     ----------
     columns: sequence of labels
-        The dataframe schema to enfore on input dataframes.
+        The dataframe schema to enforce on input dataframes.
 
     Example
     -------
@@ -2446,7 +2573,7 @@ a
 </dd>
 <dt id="pdpipe.basic_stages.ValDrop"><code class="flex name class">
 <span>class <span class="ident">ValDrop</span></span>
-<span>(</span><span>values: List[object], columns: Union[object, List[object], <built-in function callable>] = None, **kwargs: object)</span>
+<span>(</span><span>values: List[object], columns: Union[object, List[object], Callable] = None, **kwargs: object)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A pipeline stage that drops rows by value.</p>
@@ -2458,12 +2585,12 @@ a
 <dd>The label, or an iterable of labels, of columns to check for the given
 values. Alternatively, this parameter can be assigned a callable
 returning an iterable of labels from an input pandas.DataFrame. See
-pdpipe.cq. If set to None, all columns are checked.</dd>
-<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>object, iterable</code> or <code>callable</code>, optional</dt>
+<code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>. If set to None, all columns are checked.</dd>
+<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>label, iterable</code> or <code>callable</code>, optional</dt>
 <dd>The label, or an iterable of labels, of columns to exclude, given the
 <code>columns</code> parameter. Alternatively, this parameter can be assigned a
 callable returning a labels iterable from an input pandas.DataFrame.
-See pdpipe.cq. Optional. By default no columns are excluded.</dd>
+See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>. Optional. By default no columns are excluded.</dd>
 </dl>
 <h2 id="example">Example</h2>
 <pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
@@ -2491,12 +2618,12 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
         The label, or an iterable of labels, of columns to check for the given
         values. Alternatively, this parameter can be assigned a callable
         returning an iterable of labels from an input pandas.DataFrame. See
-        pdpipe.cq. If set to None, all columns are checked.
-    exclude_columns : object, iterable or callable, optional
+        `pdpipe.cq`. If set to None, all columns are checked.
+    exclude_columns : label, iterable or callable, optional
         The label, or an iterable of labels, of columns to exclude, given the
         `columns` parameter. Alternatively, this parameter can be assigned a
         callable returning a labels iterable from an input pandas.DataFrame.
-        See pdpipe.cq. Optional. By default no columns are excluded.
+        See `pdpipe.cq`. Optional. By default no columns are excluded.
 
     Example
     -------
@@ -2609,12 +2736,12 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
 <dd>The label, or an iterable of labels, of columns to check for the given
 values. Alternatively, this parameter can be assigned a callable
 returning an iterable of labels from an input pandas.DataFrame. See
-pdpipe.cq. If set to None, all columns are checked.</dd>
-<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>object, iterable</code> or <code>callable</code>, optional</dt>
+<code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>. If set to None, all columns are checked.</dd>
+<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>single label, iterable</code> or <code>callable</code>, optional</dt>
 <dd>The label, or an iterable of labels, of columns to exclude, given the
 <code>columns</code> parameter. Alternatively, this parameter can be assigned a
 callable returning a labels iterable from an input pandas.DataFrame.
-See pdpipe.cq. Optional. By default no columns are excluded.</dd>
+See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>. Optional. By default no columns are excluded.</dd>
 </dl>
 <h2 id="example">Example</h2>
 <pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
@@ -2642,12 +2769,12 @@ See pdpipe.cq. Optional. By default no columns are excluded.</dd>
         The label, or an iterable of labels, of columns to check for the given
         values. Alternatively, this parameter can be assigned a callable
         returning an iterable of labels from an input pandas.DataFrame. See
-        pdpipe.cq. If set to None, all columns are checked.
-    exclude_columns : object, iterable or callable, optional
+        `pdpipe.cq`. If set to None, all columns are checked.
+    exclude_columns : single label, iterable or callable, optional
         The label, or an iterable of labels, of columns to exclude, given the
         `columns` parameter. Alternatively, this parameter can be assigned a
         callable returning a labels iterable from an input pandas.DataFrame.
-        See pdpipe.cq. Optional. By default no columns are excluded.
+        See `pdpipe.cq`. Optional. By default no columns are excluded.
 
     Example
     -------

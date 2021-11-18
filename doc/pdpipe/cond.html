@@ -23,21 +23,21 @@
 </header>
 <section id="section-intro">
 <p>Fittable conditions for pdpipe.</p>
-<p>In <code>pdipe</code>, pipeline stages have two optional constructor parameters that
+<p>In <code><a title="pdpipe" href="index.html">pdpipe</a></code>, pipeline stages have two optional constructor parameters that
 accept callables that are treated as conditions: <code>prec</code> and <code>skip</code>. Both assume
 input callables can accept a pandas.Dataframe object as input and return either
 True or False. <code>prec</code> - representing the stage's precondition - determines
 whether a stage <em>can</em> be applied to an input dataframe, while <code>skip</code> -
 representing the stage's skip condition - determines whether it <em>should</em> be
 applied. Accordingly, a stage throws a <code>FailedPreconditionError</code> if its
-precondition is not statisfied, while it is skipped if its skip-condition is
-not statisfied.</p>
+precondition is not satisfied, while it is skipped if its skip-condition is
+satisfied.</p>
 <p>This module - <code><a title="pdpipe.cond" href="#pdpipe.cond">pdpipe.cond</a></code> - provides a way to easily generate <code><a title="pdpipe.cond.Condition" href="#pdpipe.cond.Condition">Condition</a></code>
 objects, which are callable, and can easily be made fittable - to have their
 result determined in fit time and preserved for future transforms - by
 assigning the constructor parameter <code>fittable=True</code>. This enables the creation
 of pipeline stages whose their effective inclusion in the pipeline is
-determinedonly
+determined only
 when <code>fit_transform</code> is called; for example, whether
 dimensionality reduction is required - once this decision is done in training
 time it should be maintained for all future transforms of data (in test and
@@ -88,22 +88,22 @@ False
 </summary>
 <pre><code class="python">&#34;&#34;&#34;Fittable conditions for pdpipe.
 
-In `pdipe`, pipeline stages have two optional constructor parameters that
+In `pdpipe`, pipeline stages have two optional constructor parameters that
 accept callables that are treated as conditions: `prec` and `skip`. Both assume
 input callables can accept a pandas.Dataframe object as input and return either
 True or False. `prec` - representing the stage&#39;s precondition - determines
 whether a stage *can* be applied to an input dataframe, while `skip` -
 representing the stage&#39;s skip condition - determines whether it *should* be
 applied. Accordingly, a stage throws a `FailedPreconditionError` if its
-precondition is not statisfied, while it is skipped if its skip-condition is
-not statisfied.
+precondition is not satisfied, while it is skipped if its skip-condition is
+satisfied.
 
 This module - `pdpipe.cond` - provides a way to easily generate `Condition`
 objects, which are callable, and can easily be made fittable - to have their
 result determined in fit time and preserved for future transforms - by
 assigning the constructor parameter `fittable=True`. This enables the creation
 of pipeline stages whose their effective inclusion in the pipeline is
-determinedonly  when `fit_transform` is called; for example, whether
+determined only  when `fit_transform` is called; for example, whether
 dimensionality reduction is required - once this decision is done in training
 time it should be maintained for all future transforms of data (in test and
 validation sets or in production).
@@ -218,7 +218,7 @@ class Condition(object):
         Returns
         -------
         bool
-            Either True of False.
+            Either True or False.
         &#34;&#34;&#34;
         self._result = self._func(df)
         return self._result
@@ -248,7 +248,7 @@ class Condition(object):
         Returns
         -------
         bool
-            Either True of False.
+            Either True or False.
         &#34;&#34;&#34;
         if not self._fittable:
             return self._func(df)
@@ -341,7 +341,7 @@ class Condition(object):
 
 
 class PerColumnCondition(Condition):
-    &#34;&#34;&#34;Checks whether the columns of input dataframes statisfy a condition set.
+    &#34;&#34;&#34;Checks whether the columns of input dataframes satisfy a condition set.
 
     Parameters
     ----------
@@ -350,7 +350,7 @@ class PerColumnCondition(Condition):
         must satisfy. Conditions are callables that accept a `pandas.Series`
         object and return a `bool` value.
     conditions_reduce : str, default &#39;all&#39;
-        How condition statisfaction results are reduced per-column, in case of
+        How condition satisfaction results are reduced per-column, in case of
         multiple conditions. &#39;all&#39; requires a column to satisfy all conditions,
         while &#39;any&#39; requires at least one condition to be satisfied.
     columns_reduce : str, default &#39;all&#39;
@@ -358,7 +358,7 @@ class PerColumnCondition(Condition):
         &#39;all&#39; requires all columns of input dataframes to satisfy the given
         condition (in the case of multiple conditions, behaviour is determined
         by the `condition_reduce` parameter), while &#39;any&#39; requires at least one
-        column to statisfy it.
+        column to satisfy it.
     **kwargs
         Additionaly accepts all keyword arguments of the constructor of
         Condition. See the documentation of Condition for details.
@@ -372,7 +372,7 @@ class PerColumnCondition(Condition):
         ...     conditions=lambda x: x.dtype == np.int64,
         ... )
         &gt;&gt;&gt; cond
-        &lt;pdpipe.Condition: Dataframes with all columns stasifying all \
+        &lt;pdpipe.Condition: Dataframes with all columns satisfying all \
 conditions: anonymous condition&gt;
         &gt;&gt;&gt; cond(df)
         False
@@ -458,7 +458,7 @@ conditions: anonymous condition&gt;
             cond_reduce=self._cond_reduce,
             col_reduce=self._col_reduce,
         )
-        doc_str = &#34;Dataframes with {} columns stasifying {} conditions: {}&#34;
+        doc_str = &#34;Dataframes with {} columns satisfying {} conditions: {}&#34;
         self._func_doc = doc_str.format(
             self._col_reduce_str, self._cond_reduce_str, self._conditions_str)
         _func.__doc__ = self._func_doc
@@ -508,7 +508,7 @@ class HasAllColumns(Condition):
                 lbl in df.columns
                 for lbl in self._labels
             ])
-        _func.__doc__ = f&#34;Dataframes with colums {self._labels_str}&#34;
+        _func.__doc__ = f&#34;Dataframes with columns {self._labels_str}&#34;
         kwargs[&#39;func&#39;] = _func
         super().__init__(**kwargs)
 
@@ -526,7 +526,7 @@ class ColumnsFromList(PerColumnCondition):
     columns_reduce : str, default &#39;all&#39;
         How condition satisfaction results are reduced among multiple columns.
         &#39;all&#39; requires all columns of input dataframes to satisfy the given
-        condition, while &#39;any&#39; requires at least one column to statisfy it.
+        condition, while &#39;any&#39; requires at least one column to satisfy it.
     **kwargs
         Additionaly accepts all keyword arguments of the constructor of
         Condition. See the documentation of Condition for details.
@@ -538,7 +538,7 @@ class ColumnsFromList(PerColumnCondition):
         ...    [[8,&#39;a&#39;,5],[5,&#39;b&#39;,7]], [1,2], [&#39;num&#39;, &#39;chr&#39;, &#39;nur&#39;])
         &gt;&gt;&gt; cond = pdp.cond.ColumnsFromList(&#39;num&#39;)
         &gt;&gt;&gt; cond
-        &lt;pdpipe.Condition: Dataframes with all columns stasifying all \
+        &lt;pdpipe.Condition: Dataframes with all columns satisfying all \
 conditions: Series with labels in num&gt;
         &gt;&gt;&gt; cond(df)
         False
@@ -626,7 +626,8 @@ class HasNoColumn(Condition):
 
 
 class HasAtMostMissingValues(Condition):
-    &#34;&#34;&#34;Checks whether input dataframes has no more than X missing values.
+    &#34;&#34;&#34;Checks whether input dataframes has no more than X missing values
+    across all columns.
 
     Parameters
     ----------
@@ -747,7 +748,7 @@ class HasNoMissingValues(HasAtMostMissingValues):
 <dt><strong><code>columns_reduce</code></strong> :&ensp;<code>str</code>, default <code>'all'</code></dt>
 <dd>How condition satisfaction results are reduced among multiple columns.
 'all' requires all columns of input dataframes to satisfy the given
-condition, while 'any' requires at least one column to statisfy it.</dd>
+condition, while 'any' requires at least one column to satisfy it.</dd>
 <dt><strong><code>**kwargs</code></strong></dt>
 <dd>Additionaly accepts all keyword arguments of the constructor of
 Condition. See the documentation of Condition for details.</dd>
@@ -758,7 +759,7 @@ Condition. See the documentation of Condition for details.</dd>
 ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
 &gt;&gt;&gt; cond = pdp.cond.ColumnsFromList('num')
 &gt;&gt;&gt; cond
-&lt;pdpipe.Condition: Dataframes with all columns stasifying all conditions: Series with labels in num&gt;
+&lt;pdpipe.Condition: Dataframes with all columns satisfying all conditions: Series with labels in num&gt;
 &gt;&gt;&gt; cond(df)
 False
 &gt;&gt;&gt; cond = pdp.cond.ColumnsFromList(['num', 'chr', 'nur'])
@@ -783,7 +784,7 @@ True
     columns_reduce : str, default &#39;all&#39;
         How condition satisfaction results are reduced among multiple columns.
         &#39;all&#39; requires all columns of input dataframes to satisfy the given
-        condition, while &#39;any&#39; requires at least one column to statisfy it.
+        condition, while &#39;any&#39; requires at least one column to satisfy it.
     **kwargs
         Additionaly accepts all keyword arguments of the constructor of
         Condition. See the documentation of Condition for details.
@@ -795,7 +796,7 @@ True
         ...    [[8,&#39;a&#39;,5],[5,&#39;b&#39;,7]], [1,2], [&#39;num&#39;, &#39;chr&#39;, &#39;nur&#39;])
         &gt;&gt;&gt; cond = pdp.cond.ColumnsFromList(&#39;num&#39;)
         &gt;&gt;&gt; cond
-        &lt;pdpipe.Condition: Dataframes with all columns stasifying all \
+        &lt;pdpipe.Condition: Dataframes with all columns satisfying all \
 conditions: Series with labels in num&gt;
         &gt;&gt;&gt; cond(df)
         False
@@ -927,7 +928,7 @@ default.</dd>
         Returns
         -------
         bool
-            Either True of False.
+            Either True or False.
         &#34;&#34;&#34;
         self._result = self._func(df)
         return self._result
@@ -957,7 +958,7 @@ default.</dd>
         Returns
         -------
         bool
-            Either True of False.
+            Either True or False.
         &#34;&#34;&#34;
         if not self._fittable:
             return self._func(df)
@@ -1095,7 +1096,7 @@ default.</dd>
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><code>bool</code></dt>
-<dd>Either True of False.</dd>
+<dd>Either True or False.</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -1112,7 +1113,7 @@ default.</dd>
     Returns
     -------
     bool
-        Either True of False.
+        Either True or False.
     &#34;&#34;&#34;
     self._result = self._func(df)
     return self._result</code></pre>
@@ -1134,7 +1135,7 @@ if it is not.</p>
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><code>bool</code></dt>
-<dd>Either True of False.</dd>
+<dd>Either True or False.</dd>
 </dl></div>
 <details class="source">
 <summary>
@@ -1155,7 +1156,7 @@ if it is not.</p>
     Returns
     -------
     bool
-        Either True of False.
+        Either True or False.
     &#34;&#34;&#34;
     if not self._fittable:
         return self._func(df)
@@ -1240,7 +1241,7 @@ False
                 lbl in df.columns
                 for lbl in self._labels
             ])
-        _func.__doc__ = f&#34;Dataframes with colums {self._labels_str}&#34;
+        _func.__doc__ = f&#34;Dataframes with columns {self._labels_str}&#34;
         kwargs[&#39;func&#39;] = _func
         super().__init__(**kwargs)
 
@@ -1267,7 +1268,8 @@ False
 <span>(</span><span>n_missing, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Checks whether input dataframes has no more than X missing values.</p>
+<div class="desc"><p>Checks whether input dataframes has no more than X missing values
+across all columns.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>n_missing</code></strong> :&ensp;<code>int</code> or <code>float</code></dt>
@@ -1302,7 +1304,8 @@ False
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class HasAtMostMissingValues(Condition):
-    &#34;&#34;&#34;Checks whether input dataframes has no more than X missing values.
+    &#34;&#34;&#34;Checks whether input dataframes has no more than X missing values
+    across all columns.
 
     Parameters
     ----------
@@ -1567,7 +1570,7 @@ False
 <span>(</span><span>conditions, conditions_reduce=None, columns_reduce=None, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Checks whether the columns of input dataframes statisfy a condition set.</p>
+<div class="desc"><p>Checks whether the columns of input dataframes satisfy a condition set.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>conditions</code></strong> :&ensp;<code>callable</code> or <code>list-like</code></dt>
@@ -1575,7 +1578,7 @@ False
 must satisfy. Conditions are callables that accept a <code>pandas.Series</code>
 object and return a <code>bool</code> value.</dd>
 <dt><strong><code>conditions_reduce</code></strong> :&ensp;<code>str</code>, default <code>'all'</code></dt>
-<dd>How condition statisfaction results are reduced per-column, in case of
+<dd>How condition satisfaction results are reduced per-column, in case of
 multiple conditions. 'all' requires a column to satisfy all conditions,
 while 'any' requires at least one condition to be satisfied.</dd>
 <dt><strong><code>columns_reduce</code></strong> :&ensp;<code>str</code>, default <code>'all'</code></dt>
@@ -1583,7 +1586,7 @@ while 'any' requires at least one condition to be satisfied.</dd>
 'all' requires all columns of input dataframes to satisfy the given
 condition (in the case of multiple conditions, behaviour is determined
 by the <code>condition_reduce</code> parameter), while 'any' requires at least one
-column to statisfy it.</dd>
+column to satisfy it.</dd>
 <dt><strong><code>**kwargs</code></strong></dt>
 <dd>Additionaly accepts all keyword arguments of the constructor of
 Condition. See the documentation of Condition for details.</dd>
@@ -1596,7 +1599,7 @@ Condition. See the documentation of Condition for details.</dd>
 ...     conditions=lambda x: x.dtype == np.int64,
 ... )
 &gt;&gt;&gt; cond
-&lt;pdpipe.Condition: Dataframes with all columns stasifying all conditions: anonymous condition&gt;
+&lt;pdpipe.Condition: Dataframes with all columns satisfying all conditions: anonymous condition&gt;
 &gt;&gt;&gt; cond(df)
 False
 &gt;&gt;&gt; cond = pdp.cond.PerColumnCondition(
@@ -1628,7 +1631,7 @@ True
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class PerColumnCondition(Condition):
-    &#34;&#34;&#34;Checks whether the columns of input dataframes statisfy a condition set.
+    &#34;&#34;&#34;Checks whether the columns of input dataframes satisfy a condition set.
 
     Parameters
     ----------
@@ -1637,7 +1640,7 @@ True
         must satisfy. Conditions are callables that accept a `pandas.Series`
         object and return a `bool` value.
     conditions_reduce : str, default &#39;all&#39;
-        How condition statisfaction results are reduced per-column, in case of
+        How condition satisfaction results are reduced per-column, in case of
         multiple conditions. &#39;all&#39; requires a column to satisfy all conditions,
         while &#39;any&#39; requires at least one condition to be satisfied.
     columns_reduce : str, default &#39;all&#39;
@@ -1645,7 +1648,7 @@ True
         &#39;all&#39; requires all columns of input dataframes to satisfy the given
         condition (in the case of multiple conditions, behaviour is determined
         by the `condition_reduce` parameter), while &#39;any&#39; requires at least one
-        column to statisfy it.
+        column to satisfy it.
     **kwargs
         Additionaly accepts all keyword arguments of the constructor of
         Condition. See the documentation of Condition for details.
@@ -1659,7 +1662,7 @@ True
         ...     conditions=lambda x: x.dtype == np.int64,
         ... )
         &gt;&gt;&gt; cond
-        &lt;pdpipe.Condition: Dataframes with all columns stasifying all \
+        &lt;pdpipe.Condition: Dataframes with all columns satisfying all \
 conditions: anonymous condition&gt;
         &gt;&gt;&gt; cond(df)
         False
@@ -1745,7 +1748,7 @@ conditions: anonymous condition&gt;
             cond_reduce=self._cond_reduce,
             col_reduce=self._col_reduce,
         )
-        doc_str = &#34;Dataframes with {} columns stasifying {} conditions: {}&#34;
+        doc_str = &#34;Dataframes with {} columns satisfying {} conditions: {}&#34;
         self._func_doc = doc_str.format(
             self._col_reduce_str, self._cond_reduce_str, self._conditions_str)
         _func.__doc__ = self._func_doc

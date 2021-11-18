@@ -62,7 +62,7 @@ from pdpipe.shared import (
 
 
 class TokenizeText(MapColVals):
-    &#34;&#34;&#34;A pipeline stage that tokenize a text column into token lists.
+    &#34;&#34;&#34;A pipeline stage that tokenizes a text column into token lists.
 
     Note: The nltk package must be installed for this pipeline stage to work.
 
@@ -71,7 +71,7 @@ class TokenizeText(MapColVals):
     columns : single label, list-like of callable
         Column labels in the DataFrame to be transformed. Alternatively, this
         parameter can be assigned a callable returning an iterable of labels
-        from an input pandas.DataFrame. See pdpipe.cq.
+        from an input pandas.DataFrame. See `pdpipe.cq`.
     drop : bool, default True
         If set to True, the source columns are dropped after being tokenized,
         and the resulting tokenized columns retain the names of the source
@@ -127,7 +127,7 @@ class TokenizeText(MapColVals):
 
 
 class UntokenizeText(MapColVals):
-    &#34;&#34;&#34;A pipeline stage that joins token lists to whitespace-seperated strings.
+    &#34;&#34;&#34;A pipeline stage that joins token lists to whitespace-separated strings.
 
     Target columns must be series of token lists; i.e. every cell in the series
     is an iterable of string tokens.
@@ -139,7 +139,7 @@ class UntokenizeText(MapColVals):
     columns : single label, list-like of callable
         Column labels in the DataFrame to be transformed. Alternatively, this
         parameter can be assigned a callable returning an iterable of labels
-        from an input pandas.DataFrame. See pdpipe.cq.
+        from an input pandas.DataFrame. See `pdpipe.cq`.
     drop : bool, default True
         If set to True, the source columns are dropped after being untokenized,
         and the resulting columns retain the names of the source columns.
@@ -156,9 +156,9 @@ class UntokenizeText(MapColVals):
         1   3.2  Shake and bake!
     &#34;&#34;&#34;
 
-    _DEF_UNTOKENIZE_EXC_MSG = (&#34;Unokenize stage failed because not all columns&#34;
-                               &#34; {} are present in input dataframe and are of&#34;
-                               &#34; dtype object.&#34;)
+    _DEF_UNTOKENIZE_EXC_MSG = (
+        &#34;Untokenize stage failed because not all columns {} are present in &#34;
+        &#34;input dataframe and are of dtype object.&#34;)
 
     @staticmethod
     def _untokenize_list(token_list):
@@ -194,15 +194,15 @@ class RemoveStopwords(MapColVals):
 
     Parameters
     ----------
-    langugae : str or array-like
+    language : str or array-like
         If a string is given, interpreted as the language of the stopwords, and
         should then be one of the languages supported by the NLTK Stopwords
         Corpus. If a list is given, it is assumed to be the list of stopwords
         to remove.
-    columns : single label, list-like of callable
+    columns : single label, list-like or callable
         Column labels in the DataFrame to be transformed. Alternatively, this
         parameter can be assigned a callable returning an iterable of labels
-        from an input pandas.DataFrame. See pdpipe.cq.
+        from an input pandas.DataFrame. See `pdpipe.cq`.
     drop : bool, default True
         If set to True, the source columns are dropped after stopword removal,
         and the resulting columns retain the names of the source columns.
@@ -289,10 +289,10 @@ class SnowballStem(MapColVals):
     stemmer_name : str
         The name of the Snowball stemmer to use. Should be one of the Snowball
         stemmers implemented by nltk. E.g. &#39;EnglishStemmer&#39;.
-    columns : single label, list-like of callable
+    columns : single label, list-like or callable
         Column labels in the DataFrame to be transformed. Alternatively, this
         parameter can be assigned a callable returning an iterable of labels
-        from an input pandas.DataFrame. See pdpipe.cq.
+        from an input pandas.DataFrame. See `pdpipe.cq`.
     drop : bool, default True
         If set to True, the source columns are dropped after stemming, and the
         resulting columns retain the names of the source columns. Otherwise,
@@ -430,10 +430,10 @@ class DropRareTokens(ColumnsBasedPipelineStage):
 
     Parameters
     ----------
-    columns : single label, list-like of callable
+    columns : single label, list-like or callable
         Column labels in the DataFrame to be transformed. Alternatively, this
         parameter can be assigned a callable returning an iterable of labels
-        from an input pandas.DataFrame. See pdpipe.cq.
+        from an input pandas.DataFrame. See `pdpipe.cq`.
     threshold : int
         The rarity threshold to use. Only tokens appearing more than this
         number of times in a column will remain in token lists in that column.
@@ -550,10 +550,10 @@ is an iterable of string tokens.</p>
 <p>Note: The nltk package must be installed for this pipeline stage to work.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> of <code>callable</code></dt>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code></dt>
 <dd>Column labels in the DataFrame to be transformed. Alternatively, this
 parameter can be assigned a callable returning an iterable of labels
-from an input pandas.DataFrame. See pdpipe.cq.</dd>
+from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
 <dt><strong><code>threshold</code></strong> :&ensp;<code>int</code></dt>
 <dd>The rarity threshold to use. Only tokens appearing more than this
 number of times in a column will remain in token lists in that column.</dd>
@@ -586,10 +586,10 @@ Otherwise, the new columns gain the suffix '_norare'.</dd>
 
     Parameters
     ----------
-    columns : single label, list-like of callable
+    columns : single label, list-like or callable
         Column labels in the DataFrame to be transformed. Alternatively, this
         parameter can be assigned a callable returning an iterable of labels
-        from an input pandas.DataFrame. See pdpipe.cq.
+        from an input pandas.DataFrame. See `pdpipe.cq`.
     threshold : int
         The rarity threshold to use. Only tokens appearing more than this
         number of times in a column will remain in token lists in that column.
@@ -752,15 +752,15 @@ is an iterable of string tokens.</p>
 <p>Note: The nltk package must be installed for this pipeline stage to work.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>langugae</code></strong> :&ensp;<code>str</code> or <code>array-like</code></dt>
+<dt><strong><code>language</code></strong> :&ensp;<code>str</code> or <code>array-like</code></dt>
 <dd>If a string is given, interpreted as the language of the stopwords, and
 should then be one of the languages supported by the NLTK Stopwords
 Corpus. If a list is given, it is assumed to be the list of stopwords
 to remove.</dd>
-<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> of <code>callable</code></dt>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code></dt>
 <dd>Column labels in the DataFrame to be transformed. Alternatively, this
 parameter can be assigned a callable returning an iterable of labels
-from an input pandas.DataFrame. See pdpipe.cq.</dd>
+from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
 <dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
 <dd>If set to True, the source columns are dropped after stopword removal,
 and the resulting columns retain the names of the source columns.
@@ -789,15 +789,15 @@ Otherwise, resulting columns gain the suffix '_nostop'.</dd>
 
     Parameters
     ----------
-    langugae : str or array-like
+    language : str or array-like
         If a string is given, interpreted as the language of the stopwords, and
         should then be one of the languages supported by the NLTK Stopwords
         Corpus. If a list is given, it is assumed to be the list of stopwords
         to remove.
-    columns : single label, list-like of callable
+    columns : single label, list-like or callable
         Column labels in the DataFrame to be transformed. Alternatively, this
         parameter can be assigned a callable returning an iterable of labels
-        from an input pandas.DataFrame. See pdpipe.cq.
+        from an input pandas.DataFrame. See `pdpipe.cq`.
     drop : bool, default True
         If set to True, the source columns are dropped after stopword removal,
         and the resulting columns retain the names of the source columns.
@@ -942,10 +942,10 @@ is an iterable of string tokens.</p>
 <dt><strong><code>stemmer_name</code></strong> :&ensp;<code>str</code></dt>
 <dd>The name of the Snowball stemmer to use. Should be one of the Snowball
 stemmers implemented by nltk. E.g. 'EnglishStemmer'.</dd>
-<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> of <code>callable</code></dt>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code></dt>
 <dd>Column labels in the DataFrame to be transformed. Alternatively, this
 parameter can be assigned a callable returning an iterable of labels
-from an input pandas.DataFrame. See pdpipe.cq.</dd>
+from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
 <dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
 <dd>If set to True, the source columns are dropped after stemming, and the
 resulting columns retain the names of the source columns. Otherwise,
@@ -981,10 +981,10 @@ resulting columns gain the suffix '_stem'.</dd>
     stemmer_name : str
         The name of the Snowball stemmer to use. Should be one of the Snowball
         stemmers implemented by nltk. E.g. &#39;EnglishStemmer&#39;.
-    columns : single label, list-like of callable
+    columns : single label, list-like or callable
         Column labels in the DataFrame to be transformed. Alternatively, this
         parameter can be assigned a callable returning an iterable of labels
-        from an input pandas.DataFrame. See pdpipe.cq.
+        from an input pandas.DataFrame. See `pdpipe.cq`.
     drop : bool, default True
         If set to True, the source columns are dropped after stemming, and the
         resulting columns retain the names of the source columns. Otherwise,
@@ -1189,14 +1189,14 @@ resulting columns gain the suffix '_stem'.</dd>
 <span>(</span><span>columns, drop=True, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>A pipeline stage that tokenize a text column into token lists.</p>
+<div class="desc"><p>A pipeline stage that tokenizes a text column into token lists.</p>
 <p>Note: The nltk package must be installed for this pipeline stage to work.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> of <code>callable</code></dt>
 <dd>Column labels in the DataFrame to be transformed. Alternatively, this
 parameter can be assigned a callable returning an iterable of labels
-from an input pandas.DataFrame. See pdpipe.cq.</dd>
+from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
 <dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
 <dd>If set to True, the source columns are dropped after being tokenized,
 and the resulting tokenized columns retain the names of the source
@@ -1216,7 +1216,7 @@ columns. Otherwise, tokenized columns gain the suffix '_tok'.</dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class TokenizeText(MapColVals):
-    &#34;&#34;&#34;A pipeline stage that tokenize a text column into token lists.
+    &#34;&#34;&#34;A pipeline stage that tokenizes a text column into token lists.
 
     Note: The nltk package must be installed for this pipeline stage to work.
 
@@ -1225,7 +1225,7 @@ columns. Otherwise, tokenized columns gain the suffix '_tok'.</dd>
     columns : single label, list-like of callable
         Column labels in the DataFrame to be transformed. Alternatively, this
         parameter can be assigned a callable returning an iterable of labels
-        from an input pandas.DataFrame. See pdpipe.cq.
+        from an input pandas.DataFrame. See `pdpipe.cq`.
     drop : bool, default True
         If set to True, the source columns are dropped after being tokenized,
         and the resulting tokenized columns retain the names of the source
@@ -1342,7 +1342,7 @@ columns. Otherwise, tokenized columns gain the suffix '_tok'.</dd>
 <span>(</span><span>columns, drop=True, **kwargs)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>A pipeline stage that joins token lists to whitespace-seperated strings.</p>
+<div class="desc"><p>A pipeline stage that joins token lists to whitespace-separated strings.</p>
 <p>Target columns must be series of token lists; i.e. every cell in the series
 is an iterable of string tokens.</p>
 <p>Note: The nltk package must be installed for this pipeline stage to work.</p>
@@ -1351,7 +1351,7 @@ is an iterable of string tokens.</p>
 <dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> of <code>callable</code></dt>
 <dd>Column labels in the DataFrame to be transformed. Alternatively, this
 parameter can be assigned a callable returning an iterable of labels
-from an input pandas.DataFrame. See pdpipe.cq.</dd>
+from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
 <dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
 <dd>If set to True, the source columns are dropped after being untokenized,
 and the resulting columns retain the names of the source columns.
@@ -1371,7 +1371,7 @@ Otherwise, untokenized columns gain the suffix '_untok'.</dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class UntokenizeText(MapColVals):
-    &#34;&#34;&#34;A pipeline stage that joins token lists to whitespace-seperated strings.
+    &#34;&#34;&#34;A pipeline stage that joins token lists to whitespace-separated strings.
 
     Target columns must be series of token lists; i.e. every cell in the series
     is an iterable of string tokens.
@@ -1383,7 +1383,7 @@ Otherwise, untokenized columns gain the suffix '_untok'.</dd>
     columns : single label, list-like of callable
         Column labels in the DataFrame to be transformed. Alternatively, this
         parameter can be assigned a callable returning an iterable of labels
-        from an input pandas.DataFrame. See pdpipe.cq.
+        from an input pandas.DataFrame. See `pdpipe.cq`.
     drop : bool, default True
         If set to True, the source columns are dropped after being untokenized,
         and the resulting columns retain the names of the source columns.
@@ -1400,9 +1400,9 @@ Otherwise, untokenized columns gain the suffix '_untok'.</dd>
         1   3.2  Shake and bake!
     &#34;&#34;&#34;
 
-    _DEF_UNTOKENIZE_EXC_MSG = (&#34;Unokenize stage failed because not all columns&#34;
-                               &#34; {} are present in input dataframe and are of&#34;
-                               &#34; dtype object.&#34;)
+    _DEF_UNTOKENIZE_EXC_MSG = (
+        &#34;Untokenize stage failed because not all columns {} are present in &#34;
+        &#34;input dataframe and are of dtype object.&#34;)
 
     @staticmethod
     def _untokenize_list(token_list):

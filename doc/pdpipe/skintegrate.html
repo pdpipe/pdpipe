@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
 <title>pdpipe.skintegrate API documentation</title>
-<meta name="description" content="Classes for sklearn integration." />
+<meta name="description" content="Classes for sklearn integration …" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
 <link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
@@ -23,11 +23,33 @@
 </header>
 <section id="section-intro">
 <p>Classes for sklearn integration.</p>
+<p>Despite similar names, there is a difference between pdpipe PdPipeline and
+sklearn.pipeline.Pipeline. PdPipeline can only chain transformers while
+scikit-learn Pipeline objects can further include the final estimator to
+provide additional methods such as <code>predict</code> and <code>predict_proba</code>.</p>
+<p>This means that by itself, pdpipe PdPipeline does not integrate well with some
+of scikit-learn utility classes such as sklearn.model_selection.GridSearchCV
+compared to sklearn.pipeline.Pipeline.</p>
+<p>This module resolves such integration issues. Refer to the notebooks folder of
+the pdpipe repository for complete examples.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">&#34;&#34;&#34;Classes for sklearn integration.&#34;&#34;&#34;
+<pre><code class="python">&#34;&#34;&#34;Classes for sklearn integration.
+
+Despite similar names, there is a difference between pdpipe PdPipeline and
+sklearn.pipeline.Pipeline. PdPipeline can only chain transformers while
+scikit-learn Pipeline objects can further include the final estimator to
+provide additional methods such as `predict` and `predict_proba`.
+
+This means that by itself, pdpipe PdPipeline does not integrate well with some
+of scikit-learn utility classes such as sklearn.model_selection.GridSearchCV
+compared to sklearn.pipeline.Pipeline.
+
+This module resolves such integration issues. Refer to the notebooks folder of
+the pdpipe repository for complete examples.
+&#34;&#34;&#34;
 
 from typing import Callable
 from functools import update_wrapper
@@ -135,6 +157,26 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
         The preprocssing pipeline to connect.
     model : sklearn.base.BaseEstimator
         The model to connect to the pipeline.
+
+    Example
+    ----------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; from pdpipe.skintegrate import PdPipelineAndSklearnEstimator;
+        &gt;&gt;&gt; from sklearn.linear_model import LogisticRegression;
+        &gt;&gt;&gt; DF2 = pd.DataFrame(
+        ...    data=[[&#39;-1&#39;,0], [&#39;-1&#39;,0], [&#39;1&#39;,1], [&#39;1&#39;,1]],
+        ...    index=[1, 2, 3, 4],
+        ...    columns=[&#39;feature1&#39;, &#39;target&#39;]
+        ... )
+        &gt;&gt;&gt; all_x = DF2[[&#39;feature1&#39;]]
+        &gt;&gt;&gt; all_y = DF2[&#39;target&#39;]
+        &gt;&gt;&gt; mp = PdPipelineAndSklearnEstimator(
+        ...    pipeline=pdp.ColumnDtypeEnforcer({&#39;feature1&#39;: int}),
+        ...    estimator=LogisticRegression()
+        ... )
+        &gt;&gt;&gt; mp.fit(all_x, all_y)
+        &lt;PdPipeline -&gt; LogisticRegression&gt;
+        &gt;&gt;&gt; res = mp.predict(all_x)
     &#34;&#34;&#34;
 
     def __init__(
@@ -225,6 +267,7 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
         &#34;&#34;&#34;Call predict_proba on the estimator with the best found parameters.
         Only available if ``refit=True`` and the underlying estimator supports
         ``predict_proba``.
+
         Parameters
         ----------
         X : indexable, length n_samples
@@ -247,6 +290,7 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
         &#34;&#34;&#34;Call predict_log_proba on the estimator with the best found parameters.
         Only available if ``refit=True`` and the underlying estimator supports
         ``predict_log_proba``.
+
         Parameters
         ----------
         X : indexable, length n_samples
@@ -269,6 +313,7 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
         &#34;&#34;&#34;Call decision_function on the estimator with the best found parameters.
         Only available if ``refit=True`` and the underlying estimator supports
         ``decision_function``.
+
         Parameters
         ----------
         X : indexable, length n_samples
@@ -328,7 +373,10 @@ def pdpipe_scorer_from_sklearn_scorer(scorer: Callable) -&gt; Callable:
     model-evaluation tools using cross-validation (such as
     model_selection.cross_val_score and model_selection.GridSearchCV), when
     searching over the hyperparameter space of a PdPipelineAndSklearnEstimator
-    object
+    object.
+
+    See the pipeline_and_model_with_test_test.ipynb notebook in the notebooks
+    folder of the pdpipe repository for a complete example.
 
     Parameters
     ----------
@@ -394,7 +442,9 @@ or raise an AttributeError if not available.</dd>
 model-evaluation tools using cross-validation (such as
 model_selection.cross_val_score and model_selection.GridSearchCV), when
 searching over the hyperparameter space of a PdPipelineAndSklearnEstimator
-object</p>
+object.</p>
+<p>See the pipeline_and_model_with_test_test.ipynb notebook in the notebooks
+folder of the pdpipe repository for a complete example.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>scorer</code></strong> :&ensp;<code>callable</code></dt>
@@ -421,7 +471,10 @@ X (which is a dataframe when using pdpipe, and not a numpy.ndarray).</dd>
     model-evaluation tools using cross-validation (such as
     model_selection.cross_val_score and model_selection.GridSearchCV), when
     searching over the hyperparameter space of a PdPipelineAndSklearnEstimator
-    object
+    object.
+
+    See the pipeline_and_model_with_test_test.ipynb notebook in the notebooks
+    folder of the pdpipe repository for a complete example.
 
     Parameters
     ----------
@@ -461,7 +514,26 @@ pdpipe repository for a tutorial on how to use this class.</p>
 <dd>The preprocssing pipeline to connect.</dd>
 <dt><strong><code>model</code></strong> :&ensp;<code>sklearn.base.BaseEstimator</code></dt>
 <dd>The model to connect to the pipeline.</dd>
-</dl></div>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; from pdpipe.skintegrate import PdPipelineAndSklearnEstimator;
+&gt;&gt;&gt; from sklearn.linear_model import LogisticRegression;
+&gt;&gt;&gt; DF2 = pd.DataFrame(
+...    data=[['-1',0], ['-1',0], ['1',1], ['1',1]],
+...    index=[1, 2, 3, 4],
+...    columns=['feature1', 'target']
+... )
+&gt;&gt;&gt; all_x = DF2[['feature1']]
+&gt;&gt;&gt; all_y = DF2['target']
+&gt;&gt;&gt; mp = PdPipelineAndSklearnEstimator(
+...    pipeline=pdp.ColumnDtypeEnforcer({'feature1': int}),
+...    estimator=LogisticRegression()
+... )
+&gt;&gt;&gt; mp.fit(all_x, all_y)
+&lt;PdPipeline -&gt; LogisticRegression&gt;
+&gt;&gt;&gt; res = mp.predict(all_x)
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -480,6 +552,26 @@ pdpipe repository for a tutorial on how to use this class.</p>
         The preprocssing pipeline to connect.
     model : sklearn.base.BaseEstimator
         The model to connect to the pipeline.
+
+    Example
+    ----------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; from pdpipe.skintegrate import PdPipelineAndSklearnEstimator;
+        &gt;&gt;&gt; from sklearn.linear_model import LogisticRegression;
+        &gt;&gt;&gt; DF2 = pd.DataFrame(
+        ...    data=[[&#39;-1&#39;,0], [&#39;-1&#39;,0], [&#39;1&#39;,1], [&#39;1&#39;,1]],
+        ...    index=[1, 2, 3, 4],
+        ...    columns=[&#39;feature1&#39;, &#39;target&#39;]
+        ... )
+        &gt;&gt;&gt; all_x = DF2[[&#39;feature1&#39;]]
+        &gt;&gt;&gt; all_y = DF2[&#39;target&#39;]
+        &gt;&gt;&gt; mp = PdPipelineAndSklearnEstimator(
+        ...    pipeline=pdp.ColumnDtypeEnforcer({&#39;feature1&#39;: int}),
+        ...    estimator=LogisticRegression()
+        ... )
+        &gt;&gt;&gt; mp.fit(all_x, all_y)
+        &lt;PdPipeline -&gt; LogisticRegression&gt;
+        &gt;&gt;&gt; res = mp.predict(all_x)
     &#34;&#34;&#34;
 
     def __init__(
@@ -570,6 +662,7 @@ pdpipe repository for a tutorial on how to use this class.</p>
         &#34;&#34;&#34;Call predict_proba on the estimator with the best found parameters.
         Only available if ``refit=True`` and the underlying estimator supports
         ``predict_proba``.
+
         Parameters
         ----------
         X : indexable, length n_samples
@@ -592,6 +685,7 @@ pdpipe repository for a tutorial on how to use this class.</p>
         &#34;&#34;&#34;Call predict_log_proba on the estimator with the best found parameters.
         Only available if ``refit=True`` and the underlying estimator supports
         ``predict_log_proba``.
+
         Parameters
         ----------
         X : indexable, length n_samples
@@ -614,6 +708,7 @@ pdpipe repository for a tutorial on how to use this class.</p>
         &#34;&#34;&#34;Call decision_function on the estimator with the best found parameters.
         Only available if ``refit=True`` and the underlying estimator supports
         ``decision_function``.
+
         Parameters
         ----------
         X : indexable, length n_samples
@@ -663,9 +758,8 @@ def classes_(self):
 <dd>
 <div class="desc"><p>Call decision_function on the estimator with the best found parameters.
 Only available if <code>refit=True</code> and the underlying estimator supports
-<code>decision_function</code>.
-Parameters</p>
-<hr>
+<code>decision_function</code>.</p>
+<h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>X</code></strong> :&ensp;<code>indexable, length n_samples</code></dt>
 <dd>Must fulfill the input assumptions of the
@@ -687,6 +781,7 @@ def decision_function(self, X):
     &#34;&#34;&#34;Call decision_function on the estimator with the best found parameters.
     Only available if ``refit=True`` and the underlying estimator supports
     ``decision_function``.
+
     Parameters
     ----------
     X : indexable, length n_samples
@@ -800,9 +895,8 @@ def predict(self, X):
 <dd>
 <div class="desc"><p>Call predict_log_proba on the estimator with the best found parameters.
 Only available if <code>refit=True</code> and the underlying estimator supports
-<code>predict_log_proba</code>.
-Parameters</p>
-<hr>
+<code>predict_log_proba</code>.</p>
+<h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>X</code></strong> :&ensp;<code>indexable, length n_samples</code></dt>
 <dd>Must fulfill the input assumptions of the
@@ -824,6 +918,7 @@ def predict_log_proba(self, X):
     &#34;&#34;&#34;Call predict_log_proba on the estimator with the best found parameters.
     Only available if ``refit=True`` and the underlying estimator supports
     ``predict_log_proba``.
+
     Parameters
     ----------
     X : indexable, length n_samples
@@ -848,9 +943,8 @@ def predict_log_proba(self, X):
 <dd>
 <div class="desc"><p>Call predict_proba on the estimator with the best found parameters.
 Only available if <code>refit=True</code> and the underlying estimator supports
-<code>predict_proba</code>.
-Parameters</p>
-<hr>
+<code>predict_proba</code>.</p>
+<h2 id="parameters">Parameters</h2>
 <dl>
 <dt><strong><code>X</code></strong> :&ensp;<code>indexable, length n_samples</code></dt>
 <dd>Must fulfill the input assumptions of the
@@ -872,6 +966,7 @@ def predict_proba(self, X):
     &#34;&#34;&#34;Call predict_proba on the estimator with the best found parameters.
     Only available if ``refit=True`` and the underlying estimator supports
     ``predict_proba``.
+
     Parameters
     ----------
     X : indexable, length n_samples

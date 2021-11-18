@@ -41,27 +41,28 @@ class RegexReplace(ApplyByCols):
 
     Parameters
     ----------
-    columns : single label, list-like of callable
+    columns : single label, list-like or callable
         Column labels in the DataFrame which regex replacement be applied to.
         Alternatively, this parameter can be assigned a callable returning an
-        iterable of labels from an input pandas.DataFrame. See pdpipe.cq.
+        iterable of labels from an input pandas.DataFrame. See `pdpipe.cq`.
     pattern : str
         The regex whose occurences will be replaced.
     replace : str
         The replacement string to use. This is equivalent to repl in re.sub.
     flags : int, default 0
+        Regex flags that are compatible with Python&#39;s `re` module.
     result_columns : label or list-like of labels, default None
         The labels of the new columns resulting from the mapping operation.
         Must be of the same length as columns. If None, behavior depends on the
         drop parameter: If drop is True, the label of the source column is
-        used; otherwise, the label of the source column is caster to a string
+        used; otherwise, the label of the source column is casted to a string
         and concatenated with the suffix &#39;_reg&#39;.
     drop : bool, default True
         If set to True, source columns are dropped after being transformed.
 
     Example
     -------
-        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import re;
         &gt;&gt;&gt; data = [[4, &#34;more than 12&#34;], [5, &#34;with 5 more&#34;]]
         &gt;&gt;&gt; df = pd.DataFrame(data, [1,2], [&#34;age&#34;,&#34;text&#34;])
         &gt;&gt;&gt; clean_num = pdp.RegexReplace(&#39;text&#39;, r&#39;\\b[0-9]+\\b&#39;, &#34;NUM&#34;)
@@ -69,6 +70,17 @@ class RegexReplace(ApplyByCols):
            age           text
         1    4  more than NUM
         2    5  with NUM more
+
+        &gt;&gt;&gt; data = [[&#34;Mr. John&#34;, 18], [&#34;MR. Bob&#34;, 25]]
+        &gt;&gt;&gt; df = pd.DataFrame(data, [1,2], [&#34;name&#34;,&#34;age&#34;])
+        &gt;&gt;&gt; match_men = r&#39;^mr.*&#39;
+        &gt;&gt;&gt; censor_men = pdp.RegexReplace(
+        ...    &#39;name&#39;, match_men, &#34;x&#34;, flags=re.IGNORECASE
+        ... )
+        &gt;&gt;&gt; censor_men(df)
+          name  age
+        1    x   18
+        2    x   25
     &#34;&#34;&#34;  # noqa: W605
 
     class RegexReplacer(object):
@@ -122,8 +134,10 @@ class DropTokensByLength(ApplyByCols):
 
     Parameters
     ----------
-    columns : str or list-like
+    columns : single label, list-like or callable
         Names of token list columns on which to apply token filtering.
+        Alternatively, this parameter can be assigned a callable returning an
+        iterable of labels from an input pandas.DataFrame. See `pdpipe.cq`.
     min_len : int
         The minimum length of tokens to keep. Tokens of shorter length are
         removed from all token lists.
@@ -202,8 +216,10 @@ class DropTokensByList(ApplyByCols):
 
     Parameters
     ----------
-    columns : str or list-like
+    columns : single label, list-like or callable
         Names of token list columns on which to apply token filtering.
+        Alternatively, this parameter can be assigned a callable returning an
+        iterable of labels from an input pandas.DataFrame. See `pdpipe.cq`.
     bad_tokens : list of str
         The list of string tokens to remove from all token lists.
     result_columns : str or list-like, default None
@@ -274,8 +290,10 @@ class DropTokensByList(ApplyByCols):
 <div class="desc"><p>A pipeline stage removing tokens by length in string-token list columns.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list-like</code></dt>
-<dd>Names of token list columns on which to apply token filtering.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code></dt>
+<dd>Names of token list columns on which to apply token filtering.
+Alternatively, this parameter can be assigned a callable returning an
+iterable of labels from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
 <dt><strong><code>min_len</code></strong> :&ensp;<code>int</code></dt>
 <dd>The minimum length of tokens to keep. Tokens of shorter length are
 removed from all token lists.</dd>
@@ -310,8 +328,10 @@ suffix '_filtered'.</dd>
 
     Parameters
     ----------
-    columns : str or list-like
+    columns : single label, list-like or callable
         Names of token list columns on which to apply token filtering.
+        Alternatively, this parameter can be assigned a callable returning an
+        iterable of labels from an input pandas.DataFrame. See `pdpipe.cq`.
     min_len : int
         The minimum length of tokens to keep. Tokens of shorter length are
         removed from all token lists.
@@ -461,8 +481,10 @@ suffix '_filtered'.</dd>
 <div class="desc"><p>A pipeline stage removing specific tokens in string-token list columns.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>str</code> or <code>list-like</code></dt>
-<dd>Names of token list columns on which to apply token filtering.</dd>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code></dt>
+<dd>Names of token list columns on which to apply token filtering.
+Alternatively, this parameter can be assigned a callable returning an
+iterable of labels from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
 <dt><strong><code>bad_tokens</code></strong> :&ensp;<code>list</code> of <code>str</code></dt>
 <dd>The list of string tokens to remove from all token lists.</dd>
 <dt><strong><code>result_columns</code></strong> :&ensp;<code>str</code> or <code>list-like</code>, default <code>None</code></dt>
@@ -493,8 +515,10 @@ suffix '_filtered'.</dd>
 
     Parameters
     ----------
-    columns : str or list-like
+    columns : single label, list-like or callable
         Names of token list columns on which to apply token filtering.
+        Alternatively, this parameter can be assigned a callable returning an
+        iterable of labels from an input pandas.DataFrame. See `pdpipe.cq`.
     bad_tokens : list of str
         The list of string tokens to remove from all token lists.
     result_columns : str or list-like, default None
@@ -614,33 +638,33 @@ suffix '_filtered'.</dd>
 </dd>
 <dt id="pdpipe.text_stages.RegexReplace"><code class="flex name class">
 <span>class <span class="ident">RegexReplace</span></span>
-<span>(</span><span>columns: Union[object, List[object], <built-in function callable>], pattern: str, replace: str, flags: Optional[int] = 0, result_columns: Union[object, List[object], None] = None, drop: Optional[bool] = True, func_desc: Optional[str] = None, **kwargs)</span>
+<span>(</span><span>columns: Union[object, List[object], Callable], pattern: str, replace: str, flags: Optional[int] = 0, result_columns: Union[object, List[object], None] = None, drop: Optional[bool] = True, func_desc: Optional[str] = None, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A pipeline stage replacing regex occurences in a text column.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
-<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> of <code>callable</code></dt>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code></dt>
 <dd>Column labels in the DataFrame which regex replacement be applied to.
 Alternatively, this parameter can be assigned a callable returning an
-iterable of labels from an input pandas.DataFrame. See pdpipe.cq.</dd>
+iterable of labels from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
 <dt><strong><code>pattern</code></strong> :&ensp;<code>str</code></dt>
 <dd>The regex whose occurences will be replaced.</dd>
 <dt><strong><code>replace</code></strong> :&ensp;<code>str</code></dt>
 <dd>The replacement string to use. This is equivalent to repl in re.sub.</dd>
 <dt><strong><code>flags</code></strong> :&ensp;<code>int</code>, default <code>0</code></dt>
-<dd>&nbsp;</dd>
+<dd>Regex flags that are compatible with Python's <code>re</code> module.</dd>
 <dt><strong><code>result_columns</code></strong> :&ensp;<code>label</code> or <code>list-like</code> of <code>labels</code>, default <code>None</code></dt>
 <dd>The labels of the new columns resulting from the mapping operation.
 Must be of the same length as columns. If None, behavior depends on the
 drop parameter: If drop is True, the label of the source column is
-used; otherwise, the label of the source column is caster to a string
+used; otherwise, the label of the source column is casted to a string
 and concatenated with the suffix '_reg'.</dd>
 <dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
 <dd>If set to True, source columns are dropped after being transformed.</dd>
 </dl>
 <h2 id="example">Example</h2>
-<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import re;
 &gt;&gt;&gt; data = [[4, "more than 12"], [5, "with 5 more"]]
 &gt;&gt;&gt; df = pd.DataFrame(data, [1,2], ["age","text"])
 &gt;&gt;&gt; clean_num = pdp.RegexReplace('text', r'\b[0-9]+\b', "NUM")
@@ -648,6 +672,17 @@ and concatenated with the suffix '_reg'.</dd>
    age           text
 1    4  more than NUM
 2    5  with NUM more
+
+&gt;&gt;&gt; data = [["Mr. John", 18], ["MR. Bob", 25]]
+&gt;&gt;&gt; df = pd.DataFrame(data, [1,2], ["name","age"])
+&gt;&gt;&gt; match_men = r'^mr.*'
+&gt;&gt;&gt; censor_men = pdp.RegexReplace(
+...    'name', match_men, "x", flags=re.IGNORECASE
+... )
+&gt;&gt;&gt; censor_men(df)
+  name  age
+1    x   18
+2    x   25
 </code></pre></div>
 <details class="source">
 <summary>
@@ -658,27 +693,28 @@ and concatenated with the suffix '_reg'.</dd>
 
     Parameters
     ----------
-    columns : single label, list-like of callable
+    columns : single label, list-like or callable
         Column labels in the DataFrame which regex replacement be applied to.
         Alternatively, this parameter can be assigned a callable returning an
-        iterable of labels from an input pandas.DataFrame. See pdpipe.cq.
+        iterable of labels from an input pandas.DataFrame. See `pdpipe.cq`.
     pattern : str
         The regex whose occurences will be replaced.
     replace : str
         The replacement string to use. This is equivalent to repl in re.sub.
     flags : int, default 0
+        Regex flags that are compatible with Python&#39;s `re` module.
     result_columns : label or list-like of labels, default None
         The labels of the new columns resulting from the mapping operation.
         Must be of the same length as columns. If None, behavior depends on the
         drop parameter: If drop is True, the label of the source column is
-        used; otherwise, the label of the source column is caster to a string
+        used; otherwise, the label of the source column is casted to a string
         and concatenated with the suffix &#39;_reg&#39;.
     drop : bool, default True
         If set to True, source columns are dropped after being transformed.
 
     Example
     -------
-        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import re;
         &gt;&gt;&gt; data = [[4, &#34;more than 12&#34;], [5, &#34;with 5 more&#34;]]
         &gt;&gt;&gt; df = pd.DataFrame(data, [1,2], [&#34;age&#34;,&#34;text&#34;])
         &gt;&gt;&gt; clean_num = pdp.RegexReplace(&#39;text&#39;, r&#39;\\b[0-9]+\\b&#39;, &#34;NUM&#34;)
@@ -686,6 +722,17 @@ and concatenated with the suffix '_reg'.</dd>
            age           text
         1    4  more than NUM
         2    5  with NUM more
+
+        &gt;&gt;&gt; data = [[&#34;Mr. John&#34;, 18], [&#34;MR. Bob&#34;, 25]]
+        &gt;&gt;&gt; df = pd.DataFrame(data, [1,2], [&#34;name&#34;,&#34;age&#34;])
+        &gt;&gt;&gt; match_men = r&#39;^mr.*&#39;
+        &gt;&gt;&gt; censor_men = pdp.RegexReplace(
+        ...    &#39;name&#39;, match_men, &#34;x&#34;, flags=re.IGNORECASE
+        ... )
+        &gt;&gt;&gt; censor_men(df)
+          name  age
+        1    x   18
+        2    x   25
     &#34;&#34;&#34;  # noqa: W605
 
     class RegexReplacer(object):
