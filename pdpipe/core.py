@@ -477,7 +477,7 @@ class PdPipelineStage(abc.ABC):
         """
         if exraise is None:
             exraise = self._exraise
-        if self._prec(X):
+        if self._compound_prec(X):
             if verbose:
                 msg = '- ' + '\n  '.join(textwrap.wrap(self._appmsg))
                 print(msg, flush=True)
