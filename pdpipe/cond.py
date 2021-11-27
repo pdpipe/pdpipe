@@ -87,6 +87,8 @@ class Condition(object):
         called on calls of `transform()` of a fitted object. If set to False,
         the default, `func` is called on every call to transform. False by
         default.
+    error_message : str, default None
+        A string that describes the error when the condition fails.
 
     Example
     -------
@@ -97,9 +99,11 @@ class Condition(object):
         >>> col_drop = pdp.ColDrop(['lbl'], prec=cond)
     """
 
-    def __init__(self, func, fittable=None):
+    def __init__(self, func, fittable=None, error_message=None):
         self._func = func
         self._fittable = fittable
+        if error_message is not None:
+            self.error_message = error_message
 
     def __call__(self, df):
         """Returns column labels of qualified columns from an input dataframe.
@@ -421,8 +425,15 @@ class HasAllColumns(Condition):
                 for lbl in self._labels
             ])
         _func.__doc__ = f"Dataframes with columns {self._labels_str}"
-        kwargs['func'] = _func
-        super().__init__(**kwargs)
+        super_kwargs = {
+            "error_message": (
+                f"Not all required columns {self._labels_str}"
+                " present in the input dataframe."
+            )
+        }
+        super_kwargs.update(**kwargs)
+        super_kwargs['func'] = _func
+        super().__init__(**super_kwargs)
 
     def __repr__(self):
         return f"<pdpipe.Condition: Has all columns in {self._labels_str}>"
@@ -529,9 +540,16 @@ class HasNoColumn(Condition):
         self._labels = labels
         self._labels_str = _list_str(self._labels)
         _func = HasNoColumn._NoColumnsFunc(self._labels)
-        _func.__doc__ = f"Dataframes with no colum from {self._labels_str}"
-        kwargs['func'] = _func
-        super().__init__(**kwargs)
+        _func.__doc__ = f"Dataframes with no column from {self._labels_str}"
+        super_kwargs = {
+            "error_message": (
+                f"One or more of the prohibited columns {self._labels_str}"
+                " present in the input dataframe."
+            )
+        }
+        super_kwargs.update(**kwargs)
+        super_kwargs['func'] = _func
+        super().__init__(**super_kwargs)
 
     def __repr__(self):
         return f"<pdpipe.Condition: Has no column in {self._labels_str}>"
@@ -601,8 +619,15 @@ class HasAtMostMissingValues(Condition):
         _func.__doc__ = (
             f"Dataframes with at most {self._n_missing} missing values"
         )
-        kwargs['func'] = _func
-        super().__init__(**kwargs)
+        super_kwargs = {
+            "error_message": (
+                "Input dataframe cannot have more than"
+                f" {self._n_missing} missing values."
+            )
+        }
+        super_kwargs.update(**kwargs)
+        super_kwargs['func'] = _func
+        super().__init__(**super_kwargs)
 
     def __repr__(self):
         return f"<pdpipe.Condition: " \
@@ -631,8 +656,12 @@ class HasNoMissingValues(HasAtMostMissingValues):
     """
 
     def __init__(self, **kwargs):
-        kwargs['n_missing'] = 0
-        super().__init__(**kwargs)
+        super_kwargs = {
+            "error_message": "Input dataframe cannot contain missing values."
+        }
+        super_kwargs.update(**kwargs)
+        super_kwargs['n_missing'] = 0
+        super().__init__(**super_kwargs)
 
     def __repr__(self):
         return "<pdpipe.Condition: Has no missing values>"
