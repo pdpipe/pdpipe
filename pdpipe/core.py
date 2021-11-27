@@ -325,6 +325,20 @@ class PdPipelineStage(abc.ABC):
             return False
         return True
 
+    def _raise_precondition_error(self):
+        try:
+            raise FailedPreconditionError(
+                f"{self._exmsg} [Reason] {self._prec_arg.error_message}")
+        except AttributeError:
+            raise FailedPreconditionError(self._exmsg)
+
+    def _raise_postcondition_error(self):
+        try:
+            raise FailedPostconditionError(
+                f"{self._exmsg_post} [Reason] {self._post_arg.error_message}")
+        except AttributeError:
+            raise FailedPostconditionError(self._exmsg_post)
+
     @abc.abstractmethod
     def _transform(self, df, verbose):
         """Transforms the given dataframe without fitting this stage."""
@@ -367,10 +381,10 @@ class PdPipelineStage(abc.ABC):
             else:
                 res_df = self._fit_transform(df, verbose=verbose)
             if exraise and not self._compound_post(df=res_df):
-                raise FailedPostconditionError(self._exmsg_post)
+                self._raise_postcondition_error()
             return res_df
         if exraise:
-            raise FailedPreconditionError(self._exmsg)
+            self._raise_precondition_error()
         return df
 
     __call__ = apply
@@ -406,10 +420,10 @@ class PdPipelineStage(abc.ABC):
                 print(msg, flush=True)
             res_df = self._fit_transform(X, verbose=verbose)
             if exraise and not self._compound_post(df=res_df):
-                raise FailedPostconditionError(self._exmsg_post)
+                self._raise_postcondition_error()
             return res_df
         if exraise:
-            raise FailedPreconditionError(self._exmsg)
+            self._raise_precondition_error()
         return X
 
     def fit(self, X, y=None, exraise=None, verbose=False):
@@ -443,10 +457,10 @@ class PdPipelineStage(abc.ABC):
                 print(msg, flush=True)
             res_df = self._fit_transform(X, verbose=verbose)
             if exraise and not self._compound_post(df=res_df):
-                raise FailedPostconditionError(self._exmsg_post)
+                self._raise_postcondition_error()
             return X
         if exraise:
-            raise FailedPreconditionError(self._exmsg)
+            self._raise_precondition_error()
         return X
 
     def transform(self, X, y=None, exraise=None, verbose=False):
@@ -485,16 +499,16 @@ class PdPipelineStage(abc.ABC):
                 if self.is_fitted:
                     res_df = self._transform(X, verbose=verbose)
                     if exraise and not self._compound_post(df=res_df):
-                        raise FailedPostconditionError(self._exmsg_post)
+                        self._raise_postcondition_error()
                     return res_df
                 raise UnfittedPipelineStageError(
                     "transform of an unfitted pipeline stage was called!")
             res_df = self._transform(X, verbose=verbose)
             if exraise and not self._compound_post(df=res_df):
-                raise FailedPostconditionError(self._exmsg_post)
+                self._raise_postcondition_error()
             return res_df
         if exraise:
-            raise FailedPreconditionError(self._exmsg)
+            self._raise_precondition_error()
         return X
 
     def __add__(self, other):
