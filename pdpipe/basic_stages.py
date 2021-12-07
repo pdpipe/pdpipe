@@ -221,10 +221,9 @@ class ColRename(PdPipelineStage):
             columns_str = _list_str(list(rename_mapper.keys()))
             mapper_repr = str(rename_mapper)
             keys_set = set(self._rename_mapper.keys())
-
-            def _tprec(df):
-                return keys_set.issubset(df.columns)
-        except AttributeError:
+            required_labels = list(keys_set)
+            _tprec = cond.HasAllColumns(required_labels)
+        except AttributeError:  # rename mapper is a callable
             mapper_repr = rename_mapper.__name__
             doc = rename_mapper.__doc__
             if doc is None:
@@ -234,9 +233,7 @@ class ColRename(PdPipelineStage):
                     f"by func {rename_mapper.__name__} with "
                     f"doc: {rename_mapper.__doc__}"
                 )
-
-            def _tprec(df):
-                return True
+            _tprec = cond.AlwaysTrue()
         try:
             suffix = 's' if len(rename_mapper) > 1 else ''
         except TypeError:
