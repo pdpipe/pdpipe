@@ -1,5 +1,7 @@
 """Testing basic pipeline stages."""
 
+import pickle
+
 import pandas as pd
 import pytest
 
@@ -9,6 +11,8 @@ from pdpipe.core import (
     FailedPostconditionError,
 )
 from pdpipe.cond import Condition
+
+from pdptestutil import random_pickle_path
 
 
 def _test_df():
@@ -33,7 +37,7 @@ class SomeStage(PdPipelineStage):
 
 
 def test_basic_pipeline_stage():
-    """Testing the col binner helper class."""
+    """Testing pipeline stageclass."""
     test_stage = SomeStage()
     assert not test_stage._is_fittable()
     df = _test_df()
@@ -71,11 +75,48 @@ def test_basic_pipeline_stage():
     assert repr(test_stage) == expected_repr
 
 
+def test_pickle_basic_pipeline_stage(pdpipe_tests_dir_path):
+    """Testing pipeline stageclass."""
+    test_stage = SomeStage()
+    assert not test_stage._is_fittable()
+    df = _test_df()
+    res_df = test_stage.apply(df, verbose=True)
+    assert res_df.equals(df)
+    # test stage pickling
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, 'wb+') as f:
+        pickle.dump(test_stage, f)
+    with open(fpath, 'rb') as f:
+        loaded_stage = pickle.load(f)
+    res_df = loaded_stage.apply(df, verbose=True)
+    assert res_df.equals(df)
+
+
 def test_prec_arg():
     test_stage = SomeStage(prec=lambda df: False)
     df = _test_df()
     with pytest.raises(FailedPreconditionError):
         test_stage(df)
+
+
+def _failing_prec(df):
+    return False
+
+
+def test_pickle_named_prec_basic(pdpipe_tests_dir_path):
+    """Testing pipeline stageclass."""
+    test_stage = SomeStage(prec=_failing_prec)
+    df = _test_df()
+    with pytest.raises(FailedPreconditionError):
+        test_stage(df)
+    # test stage pickling
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, 'wb+') as f:
+        pickle.dump(test_stage, f)
+    with open(fpath, 'rb') as f:
+        loaded_stage = pickle.load(f)
+    with pytest.raises(FailedPreconditionError):
+        loaded_stage(df)
 
 
 class FailStage(PdPipelineStage):
