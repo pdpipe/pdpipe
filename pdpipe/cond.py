@@ -65,6 +65,8 @@ While the same code but with XOR will yield the opposite results:
     False
 """
 
+import pandas
+
 from .shared import _list_str
 
 
@@ -665,3 +667,33 @@ class HasNoMissingValues(HasAtMostMissingValues):
 
     def __repr__(self):
         return "<pdpipe.Condition: Has no missing values>"
+
+
+def _AlwaysTrue(df: pandas.DataFrame) -> bool:
+    """A function that always returns True."""
+    return True
+
+
+class AlwaysTrue(Condition):
+    """A condition letting all dataframes through, always returning True.
+
+    Example
+    -------
+        >>> import pandas as pd; import pdpipe as pdp;
+        >>> df = pd.DataFrame(
+        ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
+        >>> cond = pdp.cond.AlwaysTrue()
+        >>> cond
+        <pdpipe.Condition: AlwaysTrue>
+        >>> cond(df)
+        True
+    """
+
+    def __init__(self, **kwargs):
+        super_kwargs = {}
+        super_kwargs.update(**kwargs)
+        super_kwargs['func'] = _AlwaysTrue
+        super().__init__(**super_kwargs)
+
+    def __repr__(self):
+        return "<pdpipe.Condition: AlwaysTrue>"
