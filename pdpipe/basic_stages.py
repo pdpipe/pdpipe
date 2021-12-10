@@ -322,11 +322,9 @@ class SetIndex(PdPipelineStage):
         self.setindex_kwargs = {key: kwargs.pop(key) for key in common}
         self.keys = keys
         if hasattr(keys, '__iter__') and not isinstance(keys, str):
-            def _tprec(df):
-                return all([k in df.columns for k in keys])
+            _tprec = cond.HasAllColumns(list(keys))
         else:
-            def _tprec(df):
-                return keys in df.columns
+            _tprec = cond.HasAllColumns([keys])
         self._tprec = _tprec
         super_kwargs = {
             'exmsg': SetIndex._DEF_SETIDX_EXC_MSG,
@@ -707,16 +705,12 @@ class ColumnDtypeEnforcer(PdPipelineStage):
             # its a static map; use it as is
             self._column_to_dtype = column_to_dtype
             keys_set = set(column_to_dtype.keys())
-
-            def _tprec(df: pandas.DataFrame) -> bool:
-                return keys_set.issubset(df.columns)
+            _tprec = cond.HasAllColumns(list(keys_set))
         else:
             # else, it's at least partly dynamic, and will have to infer it
             # on run time
             self._dynamic_column_to_dtype = column_to_dtype
-
-            def _tprec(df: pandas.DataFrame) -> bool:
-                return True
+            _tprec = cond.AlwaysTrue()
         self._tprec = _tprec
         self._errors = errors
         columns_str = _list_str(list(column_to_dtype.keys()))

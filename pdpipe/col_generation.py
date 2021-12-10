@@ -363,6 +363,46 @@ class ColumnTransformer(ColumnsBasedPipelineStage):
         return inter_df
 
 
+class _AttrGetter():
+    """A custom callable that gets a specific attribute from input objects.
+
+    Parameters
+    ----------
+    attr_name : str
+        The name of the attribute to get from input objects.
+    """
+
+    def __init__(self, attr_name: str) -> None:
+        self.attr_name = attr_name
+
+    def __call__(self, obj: object) -> object:
+        return getattr(obj, self.attr_name)
+
+
+class _MethodRetValGetter():
+    """A custom callable that gets the return value of a specified method with
+    specified keyword arguments from input objects.
+
+    Parameters
+    ----------
+    method_name : str
+        The name of the method to call for input objects.
+    method_kwargs : dict of str to object
+        The keyword arguments to supply to the specified method on each call.
+    """
+
+    def __init__(
+        self,
+        method_name: str,
+        method_kwargs: Dict[str, object],
+    ) -> None:
+        self.method_name = method_name
+        self.method_kwargs = method_kwargs
+
+    def __call__(self, obj: object) -> object:
+        return getattr(obj, self.method_name)(**self.method_kwargs)
+
+
 class MapColVals(ColumnTransformer):
     """A pipeline stage that replaces the values of a column by a map.
 
@@ -436,16 +476,12 @@ class MapColVals(ColumnTransformer):
         self._value_map = value_map
         self._applied_value_map = value_map
         if type(value_map) == str:
-            def _app_vmap(val):
-                return getattr(val, value_map)
-            self._applied_value_map = _app_vmap
+            self._applied_value_map = _AttrGetter(attr_name=value_map)
         elif type(value_map) == tuple:
-            method_name = value_map[0]
-            method_kwargs = value_map[1]
-
-            def _app_vmap(val):
-                return getattr(val, method_name)(**method_kwargs)
-            self._applied_value_map = _app_vmap
+            self._applied_value_map = _MethodRetValGetter(
+                method_name=value_map[0],
+                method_kwargs=value_map[1],
+            )
         if suffix is None:
             suffix = "_map"
         _, colstr = ColumnsBasedPipelineStage._interpret_columns_param(

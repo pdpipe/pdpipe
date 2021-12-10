@@ -1,10 +1,13 @@
 """Testing basic pipeline stages."""
 
 import math
+import pickle
 
 import pandas as pd
 
 from pdpipe.col_generation import Bin
+
+from pdptestutil import random_pickle_path
 
 
 def test_col_binner():
@@ -20,11 +23,23 @@ def test_col_binner():
     assert binner(math.inf) == '5≤'
 
 
-def test_bin_verbose():
+def test_bin_verbose(pdpipe_tests_dir_path):
     """Basic binning test."""
     df = pd.DataFrame([[-3], [4], [5], [9]], [1, 2, 3, 4], ['speed'])
     bin_stage = Bin({'speed': [5]}, drop=False)
     res_df = bin_stage.apply(df, verbose=True)
+    assert 'speed_bin' in res_df.columns
+    assert res_df['speed_bin'][1] == '<5'
+    assert res_df['speed_bin'][2] == '<5'
+    assert res_df['speed_bin'][3] == '5≤'
+    assert res_df['speed_bin'][4] == '5≤'
+    # test stage pickling
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, 'wb+') as f:
+        pickle.dump(bin_stage, f)
+    with open(fpath, 'rb') as f:
+        loaded_stage = pickle.load(f)
+    res_df = loaded_stage(df)
     assert 'speed_bin' in res_df.columns
     assert res_df['speed_bin'][1] == '<5'
     assert res_df['speed_bin'][2] == '<5'

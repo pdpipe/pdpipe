@@ -1,11 +1,14 @@
 """Testing MapColVals pipeline stages."""
 
+import pickle
 import datetime
 
 import pandas as pd
 import pytest
 
 from pdpipe.col_generation import MapColVals
+
+from pdptestutil import random_pickle_path
 
 
 def _test_df():
@@ -80,19 +83,41 @@ def _2nd_test_df():
     )
 
 
-def test_mapcolvals_with_attr_name():
+def test_mapcolvals_with_attr_name(pdpipe_tests_dir_path):
     """Testing MapColVals pipeline stages."""
     df = _2nd_test_df()
-    res_df = MapColVals('Duration', 'days').apply(df)
+    stage = MapColVals('Duration', 'days')
+    res_df = stage.apply(df)
+    assert res_df['Duration']['UK'] == 2
+    assert res_df['Duration']['USSR'] == 3
+    assert res_df['Duration']['US'] == 4
+    # test stage pickling
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, 'wb+') as f:
+        pickle.dump(stage, f)
+    with open(fpath, 'rb') as f:
+        loaded_stage = pickle.load(f)
+    res_df = loaded_stage(df)
     assert res_df['Duration']['UK'] == 2
     assert res_df['Duration']['USSR'] == 3
     assert res_df['Duration']['US'] == 4
 
 
-def test_mapcolvals_with_method_name():
+def test_mapcolvals_with_method_name(pdpipe_tests_dir_path):
     """Testing MapColVals pipeline stages."""
     df = _2nd_test_df()
-    res_df = MapColVals('Duration', ('total_seconds', {})).apply(df)
+    stage = MapColVals('Duration', ('total_seconds', {}))
+    res_df = stage.apply(df)
+    assert res_df['Duration']['UK'] == df['Duration']['UK'].total_seconds()
+    assert res_df['Duration']['USSR'] == df['Duration']['USSR'].total_seconds()
+    assert res_df['Duration']['US'] == df['Duration']['US'].total_seconds()
+    # test stage pickling
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, 'wb+') as f:
+        pickle.dump(stage, f)
+    with open(fpath, 'rb') as f:
+        loaded_stage = pickle.load(f)
+    res_df = loaded_stage(df)
     assert res_df['Duration']['UK'] == df['Duration']['UK'].total_seconds()
     assert res_df['Duration']['USSR'] == df['Duration']['USSR'].total_seconds()
     assert res_df['Duration']['US'] == df['Duration']['US'].total_seconds()
