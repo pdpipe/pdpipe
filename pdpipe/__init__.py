@@ -107,6 +107,7 @@ except ImportError:
 
 from . import cq
 from . import cond
+from . import df
 
 
 from ._version import get_versions
