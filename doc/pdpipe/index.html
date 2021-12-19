@@ -166,6 +166,14 @@ parameter to a pipeline apply call with a bool sets or unsets exception raising 
 <p>Read more on column qualifiers in the documentation of the <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code> module.</p>
 <h1 id="types-of-pipeline-stages">Types of Pipeline Stages</h1>
 <p>All built-in stages are thoroughly documented, including examples; if you find any documentation lacking please open an issue. A list of briefly described available built-in stages follows:</p>
+<h2 id="built-in-pandas-methods">Built-in pandas methods</h2>
+<p>Ad-hoc pipeline stages that wrap any <code>pandas.DataFrame</code> built-in method that returns a dataframe object can be easily created using the <code><a title="pdpipe.df" href="df.html">pdpipe.df</a></code> submodule:</p>
+<pre><code class="language-python">  pipeline = pdp.PdPipeline([
+    pdp.df.set_axis(labels='datetime'),
+    pdp.ColDrop('age),
+  ])
+</code></pre>
+<p>Refer to the <code><a title="pdpipe.df" href="df.html">pdpipe.df</a></code> module for a more detailed documentation.</p>
 <h2 id="basic-stages">Basic Stages</h2>
 <p>Refer to submodule <code><a title="pdpipe.basic_stages" href="basic_stages.html">pdpipe.basic_stages</a></code></p>
 <ul>
@@ -338,6 +346,7 @@ except ImportError:
 
 from . import cq
 from . import cond
+from . import df
 
 
 from ._version import get_versions
@@ -394,6 +403,10 @@ __pdoc__ = {
 <dt><code class="name"><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code></dt>
 <dd>
 <div class="desc"><p>Column qualifiers for pdpipe …</p></div>
+</dd>
+<dt><code class="name"><a title="pdpipe.df" href="df.html">pdpipe.df</a></code></dt>
+<dd>
+<div class="desc"><p>Handles for dynamic dataframe-method-wrapping pipeline stages …</p></div>
 </dd>
 <dt><code class="name"><a title="pdpipe.exceptions" href="exceptions.html">pdpipe.exceptions</a></code></dt>
 <dd>
@@ -465,6 +478,7 @@ __pdoc__ = {
 </ul>
 </li>
 <li><a href="#types-of-pipeline-stages">Types of Pipeline Stages</a><ul>
+<li><a href="#built-in-pandas-methods">Built-in pandas methods</a></li>
 <li><a href="#basic-stages">Basic Stages</a></li>
 <li><a href="#column-generation">Column Generation</a></li>
 <li><a href="#text-stages">Text Stages</a></li>
@@ -487,6 +501,7 @@ __pdoc__ = {
 <li><code><a title="pdpipe.cond" href="cond.html">pdpipe.cond</a></code></li>
 <li><code><a title="pdpipe.core" href="core.html">pdpipe.core</a></code></li>
 <li><code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code></li>
+<li><code><a title="pdpipe.df" href="df.html">pdpipe.df</a></code></li>
 <li><code><a title="pdpipe.exceptions" href="exceptions.html">pdpipe.exceptions</a></code></li>
 <li><code><a title="pdpipe.nltk_stages" href="nltk_stages.html">pdpipe.nltk_stages</a></code></li>
 <li><code><a title="pdpipe.skintegrate" href="skintegrate.html">pdpipe.skintegrate</a></code></li>

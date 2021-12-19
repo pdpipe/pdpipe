@@ -265,7 +265,7 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
     @available_if(_estimator_has(&#34;predict_proba&#34;))
     def predict_proba(self, X):
         &#34;&#34;&#34;Call predict_proba on the estimator with the best found parameters.
-        Only available if ``refit=True`` and the underlying estimator supports
+        Only available if the underlying estimator supports
         ``predict_proba``.
 
         Parameters
@@ -288,7 +288,7 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
     @available_if(_estimator_has(&#34;predict_log_proba&#34;))
     def predict_log_proba(self, X):
         &#34;&#34;&#34;Call predict_log_proba on the estimator with the best found parameters.
-        Only available if ``refit=True`` and the underlying estimator supports
+        Only available if the underlying estimator supports
         ``predict_log_proba``.
 
         Parameters
@@ -311,7 +311,7 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
     @available_if(_estimator_has(&#34;decision_function&#34;))
     def decision_function(self, X):
         &#34;&#34;&#34;Call decision_function on the estimator with the best found parameters.
-        Only available if ``refit=True`` and the underlying estimator supports
+        Only available if the underlying estimator supports
         ``decision_function``.
 
         Parameters
@@ -660,7 +660,7 @@ pdpipe repository for a tutorial on how to use this class.</p>
     @available_if(_estimator_has(&#34;predict_proba&#34;))
     def predict_proba(self, X):
         &#34;&#34;&#34;Call predict_proba on the estimator with the best found parameters.
-        Only available if ``refit=True`` and the underlying estimator supports
+        Only available if the underlying estimator supports
         ``predict_proba``.
 
         Parameters
@@ -683,7 +683,7 @@ pdpipe repository for a tutorial on how to use this class.</p>
     @available_if(_estimator_has(&#34;predict_log_proba&#34;))
     def predict_log_proba(self, X):
         &#34;&#34;&#34;Call predict_log_proba on the estimator with the best found parameters.
-        Only available if ``refit=True`` and the underlying estimator supports
+        Only available if the underlying estimator supports
         ``predict_log_proba``.
 
         Parameters
@@ -706,7 +706,7 @@ pdpipe repository for a tutorial on how to use this class.</p>
     @available_if(_estimator_has(&#34;decision_function&#34;))
     def decision_function(self, X):
         &#34;&#34;&#34;Call decision_function on the estimator with the best found parameters.
-        Only available if ``refit=True`` and the underlying estimator supports
+        Only available if the underlying estimator supports
         ``decision_function``.
 
         Parameters
@@ -757,7 +757,7 @@ def classes_(self):
 </code></dt>
 <dd>
 <div class="desc"><p>Call decision_function on the estimator with the best found parameters.
-Only available if <code>refit=True</code> and the underlying estimator supports
+Only available if the underlying estimator supports
 <code>decision_function</code>.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
@@ -779,7 +779,7 @@ the best found parameters.</dd>
 <pre><code class="python">@available_if(_estimator_has(&#34;decision_function&#34;))
 def decision_function(self, X):
     &#34;&#34;&#34;Call decision_function on the estimator with the best found parameters.
-    Only available if ``refit=True`` and the underlying estimator supports
+    Only available if the underlying estimator supports
     ``decision_function``.
 
     Parameters
@@ -894,7 +894,7 @@ def predict(self, X):
 </code></dt>
 <dd>
 <div class="desc"><p>Call predict_log_proba on the estimator with the best found parameters.
-Only available if <code>refit=True</code> and the underlying estimator supports
+Only available if the underlying estimator supports
 <code>predict_log_proba</code>.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
@@ -916,7 +916,7 @@ corresponds to that in the fitted attribute :term:<code>classes_</code>.</dd>
 <pre><code class="python">@available_if(_estimator_has(&#34;predict_log_proba&#34;))
 def predict_log_proba(self, X):
     &#34;&#34;&#34;Call predict_log_proba on the estimator with the best found parameters.
-    Only available if ``refit=True`` and the underlying estimator supports
+    Only available if the underlying estimator supports
     ``predict_log_proba``.
 
     Parameters
@@ -942,7 +942,7 @@ def predict_log_proba(self, X):
 </code></dt>
 <dd>
 <div class="desc"><p>Call predict_proba on the estimator with the best found parameters.
-Only available if <code>refit=True</code> and the underlying estimator supports
+Only available if the underlying estimator supports
 <code>predict_proba</code>.</p>
 <h2 id="parameters">Parameters</h2>
 <dl>
@@ -964,7 +964,7 @@ to that in the fitted attribute :term:<code>classes_</code>.</dd>
 <pre><code class="python">@available_if(_estimator_has(&#34;predict_proba&#34;))
 def predict_proba(self, X):
     &#34;&#34;&#34;Call predict_proba on the estimator with the best found parameters.
-    Only available if ``refit=True`` and the underlying estimator supports
+    Only available if the underlying estimator supports
     ``predict_proba``.
 
     Parameters

@@ -153,6 +153,8 @@ While the same code but with XOR will yield the opposite results:
     False
 &#34;&#34;&#34;
 
+import pandas
+
 from .shared import _list_str
 
 
@@ -175,6 +177,8 @@ class Condition(object):
         called on calls of `transform()` of a fitted object. If set to False,
         the default, `func` is called on every call to transform. False by
         default.
+    error_message : str, default None
+        A string that describes the error when the condition fails.
 
     Example
     -------
@@ -185,9 +189,11 @@ class Condition(object):
         &gt;&gt;&gt; col_drop = pdp.ColDrop([&#39;lbl&#39;], prec=cond)
     &#34;&#34;&#34;
 
-    def __init__(self, func, fittable=None):
+    def __init__(self, func, fittable=None, error_message=None):
         self._func = func
         self._fittable = fittable
+        if error_message is not None:
+            self.error_message = error_message
 
     def __call__(self, df):
         &#34;&#34;&#34;Returns column labels of qualified columns from an input dataframe.
@@ -509,8 +515,15 @@ class HasAllColumns(Condition):
                 for lbl in self._labels
             ])
         _func.__doc__ = f&#34;Dataframes with columns {self._labels_str}&#34;
-        kwargs[&#39;func&#39;] = _func
-        super().__init__(**kwargs)
+        super_kwargs = {
+            &#34;error_message&#34;: (
+                f&#34;Not all required columns {self._labels_str}&#34;
+                &#34; present in the input dataframe.&#34;
+            )
+        }
+        super_kwargs.update(**kwargs)
+        super_kwargs[&#39;func&#39;] = _func
+        super().__init__(**super_kwargs)
 
     def __repr__(self):
         return f&#34;&lt;pdpipe.Condition: Has all columns in {self._labels_str}&gt;&#34;
@@ -617,9 +630,16 @@ class HasNoColumn(Condition):
         self._labels = labels
         self._labels_str = _list_str(self._labels)
         _func = HasNoColumn._NoColumnsFunc(self._labels)
-        _func.__doc__ = f&#34;Dataframes with no colum from {self._labels_str}&#34;
-        kwargs[&#39;func&#39;] = _func
-        super().__init__(**kwargs)
+        _func.__doc__ = f&#34;Dataframes with no column from {self._labels_str}&#34;
+        super_kwargs = {
+            &#34;error_message&#34;: (
+                f&#34;One or more of the prohibited columns {self._labels_str}&#34;
+                &#34; present in the input dataframe.&#34;
+            )
+        }
+        super_kwargs.update(**kwargs)
+        super_kwargs[&#39;func&#39;] = _func
+        super().__init__(**super_kwargs)
 
     def __repr__(self):
         return f&#34;&lt;pdpipe.Condition: Has no column in {self._labels_str}&gt;&#34;
@@ -689,8 +709,15 @@ class HasAtMostMissingValues(Condition):
         _func.__doc__ = (
             f&#34;Dataframes with at most {self._n_missing} missing values&#34;
         )
-        kwargs[&#39;func&#39;] = _func
-        super().__init__(**kwargs)
+        super_kwargs = {
+            &#34;error_message&#34;: (
+                &#34;Input dataframe cannot have more than&#34;
+                f&#34; {self._n_missing} missing values.&#34;
+            )
+        }
+        super_kwargs.update(**kwargs)
+        super_kwargs[&#39;func&#39;] = _func
+        super().__init__(**super_kwargs)
 
     def __repr__(self):
         return f&#34;&lt;pdpipe.Condition: &#34; \
@@ -719,11 +746,45 @@ class HasNoMissingValues(HasAtMostMissingValues):
     &#34;&#34;&#34;
 
     def __init__(self, **kwargs):
-        kwargs[&#39;n_missing&#39;] = 0
-        super().__init__(**kwargs)
+        super_kwargs = {
+            &#34;error_message&#34;: &#34;Input dataframe cannot contain missing values.&#34;
+        }
+        super_kwargs.update(**kwargs)
+        super_kwargs[&#39;n_missing&#39;] = 0
+        super().__init__(**super_kwargs)
 
     def __repr__(self):
-        return &#34;&lt;pdpipe.Condition: Has no missing values&gt;&#34;</code></pre>
+        return &#34;&lt;pdpipe.Condition: Has no missing values&gt;&#34;
+
+
+def _AlwaysTrue(df: pandas.DataFrame) -&gt; bool:
+    &#34;&#34;&#34;A function that always returns True.&#34;&#34;&#34;
+    return True
+
+
+class AlwaysTrue(Condition):
+    &#34;&#34;&#34;A condition letting all dataframes through, always returning True.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame(
+        ...    [[8,&#39;a&#39;,5],[5,&#39;b&#39;,7]], [1,2], [&#39;num&#39;, &#39;chr&#39;, &#39;nur&#39;])
+        &gt;&gt;&gt; cond = pdp.cond.AlwaysTrue()
+        &gt;&gt;&gt; cond
+        &lt;pdpipe.Condition: AlwaysTrue&gt;
+        &gt;&gt;&gt; cond(df)
+        True
+    &#34;&#34;&#34;
+
+    def __init__(self, **kwargs):
+        super_kwargs = {}
+        super_kwargs.update(**kwargs)
+        super_kwargs[&#39;func&#39;] = _AlwaysTrue
+        super().__init__(**super_kwargs)
+
+    def __repr__(self):
+        return &#34;&lt;pdpipe.Condition: AlwaysTrue&gt;&#34;</code></pre>
 </details>
 </section>
 <section>
@@ -735,6 +796,65 @@ class HasNoMissingValues(HasAtMostMissingValues):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="pdpipe.cond.AlwaysTrue"><code class="flex name class">
+<span>class <span class="ident">AlwaysTrue</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A condition letting all dataframes through, always returning True.</p>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame(
+...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
+&gt;&gt;&gt; cond = pdp.cond.AlwaysTrue()
+&gt;&gt;&gt; cond
+&lt;pdpipe.Condition: AlwaysTrue&gt;
+&gt;&gt;&gt; cond(df)
+True
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AlwaysTrue(Condition):
+    &#34;&#34;&#34;A condition letting all dataframes through, always returning True.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame(
+        ...    [[8,&#39;a&#39;,5],[5,&#39;b&#39;,7]], [1,2], [&#39;num&#39;, &#39;chr&#39;, &#39;nur&#39;])
+        &gt;&gt;&gt; cond = pdp.cond.AlwaysTrue()
+        &gt;&gt;&gt; cond
+        &lt;pdpipe.Condition: AlwaysTrue&gt;
+        &gt;&gt;&gt; cond(df)
+        True
+    &#34;&#34;&#34;
+
+    def __init__(self, **kwargs):
+        super_kwargs = {}
+        super_kwargs.update(**kwargs)
+        super_kwargs[&#39;func&#39;] = _AlwaysTrue
+        super().__init__(**super_kwargs)
+
+    def __repr__(self):
+        return &#34;&lt;pdpipe.Condition: AlwaysTrue&gt;&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pdpipe.cond.Condition" href="#pdpipe.cond.Condition">Condition</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pdpipe.cond.Condition" href="#pdpipe.cond.Condition">Condition</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pdpipe.cond.Condition.fit" href="#pdpipe.cond.Condition.fit">fit</a></code></li>
+<li><code><a title="pdpipe.cond.Condition.fit_transform" href="#pdpipe.cond.Condition.fit_transform">fit_transform</a></code></li>
+<li><code><a title="pdpipe.cond.Condition.transform" href="#pdpipe.cond.Condition.transform">transform</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
 <dt id="pdpipe.cond.ColumnsFromList"><code class="flex name class">
 <span>class <span class="ident">ColumnsFromList</span></span>
 <span>(</span><span>labels, columns_reduce=None, **kwargs)</span>
@@ -846,7 +966,7 @@ conditions: Series with labels in num&gt;
 </dd>
 <dt id="pdpipe.cond.Condition"><code class="flex name class">
 <span>class <span class="ident">Condition</span></span>
-<span>(</span><span>func, fittable=None)</span>
+<span>(</span><span>func, fittable=None, error_message=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>A fittable condition that returns a boolean value from a dataframe.</p>
@@ -860,6 +980,8 @@ boolean value.</dd>
 called on calls of <code>transform()</code> of a fitted object. If set to False,
 the default, <code>func</code> is called on every call to transform. False by
 default.</dd>
+<dt><strong><code>error_message</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
+<dd>A string that describes the error when the condition fails.</dd>
 </dl>
 <h2 id="example">Example</h2>
 <pre><code>&gt;&gt;&gt; import numpy as np; import pdpipe as pdp;
@@ -885,6 +1007,8 @@ default.</dd>
         called on calls of `transform()` of a fitted object. If set to False,
         the default, `func` is called on every call to transform. False by
         default.
+    error_message : str, default None
+        A string that describes the error when the condition fails.
 
     Example
     -------
@@ -895,9 +1019,11 @@ default.</dd>
         &gt;&gt;&gt; col_drop = pdp.ColDrop([&#39;lbl&#39;], prec=cond)
     &#34;&#34;&#34;
 
-    def __init__(self, func, fittable=None):
+    def __init__(self, func, fittable=None, error_message=None):
         self._func = func
         self._fittable = fittable
+        if error_message is not None:
+            self.error_message = error_message
 
     def __call__(self, df):
         &#34;&#34;&#34;Returns column labels of qualified columns from an input dataframe.
@@ -1051,6 +1177,7 @@ default.</dd>
 </details>
 <h3>Subclasses</h3>
 <ul class="hlist">
+<li><a title="pdpipe.cond.AlwaysTrue" href="#pdpipe.cond.AlwaysTrue">AlwaysTrue</a></li>
 <li><a title="pdpipe.cond.HasAllColumns" href="#pdpipe.cond.HasAllColumns">HasAllColumns</a></li>
 <li><a title="pdpipe.cond.HasAtMostMissingValues" href="#pdpipe.cond.HasAtMostMissingValues">HasAtMostMissingValues</a></li>
 <li><a title="pdpipe.cond.HasNoColumn" href="#pdpipe.cond.HasNoColumn">HasNoColumn</a></li>
@@ -1242,8 +1369,15 @@ False
                 for lbl in self._labels
             ])
         _func.__doc__ = f&#34;Dataframes with columns {self._labels_str}&#34;
-        kwargs[&#39;func&#39;] = _func
-        super().__init__(**kwargs)
+        super_kwargs = {
+            &#34;error_message&#34;: (
+                f&#34;Not all required columns {self._labels_str}&#34;
+                &#34; present in the input dataframe.&#34;
+            )
+        }
+        super_kwargs.update(**kwargs)
+        super_kwargs[&#39;func&#39;] = _func
+        super().__init__(**super_kwargs)
 
     def __repr__(self):
         return f&#34;&lt;pdpipe.Condition: Has all columns in {self._labels_str}&gt;&#34;</code></pre>
@@ -1367,8 +1501,15 @@ False
         _func.__doc__ = (
             f&#34;Dataframes with at most {self._n_missing} missing values&#34;
         )
-        kwargs[&#39;func&#39;] = _func
-        super().__init__(**kwargs)
+        super_kwargs = {
+            &#34;error_message&#34;: (
+                &#34;Input dataframe cannot have more than&#34;
+                f&#34; {self._n_missing} missing values.&#34;
+            )
+        }
+        super_kwargs.update(**kwargs)
+        super_kwargs[&#39;func&#39;] = _func
+        super().__init__(**super_kwargs)
 
     def __repr__(self):
         return f&#34;&lt;pdpipe.Condition: &#34; \
@@ -1473,9 +1614,16 @@ True
         self._labels = labels
         self._labels_str = _list_str(self._labels)
         _func = HasNoColumn._NoColumnsFunc(self._labels)
-        _func.__doc__ = f&#34;Dataframes with no colum from {self._labels_str}&#34;
-        kwargs[&#39;func&#39;] = _func
-        super().__init__(**kwargs)
+        _func.__doc__ = f&#34;Dataframes with no column from {self._labels_str}&#34;
+        super_kwargs = {
+            &#34;error_message&#34;: (
+                f&#34;One or more of the prohibited columns {self._labels_str}&#34;
+                &#34; present in the input dataframe.&#34;
+            )
+        }
+        super_kwargs.update(**kwargs)
+        super_kwargs[&#39;func&#39;] = _func
+        super().__init__(**super_kwargs)
 
     def __repr__(self):
         return f&#34;&lt;pdpipe.Condition: Has no column in {self._labels_str}&gt;&#34;</code></pre>
@@ -1543,8 +1691,12 @@ False
     &#34;&#34;&#34;
 
     def __init__(self, **kwargs):
-        kwargs[&#39;n_missing&#39;] = 0
-        super().__init__(**kwargs)
+        super_kwargs = {
+            &#34;error_message&#34;: &#34;Input dataframe cannot contain missing values.&#34;
+        }
+        super_kwargs.update(**kwargs)
+        super_kwargs[&#39;n_missing&#39;] = 0
+        super().__init__(**super_kwargs)
 
     def __repr__(self):
         return &#34;&lt;pdpipe.Condition: Has no missing values&gt;&#34;</code></pre>
@@ -1815,6 +1967,9 @@ unfitted condition.</p></div>
 </li>
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
+<li>
+<h4><code><a title="pdpipe.cond.AlwaysTrue" href="#pdpipe.cond.AlwaysTrue">AlwaysTrue</a></code></h4>
+</li>
 <li>
 <h4><code><a title="pdpipe.cond.ColumnsFromList" href="#pdpipe.cond.ColumnsFromList">ColumnsFromList</a></code></h4>
 </li>
