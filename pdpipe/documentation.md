@@ -241,7 +241,7 @@ Ad-hoc pipeline stages that wrap any `pandas.DataFrame` built-in method that ret
 
 ```python
   pipeline = pdp.PdPipeline([
-    pdp.df.set_axis(labels='datetime'),
+    pdp.df.set_index(keys='datetime'),
     pdp.ColDrop('age),
   ])
 ```
