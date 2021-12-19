@@ -234,6 +234,20 @@ Types of Pipeline Stages
 
 All built-in stages are thoroughly documented, including examples; if you find any documentation lacking please open an issue. A list of briefly described available built-in stages follows:
 
+Built-in pandas methods
+-----------------------
+
+Ad-hoc pipeline stages that wrap any `pandas.DataFrame` built-in method that returns a dataframe object can be easily created using the `pdpipe.df` submodule:
+
+```python
+  pipeline = pdp.PdPipeline([
+    pdp.df.set_axis(labels='datetime'),
+    pdp.ColDrop('age),
+  ])
+```
+
+Refer to the `pdpipe.df` module for a more detailed documentation.
+
 Basic Stages
 ------------
 
