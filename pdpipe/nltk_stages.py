@@ -11,7 +11,10 @@ stages.
 
 import os
 import importlib
-import collections
+try:
+    from collections.abc import Iterable
+except ImportError:
+    from collections import Iterable
 
 import nltk
 import pandas as pd
@@ -216,7 +219,7 @@ class RemoveStopwords(MapColVals):
         if isinstance(language, str):
             self._stopwords_list = RemoveStopwords.__stopwords_by_language(
                 language)
-        elif isinstance(language, collections.Iterable):
+        elif isinstance(language, Iterable):
             self._stopwords_list = list(language)
         else:
             raise TypeError("language parameter should be string or list!")
