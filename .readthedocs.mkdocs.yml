@@ -1,0 +1,97 @@
+site_name: pdpipe
+site_url: https://pdpipe.readthedocs.io/en/latest/
+repo_name: pdpipe
+repo_url: https://github.com/pdpipe/pdpipe
+edit_uri: edit/master/doc
+docs_dir: docs
+copyright: © Copyright 2022 Shay Palachy | All Rights Reserved.
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Installation: starting/install.md
+      - First Use: starting/first_use.md
+      - Pipeline Stages: starting/stages.md
+      - Pipelines: starting/pipelines.md
+      - Types of Stages: starting/types.md
+      - Custom Stages: starting/create.md
+      - Column Qualifiers: starting/cq.md
+  - Tutorials:
+      - tutorials/index.md
+      - Basic Usage: tutorials/basic.md
+  - API Reference:
+      - PdPipelineStage: reference/pdpipelinestage.md
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.indexes
+    - navigation.top
+    # - navigation.instant
+    - navigation.tracking
+    - header.autohide
+    - content.code.annotate
+  icon:
+    repo: fontawesome/brands/github
+  language: en
+  font:
+    text: Roboto
+    code: Roboto Mono
+  favicon: images/logo.png
+  logo: 'images/white_logo.png'
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: green
+      accent: light green
+      toggle:
+        icon: material/lightbulb
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: green
+      accent: light green
+      toggle:
+        icon: material/lightbulb-outline
+        name: Switch to light mode
+
+plugins:
+  - search
+  - git-revision-date
+  - awesome-pages
+  - mkdocstrings
+
+
+# for code blocks syntax highlighting
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+
+
+# use icon paths the match the folder structure in the fontawesome repo:
+# https://github.com/FortAwesome/Font-Awesome/tree/master/svgs
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/pdpipe/pdpipe
+    - icon: fontawesome/solid/comments
+      link: https://github.com/pdpipe/pdpipe/discussions
+    - icon: fontawesome/brands/gitter
+      link: https://gitter.im/pdpipe/community
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/pdpipe/
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/shaypal5
+
+extra_css:
+  - "mkdocs/css/termynal.css"
+  - "mkdocs/css/custom.css"
+  - "mkdocs/css/extra.css"
+
+extra_javascript:
+  - "mkdocs/js/termynal.js"
+  - "mkdocs/js/custom.js"
+  - "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"

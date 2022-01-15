@@ -1,0 +1,43 @@
+site_name: pdpipe
+site_url: https://pdpipe.github.io/pdpipe/
+repo_name: pdpipe
+repo_url: https://github.com/pdpipe/pdpipe
+edit_uri: edit/master/docs
+docs_dir: docs
+nav:
+  - Home: index.md
+  - Tutorial:
+    - Usage:
+      - tutorial/README.md
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    # - navigation.expand
+    - navigation.indexes
+    - navigation.top
+    # - navigation.instant
+    - navigation.tracking
+    - header.autohide
+  icon:
+    repo: fontawesome/brands/github
+  language: en
+  font:
+    text: Roboto
+    code: Roboto Mono
+  favicon: images/logo.png
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: green
+      accent: light green
+      toggle:
+        icon: material/lightbulb
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: green
+      accent: light green
+      toggle:
+        icon: material/lightbulb-outline
+        name: Switch to light mode

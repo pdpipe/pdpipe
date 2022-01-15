@@ -1,0 +1,8 @@
+mkdocs-material==8.1.6
+mkdocs-jupyter==0.19.0
+python-markdown-math==0.8
+mkdocs-awesome-pages-plugin
+mkdocs-git-revision-date-plugin
+mkdocstrings
+GitPython
+pdpipe

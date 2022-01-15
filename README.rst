@@ -1,4 +1,4 @@
-pdpipe ˨ 
+pdpipe ˨
 ########
 
 |PyPI-Status| |Downloads| |PyPI-Versions| |Build-Status| |Codecov| |Codefactor| |LICENCE|
@@ -174,21 +174,21 @@ Created by Shay Palachy  (shay.palachy@gmail.com).
 .. |PyPI-Versions| image:: https://img.shields.io/pypi/pyversions/pdpipe.svg
    :target: https://pypi.org/project/pdpipe
 
-.. |Build-Status| image:: https://travis-ci.org/pdpipe/pdpipe.svg?branch=master
-  :target: https://travis-ci.org/pdpipe/pdpipe
+.. |Build-Status| image:: https://github.com/pdpipe/pdpipe/actions/workflows/test.yml/badge.svg
+  :target: https://github.com/pdpipe/pdpipe/actions/workflows/test.yml
 
 .. |LICENCE| image:: https://img.shields.io/badge/License-MIT-ff69b4.svg
   :target: https://pypi.python.org/pypi/pdpipe
-  
+
 .. .. |LICENCE| image:: https://github.com/shaypal5/pdpipe/blob/master/mit_license_badge.svg
   :target: https://pypi.python.org/pypi/pdpipe
-  
+
 .. https://img.shields.io/pypi/l/pdpipe.svg
 
 .. |Codecov| image:: https://codecov.io/github/pdpipe/pdpipe/coverage.svg?branch=master
    :target: https://codecov.io/github/pdpipe/pdpipe?branch=master
 
-  
+
 .. |Codacy|  image:: https://api.codacy.com/project/badge/Grade/7d605e063f114ecdb5569266bd0226cd
    :alt: Codacy Badge
    :target: https://app.codacy.com/app/shaypal5/pdpipe?utm_source=github.com&utm_medium=referral&utm_content=shaypal5/pdpipe&utm_campaign=Badge_Grade_Dashboard
@@ -200,7 +200,7 @@ Created by Shay Palachy  (shay.palachy@gmail.com).
 .. |Downloads| image:: https://pepy.tech/badge/pdpipe
      :target: https://pepy.tech/project/pdpipe
      :alt: PePy stats
-     
+
 .. |Codefactor| image:: https://www.codefactor.io/repository/github/pdpipe/pdpipe/badge?style=plastic
      :target: https://www.codefactor.io/repository/github/pdpipe/pdpipe
      :alt: Codefactor code quality
