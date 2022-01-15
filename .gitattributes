@@ -1,0 +1,2 @@
+pandlines/_version.py export-subst
+pdpipe/_version.py export-subst

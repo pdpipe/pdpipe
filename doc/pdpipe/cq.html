@@ -1,0 +1,2162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>pdpipe.cq API documentation</title>
+<meta name="description" content="Column qualifiers for pdpipe …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pdpipe.cq</code></h1>
+</header>
+<section id="section-intro">
+<p>Column qualifiers for pdpipe.</p>
+<p>Most pipeline stages in pdpipe can accept three types of variables as arguments
+for the <code>columns</code> parameter of their constructor: a single column label, a list
+of column labels, or a callable. The first is interpreted as the label of the
+single column on which the pipeline stage should operate and the second as a
+list of such labels, while the a callable is assumed to determine dynamically
+what columns should the stage be applied to. It is thus supplied with the
+entire input dataframe, and is expected to return a list of column labels. This
+is true for every application of the pipeline stage, both in fit time and in
+any future transform.</p>
+<p>A naive callable, such as <code>lambda df: [lbl for lbl in df.columns if lbl[0] ==
+'a']</code>, meant to cause the pipeline stage to operate on any column with a label
+starting with the letter 'a', might result in unexpected errors: if after the
+pipeline was fitted it gets ― in transform time ― a dataframe with new columns
+starting with 'a', it is will transform them as well, which will in turn might
+(1) lead to unexpected errors, as the newer columns might not be valid input to
+that stage, and (2) lead to a change in schema, which might cause errors down
+the pipeline, especially if there's a fitted machine learning model down the
+pipeline.</p>
+<p>Of course, this might be the desired behaviour ― to transform columns 'alec'
+and 'alex' on the first <code>apply</code> call and 'alec' and 'apoxy' in transform time ―
+but usually this is not the case. In fact, in common machine learning
+scenarios ― whether it is fitting pre-processing parameters on the train set
+and using the resulting pipeline to transform the test and validation sets, or
+fitting the pre-processing pipeline on current data and deploying it to
+transform incoming data in production ― we would exepct this criterion to be
+applied once, when the pipeline is being fit, and for future calls for it to
+only transform the 'alec' and 'alex' columns, ignoring any other columns
+starting with 'a' that are newly-encountered in transform time, and also
+explicitly fails if either once of the two columns, 'alec' and 'alex', is
+missing. This kind of behaviour is the only way to ensure preservation of both
+form and semantics of input vectors to our models down the pipeline.</p>
+<p>To enable this more sophisticated behaviour, this module - <code><a title="pdpipe.cq" href="#pdpipe.cq">pdpipe.cq</a></code> -
+exposes a way to easily generate <code><a title="pdpipe.cq.ColumnQualifier" href="#pdpipe.cq.ColumnQualifier">ColumnQualifier</a></code> objects, which are callables
+that do exactly what was described above: Apply some criteria to determine a
+set of input columns when a pipeline is being fitted, but fixing it afterwards,
+on future calls.</p>
+<p>Practically, this objects all expose <code>fit</code>, <code>transform</code> and <code>fit_transform</code>
+methods, and while the first time they are called the <code>fit_transform</code> method is
+called, future calls will actually call the <code>transform</code> method. Also, since
+they already expose this more powerful API, pipeline stages use it to enable
+an even more powerful (and quite frankly, expected) behavior: When a pipeline's
+<code>fit_transfrom</code> or <code>fit</code> methods are called, it calls the <code>fit_transform</code>
+method of the column qualifier it uses, so the qualifier itself is refitted
+even if it is already fit. Naturally, if the callable has no <code>fit_transform</code>
+method the code gracefully backs-off to just applying it, which allows the use
+of unfittable functions and lambdas as column qualifiers as well.</p>
+<p>Note that any callable can be wrapped in a ColumnQualifier object to achieve
+this fittable behaviour. For example, to get a pipeline stage that drops all
+columns of data type <code>numpy.int64</code>, but also "remembers" that list after fit:</p>
+<pre><code class="language-python">pipeline += pdp.ColDrop(columns=pdp.cq.ColumnQualifier(lambda df: [
+  l for l, s in df.iteritems()
+  if s.dtype == np.int64
+]))
+</code></pre>
+<p>ColumnQualifier objects also support the &amp;, ^ and | binary operators -
+representing boolean and, xor and or, respectively - and the ~ unary boolean
+operator - representing the boolean not operator. Finally, the - binary
+operator is implemented to represent the NOT IN non-symetric binary relation
+between two qualifiers (the difference operator on the resulting sets).</p>
+<p>So for example, to get a qualifier that qualifies all columns that have AT
+LEAST two missing values, one can use:</p>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame(
+...    [[None, 1, 2],[None, None, 5]], [1,2], ['ph', 'grade', 'age'])
+&gt;&gt;&gt; cq = ~ pdp.cq.WithAtMostMissingValues(1)
+&gt;&gt;&gt; cq(df)
+['ph']
+</code></pre>
+<p>While to get a qualifier matching all columns with at most one missing value
+AND starting with 'gr' one can use:</p>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame(
+...    [[None, 1, 2],[None, None, 5]], [1,2], ['grep', 'grade', 'age'])
+&gt;&gt;&gt; cq = pdp.cq.WithAtMostMissingValues(1) &amp; pdp.cq.StartWith('gr')
+&gt;&gt;&gt; cq(df)
+['grade']
+</code></pre>
+<p>And a qualifier that qualifies all columns with no missing values except those
+that start with 'b' can be generated with:</p>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame(
+...    [[1, 2, 3, 4],[5, 6, 7, None]], [1,2], ['abe', 'bee', 'cry', 'no'])
+&gt;&gt;&gt; cq = pdp.cq.WithoutMissingValues() - pdp.cq.StartWith('b')
+&gt;&gt;&gt; cq(df)
+['abe', 'cry']
+</code></pre>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Column qualifiers for pdpipe.
+
+Most pipeline stages in pdpipe can accept three types of variables as arguments
+for the `columns` parameter of their constructor: a single column label, a list
+of column labels, or a callable. The first is interpreted as the label of the
+single column on which the pipeline stage should operate and the second as a
+list of such labels, while the a callable is assumed to determine dynamically
+what columns should the stage be applied to. It is thus supplied with the
+entire input dataframe, and is expected to return a list of column labels. This
+is true for every application of the pipeline stage, both in fit time and in
+any future transform.
+
+A naive callable, such as `lambda df: [lbl for lbl in df.columns if lbl[0] ==
+&#39;a&#39;]`, meant to cause the pipeline stage to operate on any column with a label
+starting with the letter &#39;a&#39;, might result in unexpected errors: if after the
+pipeline was fitted it gets ― in transform time ― a dataframe with new columns
+starting with &#39;a&#39;, it is will transform them as well, which will in turn might
+(1) lead to unexpected errors, as the newer columns might not be valid input to
+that stage, and (2) lead to a change in schema, which might cause errors down
+the pipeline, especially if there&#39;s a fitted machine learning model down the
+pipeline.
+
+Of course, this might be the desired behaviour ― to transform columns &#39;alec&#39;
+and &#39;alex&#39; on the first `apply` call and &#39;alec&#39; and &#39;apoxy&#39; in transform time ―
+but usually this is not the case. In fact, in common machine learning
+scenarios ― whether it is fitting pre-processing parameters on the train set
+and using the resulting pipeline to transform the test and validation sets, or
+fitting the pre-processing pipeline on current data and deploying it to
+transform incoming data in production ― we would exepct this criterion to be
+applied once, when the pipeline is being fit, and for future calls for it to
+only transform the &#39;alec&#39; and &#39;alex&#39; columns, ignoring any other columns
+starting with &#39;a&#39; that are newly-encountered in transform time, and also
+explicitly fails if either once of the two columns, &#39;alec&#39; and &#39;alex&#39;, is
+missing. This kind of behaviour is the only way to ensure preservation of both
+form and semantics of input vectors to our models down the pipeline.
+
+To enable this more sophisticated behaviour, this module - `pdpipe.cq` -
+exposes a way to easily generate `ColumnQualifier` objects, which are callables
+that do exactly what was described above: Apply some criteria to determine a
+set of input columns when a pipeline is being fitted, but fixing it afterwards,
+on future calls.
+
+Practically, this objects all expose `fit`, `transform` and `fit_transform`
+methods, and while the first time they are called the `fit_transform` method is
+called, future calls will actually call the `transform` method. Also, since
+they already expose this more powerful API, pipeline stages use it to enable
+an even more powerful (and quite frankly, expected) behavior: When a pipeline&#39;s
+`fit_transfrom` or `fit` methods are called, it calls the `fit_transform`
+method of the column qualifier it uses, so the qualifier itself is refitted
+even if it is already fit. Naturally, if the callable has no `fit_transform`
+method the code gracefully backs-off to just applying it, which allows the use
+of unfittable functions and lambdas as column qualifiers as well.
+
+Note that any callable can be wrapped in a ColumnQualifier object to achieve
+this fittable behaviour. For example, to get a pipeline stage that drops all
+columns of data type `numpy.int64`, but also &#34;remembers&#34; that list after fit:
+
+```python
+pipeline += pdp.ColDrop(columns=pdp.cq.ColumnQualifier(lambda df: [
+  l for l, s in df.iteritems()
+  if s.dtype == np.int64
+]))
+```
+
+ColumnQualifier objects also support the &amp;, ^ and | binary operators -
+representing boolean and, xor and or, respectively - and the ~ unary boolean
+operator - representing the boolean not operator. Finally, the - binary
+operator is implemented to represent the NOT IN non-symetric binary relation
+between two qualifiers (the difference operator on the resulting sets).
+
+So for example, to get a qualifier that qualifies all columns that have AT
+LEAST two missing values, one can use:
+
+    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+    &gt;&gt;&gt; df = pd.DataFrame(
+    ...    [[None, 1, 2],[None, None, 5]], [1,2], [&#39;ph&#39;, &#39;grade&#39;, &#39;age&#39;])
+    &gt;&gt;&gt; cq = ~ pdp.cq.WithAtMostMissingValues(1)
+    &gt;&gt;&gt; cq(df)
+    [&#39;ph&#39;]
+
+While to get a qualifier matching all columns with at most one missing value
+AND starting with &#39;gr&#39; one can use:
+
+    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+    &gt;&gt;&gt; df = pd.DataFrame(
+    ...    [[None, 1, 2],[None, None, 5]], [1,2], [&#39;grep&#39;, &#39;grade&#39;, &#39;age&#39;])
+    &gt;&gt;&gt; cq = pdp.cq.WithAtMostMissingValues(1) &amp; pdp.cq.StartWith(&#39;gr&#39;)
+    &gt;&gt;&gt; cq(df)
+    [&#39;grade&#39;]
+
+And a qualifier that qualifies all columns with no missing values except those
+that start with &#39;b&#39; can be generated with:
+
+    &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+    &gt;&gt;&gt; df = pd.DataFrame(
+    ...    [[1, 2, 3, 4],[5, 6, 7, None]], [1,2], [&#39;abe&#39;, &#39;bee&#39;, &#39;cry&#39;, &#39;no&#39;])
+    &gt;&gt;&gt; cq = pdp.cq.WithoutMissingValues() - pdp.cq.StartWith(&#39;b&#39;)
+    &gt;&gt;&gt; cq(df)
+    [&#39;abe&#39;, &#39;cry&#39;]
+&#34;&#34;&#34;
+
+from .shared import _list_str
+
+
+class UnfittedColumnQualifierError(Exception):
+    &#34;&#34;&#34;An exception raised when a (non-fit) transform is attempted with an
+    unfitted column qualifier.
+    &#34;&#34;&#34;
+
+
+class ColumnQualifier(object):
+    &#34;&#34;&#34;A fittable qualifier that returns column labels from an input dataframe.
+
+    Parameters
+    ----------
+    func : callable
+        A callable that given an input pandas.DataFrame objects returns a list
+        of labels of a subset of the columns of the input dataframe.
+    fittable : bool, default True
+        If set to false, this qualifier becomes unfittable, and `func` is
+        called on every call to transform. True by default.
+    subset : bool, default False
+        If set to true, fitted qualifiers return the subset of fitted columns
+        found in input dataframes during transform, in the order they appeared
+        when fitted (NOT in the order they appear in the input dataframe of the
+        transform). False by default, which means fitted qualifiers return the
+        FULL list of fitted columns, ignoring input dataframes completely on
+        transforms. When combined with most pipeline stages, this means the
+        stage will fail on its precondition if trying to transform with it a
+        dataframe that is missing some values in the fitted qualifier.
+
+    Example
+    -------
+        &gt;&gt;&gt; import numpy as np; import pdpipe as pdp;
+        &gt;&gt;&gt; cq = pdp.cq.ColumnQualifier(lambda df: [
+        ...    l for l, s in df.iteritems()
+        ...    if s.dtype == np.int64 and l in [&#39;a&#39;, &#39;b&#39;, 5]
+        ... ])
+        &gt;&gt;&gt; cq
+        &lt;ColumnQualifier: Qualify columns by function&gt;
+        &gt;&gt;&gt; col_drop = pdp.ColDrop(columns=cq)
+    &#34;&#34;&#34;
+
+    def __init__(self, func, fittable=None, subset=None):
+        if fittable is None:
+            fittable = True
+        self._cqfunc = func
+        self.__doc__ = func.__doc__
+        self._fittable = fittable
+        self._subset = subset
+
+    def __call__(self, df):
+        &#34;&#34;&#34;Returns column labels of qualified columns from an input dataframe.
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            The input dataframe, from which columns are selected.
+
+        Returns
+        -------
+        list of objects
+            A list of labels of the qualified columns for the input dataframe.
+        &#34;&#34;&#34;
+        try:
+            return self.transform(df)
+        except UnfittedColumnQualifierError:
+            return self.fit_transform(df)
+
+    def fit_transform(self, df):
+        &#34;&#34;&#34;Fits this qualifier and returns the labels of the qualifying columns.
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            The input dataframe, from which columns are selected.
+
+        Returns
+        -------
+        list of objects
+            A list of labels of the qualified columns for the input dataframe.
+        &#34;&#34;&#34;
+        self._columns = self._cqfunc(df)
+        return self._columns
+
+    def fit(self, df):
+        &#34;&#34;&#34;Fits this qualifier on the input dataframe.
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            The input dataframe, from which columns are selected.
+
+        &#34;&#34;&#34;
+        self.fit_transform(df)
+
+    def transform(self, df):
+        &#34;&#34;&#34;Applies and returns the labels of the qualifying columns.
+
+        If this ColumnQualifier is fittable, it will return the list of column
+        labels that was determined when fitted (or the subset of it that can
+        be found in the input dataframe). It will throw an exception if it
+        is not.
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            The input dataframe, from which columns are selected.
+
+        Returns
+        -------
+        list of objects
+            A list of labels of the qualified columns for the input dataframe.
+        &#34;&#34;&#34;
+        if not self._fittable:
+            return self._cqfunc(df)
+        try:
+            if self._subset:
+                return [x for x in self._columns if x in df.columns]
+            return self._columns
+        except AttributeError:
+            raise UnfittedColumnQualifierError
+
+    def __repr__(self):
+        fstr = &#39;&#39;
+        if self._cqfunc.__doc__:  # pragma: no cover
+            fstr = f&#39; - {self._cqfunc.__doc__}&#39;
+        return f&#34;&lt;ColumnQualifier: Qualify columns by function{fstr}&gt;&#34;
+
+    # --- overriding boolean operators ---
+
+    @staticmethod
+    def _x_inorderof_y(x, y):
+        return [i for i in y if i in x]
+
+    class _AndQualifierFunc(object):
+        &#34;&#34;&#34;A pickle-able AND qualifier class.&#34;&#34;&#34;
+
+        def __init__(self, first, second):
+            self.first = first
+            self.second = second
+
+        def __call__(self, df):
+            return ColumnQualifier._x_inorderof_y(
+                x=set(self.first(df)).intersection(self.second(df)),
+                y=df.columns,
+            )
+
+    def __and__(self, other):
+        try:
+            res_func = ColumnQualifier._AndQualifierFunc(
+                first=self._cqfunc,
+                second=other._cqfunc,
+            )
+            res_func.__doc__ = (
+                f&#34;{self._cqfunc.__doc__ or &#39;Anonymous qualifier 1&#39;} AND &#34;
+                f&#34;{other._cqfunc.__doc__ or &#39;Anonymous qualifier 2&#39;}&#34;
+            )
+            return ColumnQualifier(func=res_func)
+        except AttributeError:
+            return NotImplemented
+
+    class _XorQualifierFunc(object):
+        &#34;&#34;&#34;A pickle-able XOR qualifier class.&#34;&#34;&#34;
+
+        def __init__(self, first, second):
+            self.first = first
+            self.second = second
+
+        def __call__(self, df):
+            return ColumnQualifier._x_inorderof_y(
+                x=set(self.first(df)).symmetric_difference(self.second(df)),
+                y=df.columns,
+            )
+
+    def __xor__(self, other):
+        try:
+            res_func = ColumnQualifier._XorQualifierFunc(
+                first=self._cqfunc,
+                second=other._cqfunc,
+            )
+            res_func.__doc__ = (
+                f&#34;{self._cqfunc.__doc__ or &#39;Anonymous qualifier 1&#39;} XOR &#34;
+                f&#34;{other._cqfunc.__doc__ or &#39;Anonymous qualifier 2&#39;}&#34;
+            )
+            return ColumnQualifier(func=res_func)
+        except AttributeError:
+            return NotImplemented
+
+    class _OrQualifierFunc(object):
+        &#34;&#34;&#34;A pickle-able OR qualifier class.&#34;&#34;&#34;
+
+        def __init__(self, first, second):
+            self.first = first
+            self.second = second
+
+        def __call__(self, df):
+            return ColumnQualifier._x_inorderof_y(
+                x=set(self.first(df)).union(self.second(df)),
+                y=df.columns,
+            )
+
+    def __or__(self, other):
+        try:
+            res_func = ColumnQualifier._OrQualifierFunc(
+                first=self._cqfunc,
+                second=other._cqfunc,
+            )
+            res_func.__doc__ = (
+                f&#34;{self._cqfunc.__doc__ or &#39;Anonymous qualifier 1&#39;} OR &#34;
+                f&#34;{other._cqfunc.__doc__ or &#39;Anonymous qualifier 2&#39;}&#34;
+            )
+            return ColumnQualifier(func=res_func)
+        except AttributeError:
+            return NotImplemented
+
+    class _SubQualifierFunc(object):
+        &#34;&#34;&#34;A pickle-able SUB qualifier class.&#34;&#34;&#34;
+
+        def __init__(self, first, second):
+            self.first = first
+            self.second = second
+
+        def __call__(self, df):
+            return ColumnQualifier._x_inorderof_y(
+                x=set(self.first(df)).difference(self.second(df)),
+                y=df.columns,
+            )
+
+    def __sub__(self, other):
+        try:
+            res_func = ColumnQualifier._SubQualifierFunc(
+                first=self._cqfunc,
+                second=other._cqfunc,
+            )
+            res_func.__doc__ = (
+                f&#34;{self._cqfunc.__doc__ or &#39;Anonymous qualifier 1&#39;} NOT IN &#34;
+                f&#34;{other._cqfunc.__doc__ or &#39;Anonymous qualifier 2&#39;}&#34;
+            )
+            return ColumnQualifier(func=res_func)
+        except AttributeError:
+            return NotImplemented
+
+    class _NotQualifierFunc(object):
+        &#34;&#34;&#34;A pickle-able NOT qualifier class.&#34;&#34;&#34;
+
+        def __init__(self, cq):
+            self.cq = cq
+
+        def __call__(self, df):
+            return ColumnQualifier._x_inorderof_y(
+                x=set(df.columns).difference(self.cq(df)),
+                y=df.columns,
+            )
+
+    def __invert__(self):
+        res_func = ColumnQualifier._NotQualifierFunc(
+            cq=self._cqfunc
+        )
+        res_func.__doc__ = (
+            f&#34;NOT {self._cqfunc.__doc__ or &#39;Anonymous qualifier&#39;}&#34;
+        )
+        return ColumnQualifier(func=res_func)
+
+
+def is_fittable_column_qualifier(obj):
+    &#34;&#34;&#34;Returns True for objects that are fittable ColumnQualifier objects.
+
+    Parameters
+    ----------
+    obj : object
+        The object to examine.
+
+    Returns
+    -------
+    bool
+        True if the given object is an instance of ColumnQualifier and
+        fittable, False otherwise.
+    &#34;&#34;&#34;
+    return isinstance(obj, ColumnQualifier) and obj._fittable
+
+
+class AllColumns(ColumnQualifier):
+    &#34;&#34;&#34;Selects all columns in input dataframes.
+
+    Parameters
+    ----------
+    **kwargs
+        Accepts all keyword arguments of the constructor of
+        ColumnQualifier. See the documentation of `ColumnQualifier` for
+        details.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[8,1],[5,2]], [1,2], [&#39;a&#39;, &#39;b&#39;])
+        &gt;&gt;&gt; cq = pdp.cq.AllColumns()
+        &gt;&gt;&gt; cq
+        &lt;ColumnQualifier: Qualify all columns&gt;
+        &gt;&gt;&gt; cq(df)
+        [&#39;a&#39;, &#39;b&#39;]
+        &gt;&gt;&gt; df2 = pd.DataFrame([[8,1],[5,2]], [1,2], [&#39;b&#39;, &#39;c&#39;])
+        &gt;&gt;&gt; cq(df2)
+        [&#39;a&#39;, &#39;b&#39;]
+        &gt;&gt;&gt; cq = pdp.cq.AllColumns(fittable=False)
+        &gt;&gt;&gt; cq(df)
+        [&#39;a&#39;, &#39;b&#39;]
+        &gt;&gt;&gt; cq(df2)
+        [&#39;b&#39;, &#39;c&#39;]
+        &gt;&gt;&gt; cq = pdp.cq.AllColumns(subset=True)
+        &gt;&gt;&gt; cq(df)
+        [&#39;a&#39;, &#39;b&#39;]
+        &gt;&gt;&gt; cq(df2)
+        [&#39;b&#39;]
+    &#34;&#34;&#34;
+
+    class _SelectAllColumns(object):
+
+        def __call__(self, df):
+            return list(df.columns)
+
+    def __init__(self, **kwargs):
+        kwargs[&#39;func&#39;] = AllColumns._SelectAllColumns()
+        super().__init__(**kwargs)
+
+    def __repr__(self):
+        return &#34;&lt;ColumnQualifier: Qualify all columns&gt;&#34;
+
+
+class ByColumnCondition(ColumnQualifier):
+    &#34;&#34;&#34;A fittable column qualifier based on a per-column condition.
+
+    Parameters
+    ----------
+    cond : callable
+        A callable that given an input pandas.Series object returns a boolean
+        value.
+    safe : bool, default False
+        If set to True, every call to given condition `cond` is is wrapped in
+        a way that interprets every raised exception as a returned False value.
+        This is useful when generating qualifiers based on conditions that
+        assume a specific datatype for the checked column.
+    **kwargs
+        Additionaly accepts all keyword arguments of the constructor of
+        ColumnQualifier. See the documentation of `ColumnQualifier` for
+        details.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame(
+        ...    [[1, 2, &#39;A&#39;],[4, 1, &#39;C&#39;]], [1,2], [&#39;age&#39;, &#39;count&#39;, &#39;grade&#39;])
+        &gt;&gt;&gt; cq = pdp.cq.ByColumnCondition(lambda s: s.sum() &gt; 3, safe=True)
+        &gt;&gt;&gt; cq(df)
+        [&#39;age&#39;]
+    &#34;&#34;&#34;
+
+    class _SafeCond(object):
+
+        def __init__(self, cond):
+            self.cond = cond
+
+        def __call__(self, series):
+            try:
+                return self.cond(series)
+            except Exception:
+                return False
+
+    class _ColumnConditionChecker(object):
+
+        def __init__(self, cond):
+            self.cond = cond
+
+        def __call__(self, df):
+            return list([
+                lbl for lbl, series in df.iteritems()
+                if self.cond(series)
+            ])
+
+    def __init__(self, cond, safe=False, **kwargs):
+        self._cond = cond
+        if safe:
+            self._cond = ByColumnCondition._SafeCond(cond)
+        kwargs[&#39;func&#39;] = ByColumnCondition._ColumnConditionChecker(self._cond)
+        super().__init__(**kwargs)
+
+
+class ByLabels(ColumnQualifier):
+    &#34;&#34;&#34;Selects all columns with the given label or labels.
+
+    Parameters
+    ----------
+    labels : single label or list-like
+        Column labels which qualify.
+    **kwargs
+        Additionaly accepts all keyword arguments of the constructor of
+        ColumnQualifier. See the documentation of `ColumnQualifier` for
+        details.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame(
+        ...    [[8,&#39;a&#39;,5],[5,&#39;b&#39;,7]], [1,2], [&#39;num&#39;, &#39;chr&#39;, &#39;nur&#39;])
+        &gt;&gt;&gt; cq = pdp.cq.ByLabels(&#39;num&#39;)
+        &gt;&gt;&gt; cq(df)
+        [&#39;num&#39;]
+        &gt;&gt;&gt; cq = pdp.cq.ByLabels([&#39;chr&#39;, &#39;nur&#39;])
+        &gt;&gt;&gt; cq(df)
+        [&#39;chr&#39;, &#39;nur&#39;]
+        &gt;&gt;&gt; cq = pdp.cq.ByLabels([&#39;num&#39;, &#39;foo&#39;])
+        &gt;&gt;&gt; cq(df)
+        [&#39;num&#39;]
+    &#34;&#34;&#34;
+
+    class _LabelsQualifierFunc(object):
+
+        def __init__(self, labels):
+            self.labels = labels
+
+        def __call__(self, df):
+            return [
+                lbl for lbl in df.columns
+                if lbl in self.labels
+            ]
+
+    def __init__(self, labels, **kwargs):
+        if isinstance(labels, str) or not hasattr(labels, &#39;__iter__&#39;):
+            labels = [labels]
+        self._labels = labels
+        self._labels_str = _list_str(self._labels)
+        cqfunc = ByLabels._LabelsQualifierFunc(self._labels)
+        cqfunc.__doc__ = f&#34;Columns with labels in {self._labels_str}&#34;
+        self.__doc__ = cqfunc.__doc__
+        kwargs[&#39;func&#39;] = cqfunc
+        super().__init__(**kwargs)
+
+    def __repr__(self):
+        return f&#34;&lt;ColumnQualifier: By labels in {self._labels_str}&gt;&#34;
+
+
+def columns_to_qualifier(columns):
+    &#34;&#34;&#34;Converts the given columns parameter to an equivalent column qualifier.
+
+    Parameters
+    ----------
+    columns : single label, list-like or callable
+        The label, or an iterable of labels, of columns. Alternatively,
+        this parameter can be assigned a callable returning an iterable of
+        labels from an input pandas.DataFrame. See `pdpipe.cq`.
+
+    Returns
+    -------
+    qualifier : ColumnQualifier
+        The equivalent ColumnQualifier object.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pdpipe as pdp;
+        &gt;&gt;&gt; pdp.cq.columns_to_qualifier(&#39;nu&#39;)
+        &lt;ColumnQualifier: By labels in nu&gt;
+        &gt;&gt;&gt; pdp.cq.columns_to_qualifier([&#39;nu&#39;, &#39;bu&#39;])
+        &lt;ColumnQualifier: By labels in nu, bu&gt;
+        &gt;&gt;&gt; pdp.cq.columns_to_qualifier(lambda df: [l for l in df.columns])
+        &lt;ColumnQualifier: Qualify columns by function&gt;
+    &#34;&#34;&#34;
+    if callable(columns):
+        if isinstance(columns, ColumnQualifier):
+            return columns
+        return ColumnQualifier(columns, fittable=False)
+    return ByLabels(columns)
+
+
+class StartWith(ColumnQualifier):
+    &#34;&#34;&#34;Selectes all columns that start with the given string.
+
+    Parameters
+    ----------
+    prefix : str
+        The prefix which qualifies columns.
+    **kwargs
+        Additionaly accepts all keyword arguments of the constructor of
+        ColumnQualifier. See the documentation of `ColumnQualifier` for
+        details.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame(
+        ...    [[8,&#39;a&#39;,5],[5,&#39;b&#39;,7]], [1,2], [&#39;num&#39;, &#39;chr&#39;, &#39;nur&#39;])
+        &gt;&gt;&gt; cq = pdp.cq.StartWith(&#39;nu&#39;)
+        &gt;&gt;&gt; cq
+        &lt;ColumnQualifier: Columns starting with nu&gt;
+        &gt;&gt;&gt; cq(df)
+        [&#39;num&#39;, &#39;nur&#39;]
+    &#34;&#34;&#34;
+
+    @staticmethod
+    def _safe_startwith(string, prefix):
+        try:
+            return string.startswith(prefix)
+        except AttributeError:
+            return False
+
+    class _StartWithFunc(object):
+
+        def __init__(self, prefix):
+            self.prefix = prefix
+
+        def __call__(self, df):
+            return [
+                lbl for lbl in df.columns
+                if StartWith._safe_startwith(lbl, self.prefix)
+            ]
+
+    def __init__(self, prefix, **kwargs):
+        self._prefix = prefix
+        cqfunc = StartWith._StartWithFunc(prefix)
+        cqfunc.__doc__ = f&#34;Columns that start with {self._prefix}&#34;
+        self.__doc__ = cqfunc.__doc__
+        kwargs[&#39;func&#39;] = cqfunc
+        super().__init__(**kwargs)
+
+    def __repr__(self):
+        return f&#34;&lt;ColumnQualifier: Columns starting with {self._prefix}&gt;&#34;
+
+
+class OfDtypes(ColumnQualifier):
+    &#34;&#34;&#34;Selectes all columns that are of a given dtypes.
+
+    Use `dtypes=np.number` to qualify all numeric columns.
+
+    Parameters
+    ----------
+    dtypes : object or list of objects
+        The dtype or dtypes which qualify columns. Support all valid arguments
+        to the `include` parameter of pandas.DataFrame.select_dtypes().
+    **kwargs
+        Additionaly accepts all keyword arguments of the constructor of
+        ColumnQualifier. See the documentation of `ColumnQualifier` for
+        details.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import numpy as np;
+        &gt;&gt;&gt; df = pd.DataFrame(
+        ...    [[8.2,&#39;a&#39;,5],[5.1,&#39;b&#39;,7]], [1,2], [&#39;ph&#39;, &#39;grade&#39;, &#39;age&#39;])
+        &gt;&gt;&gt; cq = pdp.cq.OfDtypes(np.number)
+        &gt;&gt;&gt; cq(df)
+        [&#39;ph&#39;, &#39;age&#39;]
+        &gt;&gt;&gt; cq = pdp.cq.OfDtypes([np.number, object])
+        &gt;&gt;&gt; cq(df)
+        [&#39;ph&#39;, &#39;grade&#39;, &#39;age&#39;]
+        &gt;&gt;&gt; cq = pdp.cq.OfDtypes(np.int64)
+        &gt;&gt;&gt; cq
+        &lt;ColumnQualifier: With dtypes in &lt;class &#39;numpy.int64&#39;&gt;&gt;
+        &gt;&gt;&gt; cq(df)
+        [&#39;age&#39;]
+    &#34;&#34;&#34;
+
+    class _OfDtypeFunc(object):
+
+        def __init__(self, dtypes):
+            self.dtypes = dtypes
+
+        def __call__(self, df):
+            return list(df.select_dtypes(include=self.dtypes).columns)
+
+    def __init__(self, dtypes, **kwargs):
+        self._dtypes = dtypes
+        self._dtypes_str = _list_str(self._dtypes)
+        cqfunc = OfDtypes._OfDtypeFunc(dtypes)
+        cqfunc.__doc__ = f&#34;Columns of dtypes {self._dtypes_str}&#34;
+        self.__doc__ = cqfunc.__doc__
+        kwargs[&#39;func&#39;] = cqfunc
+        super().__init__(**kwargs)
+
+    def __repr__(self):
+        return f&#34;&lt;ColumnQualifier: With dtypes in {self._dtypes_str}&gt;&#34;
+
+
+class WithAtMostMissingValues(ColumnQualifier):
+    &#34;&#34;&#34;Selectes all columns with no more than X missing values.
+
+    Parameters
+    ----------
+    n_missing : int
+        The maximum number of missing values with which columns can still
+        qualify.
+    **kwargs
+        Additionaly accepts all keyword arguments of the constructor of
+        ColumnQualifier. See the documentation of `ColumnQualifier` for
+        details.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import numpy as np;
+        &gt;&gt;&gt; df = pd.DataFrame(
+        ...    [[None, 1, 2],[None, None, 5]], [1,2], [&#39;ph&#39;, &#39;grade&#39;, &#39;age&#39;])
+        &gt;&gt;&gt; cq = pdp.cq.WithAtMostMissingValues(1)
+        &gt;&gt;&gt; cq
+        &lt;ColumnQualifier: With at most 1 missing values&gt;
+        &gt;&gt;&gt; cq(df)
+        [&#39;grade&#39;, &#39;age&#39;]
+    &#34;&#34;&#34;
+
+    class _AtMostFunc(object):
+
+        def __init__(self, n_missing):
+            self._n_missing = n_missing
+
+        def __call__(self, df):
+            return list(df.columns[df.isna().sum() &lt;= self._n_missing])
+
+    def __init__(self, n_missing, **kwargs):
+        self._n_missing = n_missing
+        cqfunc = WithAtMostMissingValues._AtMostFunc(n_missing)
+        cqfunc.__doc__ = (
+            f&#34;Columns with at most {self._n_missing} missing values&#34;
+        )
+        self.__doc__ = cqfunc.__doc__
+        kwargs[&#39;func&#39;] = cqfunc
+        super().__init__(**kwargs)
+
+    def __repr__(self):
+        return f&#34;&lt;ColumnQualifier: &#34; \
+               f&#34;With at most {self._n_missing} missing values&gt;&#34;
+
+
+class WithoutMissingValues(WithAtMostMissingValues):
+    &#34;&#34;&#34;Selectes all columns with no missing values.
+
+    Parameters
+    ----------
+    **kwargs
+        Accepts all keyword arguments of the constructor of ColumnQualifier.
+        See the documentation of `ColumnQualifier` for details.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import numpy as np;
+        &gt;&gt;&gt; df = pd.DataFrame(
+        ...    [[None, 1, 2],[None, None, 5]], [1,2], [&#39;ph&#39;, &#39;grade&#39;, &#39;age&#39;])
+        &gt;&gt;&gt; cq = pdp.cq.WithoutMissingValues()
+        &gt;&gt;&gt; cq
+        &lt;ColumnQualifier: Without missing values&gt;
+        &gt;&gt;&gt; cq(df)
+        [&#39;age&#39;]
+    &#34;&#34;&#34;
+
+    def __init__(self, **kwargs):
+        kwargs[&#39;n_missing&#39;] = 0
+        super().__init__(**kwargs)
+
+    def __repr__(self):
+        return &#34;&lt;ColumnQualifier: Without missing values&gt;&#34;</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pdpipe.cq.columns_to_qualifier"><code class="name flex">
+<span>def <span class="ident">columns_to_qualifier</span></span>(<span>columns)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Converts the given columns parameter to an equivalent column qualifier.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code></dt>
+<dd>The label, or an iterable of labels, of columns. Alternatively,
+this parameter can be assigned a callable returning an iterable of
+labels from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="#pdpipe.cq">pdpipe.cq</a></code>.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>qualifier</code></strong> :&ensp;<code><a title="pdpipe.cq.ColumnQualifier" href="#pdpipe.cq.ColumnQualifier">ColumnQualifier</a></code></dt>
+<dd>The equivalent ColumnQualifier object.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pdpipe as pdp;
+&gt;&gt;&gt; pdp.cq.columns_to_qualifier('nu')
+&lt;ColumnQualifier: By labels in nu&gt;
+&gt;&gt;&gt; pdp.cq.columns_to_qualifier(['nu', 'bu'])
+&lt;ColumnQualifier: By labels in nu, bu&gt;
+&gt;&gt;&gt; pdp.cq.columns_to_qualifier(lambda df: [l for l in df.columns])
+&lt;ColumnQualifier: Qualify columns by function&gt;
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def columns_to_qualifier(columns):
+    &#34;&#34;&#34;Converts the given columns parameter to an equivalent column qualifier.
+
+    Parameters
+    ----------
+    columns : single label, list-like or callable
+        The label, or an iterable of labels, of columns. Alternatively,
+        this parameter can be assigned a callable returning an iterable of
+        labels from an input pandas.DataFrame. See `pdpipe.cq`.
+
+    Returns
+    -------
+    qualifier : ColumnQualifier
+        The equivalent ColumnQualifier object.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pdpipe as pdp;
+        &gt;&gt;&gt; pdp.cq.columns_to_qualifier(&#39;nu&#39;)
+        &lt;ColumnQualifier: By labels in nu&gt;
+        &gt;&gt;&gt; pdp.cq.columns_to_qualifier([&#39;nu&#39;, &#39;bu&#39;])
+        &lt;ColumnQualifier: By labels in nu, bu&gt;
+        &gt;&gt;&gt; pdp.cq.columns_to_qualifier(lambda df: [l for l in df.columns])
+        &lt;ColumnQualifier: Qualify columns by function&gt;
+    &#34;&#34;&#34;
+    if callable(columns):
+        if isinstance(columns, ColumnQualifier):
+            return columns
+        return ColumnQualifier(columns, fittable=False)
+    return ByLabels(columns)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.cq.is_fittable_column_qualifier"><code class="name flex">
+<span>def <span class="ident">is_fittable_column_qualifier</span></span>(<span>obj)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns True for objects that are fittable ColumnQualifier objects.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>obj</code></strong> :&ensp;<code>object</code></dt>
+<dd>The object to examine.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd>True if the given object is an instance of ColumnQualifier and
+fittable, False otherwise.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_fittable_column_qualifier(obj):
+    &#34;&#34;&#34;Returns True for objects that are fittable ColumnQualifier objects.
+
+    Parameters
+    ----------
+    obj : object
+        The object to examine.
+
+    Returns
+    -------
+    bool
+        True if the given object is an instance of ColumnQualifier and
+        fittable, False otherwise.
+    &#34;&#34;&#34;
+    return isinstance(obj, ColumnQualifier) and obj._fittable</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pdpipe.cq.AllColumns"><code class="flex name class">
+<span>class <span class="ident">AllColumns</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Selects all columns in input dataframes.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>Accepts all keyword arguments of the constructor of
+ColumnQualifier. See the documentation of <code><a title="pdpipe.cq.ColumnQualifier" href="#pdpipe.cq.ColumnQualifier">ColumnQualifier</a></code> for
+details.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame([[8,1],[5,2]], [1,2], ['a', 'b'])
+&gt;&gt;&gt; cq = pdp.cq.AllColumns()
+&gt;&gt;&gt; cq
+&lt;ColumnQualifier: Qualify all columns&gt;
+&gt;&gt;&gt; cq(df)
+['a', 'b']
+&gt;&gt;&gt; df2 = pd.DataFrame([[8,1],[5,2]], [1,2], ['b', 'c'])
+&gt;&gt;&gt; cq(df2)
+['a', 'b']
+&gt;&gt;&gt; cq = pdp.cq.AllColumns(fittable=False)
+&gt;&gt;&gt; cq(df)
+['a', 'b']
+&gt;&gt;&gt; cq(df2)
+['b', 'c']
+&gt;&gt;&gt; cq = pdp.cq.AllColumns(subset=True)
+&gt;&gt;&gt; cq(df)
+['a', 'b']
+&gt;&gt;&gt; cq(df2)
+['b']
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AllColumns(ColumnQualifier):
+    &#34;&#34;&#34;Selects all columns in input dataframes.
+
+    Parameters
+    ----------
+    **kwargs
+        Accepts all keyword arguments of the constructor of
+        ColumnQualifier. See the documentation of `ColumnQualifier` for
+        details.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[8,1],[5,2]], [1,2], [&#39;a&#39;, &#39;b&#39;])
+        &gt;&gt;&gt; cq = pdp.cq.AllColumns()
+        &gt;&gt;&gt; cq
+        &lt;ColumnQualifier: Qualify all columns&gt;
+        &gt;&gt;&gt; cq(df)
+        [&#39;a&#39;, &#39;b&#39;]
+        &gt;&gt;&gt; df2 = pd.DataFrame([[8,1],[5,2]], [1,2], [&#39;b&#39;, &#39;c&#39;])
+        &gt;&gt;&gt; cq(df2)
+        [&#39;a&#39;, &#39;b&#39;]
+        &gt;&gt;&gt; cq = pdp.cq.AllColumns(fittable=False)
+        &gt;&gt;&gt; cq(df)
+        [&#39;a&#39;, &#39;b&#39;]
+        &gt;&gt;&gt; cq(df2)
+        [&#39;b&#39;, &#39;c&#39;]
+        &gt;&gt;&gt; cq = pdp.cq.AllColumns(subset=True)
+        &gt;&gt;&gt; cq(df)
+        [&#39;a&#39;, &#39;b&#39;]
+        &gt;&gt;&gt; cq(df2)
+        [&#39;b&#39;]
+    &#34;&#34;&#34;
+
+    class _SelectAllColumns(object):
+
+        def __call__(self, df):
+            return list(df.columns)
+
+    def __init__(self, **kwargs):
+        kwargs[&#39;func&#39;] = AllColumns._SelectAllColumns()
+        super().__init__(**kwargs)
+
+    def __repr__(self):
+        return &#34;&lt;ColumnQualifier: Qualify all columns&gt;&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pdpipe.cq.ColumnQualifier" href="#pdpipe.cq.ColumnQualifier">ColumnQualifier</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pdpipe.cq.ColumnQualifier" href="#pdpipe.cq.ColumnQualifier">ColumnQualifier</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pdpipe.cq.ColumnQualifier.fit" href="#pdpipe.cq.ColumnQualifier.fit">fit</a></code></li>
+<li><code><a title="pdpipe.cq.ColumnQualifier.fit_transform" href="#pdpipe.cq.ColumnQualifier.fit_transform">fit_transform</a></code></li>
+<li><code><a title="pdpipe.cq.ColumnQualifier.transform" href="#pdpipe.cq.ColumnQualifier.transform">transform</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pdpipe.cq.ByColumnCondition"><code class="flex name class">
+<span>class <span class="ident">ByColumnCondition</span></span>
+<span>(</span><span>cond, safe=False, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A fittable column qualifier based on a per-column condition.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>cond</code></strong> :&ensp;<code>callable</code></dt>
+<dd>A callable that given an input pandas.Series object returns a boolean
+value.</dd>
+<dt><strong><code>safe</code></strong> :&ensp;<code>bool</code>, default <code>False</code></dt>
+<dd>If set to True, every call to given condition <code>cond</code> is is wrapped in
+a way that interprets every raised exception as a returned False value.
+This is useful when generating qualifiers based on conditions that
+assume a specific datatype for the checked column.</dd>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>Additionaly accepts all keyword arguments of the constructor of
+ColumnQualifier. See the documentation of <code><a title="pdpipe.cq.ColumnQualifier" href="#pdpipe.cq.ColumnQualifier">ColumnQualifier</a></code> for
+details.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame(
+...    [[1, 2, 'A'],[4, 1, 'C']], [1,2], ['age', 'count', 'grade'])
+&gt;&gt;&gt; cq = pdp.cq.ByColumnCondition(lambda s: s.sum() &gt; 3, safe=True)
+&gt;&gt;&gt; cq(df)
+['age']
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ByColumnCondition(ColumnQualifier):
+    &#34;&#34;&#34;A fittable column qualifier based on a per-column condition.
+
+    Parameters
+    ----------
+    cond : callable
+        A callable that given an input pandas.Series object returns a boolean
+        value.
+    safe : bool, default False
+        If set to True, every call to given condition `cond` is is wrapped in
+        a way that interprets every raised exception as a returned False value.
+        This is useful when generating qualifiers based on conditions that
+        assume a specific datatype for the checked column.
+    **kwargs
+        Additionaly accepts all keyword arguments of the constructor of
+        ColumnQualifier. See the documentation of `ColumnQualifier` for
+        details.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame(
+        ...    [[1, 2, &#39;A&#39;],[4, 1, &#39;C&#39;]], [1,2], [&#39;age&#39;, &#39;count&#39;, &#39;grade&#39;])
+        &gt;&gt;&gt; cq = pdp.cq.ByColumnCondition(lambda s: s.sum() &gt; 3, safe=True)
+        &gt;&gt;&gt; cq(df)
+        [&#39;age&#39;]
+    &#34;&#34;&#34;
+
+    class _SafeCond(object):
+
+        def __init__(self, cond):
+            self.cond = cond
+
+        def __call__(self, series):
+            try:
+                return self.cond(series)
+            except Exception:
+                return False
+
+    class _ColumnConditionChecker(object):
+
+        def __init__(self, cond):
+            self.cond = cond
+
+        def __call__(self, df):
+            return list([
+                lbl for lbl, series in df.iteritems()
+                if self.cond(series)
+            ])
+
+    def __init__(self, cond, safe=False, **kwargs):
+        self._cond = cond
+        if safe:
+            self._cond = ByColumnCondition._SafeCond(cond)
+        kwargs[&#39;func&#39;] = ByColumnCondition._ColumnConditionChecker(self._cond)
+        super().__init__(**kwargs)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pdpipe.cq.ColumnQualifier" href="#pdpipe.cq.ColumnQualifier">ColumnQualifier</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pdpipe.cq.ColumnQualifier" href="#pdpipe.cq.ColumnQualifier">ColumnQualifier</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pdpipe.cq.ColumnQualifier.fit" href="#pdpipe.cq.ColumnQualifier.fit">fit</a></code></li>
+<li><code><a title="pdpipe.cq.ColumnQualifier.fit_transform" href="#pdpipe.cq.ColumnQualifier.fit_transform">fit_transform</a></code></li>
+<li><code><a title="pdpipe.cq.ColumnQualifier.transform" href="#pdpipe.cq.ColumnQualifier.transform">transform</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pdpipe.cq.ByLabels"><code class="flex name class">
+<span>class <span class="ident">ByLabels</span></span>
+<span>(</span><span>labels, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Selects all columns with the given label or labels.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>labels</code></strong> :&ensp;<code>single label</code> or <code>list-like</code></dt>
+<dd>Column labels which qualify.</dd>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>Additionaly accepts all keyword arguments of the constructor of
+ColumnQualifier. See the documentation of <code><a title="pdpipe.cq.ColumnQualifier" href="#pdpipe.cq.ColumnQualifier">ColumnQualifier</a></code> for
+details.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame(
+...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
+&gt;&gt;&gt; cq = pdp.cq.ByLabels('num')
+&gt;&gt;&gt; cq(df)
+['num']
+&gt;&gt;&gt; cq = pdp.cq.ByLabels(['chr', 'nur'])
+&gt;&gt;&gt; cq(df)
+['chr', 'nur']
+&gt;&gt;&gt; cq = pdp.cq.ByLabels(['num', 'foo'])
+&gt;&gt;&gt; cq(df)
+['num']
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ByLabels(ColumnQualifier):
+    &#34;&#34;&#34;Selects all columns with the given label or labels.
+
+    Parameters
+    ----------
+    labels : single label or list-like
+        Column labels which qualify.
+    **kwargs
+        Additionaly accepts all keyword arguments of the constructor of
+        ColumnQualifier. See the documentation of `ColumnQualifier` for
+        details.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame(
+        ...    [[8,&#39;a&#39;,5],[5,&#39;b&#39;,7]], [1,2], [&#39;num&#39;, &#39;chr&#39;, &#39;nur&#39;])
+        &gt;&gt;&gt; cq = pdp.cq.ByLabels(&#39;num&#39;)
+        &gt;&gt;&gt; cq(df)
+        [&#39;num&#39;]
+        &gt;&gt;&gt; cq = pdp.cq.ByLabels([&#39;chr&#39;, &#39;nur&#39;])
+        &gt;&gt;&gt; cq(df)
+        [&#39;chr&#39;, &#39;nur&#39;]
+        &gt;&gt;&gt; cq = pdp.cq.ByLabels([&#39;num&#39;, &#39;foo&#39;])
+        &gt;&gt;&gt; cq(df)
+        [&#39;num&#39;]
+    &#34;&#34;&#34;
+
+    class _LabelsQualifierFunc(object):
+
+        def __init__(self, labels):
+            self.labels = labels
+
+        def __call__(self, df):
+            return [
+                lbl for lbl in df.columns
+                if lbl in self.labels
+            ]
+
+    def __init__(self, labels, **kwargs):
+        if isinstance(labels, str) or not hasattr(labels, &#39;__iter__&#39;):
+            labels = [labels]
+        self._labels = labels
+        self._labels_str = _list_str(self._labels)
+        cqfunc = ByLabels._LabelsQualifierFunc(self._labels)
+        cqfunc.__doc__ = f&#34;Columns with labels in {self._labels_str}&#34;
+        self.__doc__ = cqfunc.__doc__
+        kwargs[&#39;func&#39;] = cqfunc
+        super().__init__(**kwargs)
+
+    def __repr__(self):
+        return f&#34;&lt;ColumnQualifier: By labels in {self._labels_str}&gt;&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pdpipe.cq.ColumnQualifier" href="#pdpipe.cq.ColumnQualifier">ColumnQualifier</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pdpipe.cq.ColumnQualifier" href="#pdpipe.cq.ColumnQualifier">ColumnQualifier</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pdpipe.cq.ColumnQualifier.fit" href="#pdpipe.cq.ColumnQualifier.fit">fit</a></code></li>
+<li><code><a title="pdpipe.cq.ColumnQualifier.fit_transform" href="#pdpipe.cq.ColumnQualifier.fit_transform">fit_transform</a></code></li>
+<li><code><a title="pdpipe.cq.ColumnQualifier.transform" href="#pdpipe.cq.ColumnQualifier.transform">transform</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pdpipe.cq.ColumnQualifier"><code class="flex name class">
+<span>class <span class="ident">ColumnQualifier</span></span>
+<span>(</span><span>func, fittable=None, subset=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A fittable qualifier that returns column labels from an input dataframe.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>func</code></strong> :&ensp;<code>callable</code></dt>
+<dd>A callable that given an input pandas.DataFrame objects returns a list
+of labels of a subset of the columns of the input dataframe.</dd>
+<dt><strong><code>fittable</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
+<dd>If set to false, this qualifier becomes unfittable, and <code>func</code> is
+called on every call to transform. True by default.</dd>
+<dt><strong><code>subset</code></strong> :&ensp;<code>bool</code>, default <code>False</code></dt>
+<dd>If set to true, fitted qualifiers return the subset of fitted columns
+found in input dataframes during transform, in the order they appeared
+when fitted (NOT in the order they appear in the input dataframe of the
+transform). False by default, which means fitted qualifiers return the
+FULL list of fitted columns, ignoring input dataframes completely on
+transforms. When combined with most pipeline stages, this means the
+stage will fail on its precondition if trying to transform with it a
+dataframe that is missing some values in the fitted qualifier.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import numpy as np; import pdpipe as pdp;
+&gt;&gt;&gt; cq = pdp.cq.ColumnQualifier(lambda df: [
+...    l for l, s in df.iteritems()
+...    if s.dtype == np.int64 and l in ['a', 'b', 5]
+... ])
+&gt;&gt;&gt; cq
+&lt;ColumnQualifier: Qualify columns by function&gt;
+&gt;&gt;&gt; col_drop = pdp.ColDrop(columns=cq)
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ColumnQualifier(object):
+    &#34;&#34;&#34;A fittable qualifier that returns column labels from an input dataframe.
+
+    Parameters
+    ----------
+    func : callable
+        A callable that given an input pandas.DataFrame objects returns a list
+        of labels of a subset of the columns of the input dataframe.
+    fittable : bool, default True
+        If set to false, this qualifier becomes unfittable, and `func` is
+        called on every call to transform. True by default.
+    subset : bool, default False
+        If set to true, fitted qualifiers return the subset of fitted columns
+        found in input dataframes during transform, in the order they appeared
+        when fitted (NOT in the order they appear in the input dataframe of the
+        transform). False by default, which means fitted qualifiers return the
+        FULL list of fitted columns, ignoring input dataframes completely on
+        transforms. When combined with most pipeline stages, this means the
+        stage will fail on its precondition if trying to transform with it a
+        dataframe that is missing some values in the fitted qualifier.
+
+    Example
+    -------
+        &gt;&gt;&gt; import numpy as np; import pdpipe as pdp;
+        &gt;&gt;&gt; cq = pdp.cq.ColumnQualifier(lambda df: [
+        ...    l for l, s in df.iteritems()
+        ...    if s.dtype == np.int64 and l in [&#39;a&#39;, &#39;b&#39;, 5]
+        ... ])
+        &gt;&gt;&gt; cq
+        &lt;ColumnQualifier: Qualify columns by function&gt;
+        &gt;&gt;&gt; col_drop = pdp.ColDrop(columns=cq)
+    &#34;&#34;&#34;
+
+    def __init__(self, func, fittable=None, subset=None):
+        if fittable is None:
+            fittable = True
+        self._cqfunc = func
+        self.__doc__ = func.__doc__
+        self._fittable = fittable
+        self._subset = subset
+
+    def __call__(self, df):
+        &#34;&#34;&#34;Returns column labels of qualified columns from an input dataframe.
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            The input dataframe, from which columns are selected.
+
+        Returns
+        -------
+        list of objects
+            A list of labels of the qualified columns for the input dataframe.
+        &#34;&#34;&#34;
+        try:
+            return self.transform(df)
+        except UnfittedColumnQualifierError:
+            return self.fit_transform(df)
+
+    def fit_transform(self, df):
+        &#34;&#34;&#34;Fits this qualifier and returns the labels of the qualifying columns.
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            The input dataframe, from which columns are selected.
+
+        Returns
+        -------
+        list of objects
+            A list of labels of the qualified columns for the input dataframe.
+        &#34;&#34;&#34;
+        self._columns = self._cqfunc(df)
+        return self._columns
+
+    def fit(self, df):
+        &#34;&#34;&#34;Fits this qualifier on the input dataframe.
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            The input dataframe, from which columns are selected.
+
+        &#34;&#34;&#34;
+        self.fit_transform(df)
+
+    def transform(self, df):
+        &#34;&#34;&#34;Applies and returns the labels of the qualifying columns.
+
+        If this ColumnQualifier is fittable, it will return the list of column
+        labels that was determined when fitted (or the subset of it that can
+        be found in the input dataframe). It will throw an exception if it
+        is not.
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            The input dataframe, from which columns are selected.
+
+        Returns
+        -------
+        list of objects
+            A list of labels of the qualified columns for the input dataframe.
+        &#34;&#34;&#34;
+        if not self._fittable:
+            return self._cqfunc(df)
+        try:
+            if self._subset:
+                return [x for x in self._columns if x in df.columns]
+            return self._columns
+        except AttributeError:
+            raise UnfittedColumnQualifierError
+
+    def __repr__(self):
+        fstr = &#39;&#39;
+        if self._cqfunc.__doc__:  # pragma: no cover
+            fstr = f&#39; - {self._cqfunc.__doc__}&#39;
+        return f&#34;&lt;ColumnQualifier: Qualify columns by function{fstr}&gt;&#34;
+
+    # --- overriding boolean operators ---
+
+    @staticmethod
+    def _x_inorderof_y(x, y):
+        return [i for i in y if i in x]
+
+    class _AndQualifierFunc(object):
+        &#34;&#34;&#34;A pickle-able AND qualifier class.&#34;&#34;&#34;
+
+        def __init__(self, first, second):
+            self.first = first
+            self.second = second
+
+        def __call__(self, df):
+            return ColumnQualifier._x_inorderof_y(
+                x=set(self.first(df)).intersection(self.second(df)),
+                y=df.columns,
+            )
+
+    def __and__(self, other):
+        try:
+            res_func = ColumnQualifier._AndQualifierFunc(
+                first=self._cqfunc,
+                second=other._cqfunc,
+            )
+            res_func.__doc__ = (
+                f&#34;{self._cqfunc.__doc__ or &#39;Anonymous qualifier 1&#39;} AND &#34;
+                f&#34;{other._cqfunc.__doc__ or &#39;Anonymous qualifier 2&#39;}&#34;
+            )
+            return ColumnQualifier(func=res_func)
+        except AttributeError:
+            return NotImplemented
+
+    class _XorQualifierFunc(object):
+        &#34;&#34;&#34;A pickle-able XOR qualifier class.&#34;&#34;&#34;
+
+        def __init__(self, first, second):
+            self.first = first
+            self.second = second
+
+        def __call__(self, df):
+            return ColumnQualifier._x_inorderof_y(
+                x=set(self.first(df)).symmetric_difference(self.second(df)),
+                y=df.columns,
+            )
+
+    def __xor__(self, other):
+        try:
+            res_func = ColumnQualifier._XorQualifierFunc(
+                first=self._cqfunc,
+                second=other._cqfunc,
+            )
+            res_func.__doc__ = (
+                f&#34;{self._cqfunc.__doc__ or &#39;Anonymous qualifier 1&#39;} XOR &#34;
+                f&#34;{other._cqfunc.__doc__ or &#39;Anonymous qualifier 2&#39;}&#34;
+            )
+            return ColumnQualifier(func=res_func)
+        except AttributeError:
+            return NotImplemented
+
+    class _OrQualifierFunc(object):
+        &#34;&#34;&#34;A pickle-able OR qualifier class.&#34;&#34;&#34;
+
+        def __init__(self, first, second):
+            self.first = first
+            self.second = second
+
+        def __call__(self, df):
+            return ColumnQualifier._x_inorderof_y(
+                x=set(self.first(df)).union(self.second(df)),
+                y=df.columns,
+            )
+
+    def __or__(self, other):
+        try:
+            res_func = ColumnQualifier._OrQualifierFunc(
+                first=self._cqfunc,
+                second=other._cqfunc,
+            )
+            res_func.__doc__ = (
+                f&#34;{self._cqfunc.__doc__ or &#39;Anonymous qualifier 1&#39;} OR &#34;
+                f&#34;{other._cqfunc.__doc__ or &#39;Anonymous qualifier 2&#39;}&#34;
+            )
+            return ColumnQualifier(func=res_func)
+        except AttributeError:
+            return NotImplemented
+
+    class _SubQualifierFunc(object):
+        &#34;&#34;&#34;A pickle-able SUB qualifier class.&#34;&#34;&#34;
+
+        def __init__(self, first, second):
+            self.first = first
+            self.second = second
+
+        def __call__(self, df):
+            return ColumnQualifier._x_inorderof_y(
+                x=set(self.first(df)).difference(self.second(df)),
+                y=df.columns,
+            )
+
+    def __sub__(self, other):
+        try:
+            res_func = ColumnQualifier._SubQualifierFunc(
+                first=self._cqfunc,
+                second=other._cqfunc,
+            )
+            res_func.__doc__ = (
+                f&#34;{self._cqfunc.__doc__ or &#39;Anonymous qualifier 1&#39;} NOT IN &#34;
+                f&#34;{other._cqfunc.__doc__ or &#39;Anonymous qualifier 2&#39;}&#34;
+            )
+            return ColumnQualifier(func=res_func)
+        except AttributeError:
+            return NotImplemented
+
+    class _NotQualifierFunc(object):
+        &#34;&#34;&#34;A pickle-able NOT qualifier class.&#34;&#34;&#34;
+
+        def __init__(self, cq):
+            self.cq = cq
+
+        def __call__(self, df):
+            return ColumnQualifier._x_inorderof_y(
+                x=set(df.columns).difference(self.cq(df)),
+                y=df.columns,
+            )
+
+    def __invert__(self):
+        res_func = ColumnQualifier._NotQualifierFunc(
+            cq=self._cqfunc
+        )
+        res_func.__doc__ = (
+            f&#34;NOT {self._cqfunc.__doc__ or &#39;Anonymous qualifier&#39;}&#34;
+        )
+        return ColumnQualifier(func=res_func)</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="pdpipe.cq.AllColumns" href="#pdpipe.cq.AllColumns">AllColumns</a></li>
+<li><a title="pdpipe.cq.ByColumnCondition" href="#pdpipe.cq.ByColumnCondition">ByColumnCondition</a></li>
+<li><a title="pdpipe.cq.ByLabels" href="#pdpipe.cq.ByLabels">ByLabels</a></li>
+<li><a title="pdpipe.cq.OfDtypes" href="#pdpipe.cq.OfDtypes">OfDtypes</a></li>
+<li><a title="pdpipe.cq.StartWith" href="#pdpipe.cq.StartWith">StartWith</a></li>
+<li><a title="pdpipe.cq.WithAtMostMissingValues" href="#pdpipe.cq.WithAtMostMissingValues">WithAtMostMissingValues</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="pdpipe.cq.ColumnQualifier.fit"><code class="name flex">
+<span>def <span class="ident">fit</span></span>(<span>self, df)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Fits this qualifier on the input dataframe.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>pandas.DataFrame</code></dt>
+<dd>The input dataframe, from which columns are selected.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fit(self, df):
+    &#34;&#34;&#34;Fits this qualifier on the input dataframe.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        The input dataframe, from which columns are selected.
+
+    &#34;&#34;&#34;
+    self.fit_transform(df)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.cq.ColumnQualifier.fit_transform"><code class="name flex">
+<span>def <span class="ident">fit_transform</span></span>(<span>self, df)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Fits this qualifier and returns the labels of the qualifying columns.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>pandas.DataFrame</code></dt>
+<dd>The input dataframe, from which columns are selected.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>list</code> of <code>objects</code></dt>
+<dd>A list of labels of the qualified columns for the input dataframe.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fit_transform(self, df):
+    &#34;&#34;&#34;Fits this qualifier and returns the labels of the qualifying columns.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        The input dataframe, from which columns are selected.
+
+    Returns
+    -------
+    list of objects
+        A list of labels of the qualified columns for the input dataframe.
+    &#34;&#34;&#34;
+    self._columns = self._cqfunc(df)
+    return self._columns</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.cq.ColumnQualifier.transform"><code class="name flex">
+<span>def <span class="ident">transform</span></span>(<span>self, df)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Applies and returns the labels of the qualifying columns.</p>
+<p>If this ColumnQualifier is fittable, it will return the list of column
+labels that was determined when fitted (or the subset of it that can
+be found in the input dataframe). It will throw an exception if it
+is not.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>df</code></strong> :&ensp;<code>pandas.DataFrame</code></dt>
+<dd>The input dataframe, from which columns are selected.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>list</code> of <code>objects</code></dt>
+<dd>A list of labels of the qualified columns for the input dataframe.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def transform(self, df):
+    &#34;&#34;&#34;Applies and returns the labels of the qualifying columns.
+
+    If this ColumnQualifier is fittable, it will return the list of column
+    labels that was determined when fitted (or the subset of it that can
+    be found in the input dataframe). It will throw an exception if it
+    is not.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        The input dataframe, from which columns are selected.
+
+    Returns
+    -------
+    list of objects
+        A list of labels of the qualified columns for the input dataframe.
+    &#34;&#34;&#34;
+    if not self._fittable:
+        return self._cqfunc(df)
+    try:
+        if self._subset:
+            return [x for x in self._columns if x in df.columns]
+        return self._columns
+    except AttributeError:
+        raise UnfittedColumnQualifierError</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pdpipe.cq.OfDtypes"><code class="flex name class">
+<span>class <span class="ident">OfDtypes</span></span>
+<span>(</span><span>dtypes, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Selectes all columns that are of a given dtypes.</p>
+<p>Use <code>dtypes=np.number</code> to qualify all numeric columns.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>dtypes</code></strong> :&ensp;<code>object</code> or <code>list</code> of <code>objects</code></dt>
+<dd>The dtype or dtypes which qualify columns. Support all valid arguments
+to the <code>include</code> parameter of pandas.DataFrame.select_dtypes().</dd>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>Additionaly accepts all keyword arguments of the constructor of
+ColumnQualifier. See the documentation of <code><a title="pdpipe.cq.ColumnQualifier" href="#pdpipe.cq.ColumnQualifier">ColumnQualifier</a></code> for
+details.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import numpy as np;
+&gt;&gt;&gt; df = pd.DataFrame(
+...    [[8.2,'a',5],[5.1,'b',7]], [1,2], ['ph', 'grade', 'age'])
+&gt;&gt;&gt; cq = pdp.cq.OfDtypes(np.number)
+&gt;&gt;&gt; cq(df)
+['ph', 'age']
+&gt;&gt;&gt; cq = pdp.cq.OfDtypes([np.number, object])
+&gt;&gt;&gt; cq(df)
+['ph', 'grade', 'age']
+&gt;&gt;&gt; cq = pdp.cq.OfDtypes(np.int64)
+&gt;&gt;&gt; cq
+&lt;ColumnQualifier: With dtypes in &lt;class 'numpy.int64'&gt;&gt;
+&gt;&gt;&gt; cq(df)
+['age']
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class OfDtypes(ColumnQualifier):
+    &#34;&#34;&#34;Selectes all columns that are of a given dtypes.
+
+    Use `dtypes=np.number` to qualify all numeric columns.
+
+    Parameters
+    ----------
+    dtypes : object or list of objects
+        The dtype or dtypes which qualify columns. Support all valid arguments
+        to the `include` parameter of pandas.DataFrame.select_dtypes().
+    **kwargs
+        Additionaly accepts all keyword arguments of the constructor of
+        ColumnQualifier. See the documentation of `ColumnQualifier` for
+        details.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import numpy as np;
+        &gt;&gt;&gt; df = pd.DataFrame(
+        ...    [[8.2,&#39;a&#39;,5],[5.1,&#39;b&#39;,7]], [1,2], [&#39;ph&#39;, &#39;grade&#39;, &#39;age&#39;])
+        &gt;&gt;&gt; cq = pdp.cq.OfDtypes(np.number)
+        &gt;&gt;&gt; cq(df)
+        [&#39;ph&#39;, &#39;age&#39;]
+        &gt;&gt;&gt; cq = pdp.cq.OfDtypes([np.number, object])
+        &gt;&gt;&gt; cq(df)
+        [&#39;ph&#39;, &#39;grade&#39;, &#39;age&#39;]
+        &gt;&gt;&gt; cq = pdp.cq.OfDtypes(np.int64)
+        &gt;&gt;&gt; cq
+        &lt;ColumnQualifier: With dtypes in &lt;class &#39;numpy.int64&#39;&gt;&gt;
+        &gt;&gt;&gt; cq(df)
+        [&#39;age&#39;]
+    &#34;&#34;&#34;
+
+    class _OfDtypeFunc(object):
+
+        def __init__(self, dtypes):
+            self.dtypes = dtypes
+
+        def __call__(self, df):
+            return list(df.select_dtypes(include=self.dtypes).columns)
+
+    def __init__(self, dtypes, **kwargs):
+        self._dtypes = dtypes
+        self._dtypes_str = _list_str(self._dtypes)
+        cqfunc = OfDtypes._OfDtypeFunc(dtypes)
+        cqfunc.__doc__ = f&#34;Columns of dtypes {self._dtypes_str}&#34;
+        self.__doc__ = cqfunc.__doc__
+        kwargs[&#39;func&#39;] = cqfunc
+        super().__init__(**kwargs)
+
+    def __repr__(self):
+        return f&#34;&lt;ColumnQualifier: With dtypes in {self._dtypes_str}&gt;&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pdpipe.cq.ColumnQualifier" href="#pdpipe.cq.ColumnQualifier">ColumnQualifier</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pdpipe.cq.ColumnQualifier" href="#pdpipe.cq.ColumnQualifier">ColumnQualifier</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pdpipe.cq.ColumnQualifier.fit" href="#pdpipe.cq.ColumnQualifier.fit">fit</a></code></li>
+<li><code><a title="pdpipe.cq.ColumnQualifier.fit_transform" href="#pdpipe.cq.ColumnQualifier.fit_transform">fit_transform</a></code></li>
+<li><code><a title="pdpipe.cq.ColumnQualifier.transform" href="#pdpipe.cq.ColumnQualifier.transform">transform</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pdpipe.cq.StartWith"><code class="flex name class">
+<span>class <span class="ident">StartWith</span></span>
+<span>(</span><span>prefix, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Selectes all columns that start with the given string.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>prefix</code></strong> :&ensp;<code>str</code></dt>
+<dd>The prefix which qualifies columns.</dd>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>Additionaly accepts all keyword arguments of the constructor of
+ColumnQualifier. See the documentation of <code><a title="pdpipe.cq.ColumnQualifier" href="#pdpipe.cq.ColumnQualifier">ColumnQualifier</a></code> for
+details.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame(
+...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
+&gt;&gt;&gt; cq = pdp.cq.StartWith('nu')
+&gt;&gt;&gt; cq
+&lt;ColumnQualifier: Columns starting with nu&gt;
+&gt;&gt;&gt; cq(df)
+['num', 'nur']
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class StartWith(ColumnQualifier):
+    &#34;&#34;&#34;Selectes all columns that start with the given string.
+
+    Parameters
+    ----------
+    prefix : str
+        The prefix which qualifies columns.
+    **kwargs
+        Additionaly accepts all keyword arguments of the constructor of
+        ColumnQualifier. See the documentation of `ColumnQualifier` for
+        details.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame(
+        ...    [[8,&#39;a&#39;,5],[5,&#39;b&#39;,7]], [1,2], [&#39;num&#39;, &#39;chr&#39;, &#39;nur&#39;])
+        &gt;&gt;&gt; cq = pdp.cq.StartWith(&#39;nu&#39;)
+        &gt;&gt;&gt; cq
+        &lt;ColumnQualifier: Columns starting with nu&gt;
+        &gt;&gt;&gt; cq(df)
+        [&#39;num&#39;, &#39;nur&#39;]
+    &#34;&#34;&#34;
+
+    @staticmethod
+    def _safe_startwith(string, prefix):
+        try:
+            return string.startswith(prefix)
+        except AttributeError:
+            return False
+
+    class _StartWithFunc(object):
+
+        def __init__(self, prefix):
+            self.prefix = prefix
+
+        def __call__(self, df):
+            return [
+                lbl for lbl in df.columns
+                if StartWith._safe_startwith(lbl, self.prefix)
+            ]
+
+    def __init__(self, prefix, **kwargs):
+        self._prefix = prefix
+        cqfunc = StartWith._StartWithFunc(prefix)
+        cqfunc.__doc__ = f&#34;Columns that start with {self._prefix}&#34;
+        self.__doc__ = cqfunc.__doc__
+        kwargs[&#39;func&#39;] = cqfunc
+        super().__init__(**kwargs)
+
+    def __repr__(self):
+        return f&#34;&lt;ColumnQualifier: Columns starting with {self._prefix}&gt;&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pdpipe.cq.ColumnQualifier" href="#pdpipe.cq.ColumnQualifier">ColumnQualifier</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pdpipe.cq.ColumnQualifier" href="#pdpipe.cq.ColumnQualifier">ColumnQualifier</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pdpipe.cq.ColumnQualifier.fit" href="#pdpipe.cq.ColumnQualifier.fit">fit</a></code></li>
+<li><code><a title="pdpipe.cq.ColumnQualifier.fit_transform" href="#pdpipe.cq.ColumnQualifier.fit_transform">fit_transform</a></code></li>
+<li><code><a title="pdpipe.cq.ColumnQualifier.transform" href="#pdpipe.cq.ColumnQualifier.transform">transform</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pdpipe.cq.UnfittedColumnQualifierError"><code class="flex name class">
+<span>class <span class="ident">UnfittedColumnQualifierError</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An exception raised when a (non-fit) transform is attempted with an
+unfitted column qualifier.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class UnfittedColumnQualifierError(Exception):
+    &#34;&#34;&#34;An exception raised when a (non-fit) transform is attempted with an
+    unfitted column qualifier.
+    &#34;&#34;&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.Exception</li>
+<li>builtins.BaseException</li>
+</ul>
+</dd>
+<dt id="pdpipe.cq.WithAtMostMissingValues"><code class="flex name class">
+<span>class <span class="ident">WithAtMostMissingValues</span></span>
+<span>(</span><span>n_missing, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Selectes all columns with no more than X missing values.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>n_missing</code></strong> :&ensp;<code>int</code></dt>
+<dd>The maximum number of missing values with which columns can still
+qualify.</dd>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>Additionaly accepts all keyword arguments of the constructor of
+ColumnQualifier. See the documentation of <code><a title="pdpipe.cq.ColumnQualifier" href="#pdpipe.cq.ColumnQualifier">ColumnQualifier</a></code> for
+details.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import numpy as np;
+&gt;&gt;&gt; df = pd.DataFrame(
+...    [[None, 1, 2],[None, None, 5]], [1,2], ['ph', 'grade', 'age'])
+&gt;&gt;&gt; cq = pdp.cq.WithAtMostMissingValues(1)
+&gt;&gt;&gt; cq
+&lt;ColumnQualifier: With at most 1 missing values&gt;
+&gt;&gt;&gt; cq(df)
+['grade', 'age']
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class WithAtMostMissingValues(ColumnQualifier):
+    &#34;&#34;&#34;Selectes all columns with no more than X missing values.
+
+    Parameters
+    ----------
+    n_missing : int
+        The maximum number of missing values with which columns can still
+        qualify.
+    **kwargs
+        Additionaly accepts all keyword arguments of the constructor of
+        ColumnQualifier. See the documentation of `ColumnQualifier` for
+        details.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import numpy as np;
+        &gt;&gt;&gt; df = pd.DataFrame(
+        ...    [[None, 1, 2],[None, None, 5]], [1,2], [&#39;ph&#39;, &#39;grade&#39;, &#39;age&#39;])
+        &gt;&gt;&gt; cq = pdp.cq.WithAtMostMissingValues(1)
+        &gt;&gt;&gt; cq
+        &lt;ColumnQualifier: With at most 1 missing values&gt;
+        &gt;&gt;&gt; cq(df)
+        [&#39;grade&#39;, &#39;age&#39;]
+    &#34;&#34;&#34;
+
+    class _AtMostFunc(object):
+
+        def __init__(self, n_missing):
+            self._n_missing = n_missing
+
+        def __call__(self, df):
+            return list(df.columns[df.isna().sum() &lt;= self._n_missing])
+
+    def __init__(self, n_missing, **kwargs):
+        self._n_missing = n_missing
+        cqfunc = WithAtMostMissingValues._AtMostFunc(n_missing)
+        cqfunc.__doc__ = (
+            f&#34;Columns with at most {self._n_missing} missing values&#34;
+        )
+        self.__doc__ = cqfunc.__doc__
+        kwargs[&#39;func&#39;] = cqfunc
+        super().__init__(**kwargs)
+
+    def __repr__(self):
+        return f&#34;&lt;ColumnQualifier: &#34; \
+               f&#34;With at most {self._n_missing} missing values&gt;&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pdpipe.cq.ColumnQualifier" href="#pdpipe.cq.ColumnQualifier">ColumnQualifier</a></li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="pdpipe.cq.WithoutMissingValues" href="#pdpipe.cq.WithoutMissingValues">WithoutMissingValues</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pdpipe.cq.ColumnQualifier" href="#pdpipe.cq.ColumnQualifier">ColumnQualifier</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pdpipe.cq.ColumnQualifier.fit" href="#pdpipe.cq.ColumnQualifier.fit">fit</a></code></li>
+<li><code><a title="pdpipe.cq.ColumnQualifier.fit_transform" href="#pdpipe.cq.ColumnQualifier.fit_transform">fit_transform</a></code></li>
+<li><code><a title="pdpipe.cq.ColumnQualifier.transform" href="#pdpipe.cq.ColumnQualifier.transform">transform</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pdpipe.cq.WithoutMissingValues"><code class="flex name class">
+<span>class <span class="ident">WithoutMissingValues</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Selectes all columns with no missing values.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>Accepts all keyword arguments of the constructor of ColumnQualifier.
+See the documentation of <code><a title="pdpipe.cq.ColumnQualifier" href="#pdpipe.cq.ColumnQualifier">ColumnQualifier</a></code> for details.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import numpy as np;
+&gt;&gt;&gt; df = pd.DataFrame(
+...    [[None, 1, 2],[None, None, 5]], [1,2], ['ph', 'grade', 'age'])
+&gt;&gt;&gt; cq = pdp.cq.WithoutMissingValues()
+&gt;&gt;&gt; cq
+&lt;ColumnQualifier: Without missing values&gt;
+&gt;&gt;&gt; cq(df)
+['age']
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class WithoutMissingValues(WithAtMostMissingValues):
+    &#34;&#34;&#34;Selectes all columns with no missing values.
+
+    Parameters
+    ----------
+    **kwargs
+        Accepts all keyword arguments of the constructor of ColumnQualifier.
+        See the documentation of `ColumnQualifier` for details.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import numpy as np;
+        &gt;&gt;&gt; df = pd.DataFrame(
+        ...    [[None, 1, 2],[None, None, 5]], [1,2], [&#39;ph&#39;, &#39;grade&#39;, &#39;age&#39;])
+        &gt;&gt;&gt; cq = pdp.cq.WithoutMissingValues()
+        &gt;&gt;&gt; cq
+        &lt;ColumnQualifier: Without missing values&gt;
+        &gt;&gt;&gt; cq(df)
+        [&#39;age&#39;]
+    &#34;&#34;&#34;
+
+    def __init__(self, **kwargs):
+        kwargs[&#39;n_missing&#39;] = 0
+        super().__init__(**kwargs)
+
+    def __repr__(self):
+        return &#34;&lt;ColumnQualifier: Without missing values&gt;&#34;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pdpipe.cq.WithAtMostMissingValues" href="#pdpipe.cq.WithAtMostMissingValues">WithAtMostMissingValues</a></li>
+<li><a title="pdpipe.cq.ColumnQualifier" href="#pdpipe.cq.ColumnQualifier">ColumnQualifier</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pdpipe.cq.WithAtMostMissingValues" href="#pdpipe.cq.WithAtMostMissingValues">WithAtMostMissingValues</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pdpipe.cq.WithAtMostMissingValues.fit" href="#pdpipe.cq.ColumnQualifier.fit">fit</a></code></li>
+<li><code><a title="pdpipe.cq.WithAtMostMissingValues.fit_transform" href="#pdpipe.cq.ColumnQualifier.fit_transform">fit_transform</a></code></li>
+<li><code><a title="pdpipe.cq.WithAtMostMissingValues.transform" href="#pdpipe.cq.ColumnQualifier.transform">transform</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pdpipe" href="index.html">pdpipe</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pdpipe.cq.columns_to_qualifier" href="#pdpipe.cq.columns_to_qualifier">columns_to_qualifier</a></code></li>
+<li><code><a title="pdpipe.cq.is_fittable_column_qualifier" href="#pdpipe.cq.is_fittable_column_qualifier">is_fittable_column_qualifier</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pdpipe.cq.AllColumns" href="#pdpipe.cq.AllColumns">AllColumns</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pdpipe.cq.ByColumnCondition" href="#pdpipe.cq.ByColumnCondition">ByColumnCondition</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pdpipe.cq.ByLabels" href="#pdpipe.cq.ByLabels">ByLabels</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pdpipe.cq.ColumnQualifier" href="#pdpipe.cq.ColumnQualifier">ColumnQualifier</a></code></h4>
+<ul class="">
+<li><code><a title="pdpipe.cq.ColumnQualifier.fit" href="#pdpipe.cq.ColumnQualifier.fit">fit</a></code></li>
+<li><code><a title="pdpipe.cq.ColumnQualifier.fit_transform" href="#pdpipe.cq.ColumnQualifier.fit_transform">fit_transform</a></code></li>
+<li><code><a title="pdpipe.cq.ColumnQualifier.transform" href="#pdpipe.cq.ColumnQualifier.transform">transform</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pdpipe.cq.OfDtypes" href="#pdpipe.cq.OfDtypes">OfDtypes</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pdpipe.cq.StartWith" href="#pdpipe.cq.StartWith">StartWith</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pdpipe.cq.UnfittedColumnQualifierError" href="#pdpipe.cq.UnfittedColumnQualifierError">UnfittedColumnQualifierError</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pdpipe.cq.WithAtMostMissingValues" href="#pdpipe.cq.WithAtMostMissingValues">WithAtMostMissingValues</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pdpipe.cq.WithoutMissingValues" href="#pdpipe.cq.WithoutMissingValues">WithoutMissingValues</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

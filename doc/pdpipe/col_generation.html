@@ -1,0 +1,2975 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>pdpipe.col_generation API documentation</title>
+<meta name="description" content="Column generation pdpipe PdPipelineStages." />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pdpipe.col_generation</code></h1>
+</header>
+<section id="section-intro">
+<p>Column generation pdpipe PdPipelineStages.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Column generation pdpipe PdPipelineStages.&#34;&#34;&#34;
+
+import abc
+from typing import Union, Tuple, Optional, Dict, Callable
+
+import numpy as np
+import pandas as pd
+import sortedcontainers as sc
+import tqdm
+
+from pdpipe.core import PdPipelineStage, ColumnsBasedPipelineStage
+from pdpipe.util import out_of_place_col_insert
+from pdpipe.cq import OfDtypes
+from pdpipe.types import ColumnsParamType, ColumnLabelsType
+
+from pdpipe.shared import _interpret_columns_param, _list_str
+
+from .exceptions import PipelineApplicationError
+
+
+class Bin(PdPipelineStage):
+    &#34;&#34;&#34;A pipeline stage that adds a binned version of a column or columns.
+
+    If drop is set to True, the new columns retain the names of the source
+    columns; otherwise, the resulting column gain the suffix &#39;_bin&#39;
+
+    Parameters
+    ----------
+    bin_map : dict
+        Maps column labels to bin arrays. The bin array is interpreted as
+        containing start points of consecutive bins, except for the final
+        point, assumed to be the end point of the last bin. Additionally, a
+        bin array implicitly projects a left-most bin containing all elements
+        smaller than the left-most end point and a right-most bin containing
+        all elements larger that the right-most end point. For example, the
+        list [0, 5, 8] is interpreted as the bins (-∞, 0), [0-5), [5-8) and
+        [8, ∞).
+    drop : bool, default True
+        If set to True, the source columns are dropped after being binned.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[-3],[4],[5],[9]], [1,2,3,4], [&#39;speed&#39;])
+        &gt;&gt;&gt; pdp.Bin({&#39;speed&#39;: [5]}, drop=False).apply(df)
+           speed speed_bin
+        1     -3        &lt;5
+        2      4        &lt;5
+        3      5        5≤
+        4      9        5≤
+        &gt;&gt;&gt; pdp.Bin({&#39;speed&#39;: [0,5,8]}, drop=False).apply(df)
+           speed speed_bin
+        1     -3        &lt;0
+        2      4       0-5
+        3      5       5-8
+        4      9        8≤
+    &#34;&#34;&#34;
+
+    _DEF_BIN_EXC_MSG = (
+        &#34;Bin stage failed because not all columns &#34;
+        &#34;{} were found in input dataframe.&#34;
+    )
+
+    def _default_desc(self):
+        string = &#34;&#34;
+        columns = list(self._bin_map.keys())
+        col1 = columns[0]
+        string += f&#34;Bin {col1} by { self._bin_map[col1]},\n&#34;
+        for col in columns[1:]:
+            string += f&#34;bin {col} by {self._bin_map[col]},\n&#34;
+        string = string[0:-2] + &#34;.&#34;
+        return string
+
+    def __init__(self, bin_map, drop=True, **kwargs):
+        self._bin_map = bin_map
+        self._drop = drop
+        columns_str = _list_str(list(bin_map.keys()))
+        super_kwargs = {
+            &#34;exmsg&#34;: Bin._DEF_BIN_EXC_MSG.format(columns_str),
+            &#34;desc&#34;: self._default_desc(),
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        return set(self._bin_map.keys()).issubset(df.columns)
+
+    @staticmethod
+    def _get_col_binner(bin_list):
+        sorted_bins = sc.SortedList(bin_list)
+        last_ix = len(sorted_bins) - 1
+
+        def _col_binner(val):
+            if val in sorted_bins:
+                ind = sorted_bins.bisect(val) - 1
+                if ind == last_ix:
+                    return f&#34;{sorted_bins[-1]}≤&#34;
+                return f&#34;{sorted_bins[ind]}-{sorted_bins[ind + 1]}&#34;
+            try:
+                ind = sorted_bins.bisect(val)
+                if ind == 0:
+                    return f&#34;&lt;{sorted_bins[ind]}&#34;
+                return f&#34;{sorted_bins[ind - 1]}-{sorted_bins[ind]}&#34;
+            except IndexError:
+                return f&#34;{sorted_bins[sorted_bins.bisect(val) - 1]}≤&#34;
+
+        return _col_binner
+
+    def _transform(self, df, verbose):
+        inter_df = df
+        colnames = list(self._bin_map.keys())
+        if verbose:
+            colnames = tqdm.tqdm(colnames)
+        for colname in colnames:
+            if verbose:
+                colnames.set_description(colname)
+            source_col = df[colname]
+            loc = df.columns.get_loc(colname) + 1
+            new_name = colname + &#34;_bin&#34;
+            if self._drop:
+                inter_df = inter_df.drop(colname, axis=1)
+                new_name = colname
+                loc -= 1
+            inter_df = out_of_place_col_insert(
+                df=inter_df,
+                series=source_col.apply(
+                    self._get_col_binner(self._bin_map[colname])
+                ),
+                loc=loc,
+                column_name=new_name,
+            )
+        return inter_df
+
+
+class OneHotEncode(ColumnsBasedPipelineStage):
+    &#34;&#34;&#34;A pipeline stage that one-hot-encodes categorical columns.
+
+    By default only k-1 dummies are created fo k categorical levels, as to
+    avoid perfect multicollinearity between the dummy features (also called
+    the dummy variable trap). This is done since features are usually one-hot
+    encoded for use with linear models, which require this behaviour.
+
+    Parameters
+    ----------
+    columns : single label, list-like or callable, default None
+        Column labels in the DataFrame to be encoded. If columns is None then
+        all the columns with object or category dtype will be converted, except
+        those given in the exclude_columns parameter. Alternatively,
+        this parameter can be assigned a callable returning an iterable of
+        labels from an input pandas.DataFrame. See `pdpipe.cq`.
+    dummy_na : bool, default False
+        Add a column to indicate NaNs, if False NaNs are ignored.
+    exclude_columns : single label, list-like or callable, default None
+        Label or labels of columns to be excluded from encoding. If None then
+        no column is excluded. Alternatively, this parameter can be assigned a
+        callable returning an iterable of labels from an input
+        pandas.DataFrame. See `pdpipe.cq`. Optional.
+    drop_first : bool or single label, default True
+        Whether to get k-1 dummies out of k categorical levels by removing the
+        first level. If a non bool argument matching one of the categories is
+        provided, the dummy column corresponding to this value is dropped
+        instead of the first level; if it matches no category the first
+        category will still be dropped.
+    drop : bool, default True
+        If set to True, the source columns are dropped after being encoded.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[&#39;USA&#39;], [&#39;UK&#39;], [&#39;Greece&#39;]], [1,2,3], [&#39;Born&#39;])
+        &gt;&gt;&gt; pdp.OneHotEncode().apply(df)
+           Born_UK  Born_USA
+        1        0         1
+        2        1         0
+        3        0         0
+    &#34;&#34;&#34;
+
+    class _FitterEncoder(object):
+        def __init__(self, col_name, dummy_columns):
+            self.col_name = col_name
+            self.dummy_columns = dummy_columns
+
+        def __call__(self, value):
+            this_dummy = f&#34;{self.col_name}_{value}&#34;
+            return pd.Series(
+                data=[
+                    int(this_dummy == dummy_col)
+                    for dummy_col in self.dummy_columns
+                ],
+                index=self.dummy_columns,
+            )
+
+    def __init__(
+        self,
+        columns=None,
+        dummy_na=False,
+        exclude_columns=None,
+        drop_first=True,
+        drop=True,
+        **kwargs
+    ):
+        self._dummy_na = dummy_na
+        self._drop_first = drop_first
+        self._drop = drop
+        self._dummy_col_map = {}
+        self._encoder_map = {}
+        super_kwargs = {
+            &#39;columns&#39;: columns,
+            &#39;exclude_columns&#39;: exclude_columns,
+            &#39;desc_temp&#39;: &#34;One-hot encode {}&#34;,
+        }
+        super_kwargs.update(**kwargs)
+        super_kwargs[&#39;none_columns&#39;] = OfDtypes([&#39;object&#39;, &#39;category&#39;])
+        super().__init__(**super_kwargs)
+
+    def _transformation(self, df, verbose, fit):
+        raise NotImplementedError
+
+    def _fit_transform(self, df, verbose):
+        columns_to_encode = self._get_columns(df, fit=True)
+        assign_map = {}
+        if verbose:
+            columns_to_encode = tqdm.tqdm(columns_to_encode)
+        for colname in columns_to_encode:
+            if verbose:
+                columns_to_encode.set_description(colname)
+            dummies = pd.get_dummies(
+                df[colname],
+                drop_first=False,
+                dummy_na=self._dummy_na,
+                prefix=colname,
+                prefix_sep=&#34;_&#34;,
+            )
+            nan_col = colname + &#34;_nan&#34;
+            if self._drop_first:
+                dfirst_col = colname + &#34;_&#34; + str(self._drop_first)
+                if dfirst_col in dummies:
+                    if verbose:
+                        print(
+                            (
+                                &#34;Dropping {} dummy column instead of first &#34;
+                                &#34;column when one-hot encoding {}.&#34;
+                            ).format(dfirst_col, colname)
+                        )
+                    dummies.drop(dfirst_col, axis=1, inplace=True)
+                elif nan_col in dummies:
+                    dummies.drop(nan_col, axis=1, inplace=True)
+                else:
+                    dummies.drop(dummies.columns[0], axis=1, inplace=True)
+            self._dummy_col_map[colname] = list(dummies.columns)
+            self._encoder_map[colname] = OneHotEncode._FitterEncoder(
+                colname, list(dummies.columns)
+            )
+            for column in dummies:
+                assign_map[column] = dummies[column]
+
+        inter_df = df.assign(**assign_map)
+        self.is_fitted = True
+        if self._drop:
+            return inter_df.drop(columns_to_encode, axis=1)
+        return inter_df
+
+    def _transform(self, df, verbose):
+        assign_map = {}
+        columns_to_encode = self._get_columns(df, fit=False)
+        for colname in columns_to_encode:
+            col = df[colname]
+            try:
+                encoder = self._encoder_map[colname]
+            except KeyError:  # pragma: no cover
+                raise PipelineApplicationError((
+                    &#34;Missing encoder for column {} when applying a fitted &#34;
+                    &#34;OneHotEncode pipeline stage by class {} !&#34;)
+                    .format(colname, self.__class__))
+            res_cols = col.apply(encoder)
+            for res_col in res_cols:
+                assign_map[res_col] = res_cols[res_col]
+        inter_df = df.assign(**assign_map)
+        if self._drop:
+            return inter_df.drop(columns_to_encode, axis=1)
+        return inter_df
+
+
+class ColumnTransformer(ColumnsBasedPipelineStage):
+    &#34;&#34;&#34;A pipeline stage that applies transformation to dataframe columns.
+
+    Parameters
+    ----------
+    columns : single label, list-like or callable
+        Column labels in the DataFrame to be transformed. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See `pdpipe.cq`. If None is provided
+        all input columns are transformed.
+    result_columns : single label or list-like, default None
+        Labels for the new columns resulting from the transformations. Must
+        be of the same length as columns. If None, behavior depends on the
+        drop parameter: If drop is True, then the label of the source column is
+        used; otherwise, the provided &#39;suffix&#39; is concatenated to the label of
+        the source column.
+    drop : bool, default True
+        If set to True, source columns are dropped after being transformed.
+    suffix : str, default &#39;_transformed&#39;
+        The suffix transformed columns gain if no new column labels are given.
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        columns,
+        result_columns=None,
+        drop=True,
+        suffix=None,
+        **kwargs
+    ):
+        if suffix is None:  # pragma: no cover
+            suffix = &#34;_transformed&#34;
+        self.suffix = suffix
+        self._result_columns = result_columns
+        if result_columns:
+            self._result_columns = _interpret_columns_param(result_columns)
+            if len(self._result_columns) != len(
+                    _interpret_columns_param(columns)):
+                raise ValueError(
+                    &#34;columns and result_columns parameters must&#34;
+                    &#34; be label lists of the same length!&#34;
+                )
+        self._drop = drop
+        super_kwargs = {
+            &#39;columns&#39;: columns,
+            &#39;desc_temp&#39;: &#34;Transform columns {}&#34;,
+            &#39;none_columns&#39;: &#39;all&#39;,
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    @abc.abstractmethod
+    def _col_transform(self, series, label):
+        raise NotImplementedError
+
+    def _transformation(self, df, verbose, fit):
+        columns = self._get_columns(df, fit=fit)
+        result_columns = self._result_columns
+        if self._result_columns is None:
+            if self._drop:
+                result_columns = columns
+            else:
+                result_columns = [
+                    f&#39;{col}{self.suffix}&#39; for col in columns
+                ]
+        inter_df = df
+        for i, colname in enumerate(columns):
+            source_col = df[colname]
+            loc = df.columns.get_loc(colname) + 1
+            new_name = result_columns[i]
+            if self._drop:
+                inter_df = inter_df.drop(colname, axis=1)
+                loc -= 1
+            inter_df = out_of_place_col_insert(
+                df=inter_df,
+                series=self._col_transform(source_col, colname),
+                loc=loc,
+                column_name=new_name,
+            )
+        return inter_df
+
+
+class _AttrGetter():
+    &#34;&#34;&#34;A custom callable that gets a specific attribute from input objects.
+
+    Parameters
+    ----------
+    attr_name : str
+        The name of the attribute to get from input objects.
+    &#34;&#34;&#34;
+
+    def __init__(self, attr_name: str) -&gt; None:
+        self.attr_name = attr_name
+
+    def __call__(self, obj: object) -&gt; object:
+        return getattr(obj, self.attr_name)
+
+
+class _MethodRetValGetter():
+    &#34;&#34;&#34;A custom callable that gets the return value of a specified method with
+    specified keyword arguments from input objects.
+
+    Parameters
+    ----------
+    method_name : str
+        The name of the method to call for input objects.
+    method_kwargs : dict of str to object
+        The keyword arguments to supply to the specified method on each call.
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        method_name: str,
+        method_kwargs: Dict[str, object],
+    ) -&gt; None:
+        self.method_name = method_name
+        self.method_kwargs = method_kwargs
+
+    def __call__(self, obj: object) -&gt; object:
+        return getattr(obj, self.method_name)(**self.method_kwargs)
+
+
+class MapColVals(ColumnTransformer):
+    &#34;&#34;&#34;A pipeline stage that replaces the values of a column by a map.
+
+    Parameters
+    ----------
+    columns : single label, list-like or callable
+        Column labels in the DataFrame to be mapped. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See `pdpipe.cq`. If None is provided
+        all input columns are mapped.
+    value_map : dict, pandas.Series, callable, str or tuple
+        The value-to-value map to use, mapping existing values to new one. If a
+        dictionary is provided, its mapping is used. Values not in the
+        dictionary as keys will be converted to NaN. If a Series is given,
+        values are mapped by its index to its values. If a callable is given,
+        it is applied element-wise to given columns. If a string is given, it
+        is interpreted as the name of an attribute or a property of the series
+        values to use as target values. If a tuple is provided, its first
+        element is expected to be a string, interpreted as a name of a method
+        of the series values to call, and its second element is expected to be
+        a dict - possibly empty - mapping additional keyword arguments names
+        to their values.
+    result_columns : single label or list-like, default None
+        Labels for the new columns resulting from the mapping operation. Must
+        be of the same length as columns. If None, behavior depends on the
+        drop parameter: If drop is True, then the label of the source column is
+        used; otherwise, the label of the source column is used with the suffix
+        given (&#34;_map&#34; by default).
+    drop : bool, default True
+        If set to True, source columns are dropped after being mapped.
+    suffix : str, default &#39;_map&#39;
+        The suffix mapped columns gain if no new column labels are given.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[1], [3], [2]], [&#39;UK&#39;, &#39;USSR&#39;, &#39;US&#39;], [&#39;Medal&#39;])
+        &gt;&gt;&gt; value_map = {1: &#39;Gold&#39;, 2: &#39;Silver&#39;, 3: &#39;Bronze&#39;}
+        &gt;&gt;&gt; pdp.MapColVals(&#39;Medal&#39;, value_map).apply(df)
+               Medal
+        UK      Gold
+        USSR  Bronze
+        US    Silver
+
+        &gt;&gt;&gt; from datetime import timedelta;
+        &gt;&gt;&gt; df = pd.DataFrame(
+        ...    data=[
+        ...       [timedelta(weeks=2)],
+        ...       [timedelta(weeks=4)],
+        ...       [timedelta(weeks=10)]
+        ...    ],
+        ...    index=[&#39;proposal&#39;, &#39;midterm&#39;, &#39;finals&#39;],
+        ...    columns=[&#39;Due&#39;],
+        ... )
+        &gt;&gt;&gt; pdp.MapColVals(&#39;Due&#39;, (&#39;total_seconds&#39;, {})).apply(df)
+                        Due
+        proposal  1209600.0
+        midterm   2419200.0
+        finals    6048000.0
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        columns: ColumnsParamType,
+        value_map: Union[dict, pd.Series, Callable, str, Tuple[str, dict]],
+        result_columns: Optional[ColumnLabelsType] = None,
+        drop: Optional[bool] = True,
+        suffix: Optional[str] = None,
+        **kwargs: Dict[str, object],
+    ):
+        self._value_map = value_map
+        self._applied_value_map = value_map
+        if type(value_map) == str:
+            self._applied_value_map = _AttrGetter(attr_name=value_map)
+        elif type(value_map) == tuple:
+            self._applied_value_map = _MethodRetValGetter(
+                method_name=value_map[0],
+                method_kwargs=value_map[1],
+            )
+        if suffix is None:
+            suffix = &#34;_map&#34;
+        _, colstr = ColumnsBasedPipelineStage._interpret_columns_param(
+            columns)
+        super_kwargs = {
+            &#39;columns&#39;: columns,
+            &#39;result_columns&#39;: result_columns,
+            &#39;drop&#39;: drop,
+            &#39;suffix&#39;: suffix,
+            &#39;desc&#39;: f&#34;Map values of columns {colstr} with {self._value_map}.&#34;,
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _col_transform(self, series, label):
+        return series.map(self._applied_value_map)
+
+
+def _always_true(x):
+    return True
+
+
+class ApplyToRows(PdPipelineStage):
+    &#34;&#34;&#34;A pipeline stage generating columns by applying a function to each row.
+
+    Parameters
+    ----------
+    func : function
+        The function to be applied to each row of the processed DataFrame.
+    colname : single label, default None
+        The label of the new column resulting from the function application. If
+        None, &#39;new_col&#39; is used. Ignored if a DataFrame is generated by the
+        function (i.e. each row generates a Series rather than a value), in
+        which case the label of each column in the resulting DataFrame is used.
+    follow_column : str, default None
+        Resulting columns will be inserted after this column. If None, new
+        columns are inserted at the end of the processed DataFrame.
+    func_desc : str, default None
+        A function description of the given function; e.g. &#39;normalizing revenue
+        by company size&#39;. A default description is used if None is given.
+    prec : function, default None
+        A function taking a DataFrame, returning True if this stage is
+        applicable to the given DataFrame. If None is given, a function always
+        returning True is used.
+
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; data = [[3, 2143], [10, 1321], [7, 1255]]
+        &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#39;years&#39;, &#39;avg_revenue&#39;])
+        &gt;&gt;&gt; total_rev = lambda row: row[&#39;years&#39;] * row[&#39;avg_revenue&#39;]
+        &gt;&gt;&gt; add_total_rev = pdp.ApplyToRows(total_rev, &#39;total_revenue&#39;)
+        &gt;&gt;&gt; add_total_rev(df)
+           years  avg_revenue  total_revenue
+        1      3         2143           6429
+        2     10         1321          13210
+        3      7         1255           8785
+
+        &gt;&gt;&gt; def halfer(row):
+        ...     new = {&#39;year/2&#39;: row[&#39;years&#39;]/2, &#39;rev/2&#39;: row[&#39;avg_revenue&#39;]/2}
+        ...     return pd.Series(new)
+        &gt;&gt;&gt; half_cols = pdp.ApplyToRows(halfer, follow_column=&#39;years&#39;)
+        &gt;&gt;&gt; half_cols(df)
+           years   rev/2  year/2  avg_revenue
+        1      3  1071.5     1.5         2143
+        2     10   660.5     5.0         1321
+        3      7   627.5     3.5         1255
+    &#34;&#34;&#34;
+
+    _DEF_APPLYTOROWS_EXC_MSG = &#34;Applying a function {} failed.&#34;
+    _DEF_COLNAME = &#34;new_col&#34;
+
+    def __init__(
+        self,
+        func,
+        colname=None,
+        follow_column=None,
+        func_desc=None,
+        prec=None,
+        **kwargs
+    ):
+        if colname is None:
+            colname = ApplyToRows._DEF_COLNAME
+        if func_desc is None:
+            func_desc = &#34;&#34;
+        if prec is None:
+            prec = _always_true
+        self._func = func
+        self._colname = colname
+        self._follow_column = follow_column
+        self._func_desc = func_desc
+        self._prec_func = prec
+        super_kwargs = {
+            &#34;exmsg&#34;: ApplyToRows._DEF_APPLYTOROWS_EXC_MSG.format(func_desc),
+            &#34;desc&#34;: f&#34;Generating a column with a function {self._func_desc}.&#34;,
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        return self._prec_func(df)
+
+    def _transform(self, df, verbose):
+        new_cols = df.apply(self._func, axis=1)
+        if isinstance(new_cols, pd.Series):
+            loc = len(df.columns)
+            if self._follow_column:
+                loc = df.columns.get_loc(self._follow_column) + 1
+            return out_of_place_col_insert(
+                df=df, series=new_cols, loc=loc, column_name=self._colname
+            )
+        if isinstance(new_cols, pd.DataFrame):
+            sorted_cols = sorted(list(new_cols.columns))
+            new_cols = new_cols[sorted_cols]
+            if self._follow_column:
+                inter_df = df
+                loc = df.columns.get_loc(self._follow_column) + 1
+                for colname in new_cols.columns:
+                    inter_df = out_of_place_col_insert(
+                        df=inter_df,
+                        series=new_cols[colname],
+                        loc=loc,
+                        column_name=colname,
+                    )
+                    loc += 1
+                return inter_df
+            assign_map = {
+                colname: new_cols[colname] for colname in new_cols.columns
+            }
+            return df.assign(**assign_map)
+        raise TypeError(  # pragma: no cover
+            &#34;Unexpected type generated by applying a function to a DataFrame.&#34;
+            &#34; Only Series and DataFrame are allowed.&#34;
+        )
+
+
+class ApplyByCols(ColumnTransformer):
+    &#34;&#34;&#34;A pipeline stage applying an element-wise function to columns.
+    For applying series-wise function, see `AggByCols`.
+
+    Parameters
+    ----------
+    columns : single label, list-like or callable
+        Column labels in the DataFrame to be transformed. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See `pdpipe.cq`.
+    func : function
+        The function to be applied to each element of the given columns.
+    result_columns : str or list-like, default None
+        The names of the new columns resulting from the mapping operation. Must
+        be of the same length as columns. If None, behavior depends on the
+        drop parameter: If drop is True, the name of the source column is used;
+        otherwise, the name of the source column is used with the suffix
+        &#39;_app&#39;.
+    drop : bool, default True
+        If set to True, source columns are dropped after being mapped.
+    func_desc : str, default None
+        A function description of the given function; e.g. &#39;normalizing revenue
+        by company size&#39;. Optional.
+    suffix : str, default None
+        If provided, this string is concated to resulting column labels instead
+        of &#39;_app&#39;.
+
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import math;
+        &gt;&gt;&gt; data = [[3.2, &#34;acd&#34;], [7.2, &#34;alk&#34;], [12.1, &#34;alk&#34;]]
+        &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#34;ph&#34;,&#34;lbl&#34;])
+        &gt;&gt;&gt; round_ph = pdp.ApplyByCols(&#34;ph&#34;, math.ceil)
+        &gt;&gt;&gt; round_ph(df)
+           ph  lbl
+        1   4  acd
+        2   8  alk
+        3  13  alk
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        columns,
+        func,
+        result_columns=None,
+        drop=True,
+        func_desc=None,
+        suffix=None,
+        **kwargs
+    ):
+        self._func = func
+        if suffix is None:
+            suffix = &#34;_app&#34;
+        if func_desc is None:
+            func_desc = &#34;&#34;
+        self._func_desc = func_desc
+        super_kwargs = {
+            &#39;columns&#39;: columns,
+            &#39;result_columns&#39;: result_columns,
+            &#39;drop&#39;: drop,
+            &#39;suffix&#39;: suffix,
+            &#39;desc_temp&#39;: f&#39;Apply a function {func_desc} to columns {{}}&#39;,
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _col_transform(self, series, label):
+        return series.apply(self._func)
+
+
+class ColByFrameFunc(PdPipelineStage):
+    &#34;&#34;&#34;A pipeline stage adding a column by applying a dataframe-wide function.
+
+    Note that assigning `column` with the label of an existing column and
+    providing the same label to the `before_column` parameter will result in
+    replacing the original column at the same location.
+
+    Parameters
+    ----------
+    column : str
+        The label of the resulting column. If its the label of an existing
+        column it will replace that column.
+    func : function
+        The function to be applied to the input dataframe. The function should
+        return a pandas.Series object.
+    follow_column : str, default None
+        Resulting columns will be inserted after this column. If both this
+        parameter and `before_column` are None, new columns are inserted at the
+        end of the processed DataFrame.
+    before_column : str, default None
+        Resulting columns will be inserted before this column. If both this
+        parameter and `follow_colum` are None, new columns are inserted at the
+        end of the processed DataFrame. If both are provided, `before_column`
+        takes precedence.
+    func_desc : str, default None
+        A function description of the given function; e.g. &#39;normalizing revenue
+        by company size&#39;. A default description is used if None is given.
+
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; data = [[3, 3], [2, 4], [1, 5]]
+        &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#34;A&#34;,&#34;B&#34;])
+        &gt;&gt;&gt; func = lambda df: df[&#39;A&#39;] == df[&#39;B&#39;]
+        &gt;&gt;&gt; add_equal = pdp.ColByFrameFunc(&#34;A==B&#34;, func)
+        &gt;&gt;&gt; add_equal(df)
+           A  B   A==B
+        1  3  3   True
+        2  2  4  False
+        3  1  5  False
+    &#34;&#34;&#34;
+
+    _BASE_STR = &#34;Applying a function{} to generate column {}&#34;
+    _DEF_EXC_MSG_SUFFIX = &#34; failed.&#34;
+    _DEF_DESCRIPTION_SUFFIX = &#34;.&#34;
+
+    def __init__(
+        self, column, func, follow_column=None, before_column=None,
+        func_desc=None, **kwargs
+    ):
+        self._column = column
+        self._func = func
+        self._follow_column = follow_column
+        self._before_column = before_column
+        if func_desc is None:
+            func_desc = &#34;&#34;
+        else:
+            func_desc = &#34; &#34; + func_desc
+        self._func_desc = func_desc
+        base_str = ColByFrameFunc._BASE_STR.format(self._func_desc, column)
+        super_kwargs = {
+            &#34;exmsg&#34;: base_str + ColByFrameFunc._DEF_EXC_MSG_SUFFIX,
+            &#34;desc&#34;: base_str + ColByFrameFunc._DEF_DESCRIPTION_SUFFIX,
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        return True
+
+    def _transform(self, df, verbose):
+        inter_df = df
+        try:
+            new_col = self._func(df)
+        except Exception:
+            raise PipelineApplicationError(
+                f&#34;Exception raised applying function {self._func_desc} to &#34;
+                f&#34;dataframe by class {self.__class__}.&#34;
+            )
+        if self._follow_column:
+            loc = df.columns.get_loc(self._follow_column) + 1
+        elif self._before_column:
+            loc = df.columns.get_loc(self._before_column)
+        else:
+            loc = len(df.columns)
+        inter_df = out_of_place_col_insert(
+            df=inter_df, series=new_col, loc=loc, column_name=self._column
+        )
+        return inter_df
+
+
+class AggByCols(ColumnTransformer):
+    &#34;&#34;&#34;A pipeline stage applying a series-wise function to columns.
+    For applying element-wise function, see `ApplyByCols`.
+
+    Parameters
+    ----------
+    columns : single label, list-like or callable
+        Column labels in the DataFrame to be transformed. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See `pdpipe.cq`.
+    func : function
+        The function to be applied to each of the given columns. Must work when
+        given a pandas.Series object and return either a Scaler or
+        `pandas.Series``. If a Scaler is returned, the result is broadcasted
+        into a column of the original length.
+    result_columns : str or list-like, default None
+        The names of the new columns resulting from the mapping operation. Must
+        be of the same length as columns. If None, behavior depends on the
+        drop parameter: If drop is True, the name of the source column is used;
+        otherwise, the name of the source column is used with a defined suffix.
+    drop : bool, default True
+        If set to True, source columns are dropped after being mapped.
+    func_desc : str, default None
+        A function description of the given function; e.g. &#39;normalizing revenue
+        by company size&#39;. A default description is used if None is given.
+    suffix : str, optional
+        The suffix to add to resulting columns in case where results_columns
+        is None and drop is set to False. Of not given, defaults to &#39;_agg&#39;.
+
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import numpy as np;
+        &gt;&gt;&gt; data = [[3.2, &#34;acd&#34;], [7.2, &#34;alk&#34;], [12.1, &#34;alk&#34;]]
+        &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#34;ph&#34;,&#34;lbl&#34;])
+        &gt;&gt;&gt; log_ph = pdp.AggByCols(&#34;ph&#34;, np.log)
+        &gt;&gt;&gt; log_ph(df)
+                 ph  lbl
+        1  1.163151  acd
+        2  1.974081  alk
+        3  2.493205  alk
+
+        &gt;&gt;&gt; min_ph = pdp.AggByCols(&#34;ph&#34;, min, drop=False, suffix=&#39;_min&#39;)
+        &gt;&gt;&gt; min_ph(df)
+             ph  ph_min  lbl
+        1   3.2     3.2  acd
+        2   7.2     3.2  alk
+        3  12.1     3.2  alk
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        columns,
+        func,
+        result_columns=None,
+        drop=True,
+        func_desc=None,
+        suffix=None,
+        **kwargs
+    ):
+        self._func = func
+        if suffix is None:
+            suffix = &#34;_agg&#34;
+        if func_desc is None:
+            func_desc = &#34;&#34;
+        self._func_desc = func_desc
+        super_kwargs = {
+            &#39;columns&#39;: columns,
+            &#39;result_columns&#39;: result_columns,
+            &#39;drop&#39;: drop,
+            &#39;suffix&#39;: suffix,
+            &#39;desc_temp&#39;: (
+                f&#39;Apply an aggregation function {func_desc} to columns {{}}&#39;
+            ),
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _col_transform(self, series, label):
+        return series.agg(self._func)
+
+
+class Log(ColumnsBasedPipelineStage):
+    &#34;&#34;&#34;A pipeline stage that log-transforms numeric data.
+
+    Parameters
+    ----------
+    columns : single label, list-like or callable, default None
+        Column names in the DataFrame to be encoded. If columns is None then
+        all the columns with a numeric dtype will be transformed, except those
+        given in the exclude_columns parameter. Alternatively,
+        this parameter can be assigned a callable returning an iterable of
+        labels from an input pandas.DataFrame. See `pdpipe.cq`.
+    exclude_columns : single label, list-like or callable, default None
+        Label or labels of columns to be excluded from encoding. If None then
+        no column is excluded. Alternatively, this parameter can be assigned a
+        callable returning an iterable of labels from an input
+        pandas.DataFrame. See `pdpipe.cq`. Optional.
+    drop : bool, default False
+        If set to True, the source columns are dropped after being encoded,
+        and the resulting encoded columns retain the names of the source
+        columns. Otherwise, encoded columns gain the suffix &#39;_log&#39;.
+    non_neg : bool, default False
+        If True, each transformed column is first shifted by the smallest
+        negative value it includes (non-negative columns are thus not shifted).
+    const_shift : int, optional
+        If given, each transformed column is first shifted by this constant. If
+        non_neg is True then that transformation is applied first, and only
+        then is the column shifted by this constant.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; data = [[3.2, &#34;acd&#34;], [7.2, &#34;alk&#34;], [12.1, &#34;alk&#34;]]
+        &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#34;ph&#34;,&#34;lbl&#34;])
+        &gt;&gt;&gt; log_stage = pdp.Log(&#34;ph&#34;, drop=True)
+        &gt;&gt;&gt; log_stage(df)
+                 ph  lbl
+        1  1.163151  acd
+        2  1.974081  alk
+        3  2.493205  alk
+    &#34;&#34;&#34;
+
+    _DEF_LOG_APP_MSG = &#34;Log-transforming {}...&#34;
+
+    def __init__(
+        self,
+        columns=None,
+        exclude_columns=None,
+        drop=False,
+        non_neg=False,
+        const_shift=None,
+        **kwargs
+    ):
+        self._drop = drop
+        self._non_neg = non_neg
+        self._const_shift = const_shift
+        self._col_to_minval = {}
+        super_kwargs = {
+            &#39;columns&#39;: columns,
+            &#39;exclude_columns&#39;: exclude_columns,
+            &#39;desc_temp&#39;: &#34;Log-transform {}&#34;,
+        }
+        super_kwargs.update(**kwargs)
+        super_kwargs[&#39;none_columns&#39;] = OfDtypes([np.number])
+        super().__init__(**super_kwargs)
+
+    def _transformation(self, df, verbose, fit):
+        raise NotImplementedError
+
+    def _fit_transform(self, df, verbose):
+        columns_to_transform = self._get_columns(df, fit=True)
+        if verbose:
+            columns_to_transform = tqdm.tqdm(columns_to_transform)
+        inter_df = df
+        for colname in columns_to_transform:
+            source_col = df[colname]
+            loc = df.columns.get_loc(colname) + 1
+            new_name = colname + &#34;_log&#34;
+            if self._drop:
+                inter_df = inter_df.drop(colname, axis=1)
+                new_name = colname
+                loc -= 1
+            new_col = source_col
+            if self._non_neg:
+                minval = min(new_col)
+                if minval &lt; 0:
+                    new_col = new_col + abs(minval)
+                    self._col_to_minval[colname] = abs(minval)
+                else:
+                    self._col_to_minval[colname] = 0
+            # must check not None as neg numbers eval to False
+            if self._const_shift is not None:
+                new_col = new_col + self._const_shift
+            new_col = np.log(new_col)
+            inter_df = out_of_place_col_insert(
+                df=inter_df, series=new_col, loc=loc, column_name=new_name
+            )
+        self.is_fitted = True
+        return inter_df
+
+    def _transform(self, df, verbose):
+        inter_df = df
+        columns_to_transform = self._get_columns(df, fit=False)
+        if verbose:
+            columns_to_transform = tqdm.tqdm(columns_to_transform)
+        for colname in columns_to_transform:
+            try:
+                source_col = df[colname]
+            except KeyError:  # pragma: no cover
+                raise PipelineApplicationError((
+                    &#34;Missig column {} when applying a fitted &#34;
+                    &#34;Log pipeline stage by class {} !&#34;).format(
+                        colname, self.__class__))
+            loc = df.columns.get_loc(colname) + 1
+            new_name = colname + &#34;_log&#34;
+            if self._drop:
+                inter_df = inter_df.drop(colname, axis=1)
+                new_name = colname
+                loc -= 1
+            new_col = source_col
+            if self._non_neg:
+                if colname in self._col_to_minval:
+                    absminval = self._col_to_minval[colname]
+                    new_col = new_col + absminval
+                else:  # pragma: no cover
+                    raise PipelineApplicationError((
+                        &#34;Missig fitted parameter for column {} when applying a&#34;
+                        &#34; fitted Log pipeline stage by class {}!&#34;).format(
+                            colname, self.__class__))
+            # must check not None as neg numbers eval to False
+            if self._const_shift is not None:
+                new_col = new_col + self._const_shift
+            new_col = np.log(new_col)
+            inter_df = out_of_place_col_insert(
+                df=inter_df, series=new_col, loc=loc, column_name=new_name
+            )
+        return inter_df</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pdpipe.col_generation.AggByCols"><code class="flex name class">
+<span>class <span class="ident">AggByCols</span></span>
+<span>(</span><span>columns, func, result_columns=None, drop=True, func_desc=None, suffix=None, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A pipeline stage applying a series-wise function to columns.
+For applying element-wise function, see <code><a title="pdpipe.col_generation.ApplyByCols" href="#pdpipe.col_generation.ApplyByCols">ApplyByCols</a></code>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code></dt>
+<dd>Column labels in the DataFrame to be transformed. Alternatively, this
+parameter can be assigned a callable returning an iterable of labels
+from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
+<dt><strong><code>func</code></strong> :&ensp;<code>function</code></dt>
+<dd>The function to be applied to each of the given columns. Must work when
+given a pandas.Series object and return either a Scaler or
+`pandas.Series``. If a Scaler is returned, the result is broadcasted
+into a column of the original length.</dd>
+<dt><strong><code>result_columns</code></strong> :&ensp;<code>str</code> or <code>list-like</code>, default <code>None</code></dt>
+<dd>The names of the new columns resulting from the mapping operation. Must
+be of the same length as columns. If None, behavior depends on the
+drop parameter: If drop is True, the name of the source column is used;
+otherwise, the name of the source column is used with a defined suffix.</dd>
+<dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
+<dd>If set to True, source columns are dropped after being mapped.</dd>
+<dt><strong><code>func_desc</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
+<dd>A function description of the given function; e.g. 'normalizing revenue
+by company size'. A default description is used if None is given.</dd>
+<dt><strong><code>suffix</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>The suffix to add to resulting columns in case where results_columns
+is None and drop is set to False. Of not given, defaults to '_agg'.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import numpy as np;
+&gt;&gt;&gt; data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
+&gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
+&gt;&gt;&gt; log_ph = pdp.AggByCols("ph", np.log)
+&gt;&gt;&gt; log_ph(df)
+         ph  lbl
+1  1.163151  acd
+2  1.974081  alk
+3  2.493205  alk
+
+&gt;&gt;&gt; min_ph = pdp.AggByCols("ph", min, drop=False, suffix='_min')
+&gt;&gt;&gt; min_ph(df)
+     ph  ph_min  lbl
+1   3.2     3.2  acd
+2   7.2     3.2  alk
+3  12.1     3.2  alk
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AggByCols(ColumnTransformer):
+    &#34;&#34;&#34;A pipeline stage applying a series-wise function to columns.
+    For applying element-wise function, see `ApplyByCols`.
+
+    Parameters
+    ----------
+    columns : single label, list-like or callable
+        Column labels in the DataFrame to be transformed. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See `pdpipe.cq`.
+    func : function
+        The function to be applied to each of the given columns. Must work when
+        given a pandas.Series object and return either a Scaler or
+        `pandas.Series``. If a Scaler is returned, the result is broadcasted
+        into a column of the original length.
+    result_columns : str or list-like, default None
+        The names of the new columns resulting from the mapping operation. Must
+        be of the same length as columns. If None, behavior depends on the
+        drop parameter: If drop is True, the name of the source column is used;
+        otherwise, the name of the source column is used with a defined suffix.
+    drop : bool, default True
+        If set to True, source columns are dropped after being mapped.
+    func_desc : str, default None
+        A function description of the given function; e.g. &#39;normalizing revenue
+        by company size&#39;. A default description is used if None is given.
+    suffix : str, optional
+        The suffix to add to resulting columns in case where results_columns
+        is None and drop is set to False. Of not given, defaults to &#39;_agg&#39;.
+
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import numpy as np;
+        &gt;&gt;&gt; data = [[3.2, &#34;acd&#34;], [7.2, &#34;alk&#34;], [12.1, &#34;alk&#34;]]
+        &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#34;ph&#34;,&#34;lbl&#34;])
+        &gt;&gt;&gt; log_ph = pdp.AggByCols(&#34;ph&#34;, np.log)
+        &gt;&gt;&gt; log_ph(df)
+                 ph  lbl
+        1  1.163151  acd
+        2  1.974081  alk
+        3  2.493205  alk
+
+        &gt;&gt;&gt; min_ph = pdp.AggByCols(&#34;ph&#34;, min, drop=False, suffix=&#39;_min&#39;)
+        &gt;&gt;&gt; min_ph(df)
+             ph  ph_min  lbl
+        1   3.2     3.2  acd
+        2   7.2     3.2  alk
+        3  12.1     3.2  alk
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        columns,
+        func,
+        result_columns=None,
+        drop=True,
+        func_desc=None,
+        suffix=None,
+        **kwargs
+    ):
+        self._func = func
+        if suffix is None:
+            suffix = &#34;_agg&#34;
+        if func_desc is None:
+            func_desc = &#34;&#34;
+        self._func_desc = func_desc
+        super_kwargs = {
+            &#39;columns&#39;: columns,
+            &#39;result_columns&#39;: result_columns,
+            &#39;drop&#39;: drop,
+            &#39;suffix&#39;: suffix,
+            &#39;desc_temp&#39;: (
+                f&#39;Apply an aggregation function {func_desc} to columns {{}}&#39;
+            ),
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _col_transform(self, series, label):
+        return series.agg(self._func)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pdpipe.col_generation.ColumnTransformer" href="#pdpipe.col_generation.ColumnTransformer">ColumnTransformer</a></li>
+<li><a title="pdpipe.core.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></li>
+<li><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pdpipe.col_generation.ColumnTransformer" href="#pdpipe.col_generation.ColumnTransformer">ColumnTransformer</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.AdHocStage" href="core.html#pdpipe.core.PdPipelineStage.AdHocStage">AdHocStage</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.AggByCols" href="core.html#pdpipe.core.PdPipelineStage.AggByCols">AggByCols</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ApplyByCols" href="core.html#pdpipe.core.PdPipelineStage.ApplyByCols">ApplyByCols</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ApplyToRows" href="core.html#pdpipe.core.PdPipelineStage.ApplyToRows">ApplyToRows</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.Bin" href="core.html#pdpipe.core.PdPipelineStage.Bin">Bin</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ColByFrameFunc" href="core.html#pdpipe.core.PdPipelineStage.ColByFrameFunc">ColByFrameFunc</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ColDrop" href="core.html#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ColRename" href="core.html#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ColReorder" href="core.html#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.DropTokensByLength" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.DropTokensByList" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.Encode" href="core.html#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.FitOnly" href="core.html#pdpipe.core.PdPipelineStage.FitOnly">FitOnly</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.FreqDrop" href="core.html#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.Log" href="core.html#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.MapColVals" href="core.html#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.OneHotEncode" href="core.html#pdpipe.core.PdPipelineStage.OneHotEncode">OneHotEncode</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.PdPipeline" href="core.html#pdpipe.core.PdPipelineStage.PdPipeline">PdPipeline</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.RegexReplace" href="core.html#pdpipe.core.PdPipelineStage.RegexReplace">RegexReplace</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.RemoveStopwords" href="core.html#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.RowDrop" href="core.html#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.Scale" href="core.html#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.Schematize" href="core.html#pdpipe.core.PdPipelineStage.Schematize">Schematize</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.SetIndex" href="core.html#pdpipe.core.PdPipelineStage.SetIndex">SetIndex</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.SnowballStem" href="core.html#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.TfidfVectorizeTokenLists" href="core.html#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.TokenizeText" href="core.html#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.UntokenizeText" href="core.html#pdpipe.core.PdPipelineStage.UntokenizeText">UntokenizeText</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ValDrop" href="core.html#pdpipe.core.PdPipelineStage.ValDrop">ValDrop</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ValKeep" href="core.html#pdpipe.core.PdPipelineStage.ValKeep">ValKeep</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.apply" href="core.html#pdpipe.core.PdPipelineStage.apply">apply</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.description" href="core.html#pdpipe.core.PdPipelineStage.description">description</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.fit" href="core.html#pdpipe.core.PdPipelineStage.fit">fit</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.fit_transform" href="core.html#pdpipe.core.PdPipelineStage.fit_transform">fit_transform</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.transform" href="core.html#pdpipe.core.PdPipelineStage.transform">transform</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pdpipe.col_generation.ApplyByCols"><code class="flex name class">
+<span>class <span class="ident">ApplyByCols</span></span>
+<span>(</span><span>columns, func, result_columns=None, drop=True, func_desc=None, suffix=None, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A pipeline stage applying an element-wise function to columns.
+For applying series-wise function, see <code><a title="pdpipe.col_generation.AggByCols" href="#pdpipe.col_generation.AggByCols">AggByCols</a></code>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code></dt>
+<dd>Column labels in the DataFrame to be transformed. Alternatively, this
+parameter can be assigned a callable returning an iterable of labels
+from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
+<dt><strong><code>func</code></strong> :&ensp;<code>function</code></dt>
+<dd>The function to be applied to each element of the given columns.</dd>
+<dt><strong><code>result_columns</code></strong> :&ensp;<code>str</code> or <code>list-like</code>, default <code>None</code></dt>
+<dd>The names of the new columns resulting from the mapping operation. Must
+be of the same length as columns. If None, behavior depends on the
+drop parameter: If drop is True, the name of the source column is used;
+otherwise, the name of the source column is used with the suffix
+'_app'.</dd>
+<dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
+<dd>If set to True, source columns are dropped after being mapped.</dd>
+<dt><strong><code>func_desc</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
+<dd>A function description of the given function; e.g. 'normalizing revenue
+by company size'. Optional.</dd>
+<dt><strong><code>suffix</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
+<dd>If provided, this string is concated to resulting column labels instead
+of '_app'.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import math;
+&gt;&gt;&gt; data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
+&gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
+&gt;&gt;&gt; round_ph = pdp.ApplyByCols("ph", math.ceil)
+&gt;&gt;&gt; round_ph(df)
+   ph  lbl
+1   4  acd
+2   8  alk
+3  13  alk
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ApplyByCols(ColumnTransformer):
+    &#34;&#34;&#34;A pipeline stage applying an element-wise function to columns.
+    For applying series-wise function, see `AggByCols`.
+
+    Parameters
+    ----------
+    columns : single label, list-like or callable
+        Column labels in the DataFrame to be transformed. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See `pdpipe.cq`.
+    func : function
+        The function to be applied to each element of the given columns.
+    result_columns : str or list-like, default None
+        The names of the new columns resulting from the mapping operation. Must
+        be of the same length as columns. If None, behavior depends on the
+        drop parameter: If drop is True, the name of the source column is used;
+        otherwise, the name of the source column is used with the suffix
+        &#39;_app&#39;.
+    drop : bool, default True
+        If set to True, source columns are dropped after being mapped.
+    func_desc : str, default None
+        A function description of the given function; e.g. &#39;normalizing revenue
+        by company size&#39;. Optional.
+    suffix : str, default None
+        If provided, this string is concated to resulting column labels instead
+        of &#39;_app&#39;.
+
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp; import math;
+        &gt;&gt;&gt; data = [[3.2, &#34;acd&#34;], [7.2, &#34;alk&#34;], [12.1, &#34;alk&#34;]]
+        &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#34;ph&#34;,&#34;lbl&#34;])
+        &gt;&gt;&gt; round_ph = pdp.ApplyByCols(&#34;ph&#34;, math.ceil)
+        &gt;&gt;&gt; round_ph(df)
+           ph  lbl
+        1   4  acd
+        2   8  alk
+        3  13  alk
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        columns,
+        func,
+        result_columns=None,
+        drop=True,
+        func_desc=None,
+        suffix=None,
+        **kwargs
+    ):
+        self._func = func
+        if suffix is None:
+            suffix = &#34;_app&#34;
+        if func_desc is None:
+            func_desc = &#34;&#34;
+        self._func_desc = func_desc
+        super_kwargs = {
+            &#39;columns&#39;: columns,
+            &#39;result_columns&#39;: result_columns,
+            &#39;drop&#39;: drop,
+            &#39;suffix&#39;: suffix,
+            &#39;desc_temp&#39;: f&#39;Apply a function {func_desc} to columns {{}}&#39;,
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _col_transform(self, series, label):
+        return series.apply(self._func)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pdpipe.col_generation.ColumnTransformer" href="#pdpipe.col_generation.ColumnTransformer">ColumnTransformer</a></li>
+<li><a title="pdpipe.core.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></li>
+<li><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="pdpipe.text_stages.DropTokensByLength" href="text_stages.html#pdpipe.text_stages.DropTokensByLength">DropTokensByLength</a></li>
+<li><a title="pdpipe.text_stages.DropTokensByList" href="text_stages.html#pdpipe.text_stages.DropTokensByList">DropTokensByList</a></li>
+<li><a title="pdpipe.text_stages.RegexReplace" href="text_stages.html#pdpipe.text_stages.RegexReplace">RegexReplace</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pdpipe.col_generation.ColumnTransformer" href="#pdpipe.col_generation.ColumnTransformer">ColumnTransformer</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.AdHocStage" href="core.html#pdpipe.core.PdPipelineStage.AdHocStage">AdHocStage</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.AggByCols" href="core.html#pdpipe.core.PdPipelineStage.AggByCols">AggByCols</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ApplyByCols" href="core.html#pdpipe.core.PdPipelineStage.ApplyByCols">ApplyByCols</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ApplyToRows" href="core.html#pdpipe.core.PdPipelineStage.ApplyToRows">ApplyToRows</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.Bin" href="core.html#pdpipe.core.PdPipelineStage.Bin">Bin</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ColByFrameFunc" href="core.html#pdpipe.core.PdPipelineStage.ColByFrameFunc">ColByFrameFunc</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ColDrop" href="core.html#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ColRename" href="core.html#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ColReorder" href="core.html#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.DropTokensByLength" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.DropTokensByList" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.Encode" href="core.html#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.FitOnly" href="core.html#pdpipe.core.PdPipelineStage.FitOnly">FitOnly</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.FreqDrop" href="core.html#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.Log" href="core.html#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.MapColVals" href="core.html#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.OneHotEncode" href="core.html#pdpipe.core.PdPipelineStage.OneHotEncode">OneHotEncode</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.PdPipeline" href="core.html#pdpipe.core.PdPipelineStage.PdPipeline">PdPipeline</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.RegexReplace" href="core.html#pdpipe.core.PdPipelineStage.RegexReplace">RegexReplace</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.RemoveStopwords" href="core.html#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.RowDrop" href="core.html#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.Scale" href="core.html#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.Schematize" href="core.html#pdpipe.core.PdPipelineStage.Schematize">Schematize</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.SetIndex" href="core.html#pdpipe.core.PdPipelineStage.SetIndex">SetIndex</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.SnowballStem" href="core.html#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.TfidfVectorizeTokenLists" href="core.html#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.TokenizeText" href="core.html#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.UntokenizeText" href="core.html#pdpipe.core.PdPipelineStage.UntokenizeText">UntokenizeText</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ValDrop" href="core.html#pdpipe.core.PdPipelineStage.ValDrop">ValDrop</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ValKeep" href="core.html#pdpipe.core.PdPipelineStage.ValKeep">ValKeep</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.apply" href="core.html#pdpipe.core.PdPipelineStage.apply">apply</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.description" href="core.html#pdpipe.core.PdPipelineStage.description">description</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.fit" href="core.html#pdpipe.core.PdPipelineStage.fit">fit</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.fit_transform" href="core.html#pdpipe.core.PdPipelineStage.fit_transform">fit_transform</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.transform" href="core.html#pdpipe.core.PdPipelineStage.transform">transform</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pdpipe.col_generation.ApplyToRows"><code class="flex name class">
+<span>class <span class="ident">ApplyToRows</span></span>
+<span>(</span><span>func, colname=None, follow_column=None, func_desc=None, prec=None, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A pipeline stage generating columns by applying a function to each row.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>func</code></strong> :&ensp;<code>function</code></dt>
+<dd>The function to be applied to each row of the processed DataFrame.</dd>
+<dt><strong><code>colname</code></strong> :&ensp;<code>single label</code>, default <code>None</code></dt>
+<dd>The label of the new column resulting from the function application. If
+None, 'new_col' is used. Ignored if a DataFrame is generated by the
+function (i.e. each row generates a Series rather than a value), in
+which case the label of each column in the resulting DataFrame is used.</dd>
+<dt><strong><code>follow_column</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
+<dd>Resulting columns will be inserted after this column. If None, new
+columns are inserted at the end of the processed DataFrame.</dd>
+<dt><strong><code>func_desc</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
+<dd>A function description of the given function; e.g. 'normalizing revenue
+by company size'. A default description is used if None is given.</dd>
+<dt><strong><code>prec</code></strong> :&ensp;<code>function</code>, default <code>None</code></dt>
+<dd>A function taking a DataFrame, returning True if this stage is
+applicable to the given DataFrame. If None is given, a function always
+returning True is used.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; data = [[3, 2143], [10, 1321], [7, 1255]]
+&gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], ['years', 'avg_revenue'])
+&gt;&gt;&gt; total_rev = lambda row: row['years'] * row['avg_revenue']
+&gt;&gt;&gt; add_total_rev = pdp.ApplyToRows(total_rev, 'total_revenue')
+&gt;&gt;&gt; add_total_rev(df)
+   years  avg_revenue  total_revenue
+1      3         2143           6429
+2     10         1321          13210
+3      7         1255           8785
+
+&gt;&gt;&gt; def halfer(row):
+...     new = {'year/2': row['years']/2, 'rev/2': row['avg_revenue']/2}
+...     return pd.Series(new)
+&gt;&gt;&gt; half_cols = pdp.ApplyToRows(halfer, follow_column='years')
+&gt;&gt;&gt; half_cols(df)
+   years   rev/2  year/2  avg_revenue
+1      3  1071.5     1.5         2143
+2     10   660.5     5.0         1321
+3      7   627.5     3.5         1255
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ApplyToRows(PdPipelineStage):
+    &#34;&#34;&#34;A pipeline stage generating columns by applying a function to each row.
+
+    Parameters
+    ----------
+    func : function
+        The function to be applied to each row of the processed DataFrame.
+    colname : single label, default None
+        The label of the new column resulting from the function application. If
+        None, &#39;new_col&#39; is used. Ignored if a DataFrame is generated by the
+        function (i.e. each row generates a Series rather than a value), in
+        which case the label of each column in the resulting DataFrame is used.
+    follow_column : str, default None
+        Resulting columns will be inserted after this column. If None, new
+        columns are inserted at the end of the processed DataFrame.
+    func_desc : str, default None
+        A function description of the given function; e.g. &#39;normalizing revenue
+        by company size&#39;. A default description is used if None is given.
+    prec : function, default None
+        A function taking a DataFrame, returning True if this stage is
+        applicable to the given DataFrame. If None is given, a function always
+        returning True is used.
+
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; data = [[3, 2143], [10, 1321], [7, 1255]]
+        &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#39;years&#39;, &#39;avg_revenue&#39;])
+        &gt;&gt;&gt; total_rev = lambda row: row[&#39;years&#39;] * row[&#39;avg_revenue&#39;]
+        &gt;&gt;&gt; add_total_rev = pdp.ApplyToRows(total_rev, &#39;total_revenue&#39;)
+        &gt;&gt;&gt; add_total_rev(df)
+           years  avg_revenue  total_revenue
+        1      3         2143           6429
+        2     10         1321          13210
+        3      7         1255           8785
+
+        &gt;&gt;&gt; def halfer(row):
+        ...     new = {&#39;year/2&#39;: row[&#39;years&#39;]/2, &#39;rev/2&#39;: row[&#39;avg_revenue&#39;]/2}
+        ...     return pd.Series(new)
+        &gt;&gt;&gt; half_cols = pdp.ApplyToRows(halfer, follow_column=&#39;years&#39;)
+        &gt;&gt;&gt; half_cols(df)
+           years   rev/2  year/2  avg_revenue
+        1      3  1071.5     1.5         2143
+        2     10   660.5     5.0         1321
+        3      7   627.5     3.5         1255
+    &#34;&#34;&#34;
+
+    _DEF_APPLYTOROWS_EXC_MSG = &#34;Applying a function {} failed.&#34;
+    _DEF_COLNAME = &#34;new_col&#34;
+
+    def __init__(
+        self,
+        func,
+        colname=None,
+        follow_column=None,
+        func_desc=None,
+        prec=None,
+        **kwargs
+    ):
+        if colname is None:
+            colname = ApplyToRows._DEF_COLNAME
+        if func_desc is None:
+            func_desc = &#34;&#34;
+        if prec is None:
+            prec = _always_true
+        self._func = func
+        self._colname = colname
+        self._follow_column = follow_column
+        self._func_desc = func_desc
+        self._prec_func = prec
+        super_kwargs = {
+            &#34;exmsg&#34;: ApplyToRows._DEF_APPLYTOROWS_EXC_MSG.format(func_desc),
+            &#34;desc&#34;: f&#34;Generating a column with a function {self._func_desc}.&#34;,
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        return self._prec_func(df)
+
+    def _transform(self, df, verbose):
+        new_cols = df.apply(self._func, axis=1)
+        if isinstance(new_cols, pd.Series):
+            loc = len(df.columns)
+            if self._follow_column:
+                loc = df.columns.get_loc(self._follow_column) + 1
+            return out_of_place_col_insert(
+                df=df, series=new_cols, loc=loc, column_name=self._colname
+            )
+        if isinstance(new_cols, pd.DataFrame):
+            sorted_cols = sorted(list(new_cols.columns))
+            new_cols = new_cols[sorted_cols]
+            if self._follow_column:
+                inter_df = df
+                loc = df.columns.get_loc(self._follow_column) + 1
+                for colname in new_cols.columns:
+                    inter_df = out_of_place_col_insert(
+                        df=inter_df,
+                        series=new_cols[colname],
+                        loc=loc,
+                        column_name=colname,
+                    )
+                    loc += 1
+                return inter_df
+            assign_map = {
+                colname: new_cols[colname] for colname in new_cols.columns
+            }
+            return df.assign(**assign_map)
+        raise TypeError(  # pragma: no cover
+            &#34;Unexpected type generated by applying a function to a DataFrame.&#34;
+            &#34; Only Series and DataFrame are allowed.&#34;
+        )</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pdpipe.core.PdPipelineStage.AdHocStage" href="core.html#pdpipe.core.PdPipelineStage.AdHocStage">AdHocStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.AggByCols" href="core.html#pdpipe.core.PdPipelineStage.AggByCols">AggByCols</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ApplyByCols" href="core.html#pdpipe.core.PdPipelineStage.ApplyByCols">ApplyByCols</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ApplyToRows" href="core.html#pdpipe.core.PdPipelineStage.ApplyToRows">ApplyToRows</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Bin" href="core.html#pdpipe.core.PdPipelineStage.Bin">Bin</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColByFrameFunc" href="core.html#pdpipe.core.PdPipelineStage.ColByFrameFunc">ColByFrameFunc</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColDrop" href="core.html#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColRename" href="core.html#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColReorder" href="core.html#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByLength" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByList" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Encode" href="core.html#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.FitOnly" href="core.html#pdpipe.core.PdPipelineStage.FitOnly">FitOnly</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.FreqDrop" href="core.html#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Log" href="core.html#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.MapColVals" href="core.html#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.OneHotEncode" href="core.html#pdpipe.core.PdPipelineStage.OneHotEncode">OneHotEncode</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.PdPipeline" href="core.html#pdpipe.core.PdPipelineStage.PdPipeline">PdPipeline</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RegexReplace" href="core.html#pdpipe.core.PdPipelineStage.RegexReplace">RegexReplace</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RemoveStopwords" href="core.html#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RowDrop" href="core.html#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Scale" href="core.html#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Schematize" href="core.html#pdpipe.core.PdPipelineStage.Schematize">Schematize</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.SetIndex" href="core.html#pdpipe.core.PdPipelineStage.SetIndex">SetIndex</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.SnowballStem" href="core.html#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists" href="core.html#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.TokenizeText" href="core.html#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.UntokenizeText" href="core.html#pdpipe.core.PdPipelineStage.UntokenizeText">UntokenizeText</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ValDrop" href="core.html#pdpipe.core.PdPipelineStage.ValDrop">ValDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ValKeep" href="core.html#pdpipe.core.PdPipelineStage.ValKeep">ValKeep</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.apply" href="core.html#pdpipe.core.PdPipelineStage.apply">apply</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.description" href="core.html#pdpipe.core.PdPipelineStage.description">description</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.fit" href="core.html#pdpipe.core.PdPipelineStage.fit">fit</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.fit_transform" href="core.html#pdpipe.core.PdPipelineStage.fit_transform">fit_transform</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.transform" href="core.html#pdpipe.core.PdPipelineStage.transform">transform</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pdpipe.col_generation.Bin"><code class="flex name class">
+<span>class <span class="ident">Bin</span></span>
+<span>(</span><span>bin_map, drop=True, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A pipeline stage that adds a binned version of a column or columns.</p>
+<p>If drop is set to True, the new columns retain the names of the source
+columns; otherwise, the resulting column gain the suffix '_bin'</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>bin_map</code></strong> :&ensp;<code>dict</code></dt>
+<dd>Maps column labels to bin arrays. The bin array is interpreted as
+containing start points of consecutive bins, except for the final
+point, assumed to be the end point of the last bin. Additionally, a
+bin array implicitly projects a left-most bin containing all elements
+smaller than the left-most end point and a right-most bin containing
+all elements larger that the right-most end point. For example, the
+list [0, 5, 8] is interpreted as the bins (-∞, 0), [0-5), [5-8) and
+[8, ∞).</dd>
+<dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
+<dd>If set to True, the source columns are dropped after being binned.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame([[-3],[4],[5],[9]], [1,2,3,4], ['speed'])
+&gt;&gt;&gt; pdp.Bin({'speed': [5]}, drop=False).apply(df)
+   speed speed_bin
+1     -3        &lt;5
+2      4        &lt;5
+3      5        5≤
+4      9        5≤
+&gt;&gt;&gt; pdp.Bin({'speed': [0,5,8]}, drop=False).apply(df)
+   speed speed_bin
+1     -3        &lt;0
+2      4       0-5
+3      5       5-8
+4      9        8≤
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Bin(PdPipelineStage):
+    &#34;&#34;&#34;A pipeline stage that adds a binned version of a column or columns.
+
+    If drop is set to True, the new columns retain the names of the source
+    columns; otherwise, the resulting column gain the suffix &#39;_bin&#39;
+
+    Parameters
+    ----------
+    bin_map : dict
+        Maps column labels to bin arrays. The bin array is interpreted as
+        containing start points of consecutive bins, except for the final
+        point, assumed to be the end point of the last bin. Additionally, a
+        bin array implicitly projects a left-most bin containing all elements
+        smaller than the left-most end point and a right-most bin containing
+        all elements larger that the right-most end point. For example, the
+        list [0, 5, 8] is interpreted as the bins (-∞, 0), [0-5), [5-8) and
+        [8, ∞).
+    drop : bool, default True
+        If set to True, the source columns are dropped after being binned.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[-3],[4],[5],[9]], [1,2,3,4], [&#39;speed&#39;])
+        &gt;&gt;&gt; pdp.Bin({&#39;speed&#39;: [5]}, drop=False).apply(df)
+           speed speed_bin
+        1     -3        &lt;5
+        2      4        &lt;5
+        3      5        5≤
+        4      9        5≤
+        &gt;&gt;&gt; pdp.Bin({&#39;speed&#39;: [0,5,8]}, drop=False).apply(df)
+           speed speed_bin
+        1     -3        &lt;0
+        2      4       0-5
+        3      5       5-8
+        4      9        8≤
+    &#34;&#34;&#34;
+
+    _DEF_BIN_EXC_MSG = (
+        &#34;Bin stage failed because not all columns &#34;
+        &#34;{} were found in input dataframe.&#34;
+    )
+
+    def _default_desc(self):
+        string = &#34;&#34;
+        columns = list(self._bin_map.keys())
+        col1 = columns[0]
+        string += f&#34;Bin {col1} by { self._bin_map[col1]},\n&#34;
+        for col in columns[1:]:
+            string += f&#34;bin {col} by {self._bin_map[col]},\n&#34;
+        string = string[0:-2] + &#34;.&#34;
+        return string
+
+    def __init__(self, bin_map, drop=True, **kwargs):
+        self._bin_map = bin_map
+        self._drop = drop
+        columns_str = _list_str(list(bin_map.keys()))
+        super_kwargs = {
+            &#34;exmsg&#34;: Bin._DEF_BIN_EXC_MSG.format(columns_str),
+            &#34;desc&#34;: self._default_desc(),
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        return set(self._bin_map.keys()).issubset(df.columns)
+
+    @staticmethod
+    def _get_col_binner(bin_list):
+        sorted_bins = sc.SortedList(bin_list)
+        last_ix = len(sorted_bins) - 1
+
+        def _col_binner(val):
+            if val in sorted_bins:
+                ind = sorted_bins.bisect(val) - 1
+                if ind == last_ix:
+                    return f&#34;{sorted_bins[-1]}≤&#34;
+                return f&#34;{sorted_bins[ind]}-{sorted_bins[ind + 1]}&#34;
+            try:
+                ind = sorted_bins.bisect(val)
+                if ind == 0:
+                    return f&#34;&lt;{sorted_bins[ind]}&#34;
+                return f&#34;{sorted_bins[ind - 1]}-{sorted_bins[ind]}&#34;
+            except IndexError:
+                return f&#34;{sorted_bins[sorted_bins.bisect(val) - 1]}≤&#34;
+
+        return _col_binner
+
+    def _transform(self, df, verbose):
+        inter_df = df
+        colnames = list(self._bin_map.keys())
+        if verbose:
+            colnames = tqdm.tqdm(colnames)
+        for colname in colnames:
+            if verbose:
+                colnames.set_description(colname)
+            source_col = df[colname]
+            loc = df.columns.get_loc(colname) + 1
+            new_name = colname + &#34;_bin&#34;
+            if self._drop:
+                inter_df = inter_df.drop(colname, axis=1)
+                new_name = colname
+                loc -= 1
+            inter_df = out_of_place_col_insert(
+                df=inter_df,
+                series=source_col.apply(
+                    self._get_col_binner(self._bin_map[colname])
+                ),
+                loc=loc,
+                column_name=new_name,
+            )
+        return inter_df</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pdpipe.core.PdPipelineStage.AdHocStage" href="core.html#pdpipe.core.PdPipelineStage.AdHocStage">AdHocStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.AggByCols" href="core.html#pdpipe.core.PdPipelineStage.AggByCols">AggByCols</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ApplyByCols" href="core.html#pdpipe.core.PdPipelineStage.ApplyByCols">ApplyByCols</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ApplyToRows" href="core.html#pdpipe.core.PdPipelineStage.ApplyToRows">ApplyToRows</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Bin" href="core.html#pdpipe.core.PdPipelineStage.Bin">Bin</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColByFrameFunc" href="core.html#pdpipe.core.PdPipelineStage.ColByFrameFunc">ColByFrameFunc</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColDrop" href="core.html#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColRename" href="core.html#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColReorder" href="core.html#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByLength" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByList" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Encode" href="core.html#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.FitOnly" href="core.html#pdpipe.core.PdPipelineStage.FitOnly">FitOnly</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.FreqDrop" href="core.html#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Log" href="core.html#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.MapColVals" href="core.html#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.OneHotEncode" href="core.html#pdpipe.core.PdPipelineStage.OneHotEncode">OneHotEncode</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.PdPipeline" href="core.html#pdpipe.core.PdPipelineStage.PdPipeline">PdPipeline</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RegexReplace" href="core.html#pdpipe.core.PdPipelineStage.RegexReplace">RegexReplace</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RemoveStopwords" href="core.html#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RowDrop" href="core.html#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Scale" href="core.html#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Schematize" href="core.html#pdpipe.core.PdPipelineStage.Schematize">Schematize</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.SetIndex" href="core.html#pdpipe.core.PdPipelineStage.SetIndex">SetIndex</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.SnowballStem" href="core.html#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists" href="core.html#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.TokenizeText" href="core.html#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.UntokenizeText" href="core.html#pdpipe.core.PdPipelineStage.UntokenizeText">UntokenizeText</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ValDrop" href="core.html#pdpipe.core.PdPipelineStage.ValDrop">ValDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ValKeep" href="core.html#pdpipe.core.PdPipelineStage.ValKeep">ValKeep</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.apply" href="core.html#pdpipe.core.PdPipelineStage.apply">apply</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.description" href="core.html#pdpipe.core.PdPipelineStage.description">description</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.fit" href="core.html#pdpipe.core.PdPipelineStage.fit">fit</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.fit_transform" href="core.html#pdpipe.core.PdPipelineStage.fit_transform">fit_transform</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.transform" href="core.html#pdpipe.core.PdPipelineStage.transform">transform</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pdpipe.col_generation.ColByFrameFunc"><code class="flex name class">
+<span>class <span class="ident">ColByFrameFunc</span></span>
+<span>(</span><span>column, func, follow_column=None, before_column=None, func_desc=None, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A pipeline stage adding a column by applying a dataframe-wide function.</p>
+<p>Note that assigning <code>column</code> with the label of an existing column and
+providing the same label to the <code>before_column</code> parameter will result in
+replacing the original column at the same location.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>column</code></strong> :&ensp;<code>str</code></dt>
+<dd>The label of the resulting column. If its the label of an existing
+column it will replace that column.</dd>
+<dt><strong><code>func</code></strong> :&ensp;<code>function</code></dt>
+<dd>The function to be applied to the input dataframe. The function should
+return a pandas.Series object.</dd>
+<dt><strong><code>follow_column</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
+<dd>Resulting columns will be inserted after this column. If both this
+parameter and <code>before_column</code> are None, new columns are inserted at the
+end of the processed DataFrame.</dd>
+<dt><strong><code>before_column</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
+<dd>Resulting columns will be inserted before this column. If both this
+parameter and <code>follow_colum</code> are None, new columns are inserted at the
+end of the processed DataFrame. If both are provided, <code>before_column</code>
+takes precedence.</dd>
+<dt><strong><code>func_desc</code></strong> :&ensp;<code>str</code>, default <code>None</code></dt>
+<dd>A function description of the given function; e.g. 'normalizing revenue
+by company size'. A default description is used if None is given.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; data = [[3, 3], [2, 4], [1, 5]]
+&gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], ["A","B"])
+&gt;&gt;&gt; func = lambda df: df['A'] == df['B']
+&gt;&gt;&gt; add_equal = pdp.ColByFrameFunc("A==B", func)
+&gt;&gt;&gt; add_equal(df)
+   A  B   A==B
+1  3  3   True
+2  2  4  False
+3  1  5  False
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ColByFrameFunc(PdPipelineStage):
+    &#34;&#34;&#34;A pipeline stage adding a column by applying a dataframe-wide function.
+
+    Note that assigning `column` with the label of an existing column and
+    providing the same label to the `before_column` parameter will result in
+    replacing the original column at the same location.
+
+    Parameters
+    ----------
+    column : str
+        The label of the resulting column. If its the label of an existing
+        column it will replace that column.
+    func : function
+        The function to be applied to the input dataframe. The function should
+        return a pandas.Series object.
+    follow_column : str, default None
+        Resulting columns will be inserted after this column. If both this
+        parameter and `before_column` are None, new columns are inserted at the
+        end of the processed DataFrame.
+    before_column : str, default None
+        Resulting columns will be inserted before this column. If both this
+        parameter and `follow_colum` are None, new columns are inserted at the
+        end of the processed DataFrame. If both are provided, `before_column`
+        takes precedence.
+    func_desc : str, default None
+        A function description of the given function; e.g. &#39;normalizing revenue
+        by company size&#39;. A default description is used if None is given.
+
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; data = [[3, 3], [2, 4], [1, 5]]
+        &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#34;A&#34;,&#34;B&#34;])
+        &gt;&gt;&gt; func = lambda df: df[&#39;A&#39;] == df[&#39;B&#39;]
+        &gt;&gt;&gt; add_equal = pdp.ColByFrameFunc(&#34;A==B&#34;, func)
+        &gt;&gt;&gt; add_equal(df)
+           A  B   A==B
+        1  3  3   True
+        2  2  4  False
+        3  1  5  False
+    &#34;&#34;&#34;
+
+    _BASE_STR = &#34;Applying a function{} to generate column {}&#34;
+    _DEF_EXC_MSG_SUFFIX = &#34; failed.&#34;
+    _DEF_DESCRIPTION_SUFFIX = &#34;.&#34;
+
+    def __init__(
+        self, column, func, follow_column=None, before_column=None,
+        func_desc=None, **kwargs
+    ):
+        self._column = column
+        self._func = func
+        self._follow_column = follow_column
+        self._before_column = before_column
+        if func_desc is None:
+            func_desc = &#34;&#34;
+        else:
+            func_desc = &#34; &#34; + func_desc
+        self._func_desc = func_desc
+        base_str = ColByFrameFunc._BASE_STR.format(self._func_desc, column)
+        super_kwargs = {
+            &#34;exmsg&#34;: base_str + ColByFrameFunc._DEF_EXC_MSG_SUFFIX,
+            &#34;desc&#34;: base_str + ColByFrameFunc._DEF_DESCRIPTION_SUFFIX,
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        return True
+
+    def _transform(self, df, verbose):
+        inter_df = df
+        try:
+            new_col = self._func(df)
+        except Exception:
+            raise PipelineApplicationError(
+                f&#34;Exception raised applying function {self._func_desc} to &#34;
+                f&#34;dataframe by class {self.__class__}.&#34;
+            )
+        if self._follow_column:
+            loc = df.columns.get_loc(self._follow_column) + 1
+        elif self._before_column:
+            loc = df.columns.get_loc(self._before_column)
+        else:
+            loc = len(df.columns)
+        inter_df = out_of_place_col_insert(
+            df=inter_df, series=new_col, loc=loc, column_name=self._column
+        )
+        return inter_df</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pdpipe.core.PdPipelineStage.AdHocStage" href="core.html#pdpipe.core.PdPipelineStage.AdHocStage">AdHocStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.AggByCols" href="core.html#pdpipe.core.PdPipelineStage.AggByCols">AggByCols</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ApplyByCols" href="core.html#pdpipe.core.PdPipelineStage.ApplyByCols">ApplyByCols</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ApplyToRows" href="core.html#pdpipe.core.PdPipelineStage.ApplyToRows">ApplyToRows</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Bin" href="core.html#pdpipe.core.PdPipelineStage.Bin">Bin</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColByFrameFunc" href="core.html#pdpipe.core.PdPipelineStage.ColByFrameFunc">ColByFrameFunc</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColDrop" href="core.html#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColRename" href="core.html#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColReorder" href="core.html#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByLength" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.DropTokensByList" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Encode" href="core.html#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.FitOnly" href="core.html#pdpipe.core.PdPipelineStage.FitOnly">FitOnly</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.FreqDrop" href="core.html#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Log" href="core.html#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.MapColVals" href="core.html#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.OneHotEncode" href="core.html#pdpipe.core.PdPipelineStage.OneHotEncode">OneHotEncode</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.PdPipeline" href="core.html#pdpipe.core.PdPipelineStage.PdPipeline">PdPipeline</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RegexReplace" href="core.html#pdpipe.core.PdPipelineStage.RegexReplace">RegexReplace</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RemoveStopwords" href="core.html#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.RowDrop" href="core.html#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Scale" href="core.html#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.Schematize" href="core.html#pdpipe.core.PdPipelineStage.Schematize">Schematize</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.SetIndex" href="core.html#pdpipe.core.PdPipelineStage.SetIndex">SetIndex</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.SnowballStem" href="core.html#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists" href="core.html#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.TokenizeText" href="core.html#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.UntokenizeText" href="core.html#pdpipe.core.PdPipelineStage.UntokenizeText">UntokenizeText</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ValDrop" href="core.html#pdpipe.core.PdPipelineStage.ValDrop">ValDrop</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.ValKeep" href="core.html#pdpipe.core.PdPipelineStage.ValKeep">ValKeep</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.apply" href="core.html#pdpipe.core.PdPipelineStage.apply">apply</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.description" href="core.html#pdpipe.core.PdPipelineStage.description">description</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.fit" href="core.html#pdpipe.core.PdPipelineStage.fit">fit</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.fit_transform" href="core.html#pdpipe.core.PdPipelineStage.fit_transform">fit_transform</a></code></li>
+<li><code><a title="pdpipe.core.PdPipelineStage.transform" href="core.html#pdpipe.core.PdPipelineStage.transform">transform</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pdpipe.col_generation.ColumnTransformer"><code class="flex name class">
+<span>class <span class="ident">ColumnTransformer</span></span>
+<span>(</span><span>columns, result_columns=None, drop=True, suffix=None, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A pipeline stage that applies transformation to dataframe columns.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code></dt>
+<dd>Column labels in the DataFrame to be transformed. Alternatively, this
+parameter can be assigned a callable returning an iterable of labels
+from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>. If None is provided
+all input columns are transformed.</dd>
+<dt><strong><code>result_columns</code></strong> :&ensp;<code>single label</code> or <code>list-like</code>, default <code>None</code></dt>
+<dd>Labels for the new columns resulting from the transformations. Must
+be of the same length as columns. If None, behavior depends on the
+drop parameter: If drop is True, then the label of the source column is
+used; otherwise, the provided 'suffix' is concatenated to the label of
+the source column.</dd>
+<dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
+<dd>If set to True, source columns are dropped after being transformed.</dd>
+<dt><strong><code>suffix</code></strong> :&ensp;<code>str</code>, default <code>'_transformed'</code></dt>
+<dd>The suffix transformed columns gain if no new column labels are given.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ColumnTransformer(ColumnsBasedPipelineStage):
+    &#34;&#34;&#34;A pipeline stage that applies transformation to dataframe columns.
+
+    Parameters
+    ----------
+    columns : single label, list-like or callable
+        Column labels in the DataFrame to be transformed. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See `pdpipe.cq`. If None is provided
+        all input columns are transformed.
+    result_columns : single label or list-like, default None
+        Labels for the new columns resulting from the transformations. Must
+        be of the same length as columns. If None, behavior depends on the
+        drop parameter: If drop is True, then the label of the source column is
+        used; otherwise, the provided &#39;suffix&#39; is concatenated to the label of
+        the source column.
+    drop : bool, default True
+        If set to True, source columns are dropped after being transformed.
+    suffix : str, default &#39;_transformed&#39;
+        The suffix transformed columns gain if no new column labels are given.
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        columns,
+        result_columns=None,
+        drop=True,
+        suffix=None,
+        **kwargs
+    ):
+        if suffix is None:  # pragma: no cover
+            suffix = &#34;_transformed&#34;
+        self.suffix = suffix
+        self._result_columns = result_columns
+        if result_columns:
+            self._result_columns = _interpret_columns_param(result_columns)
+            if len(self._result_columns) != len(
+                    _interpret_columns_param(columns)):
+                raise ValueError(
+                    &#34;columns and result_columns parameters must&#34;
+                    &#34; be label lists of the same length!&#34;
+                )
+        self._drop = drop
+        super_kwargs = {
+            &#39;columns&#39;: columns,
+            &#39;desc_temp&#39;: &#34;Transform columns {}&#34;,
+            &#39;none_columns&#39;: &#39;all&#39;,
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    @abc.abstractmethod
+    def _col_transform(self, series, label):
+        raise NotImplementedError
+
+    def _transformation(self, df, verbose, fit):
+        columns = self._get_columns(df, fit=fit)
+        result_columns = self._result_columns
+        if self._result_columns is None:
+            if self._drop:
+                result_columns = columns
+            else:
+                result_columns = [
+                    f&#39;{col}{self.suffix}&#39; for col in columns
+                ]
+        inter_df = df
+        for i, colname in enumerate(columns):
+            source_col = df[colname]
+            loc = df.columns.get_loc(colname) + 1
+            new_name = result_columns[i]
+            if self._drop:
+                inter_df = inter_df.drop(colname, axis=1)
+                loc -= 1
+            inter_df = out_of_place_col_insert(
+                df=inter_df,
+                series=self._col_transform(source_col, colname),
+                loc=loc,
+                column_name=new_name,
+            )
+        return inter_df</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pdpipe.core.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></li>
+<li><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="pdpipe.col_generation.AggByCols" href="#pdpipe.col_generation.AggByCols">AggByCols</a></li>
+<li><a title="pdpipe.col_generation.ApplyByCols" href="#pdpipe.col_generation.ApplyByCols">ApplyByCols</a></li>
+<li><a title="pdpipe.col_generation.MapColVals" href="#pdpipe.col_generation.MapColVals">MapColVals</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pdpipe.core.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.AdHocStage" href="core.html#pdpipe.core.PdPipelineStage.AdHocStage">AdHocStage</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.AggByCols" href="core.html#pdpipe.core.PdPipelineStage.AggByCols">AggByCols</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ApplyByCols" href="core.html#pdpipe.core.PdPipelineStage.ApplyByCols">ApplyByCols</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ApplyToRows" href="core.html#pdpipe.core.PdPipelineStage.ApplyToRows">ApplyToRows</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Bin" href="core.html#pdpipe.core.PdPipelineStage.Bin">Bin</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColByFrameFunc" href="core.html#pdpipe.core.PdPipelineStage.ColByFrameFunc">ColByFrameFunc</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColDrop" href="core.html#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColRename" href="core.html#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColReorder" href="core.html#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropTokensByLength" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropTokensByList" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Encode" href="core.html#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.FitOnly" href="core.html#pdpipe.core.PdPipelineStage.FitOnly">FitOnly</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.FreqDrop" href="core.html#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Log" href="core.html#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.MapColVals" href="core.html#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.OneHotEncode" href="core.html#pdpipe.core.PdPipelineStage.OneHotEncode">OneHotEncode</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.PdPipeline" href="core.html#pdpipe.core.PdPipelineStage.PdPipeline">PdPipeline</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.RegexReplace" href="core.html#pdpipe.core.PdPipelineStage.RegexReplace">RegexReplace</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.RemoveStopwords" href="core.html#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.RowDrop" href="core.html#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Scale" href="core.html#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Schematize" href="core.html#pdpipe.core.PdPipelineStage.Schematize">Schematize</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.SetIndex" href="core.html#pdpipe.core.PdPipelineStage.SetIndex">SetIndex</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.SnowballStem" href="core.html#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.TfidfVectorizeTokenLists" href="core.html#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.TokenizeText" href="core.html#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.UntokenizeText" href="core.html#pdpipe.core.PdPipelineStage.UntokenizeText">UntokenizeText</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ValDrop" href="core.html#pdpipe.core.PdPipelineStage.ValDrop">ValDrop</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ValKeep" href="core.html#pdpipe.core.PdPipelineStage.ValKeep">ValKeep</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.apply" href="core.html#pdpipe.core.PdPipelineStage.apply">apply</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.description" href="core.html#pdpipe.core.PdPipelineStage.description">description</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.fit" href="core.html#pdpipe.core.PdPipelineStage.fit">fit</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.fit_transform" href="core.html#pdpipe.core.PdPipelineStage.fit_transform">fit_transform</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.transform" href="core.html#pdpipe.core.PdPipelineStage.transform">transform</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pdpipe.col_generation.Log"><code class="flex name class">
+<span>class <span class="ident">Log</span></span>
+<span>(</span><span>columns=None, exclude_columns=None, drop=False, non_neg=False, const_shift=None, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A pipeline stage that log-transforms numeric data.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code>, default <code>None</code></dt>
+<dd>Column names in the DataFrame to be encoded. If columns is None then
+all the columns with a numeric dtype will be transformed, except those
+given in the exclude_columns parameter. Alternatively,
+this parameter can be assigned a callable returning an iterable of
+labels from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
+<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code>, default <code>None</code></dt>
+<dd>Label or labels of columns to be excluded from encoding. If None then
+no column is excluded. Alternatively, this parameter can be assigned a
+callable returning an iterable of labels from an input
+pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>. Optional.</dd>
+<dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>False</code></dt>
+<dd>If set to True, the source columns are dropped after being encoded,
+and the resulting encoded columns retain the names of the source
+columns. Otherwise, encoded columns gain the suffix '_log'.</dd>
+<dt><strong><code>non_neg</code></strong> :&ensp;<code>bool</code>, default <code>False</code></dt>
+<dd>If True, each transformed column is first shifted by the smallest
+negative value it includes (non-negative columns are thus not shifted).</dd>
+<dt><strong><code>const_shift</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>If given, each transformed column is first shifted by this constant. If
+non_neg is True then that transformation is applied first, and only
+then is the column shifted by this constant.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
+&gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
+&gt;&gt;&gt; log_stage = pdp.Log("ph", drop=True)
+&gt;&gt;&gt; log_stage(df)
+         ph  lbl
+1  1.163151  acd
+2  1.974081  alk
+3  2.493205  alk
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Log(ColumnsBasedPipelineStage):
+    &#34;&#34;&#34;A pipeline stage that log-transforms numeric data.
+
+    Parameters
+    ----------
+    columns : single label, list-like or callable, default None
+        Column names in the DataFrame to be encoded. If columns is None then
+        all the columns with a numeric dtype will be transformed, except those
+        given in the exclude_columns parameter. Alternatively,
+        this parameter can be assigned a callable returning an iterable of
+        labels from an input pandas.DataFrame. See `pdpipe.cq`.
+    exclude_columns : single label, list-like or callable, default None
+        Label or labels of columns to be excluded from encoding. If None then
+        no column is excluded. Alternatively, this parameter can be assigned a
+        callable returning an iterable of labels from an input
+        pandas.DataFrame. See `pdpipe.cq`. Optional.
+    drop : bool, default False
+        If set to True, the source columns are dropped after being encoded,
+        and the resulting encoded columns retain the names of the source
+        columns. Otherwise, encoded columns gain the suffix &#39;_log&#39;.
+    non_neg : bool, default False
+        If True, each transformed column is first shifted by the smallest
+        negative value it includes (non-negative columns are thus not shifted).
+    const_shift : int, optional
+        If given, each transformed column is first shifted by this constant. If
+        non_neg is True then that transformation is applied first, and only
+        then is the column shifted by this constant.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; data = [[3.2, &#34;acd&#34;], [7.2, &#34;alk&#34;], [12.1, &#34;alk&#34;]]
+        &gt;&gt;&gt; df = pd.DataFrame(data, [1,2,3], [&#34;ph&#34;,&#34;lbl&#34;])
+        &gt;&gt;&gt; log_stage = pdp.Log(&#34;ph&#34;, drop=True)
+        &gt;&gt;&gt; log_stage(df)
+                 ph  lbl
+        1  1.163151  acd
+        2  1.974081  alk
+        3  2.493205  alk
+    &#34;&#34;&#34;
+
+    _DEF_LOG_APP_MSG = &#34;Log-transforming {}...&#34;
+
+    def __init__(
+        self,
+        columns=None,
+        exclude_columns=None,
+        drop=False,
+        non_neg=False,
+        const_shift=None,
+        **kwargs
+    ):
+        self._drop = drop
+        self._non_neg = non_neg
+        self._const_shift = const_shift
+        self._col_to_minval = {}
+        super_kwargs = {
+            &#39;columns&#39;: columns,
+            &#39;exclude_columns&#39;: exclude_columns,
+            &#39;desc_temp&#39;: &#34;Log-transform {}&#34;,
+        }
+        super_kwargs.update(**kwargs)
+        super_kwargs[&#39;none_columns&#39;] = OfDtypes([np.number])
+        super().__init__(**super_kwargs)
+
+    def _transformation(self, df, verbose, fit):
+        raise NotImplementedError
+
+    def _fit_transform(self, df, verbose):
+        columns_to_transform = self._get_columns(df, fit=True)
+        if verbose:
+            columns_to_transform = tqdm.tqdm(columns_to_transform)
+        inter_df = df
+        for colname in columns_to_transform:
+            source_col = df[colname]
+            loc = df.columns.get_loc(colname) + 1
+            new_name = colname + &#34;_log&#34;
+            if self._drop:
+                inter_df = inter_df.drop(colname, axis=1)
+                new_name = colname
+                loc -= 1
+            new_col = source_col
+            if self._non_neg:
+                minval = min(new_col)
+                if minval &lt; 0:
+                    new_col = new_col + abs(minval)
+                    self._col_to_minval[colname] = abs(minval)
+                else:
+                    self._col_to_minval[colname] = 0
+            # must check not None as neg numbers eval to False
+            if self._const_shift is not None:
+                new_col = new_col + self._const_shift
+            new_col = np.log(new_col)
+            inter_df = out_of_place_col_insert(
+                df=inter_df, series=new_col, loc=loc, column_name=new_name
+            )
+        self.is_fitted = True
+        return inter_df
+
+    def _transform(self, df, verbose):
+        inter_df = df
+        columns_to_transform = self._get_columns(df, fit=False)
+        if verbose:
+            columns_to_transform = tqdm.tqdm(columns_to_transform)
+        for colname in columns_to_transform:
+            try:
+                source_col = df[colname]
+            except KeyError:  # pragma: no cover
+                raise PipelineApplicationError((
+                    &#34;Missig column {} when applying a fitted &#34;
+                    &#34;Log pipeline stage by class {} !&#34;).format(
+                        colname, self.__class__))
+            loc = df.columns.get_loc(colname) + 1
+            new_name = colname + &#34;_log&#34;
+            if self._drop:
+                inter_df = inter_df.drop(colname, axis=1)
+                new_name = colname
+                loc -= 1
+            new_col = source_col
+            if self._non_neg:
+                if colname in self._col_to_minval:
+                    absminval = self._col_to_minval[colname]
+                    new_col = new_col + absminval
+                else:  # pragma: no cover
+                    raise PipelineApplicationError((
+                        &#34;Missig fitted parameter for column {} when applying a&#34;
+                        &#34; fitted Log pipeline stage by class {}!&#34;).format(
+                            colname, self.__class__))
+            # must check not None as neg numbers eval to False
+            if self._const_shift is not None:
+                new_col = new_col + self._const_shift
+            new_col = np.log(new_col)
+            inter_df = out_of_place_col_insert(
+                df=inter_df, series=new_col, loc=loc, column_name=new_name
+            )
+        return inter_df</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pdpipe.core.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></li>
+<li><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pdpipe.core.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.AdHocStage" href="core.html#pdpipe.core.PdPipelineStage.AdHocStage">AdHocStage</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.AggByCols" href="core.html#pdpipe.core.PdPipelineStage.AggByCols">AggByCols</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ApplyByCols" href="core.html#pdpipe.core.PdPipelineStage.ApplyByCols">ApplyByCols</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ApplyToRows" href="core.html#pdpipe.core.PdPipelineStage.ApplyToRows">ApplyToRows</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Bin" href="core.html#pdpipe.core.PdPipelineStage.Bin">Bin</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColByFrameFunc" href="core.html#pdpipe.core.PdPipelineStage.ColByFrameFunc">ColByFrameFunc</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColDrop" href="core.html#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColRename" href="core.html#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColReorder" href="core.html#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropTokensByLength" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropTokensByList" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Encode" href="core.html#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.FitOnly" href="core.html#pdpipe.core.PdPipelineStage.FitOnly">FitOnly</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.FreqDrop" href="core.html#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Log" href="core.html#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.MapColVals" href="core.html#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.OneHotEncode" href="core.html#pdpipe.core.PdPipelineStage.OneHotEncode">OneHotEncode</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.PdPipeline" href="core.html#pdpipe.core.PdPipelineStage.PdPipeline">PdPipeline</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.RegexReplace" href="core.html#pdpipe.core.PdPipelineStage.RegexReplace">RegexReplace</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.RemoveStopwords" href="core.html#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.RowDrop" href="core.html#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Scale" href="core.html#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Schematize" href="core.html#pdpipe.core.PdPipelineStage.Schematize">Schematize</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.SetIndex" href="core.html#pdpipe.core.PdPipelineStage.SetIndex">SetIndex</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.SnowballStem" href="core.html#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.TfidfVectorizeTokenLists" href="core.html#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.TokenizeText" href="core.html#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.UntokenizeText" href="core.html#pdpipe.core.PdPipelineStage.UntokenizeText">UntokenizeText</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ValDrop" href="core.html#pdpipe.core.PdPipelineStage.ValDrop">ValDrop</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ValKeep" href="core.html#pdpipe.core.PdPipelineStage.ValKeep">ValKeep</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.apply" href="core.html#pdpipe.core.PdPipelineStage.apply">apply</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.description" href="core.html#pdpipe.core.PdPipelineStage.description">description</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.fit" href="core.html#pdpipe.core.PdPipelineStage.fit">fit</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.fit_transform" href="core.html#pdpipe.core.PdPipelineStage.fit_transform">fit_transform</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.transform" href="core.html#pdpipe.core.PdPipelineStage.transform">transform</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pdpipe.col_generation.MapColVals"><code class="flex name class">
+<span>class <span class="ident">MapColVals</span></span>
+<span>(</span><span>columns: Union[object, List[object], Callable], value_map: Union[dict, pandas.core.series.Series, Callable, str, Tuple[str, dict]], result_columns: Union[object, List[object], None] = None, drop: Optional[bool] = True, suffix: Optional[str] = None, **kwargs: Dict[str, object])</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A pipeline stage that replaces the values of a column by a map.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code></dt>
+<dd>Column labels in the DataFrame to be mapped. Alternatively, this
+parameter can be assigned a callable returning an iterable of labels
+from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>. If None is provided
+all input columns are mapped.</dd>
+<dt><strong><code>value_map</code></strong> :&ensp;<code>dict, pandas.Series, callable, str</code> or <code>tuple</code></dt>
+<dd>The value-to-value map to use, mapping existing values to new one. If a
+dictionary is provided, its mapping is used. Values not in the
+dictionary as keys will be converted to NaN. If a Series is given,
+values are mapped by its index to its values. If a callable is given,
+it is applied element-wise to given columns. If a string is given, it
+is interpreted as the name of an attribute or a property of the series
+values to use as target values. If a tuple is provided, its first
+element is expected to be a string, interpreted as a name of a method
+of the series values to call, and its second element is expected to be
+a dict - possibly empty - mapping additional keyword arguments names
+to their values.</dd>
+<dt><strong><code>result_columns</code></strong> :&ensp;<code>single label</code> or <code>list-like</code>, default <code>None</code></dt>
+<dd>Labels for the new columns resulting from the mapping operation. Must
+be of the same length as columns. If None, behavior depends on the
+drop parameter: If drop is True, then the label of the source column is
+used; otherwise, the label of the source column is used with the suffix
+given ("_map" by default).</dd>
+<dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
+<dd>If set to True, source columns are dropped after being mapped.</dd>
+<dt><strong><code>suffix</code></strong> :&ensp;<code>str</code>, default <code>'_map'</code></dt>
+<dd>The suffix mapped columns gain if no new column labels are given.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame([[1], [3], [2]], ['UK', 'USSR', 'US'], ['Medal'])
+&gt;&gt;&gt; value_map = {1: 'Gold', 2: 'Silver', 3: 'Bronze'}
+&gt;&gt;&gt; pdp.MapColVals('Medal', value_map).apply(df)
+       Medal
+UK      Gold
+USSR  Bronze
+US    Silver
+
+&gt;&gt;&gt; from datetime import timedelta;
+&gt;&gt;&gt; df = pd.DataFrame(
+...    data=[
+...       [timedelta(weeks=2)],
+...       [timedelta(weeks=4)],
+...       [timedelta(weeks=10)]
+...    ],
+...    index=['proposal', 'midterm', 'finals'],
+...    columns=['Due'],
+... )
+&gt;&gt;&gt; pdp.MapColVals('Due', ('total_seconds', {})).apply(df)
+                Due
+proposal  1209600.0
+midterm   2419200.0
+finals    6048000.0
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MapColVals(ColumnTransformer):
+    &#34;&#34;&#34;A pipeline stage that replaces the values of a column by a map.
+
+    Parameters
+    ----------
+    columns : single label, list-like or callable
+        Column labels in the DataFrame to be mapped. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See `pdpipe.cq`. If None is provided
+        all input columns are mapped.
+    value_map : dict, pandas.Series, callable, str or tuple
+        The value-to-value map to use, mapping existing values to new one. If a
+        dictionary is provided, its mapping is used. Values not in the
+        dictionary as keys will be converted to NaN. If a Series is given,
+        values are mapped by its index to its values. If a callable is given,
+        it is applied element-wise to given columns. If a string is given, it
+        is interpreted as the name of an attribute or a property of the series
+        values to use as target values. If a tuple is provided, its first
+        element is expected to be a string, interpreted as a name of a method
+        of the series values to call, and its second element is expected to be
+        a dict - possibly empty - mapping additional keyword arguments names
+        to their values.
+    result_columns : single label or list-like, default None
+        Labels for the new columns resulting from the mapping operation. Must
+        be of the same length as columns. If None, behavior depends on the
+        drop parameter: If drop is True, then the label of the source column is
+        used; otherwise, the label of the source column is used with the suffix
+        given (&#34;_map&#34; by default).
+    drop : bool, default True
+        If set to True, source columns are dropped after being mapped.
+    suffix : str, default &#39;_map&#39;
+        The suffix mapped columns gain if no new column labels are given.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[1], [3], [2]], [&#39;UK&#39;, &#39;USSR&#39;, &#39;US&#39;], [&#39;Medal&#39;])
+        &gt;&gt;&gt; value_map = {1: &#39;Gold&#39;, 2: &#39;Silver&#39;, 3: &#39;Bronze&#39;}
+        &gt;&gt;&gt; pdp.MapColVals(&#39;Medal&#39;, value_map).apply(df)
+               Medal
+        UK      Gold
+        USSR  Bronze
+        US    Silver
+
+        &gt;&gt;&gt; from datetime import timedelta;
+        &gt;&gt;&gt; df = pd.DataFrame(
+        ...    data=[
+        ...       [timedelta(weeks=2)],
+        ...       [timedelta(weeks=4)],
+        ...       [timedelta(weeks=10)]
+        ...    ],
+        ...    index=[&#39;proposal&#39;, &#39;midterm&#39;, &#39;finals&#39;],
+        ...    columns=[&#39;Due&#39;],
+        ... )
+        &gt;&gt;&gt; pdp.MapColVals(&#39;Due&#39;, (&#39;total_seconds&#39;, {})).apply(df)
+                        Due
+        proposal  1209600.0
+        midterm   2419200.0
+        finals    6048000.0
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        columns: ColumnsParamType,
+        value_map: Union[dict, pd.Series, Callable, str, Tuple[str, dict]],
+        result_columns: Optional[ColumnLabelsType] = None,
+        drop: Optional[bool] = True,
+        suffix: Optional[str] = None,
+        **kwargs: Dict[str, object],
+    ):
+        self._value_map = value_map
+        self._applied_value_map = value_map
+        if type(value_map) == str:
+            self._applied_value_map = _AttrGetter(attr_name=value_map)
+        elif type(value_map) == tuple:
+            self._applied_value_map = _MethodRetValGetter(
+                method_name=value_map[0],
+                method_kwargs=value_map[1],
+            )
+        if suffix is None:
+            suffix = &#34;_map&#34;
+        _, colstr = ColumnsBasedPipelineStage._interpret_columns_param(
+            columns)
+        super_kwargs = {
+            &#39;columns&#39;: columns,
+            &#39;result_columns&#39;: result_columns,
+            &#39;drop&#39;: drop,
+            &#39;suffix&#39;: suffix,
+            &#39;desc&#39;: f&#34;Map values of columns {colstr} with {self._value_map}.&#34;,
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _col_transform(self, series, label):
+        return series.map(self._applied_value_map)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pdpipe.col_generation.ColumnTransformer" href="#pdpipe.col_generation.ColumnTransformer">ColumnTransformer</a></li>
+<li><a title="pdpipe.core.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></li>
+<li><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="pdpipe.nltk_stages.RemoveStopwords" href="nltk_stages.html#pdpipe.nltk_stages.RemoveStopwords">RemoveStopwords</a></li>
+<li><a title="pdpipe.nltk_stages.SnowballStem" href="nltk_stages.html#pdpipe.nltk_stages.SnowballStem">SnowballStem</a></li>
+<li><a title="pdpipe.nltk_stages.TokenizeText" href="nltk_stages.html#pdpipe.nltk_stages.TokenizeText">TokenizeText</a></li>
+<li><a title="pdpipe.nltk_stages.UntokenizeText" href="nltk_stages.html#pdpipe.nltk_stages.UntokenizeText">UntokenizeText</a></li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pdpipe.col_generation.ColumnTransformer" href="#pdpipe.col_generation.ColumnTransformer">ColumnTransformer</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.AdHocStage" href="core.html#pdpipe.core.PdPipelineStage.AdHocStage">AdHocStage</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.AggByCols" href="core.html#pdpipe.core.PdPipelineStage.AggByCols">AggByCols</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ApplyByCols" href="core.html#pdpipe.core.PdPipelineStage.ApplyByCols">ApplyByCols</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ApplyToRows" href="core.html#pdpipe.core.PdPipelineStage.ApplyToRows">ApplyToRows</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.Bin" href="core.html#pdpipe.core.PdPipelineStage.Bin">Bin</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ColByFrameFunc" href="core.html#pdpipe.core.PdPipelineStage.ColByFrameFunc">ColByFrameFunc</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ColDrop" href="core.html#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ColRename" href="core.html#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ColReorder" href="core.html#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.DropTokensByLength" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.DropTokensByList" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.Encode" href="core.html#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.FitOnly" href="core.html#pdpipe.core.PdPipelineStage.FitOnly">FitOnly</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.FreqDrop" href="core.html#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.Log" href="core.html#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.MapColVals" href="core.html#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.OneHotEncode" href="core.html#pdpipe.core.PdPipelineStage.OneHotEncode">OneHotEncode</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.PdPipeline" href="core.html#pdpipe.core.PdPipelineStage.PdPipeline">PdPipeline</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.RegexReplace" href="core.html#pdpipe.core.PdPipelineStage.RegexReplace">RegexReplace</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.RemoveStopwords" href="core.html#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.RowDrop" href="core.html#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.Scale" href="core.html#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.Schematize" href="core.html#pdpipe.core.PdPipelineStage.Schematize">Schematize</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.SetIndex" href="core.html#pdpipe.core.PdPipelineStage.SetIndex">SetIndex</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.SnowballStem" href="core.html#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.TfidfVectorizeTokenLists" href="core.html#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.TokenizeText" href="core.html#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.UntokenizeText" href="core.html#pdpipe.core.PdPipelineStage.UntokenizeText">UntokenizeText</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ValDrop" href="core.html#pdpipe.core.PdPipelineStage.ValDrop">ValDrop</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.ValKeep" href="core.html#pdpipe.core.PdPipelineStage.ValKeep">ValKeep</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.apply" href="core.html#pdpipe.core.PdPipelineStage.apply">apply</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.description" href="core.html#pdpipe.core.PdPipelineStage.description">description</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.fit" href="core.html#pdpipe.core.PdPipelineStage.fit">fit</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.fit_transform" href="core.html#pdpipe.core.PdPipelineStage.fit_transform">fit_transform</a></code></li>
+<li><code><a title="pdpipe.col_generation.ColumnTransformer.transform" href="core.html#pdpipe.core.PdPipelineStage.transform">transform</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pdpipe.col_generation.OneHotEncode"><code class="flex name class">
+<span>class <span class="ident">OneHotEncode</span></span>
+<span>(</span><span>columns=None, dummy_na=False, exclude_columns=None, drop_first=True, drop=True, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A pipeline stage that one-hot-encodes categorical columns.</p>
+<p>By default only k-1 dummies are created fo k categorical levels, as to
+avoid perfect multicollinearity between the dummy features (also called
+the dummy variable trap). This is done since features are usually one-hot
+encoded for use with linear models, which require this behaviour.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code>, default <code>None</code></dt>
+<dd>Column labels in the DataFrame to be encoded. If columns is None then
+all the columns with object or category dtype will be converted, except
+those given in the exclude_columns parameter. Alternatively,
+this parameter can be assigned a callable returning an iterable of
+labels from an input pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>.</dd>
+<dt><strong><code>dummy_na</code></strong> :&ensp;<code>bool</code>, default <code>False</code></dt>
+<dd>Add a column to indicate NaNs, if False NaNs are ignored.</dd>
+<dt><strong><code>exclude_columns</code></strong> :&ensp;<code>single label, list-like</code> or <code>callable</code>, default <code>None</code></dt>
+<dd>Label or labels of columns to be excluded from encoding. If None then
+no column is excluded. Alternatively, this parameter can be assigned a
+callable returning an iterable of labels from an input
+pandas.DataFrame. See <code><a title="pdpipe.cq" href="cq.html">pdpipe.cq</a></code>. Optional.</dd>
+<dt><strong><code>drop_first</code></strong> :&ensp;<code>bool</code> or <code>single label</code>, default <code>True</code></dt>
+<dd>Whether to get k-1 dummies out of k categorical levels by removing the
+first level. If a non bool argument matching one of the categories is
+provided, the dummy column corresponding to this value is dropped
+instead of the first level; if it matches no category the first
+category will still be dropped.</dd>
+<dt><strong><code>drop</code></strong> :&ensp;<code>bool</code>, default <code>True</code></dt>
+<dd>If set to True, the source columns are dropped after being encoded.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; df = pd.DataFrame([['USA'], ['UK'], ['Greece']], [1,2,3], ['Born'])
+&gt;&gt;&gt; pdp.OneHotEncode().apply(df)
+   Born_UK  Born_USA
+1        0         1
+2        1         0
+3        0         0
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class OneHotEncode(ColumnsBasedPipelineStage):
+    &#34;&#34;&#34;A pipeline stage that one-hot-encodes categorical columns.
+
+    By default only k-1 dummies are created fo k categorical levels, as to
+    avoid perfect multicollinearity between the dummy features (also called
+    the dummy variable trap). This is done since features are usually one-hot
+    encoded for use with linear models, which require this behaviour.
+
+    Parameters
+    ----------
+    columns : single label, list-like or callable, default None
+        Column labels in the DataFrame to be encoded. If columns is None then
+        all the columns with object or category dtype will be converted, except
+        those given in the exclude_columns parameter. Alternatively,
+        this parameter can be assigned a callable returning an iterable of
+        labels from an input pandas.DataFrame. See `pdpipe.cq`.
+    dummy_na : bool, default False
+        Add a column to indicate NaNs, if False NaNs are ignored.
+    exclude_columns : single label, list-like or callable, default None
+        Label or labels of columns to be excluded from encoding. If None then
+        no column is excluded. Alternatively, this parameter can be assigned a
+        callable returning an iterable of labels from an input
+        pandas.DataFrame. See `pdpipe.cq`. Optional.
+    drop_first : bool or single label, default True
+        Whether to get k-1 dummies out of k categorical levels by removing the
+        first level. If a non bool argument matching one of the categories is
+        provided, the dummy column corresponding to this value is dropped
+        instead of the first level; if it matches no category the first
+        category will still be dropped.
+    drop : bool, default True
+        If set to True, the source columns are dropped after being encoded.
+
+    Example
+    -------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; df = pd.DataFrame([[&#39;USA&#39;], [&#39;UK&#39;], [&#39;Greece&#39;]], [1,2,3], [&#39;Born&#39;])
+        &gt;&gt;&gt; pdp.OneHotEncode().apply(df)
+           Born_UK  Born_USA
+        1        0         1
+        2        1         0
+        3        0         0
+    &#34;&#34;&#34;
+
+    class _FitterEncoder(object):
+        def __init__(self, col_name, dummy_columns):
+            self.col_name = col_name
+            self.dummy_columns = dummy_columns
+
+        def __call__(self, value):
+            this_dummy = f&#34;{self.col_name}_{value}&#34;
+            return pd.Series(
+                data=[
+                    int(this_dummy == dummy_col)
+                    for dummy_col in self.dummy_columns
+                ],
+                index=self.dummy_columns,
+            )
+
+    def __init__(
+        self,
+        columns=None,
+        dummy_na=False,
+        exclude_columns=None,
+        drop_first=True,
+        drop=True,
+        **kwargs
+    ):
+        self._dummy_na = dummy_na
+        self._drop_first = drop_first
+        self._drop = drop
+        self._dummy_col_map = {}
+        self._encoder_map = {}
+        super_kwargs = {
+            &#39;columns&#39;: columns,
+            &#39;exclude_columns&#39;: exclude_columns,
+            &#39;desc_temp&#39;: &#34;One-hot encode {}&#34;,
+        }
+        super_kwargs.update(**kwargs)
+        super_kwargs[&#39;none_columns&#39;] = OfDtypes([&#39;object&#39;, &#39;category&#39;])
+        super().__init__(**super_kwargs)
+
+    def _transformation(self, df, verbose, fit):
+        raise NotImplementedError
+
+    def _fit_transform(self, df, verbose):
+        columns_to_encode = self._get_columns(df, fit=True)
+        assign_map = {}
+        if verbose:
+            columns_to_encode = tqdm.tqdm(columns_to_encode)
+        for colname in columns_to_encode:
+            if verbose:
+                columns_to_encode.set_description(colname)
+            dummies = pd.get_dummies(
+                df[colname],
+                drop_first=False,
+                dummy_na=self._dummy_na,
+                prefix=colname,
+                prefix_sep=&#34;_&#34;,
+            )
+            nan_col = colname + &#34;_nan&#34;
+            if self._drop_first:
+                dfirst_col = colname + &#34;_&#34; + str(self._drop_first)
+                if dfirst_col in dummies:
+                    if verbose:
+                        print(
+                            (
+                                &#34;Dropping {} dummy column instead of first &#34;
+                                &#34;column when one-hot encoding {}.&#34;
+                            ).format(dfirst_col, colname)
+                        )
+                    dummies.drop(dfirst_col, axis=1, inplace=True)
+                elif nan_col in dummies:
+                    dummies.drop(nan_col, axis=1, inplace=True)
+                else:
+                    dummies.drop(dummies.columns[0], axis=1, inplace=True)
+            self._dummy_col_map[colname] = list(dummies.columns)
+            self._encoder_map[colname] = OneHotEncode._FitterEncoder(
+                colname, list(dummies.columns)
+            )
+            for column in dummies:
+                assign_map[column] = dummies[column]
+
+        inter_df = df.assign(**assign_map)
+        self.is_fitted = True
+        if self._drop:
+            return inter_df.drop(columns_to_encode, axis=1)
+        return inter_df
+
+    def _transform(self, df, verbose):
+        assign_map = {}
+        columns_to_encode = self._get_columns(df, fit=False)
+        for colname in columns_to_encode:
+            col = df[colname]
+            try:
+                encoder = self._encoder_map[colname]
+            except KeyError:  # pragma: no cover
+                raise PipelineApplicationError((
+                    &#34;Missing encoder for column {} when applying a fitted &#34;
+                    &#34;OneHotEncode pipeline stage by class {} !&#34;)
+                    .format(colname, self.__class__))
+            res_cols = col.apply(encoder)
+            for res_col in res_cols:
+                assign_map[res_col] = res_cols[res_col]
+        inter_df = df.assign(**assign_map)
+        if self._drop:
+            return inter_df.drop(columns_to_encode, axis=1)
+        return inter_df</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pdpipe.core.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></li>
+<li><a title="pdpipe.core.PdPipelineStage" href="core.html#pdpipe.core.PdPipelineStage">PdPipelineStage</a></li>
+<li>abc.ABC</li>
+</ul>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pdpipe.core.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.AdHocStage" href="core.html#pdpipe.core.PdPipelineStage.AdHocStage">AdHocStage</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.AggByCols" href="core.html#pdpipe.core.PdPipelineStage.AggByCols">AggByCols</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ApplyByCols" href="core.html#pdpipe.core.PdPipelineStage.ApplyByCols">ApplyByCols</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ApplyToRows" href="core.html#pdpipe.core.PdPipelineStage.ApplyToRows">ApplyToRows</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Bin" href="core.html#pdpipe.core.PdPipelineStage.Bin">Bin</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColByFrameFunc" href="core.html#pdpipe.core.PdPipelineStage.ColByFrameFunc">ColByFrameFunc</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColDrop" href="core.html#pdpipe.core.PdPipelineStage.ColDrop">ColDrop</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColRename" href="core.html#pdpipe.core.PdPipelineStage.ColRename">ColRename</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColReorder" href="core.html#pdpipe.core.PdPipelineStage.ColReorder">ColReorder</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnDtypeEnforcer" href="core.html#pdpipe.core.PdPipelineStage.ColumnDtypeEnforcer">ColumnDtypeEnforcer</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnTransformer" href="core.html#pdpipe.core.PdPipelineStage.ColumnTransformer">ColumnTransformer</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ColumnsBasedPipelineStage" href="core.html#pdpipe.core.PdPipelineStage.ColumnsBasedPipelineStage">ColumnsBasedPipelineStage</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ConditionValidator" href="core.html#pdpipe.core.PdPipelineStage.ConditionValidator">ConditionValidator</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropDuplicates" href="core.html#pdpipe.core.PdPipelineStage.DropDuplicates">DropDuplicates</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropNa" href="core.html#pdpipe.core.PdPipelineStage.DropNa">DropNa</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropRareTokens" href="core.html#pdpipe.core.PdPipelineStage.DropRareTokens">DropRareTokens</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropTokensByLength" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByLength">DropTokensByLength</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.DropTokensByList" href="core.html#pdpipe.core.PdPipelineStage.DropTokensByList">DropTokensByList</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Encode" href="core.html#pdpipe.core.PdPipelineStage.Encode">Encode</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.FitOnly" href="core.html#pdpipe.core.PdPipelineStage.FitOnly">FitOnly</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.FreqDrop" href="core.html#pdpipe.core.PdPipelineStage.FreqDrop">FreqDrop</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Log" href="core.html#pdpipe.core.PdPipelineStage.Log">Log</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.MapColVals" href="core.html#pdpipe.core.PdPipelineStage.MapColVals">MapColVals</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.OneHotEncode" href="core.html#pdpipe.core.PdPipelineStage.OneHotEncode">OneHotEncode</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.PdPipeline" href="core.html#pdpipe.core.PdPipelineStage.PdPipeline">PdPipeline</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.RegexReplace" href="core.html#pdpipe.core.PdPipelineStage.RegexReplace">RegexReplace</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.RemoveStopwords" href="core.html#pdpipe.core.PdPipelineStage.RemoveStopwords">RemoveStopwords</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.RowDrop" href="core.html#pdpipe.core.PdPipelineStage.RowDrop">RowDrop</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Scale" href="core.html#pdpipe.core.PdPipelineStage.Scale">Scale</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.Schematize" href="core.html#pdpipe.core.PdPipelineStage.Schematize">Schematize</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.SetIndex" href="core.html#pdpipe.core.PdPipelineStage.SetIndex">SetIndex</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.SnowballStem" href="core.html#pdpipe.core.PdPipelineStage.SnowballStem">SnowballStem</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.TfidfVectorizeTokenLists" href="core.html#pdpipe.core.PdPipelineStage.TfidfVectorizeTokenLists">TfidfVectorizeTokenLists</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.TokenizeText" href="core.html#pdpipe.core.PdPipelineStage.TokenizeText">TokenizeText</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.UntokenizeText" href="core.html#pdpipe.core.PdPipelineStage.UntokenizeText">UntokenizeText</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ValDrop" href="core.html#pdpipe.core.PdPipelineStage.ValDrop">ValDrop</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.ValKeep" href="core.html#pdpipe.core.PdPipelineStage.ValKeep">ValKeep</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.apply" href="core.html#pdpipe.core.PdPipelineStage.apply">apply</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.description" href="core.html#pdpipe.core.PdPipelineStage.description">description</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.fit" href="core.html#pdpipe.core.PdPipelineStage.fit">fit</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.fit_transform" href="core.html#pdpipe.core.PdPipelineStage.fit_transform">fit_transform</a></code></li>
+<li><code><a title="pdpipe.core.ColumnsBasedPipelineStage.transform" href="core.html#pdpipe.core.PdPipelineStage.transform">transform</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pdpipe" href="index.html">pdpipe</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pdpipe.col_generation.AggByCols" href="#pdpipe.col_generation.AggByCols">AggByCols</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pdpipe.col_generation.ApplyByCols" href="#pdpipe.col_generation.ApplyByCols">ApplyByCols</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pdpipe.col_generation.ApplyToRows" href="#pdpipe.col_generation.ApplyToRows">ApplyToRows</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pdpipe.col_generation.Bin" href="#pdpipe.col_generation.Bin">Bin</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pdpipe.col_generation.ColByFrameFunc" href="#pdpipe.col_generation.ColByFrameFunc">ColByFrameFunc</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pdpipe.col_generation.ColumnTransformer" href="#pdpipe.col_generation.ColumnTransformer">ColumnTransformer</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pdpipe.col_generation.Log" href="#pdpipe.col_generation.Log">Log</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pdpipe.col_generation.MapColVals" href="#pdpipe.col_generation.MapColVals">MapColVals</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pdpipe.col_generation.OneHotEncode" href="#pdpipe.col_generation.OneHotEncode">OneHotEncode</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

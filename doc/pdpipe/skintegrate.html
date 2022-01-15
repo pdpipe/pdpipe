@@ -1,0 +1,1047 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>pdpipe.skintegrate API documentation</title>
+<meta name="description" content="Classes for sklearn integration …" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pdpipe.skintegrate</code></h1>
+</header>
+<section id="section-intro">
+<p>Classes for sklearn integration.</p>
+<p>Despite similar names, there is a difference between pdpipe PdPipeline and
+sklearn.pipeline.Pipeline. PdPipeline can only chain transformers while
+scikit-learn Pipeline objects can further include the final estimator to
+provide additional methods such as <code>predict</code> and <code>predict_proba</code>.</p>
+<p>This means that by itself, pdpipe PdPipeline does not integrate well with some
+of scikit-learn utility classes such as sklearn.model_selection.GridSearchCV
+compared to sklearn.pipeline.Pipeline.</p>
+<p>This module resolves such integration issues. Refer to the notebooks folder of
+the pdpipe repository for complete examples.</p>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">&#34;&#34;&#34;Classes for sklearn integration.
+
+Despite similar names, there is a difference between pdpipe PdPipeline and
+sklearn.pipeline.Pipeline. PdPipeline can only chain transformers while
+scikit-learn Pipeline objects can further include the final estimator to
+provide additional methods such as `predict` and `predict_proba`.
+
+This means that by itself, pdpipe PdPipeline does not integrate well with some
+of scikit-learn utility classes such as sklearn.model_selection.GridSearchCV
+compared to sklearn.pipeline.Pipeline.
+
+This module resolves such integration issues. Refer to the notebooks folder of
+the pdpipe repository for complete examples.
+&#34;&#34;&#34;
+
+from typing import Callable
+from functools import update_wrapper
+
+import pandas as pd
+from sklearn.base import BaseEstimator
+from sklearn.utils.validation import check_is_fitted
+
+from .core import PdPipeline
+
+
+def _estimator_has(attr):
+    &#34;&#34;&#34;Check if we can delegate a method to the underlying estimator.
+
+    Calling a prediction method will only be available if `refit=True`. In
+    such case, we check first the fitted best estimator. If it is not
+    fitted, we check the unfitted estimator.
+
+    Checking the unfitted estimator allows to use `hasattr` on the `SearchCV`
+    instance even before calling `fit`.
+    &#34;&#34;&#34;
+
+    def check(self):
+        # raise an AttributeError if `attr` does not exist
+        getattr(self.estimator, attr)
+        return True
+
+    return check
+
+
+class _AvailableIfDescriptor:  # pragma: no cover
+    &#34;&#34;&#34;Implements a conditional property using the descriptor protocol.
+
+    Using this class to create a decorator will raise an ``AttributeError``
+    if check(self) returns a falsey value. Note that if check raises an error
+    this will also result in hasattr returning false.
+
+    See https://docs.python.org/3/howto/descriptor.html for an explanation of
+    descriptors.
+    &#34;&#34;&#34;
+
+    def __init__(self, fn, check, attribute_name):
+        self.fn = fn
+        self.check = check
+        self.attribute_name = attribute_name
+
+        # update the docstring of the descriptor
+        update_wrapper(self, fn)
+
+    def __get__(self, obj, owner=None):
+        attr_err = AttributeError(
+            f&#34;This {repr(owner.__name__)} has no attribute &#34;
+            f&#34;{repr(self.attribute_name)}&#34;
+        )
+        if obj is not None:
+            # delegate only on instances, not the classes.
+            # this is to allow access to the docstrings.
+            if not self.check(obj):
+                raise attr_err
+
+            # lambda, but not partial, allows help() to work with
+            # update_wrapper
+            out = lambda *args, **kwargs: self.fn(obj, *args, **kwargs)  # noqa
+        else:
+
+            def fn(*args, **kwargs):
+                if not self.check(args[0]):
+                    raise attr_err
+                return self.fn(*args, **kwargs)
+
+            # This makes it possible to use the decorated method as an
+            # unbound method,
+            # for instance when monkeypatching.
+            out = lambda *args, **kwargs: fn(*args, **kwargs)  # noqa
+        # update the docstring of the returned function
+        update_wrapper(out, self.fn)
+        return out
+
+
+def available_if(check):
+    &#34;&#34;&#34;An attribute that is available only if check returns a truthy value.
+
+    Parameters
+    ----------
+    check : callable
+        When passed the object with the decorated method, this should return
+        a truthy value if the attribute is available, and either return False
+        or raise an AttributeError if not available.
+    &#34;&#34;&#34;
+    return lambda fn: _AvailableIfDescriptor(
+        fn, check, attribute_name=fn.__name__)
+
+
+class PdPipelineAndSklearnEstimator(BaseEstimator):
+    &#34;&#34;&#34;A PdPipeline object chained before an sklearn estimator object.
+
+    This kind of object can also be used with sklearn&#39;s GridSearchCV.
+
+    See the pipeline_and_model.ipynb notebook in the notebooks folder of the
+    pdpipe repository for a tutorial on how to use this class.
+
+    Parameters
+    ----------
+    pipeline : PdPipeline
+        The preprocssing pipeline to connect.
+    model : sklearn.base.BaseEstimator
+        The model to connect to the pipeline.
+
+    Example
+    ----------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; from pdpipe.skintegrate import PdPipelineAndSklearnEstimator;
+        &gt;&gt;&gt; from sklearn.linear_model import LogisticRegression;
+        &gt;&gt;&gt; DF2 = pd.DataFrame(
+        ...    data=[[&#39;-1&#39;,0], [&#39;-1&#39;,0], [&#39;1&#39;,1], [&#39;1&#39;,1]],
+        ...    index=[1, 2, 3, 4],
+        ...    columns=[&#39;feature1&#39;, &#39;target&#39;]
+        ... )
+        &gt;&gt;&gt; all_x = DF2[[&#39;feature1&#39;]]
+        &gt;&gt;&gt; all_y = DF2[&#39;target&#39;]
+        &gt;&gt;&gt; mp = PdPipelineAndSklearnEstimator(
+        ...    pipeline=pdp.ColumnDtypeEnforcer({&#39;feature1&#39;: int}),
+        ...    estimator=LogisticRegression()
+        ... )
+        &gt;&gt;&gt; mp.fit(all_x, all_y)
+        &lt;PdPipeline -&gt; LogisticRegression&gt;
+        &gt;&gt;&gt; res = mp.predict(all_x)
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        pipeline: PdPipeline,
+        estimator: BaseEstimator,
+    ):
+        self.pipeline = pipeline
+        self.estimator = estimator
+        # if hasattr(estimator, &#34;score&#34;):
+        #     def _passthrough_scorer(estimator, *args, **kwargs):
+        #         &#34;&#34;&#34;Function that wraps estimator.score&#34;&#34;&#34;
+        #         return estimator.score(*args, **kwargs)
+        #     self.score = _passthrough_scorer
+
+    def __str__(self):
+        try:
+            return f&#34;&lt;PdPipeline -&gt; {self._est_cls_name}&gt;&#34;
+        except AttributeError:
+            self._est_cls_name = type(self.estimator).__name__
+            return self.__str__()
+
+    def __repr__(self):
+        return self.__str__()
+
+    def score(self, X, y=None):
+        post_X = self.pipeline.transform(X)
+        return self.estimator.score(post_X, y)
+
+    @property
+    def _estimator_type(self):
+        return self.estimator._estimator_type
+
+    @property
+    def classes_(self):
+        &#34;&#34;&#34;Class labels.
+        Only available when the estimator is a classifier.
+        &#34;&#34;&#34;
+        _estimator_has(&#34;classes_&#34;)(self)
+        return self.estimator.classes_
+
+    def fit(self, X, y):
+        &#34;&#34;&#34;A reference implementation of a fitting function.
+
+        Parameters
+        ----------
+        X : pandas.DataFrame, shape (n_samples, n_features)
+            The training input samples.
+        y : array-like, shape (n_samples,) or (n_samples, n_outputs)
+            The target values (class labels in classification, real numbers in
+            regression).
+
+        Returns
+        -------
+        self : object
+            Returns self.
+        &#34;&#34;&#34;
+        # X, y = check_X_y(X, y, accept_sparse=True)
+        post_X = self.pipeline.fit_transform(X=X, y=y)
+        self.estimator.fit(X=post_X.values, y=y.values)
+        self.is_fitted_ = True
+        return self
+
+    @available_if(_estimator_has(&#34;predict&#34;))
+    def predict(self, X):
+        &#34;&#34;&#34; A reference implementation of a predicting function.
+
+        Parameters
+        ----------
+        X : {array-like, sparse matrix}, shape (n_samples, n_features)
+            The training input samples.
+
+        Returns
+        -------
+        y : ndarray, shape (n_samples,)
+            Returns an array of ones.
+            The predicted labels or values for `X` based on the estimator with
+            the best found parameters.
+        &#34;&#34;&#34;
+        # X = check_array(X, accept_sparse=True)
+        check_is_fitted(self, &#39;is_fitted_&#39;)
+        post_X = self.pipeline.transform(X=X)
+        y_pred = self.estimator.predict(X=post_X.values)
+        return y_pred
+
+    @available_if(_estimator_has(&#34;predict_proba&#34;))
+    def predict_proba(self, X):
+        &#34;&#34;&#34;Call predict_proba on the estimator with the best found parameters.
+        Only available if the underlying estimator supports
+        ``predict_proba``.
+
+        Parameters
+        ----------
+        X : indexable, length n_samples
+            Must fulfill the input assumptions of the
+            underlying estimator.
+        Returns
+        -------
+        y_pred : ndarray of shape (n_samples,) or (n_samples, n_classes)
+            Predicted class probabilities for `X` based on the estimator with
+            the best found parameters. The order of the classes corresponds
+            to that in the fitted attribute :term:`classes_`.
+        &#34;&#34;&#34;
+        check_is_fitted(self, &#39;is_fitted_&#39;)
+        post_X = self.pipeline.transform(X=X)
+        y_pred = self.estimator.predict_proba(X=post_X.values)
+        return y_pred
+
+    @available_if(_estimator_has(&#34;predict_log_proba&#34;))
+    def predict_log_proba(self, X):
+        &#34;&#34;&#34;Call predict_log_proba on the estimator with the best found parameters.
+        Only available if the underlying estimator supports
+        ``predict_log_proba``.
+
+        Parameters
+        ----------
+        X : indexable, length n_samples
+            Must fulfill the input assumptions of the
+            underlying estimator.
+        Returns
+        -------
+        y_pred : ndarray of shape (n_samples,) or (n_samples, n_classes)
+            Predicted class log-probabilities for `X` based on the estimator
+            with the best found parameters. The order of the classes
+            corresponds to that in the fitted attribute :term:`classes_`.
+        &#34;&#34;&#34;
+        check_is_fitted(self, &#39;is_fitted_&#39;)
+        post_X = self.pipeline.transform(X=X)
+        y_pred = self.estimator.predict_log_proba(X=post_X.values)
+        return y_pred
+
+    @available_if(_estimator_has(&#34;decision_function&#34;))
+    def decision_function(self, X):
+        &#34;&#34;&#34;Call decision_function on the estimator with the best found parameters.
+        Only available if the underlying estimator supports
+        ``decision_function``.
+
+        Parameters
+        ----------
+        X : indexable, length n_samples
+            Must fulfill the input assumptions of the
+            underlying estimator.
+        Returns
+        -------
+        y_score : ndarray of shape (n_samples,) or (n_samples, n_classes) \
+                or (n_samples, n_classes * (n_classes-1) / 2)
+            Result of the decision function for `X` based on the estimator with
+            the best found parameters.
+        &#34;&#34;&#34;
+        check_is_fitted(self, &#39;is_fitted_&#39;)
+        post_X = self.pipeline.transform(X=X)
+        y_score = self.estimator.decision_function(X=post_X.values)
+        return y_score
+
+
+# scorers that work with the pipline+model object
+
+class _PdPipeScorer:
+    &#34;&#34;&#34;A pdpipe scorer object wrapping a standard sklearn scorer.
+
+    Parameters
+    ----------
+    scorer : Callable
+        The wrapped sklearn scorer.
+    &#34;&#34;&#34;
+
+    def __init__(self, scorer: Callable) -&gt; None:
+        self._scorer = scorer
+
+    def __call__(
+        self,
+        estimator: PdPipelineAndSklearnEstimator,
+        X: pd.DataFrame,
+        y=None,
+        **kwargs,
+    ):
+        post_X = estimator.pipeline.transform(X)
+        return self._scorer(
+            estimator.estimator,
+            post_X,
+            y,
+            **kwargs,
+        )
+
+    def __repr__(self) -&gt; str:
+        rs = repr(self._scorer)
+        return f&#39;&lt;PdPipeScorer: {rs}&gt;&#39;
+
+
+def pdpipe_scorer_from_sklearn_scorer(scorer: Callable) -&gt; Callable:
+    &#34;&#34;&#34;Converts an sklearn scorer to one that will work with pdpipe.
+
+    The returned scorer function can then be used with sklearn&#39;s
+    model-evaluation tools using cross-validation (such as
+    model_selection.cross_val_score and model_selection.GridSearchCV), when
+    searching over the hyperparameter space of a PdPipelineAndSklearnEstimator
+    object.
+
+    See the pipeline_and_model_with_test_test.ipynb notebook in the notebooks
+    folder of the pdpipe repository for a complete example.
+
+    Parameters
+    ----------
+    scorer : callable
+        A function with the signature `scorer(estimator, X, y)`. To build one
+        from an sklearn `score` function (with a signature of the form
+        `score(y_true, y_pred, ...)`) use the `sklearn.metrics.make_scorer`
+        function.
+
+    Returns
+    -------
+    pdpipe_scorer : callable
+        A scorer that is aware of the fact that PdPipelineAndSklearnEstimator
+        has an inner pipeline object that should be used to transform input
+        X (which is a dataframe when using pdpipe, and not a numpy.ndarray).
+    &#34;&#34;&#34;
+    return _PdPipeScorer(scorer)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pdpipe.skintegrate.available_if"><code class="name flex">
+<span>def <span class="ident">available_if</span></span>(<span>check)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An attribute that is available only if check returns a truthy value.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>check</code></strong> :&ensp;<code>callable</code></dt>
+<dd>When passed the object with the decorated method, this should return
+a truthy value if the attribute is available, and either return False
+or raise an AttributeError if not available.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def available_if(check):
+    &#34;&#34;&#34;An attribute that is available only if check returns a truthy value.
+
+    Parameters
+    ----------
+    check : callable
+        When passed the object with the decorated method, this should return
+        a truthy value if the attribute is available, and either return False
+        or raise an AttributeError if not available.
+    &#34;&#34;&#34;
+    return lambda fn: _AvailableIfDescriptor(
+        fn, check, attribute_name=fn.__name__)</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.skintegrate.pdpipe_scorer_from_sklearn_scorer"><code class="name flex">
+<span>def <span class="ident">pdpipe_scorer_from_sklearn_scorer</span></span>(<span>scorer: Callable) ‑> Callable</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Converts an sklearn scorer to one that will work with pdpipe.</p>
+<p>The returned scorer function can then be used with sklearn's
+model-evaluation tools using cross-validation (such as
+model_selection.cross_val_score and model_selection.GridSearchCV), when
+searching over the hyperparameter space of a PdPipelineAndSklearnEstimator
+object.</p>
+<p>See the pipeline_and_model_with_test_test.ipynb notebook in the notebooks
+folder of the pdpipe repository for a complete example.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>scorer</code></strong> :&ensp;<code>callable</code></dt>
+<dd>A function with the signature <code>scorer(estimator, X, y)</code>. To build one
+from an sklearn <code>score</code> function (with a signature of the form
+<code>score(y_true, y_pred, &hellip;)</code>) use the <code>sklearn.metrics.make_scorer</code>
+function.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>pdpipe_scorer</code></strong> :&ensp;<code>callable</code></dt>
+<dd>A scorer that is aware of the fact that PdPipelineAndSklearnEstimator
+has an inner pipeline object that should be used to transform input
+X (which is a dataframe when using pdpipe, and not a numpy.ndarray).</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def pdpipe_scorer_from_sklearn_scorer(scorer: Callable) -&gt; Callable:
+    &#34;&#34;&#34;Converts an sklearn scorer to one that will work with pdpipe.
+
+    The returned scorer function can then be used with sklearn&#39;s
+    model-evaluation tools using cross-validation (such as
+    model_selection.cross_val_score and model_selection.GridSearchCV), when
+    searching over the hyperparameter space of a PdPipelineAndSklearnEstimator
+    object.
+
+    See the pipeline_and_model_with_test_test.ipynb notebook in the notebooks
+    folder of the pdpipe repository for a complete example.
+
+    Parameters
+    ----------
+    scorer : callable
+        A function with the signature `scorer(estimator, X, y)`. To build one
+        from an sklearn `score` function (with a signature of the form
+        `score(y_true, y_pred, ...)`) use the `sklearn.metrics.make_scorer`
+        function.
+
+    Returns
+    -------
+    pdpipe_scorer : callable
+        A scorer that is aware of the fact that PdPipelineAndSklearnEstimator
+        has an inner pipeline object that should be used to transform input
+        X (which is a dataframe when using pdpipe, and not a numpy.ndarray).
+    &#34;&#34;&#34;
+    return _PdPipeScorer(scorer)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pdpipe.skintegrate.PdPipelineAndSklearnEstimator"><code class="flex name class">
+<span>class <span class="ident">PdPipelineAndSklearnEstimator</span></span>
+<span>(</span><span>pipeline: <a title="pdpipe.core.PdPipeline" href="core.html#pdpipe.core.PdPipeline">PdPipeline</a>, estimator: sklearn.base.BaseEstimator)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A PdPipeline object chained before an sklearn estimator object.</p>
+<p>This kind of object can also be used with sklearn's GridSearchCV.</p>
+<p>See the pipeline_and_model.ipynb notebook in the notebooks folder of the
+pdpipe repository for a tutorial on how to use this class.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>pipeline</code></strong> :&ensp;<code>PdPipeline</code></dt>
+<dd>The preprocssing pipeline to connect.</dd>
+<dt><strong><code>model</code></strong> :&ensp;<code>sklearn.base.BaseEstimator</code></dt>
+<dd>The model to connect to the pipeline.</dd>
+</dl>
+<h2 id="example">Example</h2>
+<pre><code>&gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+&gt;&gt;&gt; from pdpipe.skintegrate import PdPipelineAndSklearnEstimator;
+&gt;&gt;&gt; from sklearn.linear_model import LogisticRegression;
+&gt;&gt;&gt; DF2 = pd.DataFrame(
+...    data=[['-1',0], ['-1',0], ['1',1], ['1',1]],
+...    index=[1, 2, 3, 4],
+...    columns=['feature1', 'target']
+... )
+&gt;&gt;&gt; all_x = DF2[['feature1']]
+&gt;&gt;&gt; all_y = DF2['target']
+&gt;&gt;&gt; mp = PdPipelineAndSklearnEstimator(
+...    pipeline=pdp.ColumnDtypeEnforcer({'feature1': int}),
+...    estimator=LogisticRegression()
+... )
+&gt;&gt;&gt; mp.fit(all_x, all_y)
+&lt;PdPipeline -&gt; LogisticRegression&gt;
+&gt;&gt;&gt; res = mp.predict(all_x)
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PdPipelineAndSklearnEstimator(BaseEstimator):
+    &#34;&#34;&#34;A PdPipeline object chained before an sklearn estimator object.
+
+    This kind of object can also be used with sklearn&#39;s GridSearchCV.
+
+    See the pipeline_and_model.ipynb notebook in the notebooks folder of the
+    pdpipe repository for a tutorial on how to use this class.
+
+    Parameters
+    ----------
+    pipeline : PdPipeline
+        The preprocssing pipeline to connect.
+    model : sklearn.base.BaseEstimator
+        The model to connect to the pipeline.
+
+    Example
+    ----------
+        &gt;&gt;&gt; import pandas as pd; import pdpipe as pdp;
+        &gt;&gt;&gt; from pdpipe.skintegrate import PdPipelineAndSklearnEstimator;
+        &gt;&gt;&gt; from sklearn.linear_model import LogisticRegression;
+        &gt;&gt;&gt; DF2 = pd.DataFrame(
+        ...    data=[[&#39;-1&#39;,0], [&#39;-1&#39;,0], [&#39;1&#39;,1], [&#39;1&#39;,1]],
+        ...    index=[1, 2, 3, 4],
+        ...    columns=[&#39;feature1&#39;, &#39;target&#39;]
+        ... )
+        &gt;&gt;&gt; all_x = DF2[[&#39;feature1&#39;]]
+        &gt;&gt;&gt; all_y = DF2[&#39;target&#39;]
+        &gt;&gt;&gt; mp = PdPipelineAndSklearnEstimator(
+        ...    pipeline=pdp.ColumnDtypeEnforcer({&#39;feature1&#39;: int}),
+        ...    estimator=LogisticRegression()
+        ... )
+        &gt;&gt;&gt; mp.fit(all_x, all_y)
+        &lt;PdPipeline -&gt; LogisticRegression&gt;
+        &gt;&gt;&gt; res = mp.predict(all_x)
+    &#34;&#34;&#34;
+
+    def __init__(
+        self,
+        pipeline: PdPipeline,
+        estimator: BaseEstimator,
+    ):
+        self.pipeline = pipeline
+        self.estimator = estimator
+        # if hasattr(estimator, &#34;score&#34;):
+        #     def _passthrough_scorer(estimator, *args, **kwargs):
+        #         &#34;&#34;&#34;Function that wraps estimator.score&#34;&#34;&#34;
+        #         return estimator.score(*args, **kwargs)
+        #     self.score = _passthrough_scorer
+
+    def __str__(self):
+        try:
+            return f&#34;&lt;PdPipeline -&gt; {self._est_cls_name}&gt;&#34;
+        except AttributeError:
+            self._est_cls_name = type(self.estimator).__name__
+            return self.__str__()
+
+    def __repr__(self):
+        return self.__str__()
+
+    def score(self, X, y=None):
+        post_X = self.pipeline.transform(X)
+        return self.estimator.score(post_X, y)
+
+    @property
+    def _estimator_type(self):
+        return self.estimator._estimator_type
+
+    @property
+    def classes_(self):
+        &#34;&#34;&#34;Class labels.
+        Only available when the estimator is a classifier.
+        &#34;&#34;&#34;
+        _estimator_has(&#34;classes_&#34;)(self)
+        return self.estimator.classes_
+
+    def fit(self, X, y):
+        &#34;&#34;&#34;A reference implementation of a fitting function.
+
+        Parameters
+        ----------
+        X : pandas.DataFrame, shape (n_samples, n_features)
+            The training input samples.
+        y : array-like, shape (n_samples,) or (n_samples, n_outputs)
+            The target values (class labels in classification, real numbers in
+            regression).
+
+        Returns
+        -------
+        self : object
+            Returns self.
+        &#34;&#34;&#34;
+        # X, y = check_X_y(X, y, accept_sparse=True)
+        post_X = self.pipeline.fit_transform(X=X, y=y)
+        self.estimator.fit(X=post_X.values, y=y.values)
+        self.is_fitted_ = True
+        return self
+
+    @available_if(_estimator_has(&#34;predict&#34;))
+    def predict(self, X):
+        &#34;&#34;&#34; A reference implementation of a predicting function.
+
+        Parameters
+        ----------
+        X : {array-like, sparse matrix}, shape (n_samples, n_features)
+            The training input samples.
+
+        Returns
+        -------
+        y : ndarray, shape (n_samples,)
+            Returns an array of ones.
+            The predicted labels or values for `X` based on the estimator with
+            the best found parameters.
+        &#34;&#34;&#34;
+        # X = check_array(X, accept_sparse=True)
+        check_is_fitted(self, &#39;is_fitted_&#39;)
+        post_X = self.pipeline.transform(X=X)
+        y_pred = self.estimator.predict(X=post_X.values)
+        return y_pred
+
+    @available_if(_estimator_has(&#34;predict_proba&#34;))
+    def predict_proba(self, X):
+        &#34;&#34;&#34;Call predict_proba on the estimator with the best found parameters.
+        Only available if the underlying estimator supports
+        ``predict_proba``.
+
+        Parameters
+        ----------
+        X : indexable, length n_samples
+            Must fulfill the input assumptions of the
+            underlying estimator.
+        Returns
+        -------
+        y_pred : ndarray of shape (n_samples,) or (n_samples, n_classes)
+            Predicted class probabilities for `X` based on the estimator with
+            the best found parameters. The order of the classes corresponds
+            to that in the fitted attribute :term:`classes_`.
+        &#34;&#34;&#34;
+        check_is_fitted(self, &#39;is_fitted_&#39;)
+        post_X = self.pipeline.transform(X=X)
+        y_pred = self.estimator.predict_proba(X=post_X.values)
+        return y_pred
+
+    @available_if(_estimator_has(&#34;predict_log_proba&#34;))
+    def predict_log_proba(self, X):
+        &#34;&#34;&#34;Call predict_log_proba on the estimator with the best found parameters.
+        Only available if the underlying estimator supports
+        ``predict_log_proba``.
+
+        Parameters
+        ----------
+        X : indexable, length n_samples
+            Must fulfill the input assumptions of the
+            underlying estimator.
+        Returns
+        -------
+        y_pred : ndarray of shape (n_samples,) or (n_samples, n_classes)
+            Predicted class log-probabilities for `X` based on the estimator
+            with the best found parameters. The order of the classes
+            corresponds to that in the fitted attribute :term:`classes_`.
+        &#34;&#34;&#34;
+        check_is_fitted(self, &#39;is_fitted_&#39;)
+        post_X = self.pipeline.transform(X=X)
+        y_pred = self.estimator.predict_log_proba(X=post_X.values)
+        return y_pred
+
+    @available_if(_estimator_has(&#34;decision_function&#34;))
+    def decision_function(self, X):
+        &#34;&#34;&#34;Call decision_function on the estimator with the best found parameters.
+        Only available if the underlying estimator supports
+        ``decision_function``.
+
+        Parameters
+        ----------
+        X : indexable, length n_samples
+            Must fulfill the input assumptions of the
+            underlying estimator.
+        Returns
+        -------
+        y_score : ndarray of shape (n_samples,) or (n_samples, n_classes) \
+                or (n_samples, n_classes * (n_classes-1) / 2)
+            Result of the decision function for `X` based on the estimator with
+            the best found parameters.
+        &#34;&#34;&#34;
+        check_is_fitted(self, &#39;is_fitted_&#39;)
+        post_X = self.pipeline.transform(X=X)
+        y_score = self.estimator.decision_function(X=post_X.values)
+        return y_score</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>sklearn.base.BaseEstimator</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="pdpipe.skintegrate.PdPipelineAndSklearnEstimator.classes_"><code class="name">var <span class="ident">classes_</span></code></dt>
+<dd>
+<div class="desc"><p>Class labels.
+Only available when the estimator is a classifier.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def classes_(self):
+    &#34;&#34;&#34;Class labels.
+    Only available when the estimator is a classifier.
+    &#34;&#34;&#34;
+    _estimator_has(&#34;classes_&#34;)(self)
+    return self.estimator.classes_</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pdpipe.skintegrate.PdPipelineAndSklearnEstimator.decision_function"><code class="name flex">
+<span>def <span class="ident">decision_function</span></span>(<span>self, X)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Call decision_function on the estimator with the best found parameters.
+Only available if the underlying estimator supports
+<code>decision_function</code>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>X</code></strong> :&ensp;<code>indexable, length n_samples</code></dt>
+<dd>Must fulfill the input assumptions of the
+underlying estimator.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>y_score</code></strong> :&ensp;<code>ndarray</code> of <code>shape (n_samples,)</code> or <code>(n_samples, n_classes)</code>
+or <code>(n_samples, n_classes * (n_classes-1) / 2)</code></dt>
+<dd>Result of the decision function for <code>X</code> based on the estimator with
+the best found parameters.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@available_if(_estimator_has(&#34;decision_function&#34;))
+def decision_function(self, X):
+    &#34;&#34;&#34;Call decision_function on the estimator with the best found parameters.
+    Only available if the underlying estimator supports
+    ``decision_function``.
+
+    Parameters
+    ----------
+    X : indexable, length n_samples
+        Must fulfill the input assumptions of the
+        underlying estimator.
+    Returns
+    -------
+    y_score : ndarray of shape (n_samples,) or (n_samples, n_classes) \
+            or (n_samples, n_classes * (n_classes-1) / 2)
+        Result of the decision function for `X` based on the estimator with
+        the best found parameters.
+    &#34;&#34;&#34;
+    check_is_fitted(self, &#39;is_fitted_&#39;)
+    post_X = self.pipeline.transform(X=X)
+    y_score = self.estimator.decision_function(X=post_X.values)
+    return y_score</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.skintegrate.PdPipelineAndSklearnEstimator.fit"><code class="name flex">
+<span>def <span class="ident">fit</span></span>(<span>self, X, y)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A reference implementation of a fitting function.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>X</code></strong> :&ensp;<code>pandas.DataFrame, shape (n_samples, n_features)</code></dt>
+<dd>The training input samples.</dd>
+<dt><strong><code>y</code></strong> :&ensp;<code>array-like, shape (n_samples,)</code> or <code>(n_samples, n_outputs)</code></dt>
+<dd>The target values (class labels in classification, real numbers in
+regression).</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>self</code></strong> :&ensp;<code>object</code></dt>
+<dd>Returns self.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def fit(self, X, y):
+    &#34;&#34;&#34;A reference implementation of a fitting function.
+
+    Parameters
+    ----------
+    X : pandas.DataFrame, shape (n_samples, n_features)
+        The training input samples.
+    y : array-like, shape (n_samples,) or (n_samples, n_outputs)
+        The target values (class labels in classification, real numbers in
+        regression).
+
+    Returns
+    -------
+    self : object
+        Returns self.
+    &#34;&#34;&#34;
+    # X, y = check_X_y(X, y, accept_sparse=True)
+    post_X = self.pipeline.fit_transform(X=X, y=y)
+    self.estimator.fit(X=post_X.values, y=y.values)
+    self.is_fitted_ = True
+    return self</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.skintegrate.PdPipelineAndSklearnEstimator.predict"><code class="name flex">
+<span>def <span class="ident">predict</span></span>(<span>self, X)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>A reference implementation of a predicting function.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>X</code></strong> :&ensp;<code>{array-like, sparse matrix}, shape (n_samples, n_features)</code></dt>
+<dd>The training input samples.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>y</code></strong> :&ensp;<code>ndarray, shape (n_samples,)</code></dt>
+<dd>Returns an array of ones.
+The predicted labels or values for <code>X</code> based on the estimator with
+the best found parameters.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@available_if(_estimator_has(&#34;predict&#34;))
+def predict(self, X):
+    &#34;&#34;&#34; A reference implementation of a predicting function.
+
+    Parameters
+    ----------
+    X : {array-like, sparse matrix}, shape (n_samples, n_features)
+        The training input samples.
+
+    Returns
+    -------
+    y : ndarray, shape (n_samples,)
+        Returns an array of ones.
+        The predicted labels or values for `X` based on the estimator with
+        the best found parameters.
+    &#34;&#34;&#34;
+    # X = check_array(X, accept_sparse=True)
+    check_is_fitted(self, &#39;is_fitted_&#39;)
+    post_X = self.pipeline.transform(X=X)
+    y_pred = self.estimator.predict(X=post_X.values)
+    return y_pred</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.skintegrate.PdPipelineAndSklearnEstimator.predict_log_proba"><code class="name flex">
+<span>def <span class="ident">predict_log_proba</span></span>(<span>self, X)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Call predict_log_proba on the estimator with the best found parameters.
+Only available if the underlying estimator supports
+<code>predict_log_proba</code>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>X</code></strong> :&ensp;<code>indexable, length n_samples</code></dt>
+<dd>Must fulfill the input assumptions of the
+underlying estimator.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>y_pred</code></strong> :&ensp;<code>ndarray</code> of <code>shape (n_samples,)</code> or <code>(n_samples, n_classes)</code></dt>
+<dd>Predicted class log-probabilities for <code>X</code> based on the estimator
+with the best found parameters. The order of the classes
+corresponds to that in the fitted attribute :term:<code>classes_</code>.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@available_if(_estimator_has(&#34;predict_log_proba&#34;))
+def predict_log_proba(self, X):
+    &#34;&#34;&#34;Call predict_log_proba on the estimator with the best found parameters.
+    Only available if the underlying estimator supports
+    ``predict_log_proba``.
+
+    Parameters
+    ----------
+    X : indexable, length n_samples
+        Must fulfill the input assumptions of the
+        underlying estimator.
+    Returns
+    -------
+    y_pred : ndarray of shape (n_samples,) or (n_samples, n_classes)
+        Predicted class log-probabilities for `X` based on the estimator
+        with the best found parameters. The order of the classes
+        corresponds to that in the fitted attribute :term:`classes_`.
+    &#34;&#34;&#34;
+    check_is_fitted(self, &#39;is_fitted_&#39;)
+    post_X = self.pipeline.transform(X=X)
+    y_pred = self.estimator.predict_log_proba(X=post_X.values)
+    return y_pred</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.skintegrate.PdPipelineAndSklearnEstimator.predict_proba"><code class="name flex">
+<span>def <span class="ident">predict_proba</span></span>(<span>self, X)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Call predict_proba on the estimator with the best found parameters.
+Only available if the underlying estimator supports
+<code>predict_proba</code>.</p>
+<h2 id="parameters">Parameters</h2>
+<dl>
+<dt><strong><code>X</code></strong> :&ensp;<code>indexable, length n_samples</code></dt>
+<dd>Must fulfill the input assumptions of the
+underlying estimator.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><strong><code>y_pred</code></strong> :&ensp;<code>ndarray</code> of <code>shape (n_samples,)</code> or <code>(n_samples, n_classes)</code></dt>
+<dd>Predicted class probabilities for <code>X</code> based on the estimator with
+the best found parameters. The order of the classes corresponds
+to that in the fitted attribute :term:<code>classes_</code>.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@available_if(_estimator_has(&#34;predict_proba&#34;))
+def predict_proba(self, X):
+    &#34;&#34;&#34;Call predict_proba on the estimator with the best found parameters.
+    Only available if the underlying estimator supports
+    ``predict_proba``.
+
+    Parameters
+    ----------
+    X : indexable, length n_samples
+        Must fulfill the input assumptions of the
+        underlying estimator.
+    Returns
+    -------
+    y_pred : ndarray of shape (n_samples,) or (n_samples, n_classes)
+        Predicted class probabilities for `X` based on the estimator with
+        the best found parameters. The order of the classes corresponds
+        to that in the fitted attribute :term:`classes_`.
+    &#34;&#34;&#34;
+    check_is_fitted(self, &#39;is_fitted_&#39;)
+    post_X = self.pipeline.transform(X=X)
+    y_pred = self.estimator.predict_proba(X=post_X.values)
+    return y_pred</code></pre>
+</details>
+</dd>
+<dt id="pdpipe.skintegrate.PdPipelineAndSklearnEstimator.score"><code class="name flex">
+<span>def <span class="ident">score</span></span>(<span>self, X, y=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def score(self, X, y=None):
+    post_X = self.pipeline.transform(X)
+    return self.estimator.score(post_X, y)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pdpipe" href="index.html">pdpipe</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pdpipe.skintegrate.available_if" href="#pdpipe.skintegrate.available_if">available_if</a></code></li>
+<li><code><a title="pdpipe.skintegrate.pdpipe_scorer_from_sklearn_scorer" href="#pdpipe.skintegrate.pdpipe_scorer_from_sklearn_scorer">pdpipe_scorer_from_sklearn_scorer</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pdpipe.skintegrate.PdPipelineAndSklearnEstimator" href="#pdpipe.skintegrate.PdPipelineAndSklearnEstimator">PdPipelineAndSklearnEstimator</a></code></h4>
+<ul class="two-column">
+<li><code><a title="pdpipe.skintegrate.PdPipelineAndSklearnEstimator.classes_" href="#pdpipe.skintegrate.PdPipelineAndSklearnEstimator.classes_">classes_</a></code></li>
+<li><code><a title="pdpipe.skintegrate.PdPipelineAndSklearnEstimator.decision_function" href="#pdpipe.skintegrate.PdPipelineAndSklearnEstimator.decision_function">decision_function</a></code></li>
+<li><code><a title="pdpipe.skintegrate.PdPipelineAndSklearnEstimator.fit" href="#pdpipe.skintegrate.PdPipelineAndSklearnEstimator.fit">fit</a></code></li>
+<li><code><a title="pdpipe.skintegrate.PdPipelineAndSklearnEstimator.predict" href="#pdpipe.skintegrate.PdPipelineAndSklearnEstimator.predict">predict</a></code></li>
+<li><code><a title="pdpipe.skintegrate.PdPipelineAndSklearnEstimator.predict_log_proba" href="#pdpipe.skintegrate.PdPipelineAndSklearnEstimator.predict_log_proba">predict_log_proba</a></code></li>
+<li><code><a title="pdpipe.skintegrate.PdPipelineAndSklearnEstimator.predict_proba" href="#pdpipe.skintegrate.PdPipelineAndSklearnEstimator.predict_proba">predict_proba</a></code></li>
+<li><code><a title="pdpipe.skintegrate.PdPipelineAndSklearnEstimator.score" href="#pdpipe.skintegrate.PdPipelineAndSklearnEstimator.score">score</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>
