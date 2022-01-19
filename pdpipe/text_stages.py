@@ -33,25 +33,25 @@ class RegexReplace(ApplyByCols):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp; import re;
-        >>> data = [[4, "more than 12"], [5, "with 5 more"]]
-        >>> df = pd.DataFrame(data, [1,2], ["age","text"])
-        >>> clean_num = pdp.RegexReplace('text', r'\\b[0-9]+\\b', "NUM")
-        >>> clean_num(df)
-           age           text
-        1    4  more than NUM
-        2    5  with NUM more
+    >>> import pandas as pd; import pdpipe as pdp; import re;
+    >>> data = [[4, "more than 12"], [5, "with 5 more"]]
+    >>> df = pd.DataFrame(data, [1,2], ["age","text"])
+    >>> clean_num = pdp.RegexReplace('text', r'\\b[0-9]+\\b', "NUM")
+    >>> clean_num(df)
+       age           text
+    1    4  more than NUM
+    2    5  with NUM more
 
-        >>> data = [["Mr. John", 18], ["MR. Bob", 25]]
-        >>> df = pd.DataFrame(data, [1,2], ["name","age"])
-        >>> match_men = r'^mr.*'
-        >>> censor_men = pdp.RegexReplace(
-        ...    'name', match_men, "x", flags=re.IGNORECASE
-        ... )
-        >>> censor_men(df)
-          name  age
-        1    x   18
-        2    x   25
+    >>> data = [["Mr. John", 18], ["MR. Bob", 25]]
+    >>> df = pd.DataFrame(data, [1,2], ["name","age"])
+    >>> match_men = r'^mr.*'
+    >>> censor_men = pdp.RegexReplace(
+    ...    'name', match_men, "x", flags=re.IGNORECASE
+    ... )
+    >>> censor_men(df)
+      name  age
+    1    x   18
+    2    x   25
     """  # noqa: W605
 
     class RegexReplacer(object):
@@ -126,14 +126,14 @@ class DropTokensByLength(ApplyByCols):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> data = [[4, ["a", "bad", "nice"]], [5, ["good", "university"]]]
-        >>> df = pd.DataFrame(data, [1,2], ["age","text"])
-        >>> filter_tokens = pdp.DropTokensByLength('text', 3, 5)
-        >>> filter_tokens(df)
-           age         text
-        1    4  [bad, nice]
-        2    5       [good]
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> data = [[4, ["a", "bad", "nice"]], [5, ["good", "university"]]]
+    >>> df = pd.DataFrame(data, [1,2], ["age","text"])
+    >>> filter_tokens = pdp.DropTokensByLength('text', 3, 5)
+    >>> filter_tokens(df)
+       age         text
+    1    4  [bad, nice]
+    2    5       [good]
     """  # noqa: W605
 
     class MinLengthTokenFilter(object):
@@ -204,14 +204,14 @@ class DropTokensByList(ApplyByCols):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> data = [[4, ["a", "bad", "cat"]], [5, ["bad", "not", "good"]]]
-        >>> df = pd.DataFrame(data, [1,2], ["age","text"])
-        >>> filter_tokens = pdp.DropTokensByList('text', ['bad'])
-        >>> filter_tokens(df)
-           age         text
-        1    4     [a, cat]
-        2    5  [not, good]
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> data = [[4, ["a", "bad", "cat"]], [5, ["bad", "not", "good"]]]
+    >>> df = pd.DataFrame(data, [1,2], ["age","text"])
+    >>> filter_tokens = pdp.DropTokensByList('text', ['bad'])
+    >>> filter_tokens(df)
+       age         text
+    1    4     [a, cat]
+    2    5  [not, good]
     """  # noqa: W605
 
     class ListTokenFilter(object):

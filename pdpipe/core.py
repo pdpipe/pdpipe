@@ -1,88 +1,4 @@
-"""Defines pipelines for processing pandas.DataFrame-based datasets.
-
->>> import pdpipe as pdp
->>> pipeline = pdp.ColDrop('Name') + pdp.Bin({'Speed': [0,5]})
->>> pipeline = pdp.ColDrop('Name').Bin({'Speed': [0,5]}, drop=True)
-
-## Creating pipeline stages that operate on column subsets
-
-Many pipeline stages in pdpipe operate on a subset of columns, allowing the
-caller to determine this subset by either providing a fixed set of column
-labels or by providing a callable that determines the column subset dynamically
-from input dataframes. The `pdpipe.cq` module addresses a unique but important
-use case of fittable column qualifier, which is to dynamically extract a column
-subset on stage fit time, but keep it fixed for future transformations.
-
-As a general rule, every pipeline stage in pdpipe that supports the `columns`
-parameter should inherently support fittable column qualifier, and generally
-the correct interpretation of both single and multiple labels as arguments. To
-unify the implementation of such functionality, and ease of creation of new
-pipeline stages, such columns should be created by extending the
-ColumnsBasedPipelineStage base class, found in this module (`pdpipe.core`).
-
-The main interface of sub-classes of this base class with it is through the
-`columns`, `exclude_columns` and `none_columns` constructor arguments, and the
-"private" `_get_columns(df, fit)` method:
-
-* Any extending subclass should accept the `columns` constructor parameter
-  and forward it, without transforming it, to the constructor of
-  ColumnsBasedPipelineStage. E.g.
-  `super().__init__(columns=columns, **kwargs)`. See the implementation of
-  any such extending class for a more complete example.
-
-* Extending subclasses can decide if they want to expose the
-  `exclude_columns` parameter or not. Note that most of its functionality
-  can anyway be gained by providing the `columns` parameter with a column
-  qualifier object that is a difference between two column qualifiers; e.g.
-  `columns=cq.OfDtype(np.number) - cq.OfDtype(np.int64)` is equivalent to
-  providing `columns=cq.OfDtype(np.number),
-  exclude_columns=cq.OfDtype(np.int64)`. However, exposing the
-  `exclude_columns` parameter can allow for specific unique behaviours; for
-  example, if the `none_columns` parameter - which configures the behavior
-  when `columns` is provided with `None` - is set with
-  a `cq.OfDtypes('category')` column qualifier, which means that all
-  categorical columns are selected when `columns=None`, then exposing
-  `exclude_columns` allows for easy specification of the "all categorical
-  columns except X" by just giving a column qualifier capturing X to
-  `exclude_columns`, instead of having to reconstruct the default column
-  qualifier by hand and substract from it the one representing X.
-
-* When wishing to get the subset of columns to operate on, in
-  `fit_transform` or `transform` time, it is attained by calling
-  `self._get_columns(df, fit=True)` (or with `fit=False` if just
-  transforming), providing it the input dataframe.
-
-* Additionally, to get a description and application message with a nice
-  string representation of the list of columns to operate on, the
-  `desc_temp` constructor parameter of ColumnsBasedPipelineStage can be
-  provided with a format string with a place holder where the column list
-  should go. E.g. `"Drop columns {}"` for the DropCol pipeline stage.
-
-There are two correct ways to extend it, depending on whether the pipeline
-stage you're creating is inherently fittable or not:
-
-1. If the stage is NOT inherently fittable, then the ability to accept
-   fittable column qualifier objects makes it so. However, to enable
-   extending subclasses to implement their transformation using a single
-   method, they can simply implement the abstract method
-   `_transformation(self, df, verbose, fit)`. It should treat the `df` and
-   `verbose` parameters normally, but forward the `fit` parameter to the
-   `_get_columns` method when calling it. This is enough to get a pipeline
-   stage with the desired behavior, with the super-class handling all the
-   fit/transform functionality.
-
-2. If the stage IS inherently fittable, then do not use the
-   `_transformation` abstract method (it has to be implemented, so just
-   have it raise a NotImplementedError). Instead, simply override the
-   `_fit_transform` and `_transform` method of ColumnsBasedPipelineStage,
-   calling the `fit` parameter of the `_get_columns` method with the
-   correct arguement: `True` when fit-transforming and `False` when
-   transforming.
-
-Again, taking a look at the VERY concise implementation of simple columns-based
-stages, like ColDrop or ValDrop in `pdpipe.basic_stages`, will probably make
-things clearer, and you can use those implementations as a template for yours.
-"""
+"""Defines pipelines for processing pandas.DataFrame-based datasets."""
 
 import sys
 import abc
@@ -90,6 +6,9 @@ import time
 import inspect
 import collections
 import textwrap
+from typing import Iterable, Optional
+
+import pandas
 
 try:
     from pympler.asizeof import asizeof
@@ -111,7 +30,7 @@ from .exceptions import (
 
 # === loading stage attributes ===
 
-def __get_append_stage_attr_doc(class_obj):
+def __get_append_stage_attr_doc(class_obj: object) -> str:
     doc = class_obj.__doc__
     first_line = doc[0:doc.find('.') + 1]
     if "An" in first_line:
@@ -123,7 +42,7 @@ def __get_append_stage_attr_doc(class_obj):
     return doc.replace(first_line, new_first_line, 1)
 
 
-def __load_stage_attribute__(class_obj):
+def __load_stage_attribute__(class_obj: object) -> None:
 
     def _append_stage_func(self, *args, **kwds):
         # self is always a PdPipelineStage
@@ -137,7 +56,7 @@ def __load_stage_attribute__(class_obj):
     # setattr(class_obj, class_obj.__name__, unbound_method)
 
 
-def __load_stage_attributes_from_module__(module_name):
+def __load_stage_attributes_from_module__(module_name: object) -> None:
     if not LOAD_STAGE_ATTRIBUTES:
         return  # pragma: no cover
     module_obj = sys.modules[module_name]
@@ -165,19 +84,22 @@ class PdpApplicationContext(dict):
         is initialized for. Optional.
     """
 
-    def __init__(self, fit_context=None):
+    def __init__(
+        self,
+        fit_context: Optional['PdpApplicationContext'] = None,
+    ) -> None:
         self.__locked__ = False
         self._fit_context__ = fit_context
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: object, value: object) -> None:
         if not self.__locked__:
             super().__setitem__(key, value)
 
-    def __delitem__(self, key):
+    def __delitem__(self, key: object) -> object:
         if not self.__locked__:
             super().__delitem__(key)
 
-    def pop(self, key, default):
+    def pop(self, key: object, default: object) -> object:
         """If key is in the dictionary, remove it and return its value, else
         return default. If default is not given and key is not in the
         dictionary, a KeyError is raised.
@@ -186,16 +108,16 @@ class PdpApplicationContext(dict):
             return super().pop(key, default)
         return super().__getitem__(key)
 
-    def clear(self):
+    def clear(self) -> None:
         """Remove all items from the dictionary."""
         if not self.__locked__:
             super().clear()
 
-    def popitem(self):
+    def popitem(self) -> object:
         """Not implemented!"""
         raise NotImplementedError
 
-    def update(self, other):
+    def update(self, other: dict) -> None:
         """Update the dictionary with the key/value pairs from other,
         overwriting existing keys. Return None.
         update() accepts either another dictionary object or an iterable of
@@ -206,11 +128,11 @@ class PdpApplicationContext(dict):
         if not self.__locked__:
             super().update(other)
 
-    def lock(self):
+    def lock(self) -> None:
         """Locks this application context for changes."""
         self.__locked__ = True
 
-    def fit_context(self):
+    def fit_context(self) -> 'PdpApplicationContext':
         """Returns a locked PdpApplicationContext object of a previous fit."""
         return self._fit_context__
 
@@ -272,8 +194,16 @@ class PdPipelineStage(abc.ABC):
     _DEF_DESCRIPTION = 'A pipeline stage.'
     _INIT_KWARGS = ['exraise', 'exmsg', 'desc', 'prec', 'skip', 'name']
 
-    def __init__(self, exraise=True, exmsg=None, desc=None, prec=None,
-                 post=None, skip=None, name=''):
+    def __init__(
+        self,
+        exraise: Optional[bool] = True,
+        exmsg: Optional[str] = None,
+        desc: Optional[str] = None,
+        prec: Optional[callable] = None,
+        post: Optional[callable] = None,
+        skip: Optional[callable] = None,
+        name: Optional[str] = '',
+    ) -> None:
         if not isinstance(name, str):
             raise ValueError(
                 f"'name' must be a str, not {type(name).__name__}."
@@ -303,20 +233,26 @@ class PdPipelineStage(abc.ABC):
         return cls._INIT_KWARGS
 
     @abc.abstractmethod
-    def _prec(self, df):  # pylint: disable=R0201,W0613
+    def _prec(
+        self,
+        df: pandas.DataFrame,
+    ) -> bool:  # pylint: disable=R0201,W0613
         """Returns True if this stage can be applied to the given dataframe."""
         raise NotImplementedError
 
-    def _compound_prec(self, df):
+    def _compound_prec(self, df: pandas.DataFrame) -> bool:
         if self._prec_arg:
             return self._prec_arg(df)
         return self._prec(df)
 
-    def _post(self, df):  # pylint: disable=R0201,W0613
+    def _post(
+        self,
+        df: pandas.DataFrame,
+    ) -> bool:  # pylint: disable=R0201,W0613
         """Returns True if this stage resulted in an expected output frame."""
         return True
 
-    def _compound_post(self, df):
+    def _compound_post(self, df: pandas.DataFrame) -> bool:
         if self._post_arg:
             return self._post_arg(df)
         return self._post(df)
@@ -1061,7 +997,14 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         self._post_transform_lock()
         return inter_x
 
-    def transform(self, X, y=None, exraise=None, verbose=None, time=False):
+    def transform(
+        self,
+        X: pandas.DataFrame,
+        y: Optional[Iterable[float]] = None,
+        exraise: Optional[bool] = None,
+        verbose: Optional[bool] = None,
+        time: Optional[bool] = False,
+    ) -> pandas.DataFrame:
         """Transforms the given dataframe without fitting this pipeline.
 
         If any stage in this pipeline is fittable but is not fitted, an
@@ -1223,7 +1166,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
     #     index
 
 
-def make_pdpipeline(*stages):
+def make_pdpipeline(*stages: PdPipelineStage) -> PdPipeline:
     """Constructs a PdPipeline from the given pipeline stages.
 
     Parameters
@@ -1238,7 +1181,7 @@ def make_pdpipeline(*stages):
 
     Examples
     --------
-        >>> import pdpipe as pdp
-        >>> p = make_pdpipeline(pdp.ColDrop('count'), pdp.DropDuplicates())
+    >>> import pdpipe as pdp
+    >>> p = make_pdpipeline(pdp.ColDrop('count'), pdp.DropDuplicates())
     """
     return PdPipeline(stages=stages)

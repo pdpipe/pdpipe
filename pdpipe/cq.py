@@ -1,103 +1,4 @@
-"""Column qualifiers for pdpipe.
-
-Most pipeline stages in pdpipe can accept three types of variables as arguments
-for the `columns` parameter of their constructor: a single column label, a list
-of column labels, or a callable. The first is interpreted as the label of the
-single column on which the pipeline stage should operate and the second as a
-list of such labels, while the a callable is assumed to determine dynamically
-what columns should the stage be applied to. It is thus supplied with the
-entire input dataframe, and is expected to return a list of column labels. This
-is true for every application of the pipeline stage, both in fit time and in
-any future transform.
-
-A naive callable, such as `lambda df: [lbl for lbl in df.columns if lbl[0] ==
-'a']`, meant to cause the pipeline stage to operate on any column with a label
-starting with the letter 'a', might result in unexpected errors: if after the
-pipeline was fitted it gets ― in transform time ― a dataframe with new columns
-starting with 'a', it is will transform them as well, which will in turn might
-(1) lead to unexpected errors, as the newer columns might not be valid input to
-that stage, and (2) lead to a change in schema, which might cause errors down
-the pipeline, especially if there's a fitted machine learning model down the
-pipeline.
-
-Of course, this might be the desired behaviour ― to transform columns 'alec'
-and 'alex' on the first `apply` call and 'alec' and 'apoxy' in transform time ―
-but usually this is not the case. In fact, in common machine learning
-scenarios ― whether it is fitting pre-processing parameters on the train set
-and using the resulting pipeline to transform the test and validation sets, or
-fitting the pre-processing pipeline on current data and deploying it to
-transform incoming data in production ― we would exepct this criterion to be
-applied once, when the pipeline is being fit, and for future calls for it to
-only transform the 'alec' and 'alex' columns, ignoring any other columns
-starting with 'a' that are newly-encountered in transform time, and also
-explicitly fails if either once of the two columns, 'alec' and 'alex', is
-missing. This kind of behaviour is the only way to ensure preservation of both
-form and semantics of input vectors to our models down the pipeline.
-
-To enable this more sophisticated behaviour, this module - `pdpipe.cq` -
-exposes a way to easily generate `ColumnQualifier` objects, which are callables
-that do exactly what was described above: Apply some criteria to determine a
-set of input columns when a pipeline is being fitted, but fixing it afterwards,
-on future calls.
-
-Practically, this objects all expose `fit`, `transform` and `fit_transform`
-methods, and while the first time they are called the `fit_transform` method is
-called, future calls will actually call the `transform` method. Also, since
-they already expose this more powerful API, pipeline stages use it to enable
-an even more powerful (and quite frankly, expected) behavior: When a pipeline's
-`fit_transfrom` or `fit` methods are called, it calls the `fit_transform`
-method of the column qualifier it uses, so the qualifier itself is refitted
-even if it is already fit. Naturally, if the callable has no `fit_transform`
-method the code gracefully backs-off to just applying it, which allows the use
-of unfittable functions and lambdas as column qualifiers as well.
-
-Note that any callable can be wrapped in a ColumnQualifier object to achieve
-this fittable behaviour. For example, to get a pipeline stage that drops all
-columns of data type `numpy.int64`, but also "remembers" that list after fit:
-
-```python
-pipeline += pdp.ColDrop(columns=pdp.cq.ColumnQualifier(lambda df: [
-  l for l, s in df.iteritems()
-  if s.dtype == np.int64
-]))
-```
-
-ColumnQualifier objects also support the &, ^ and | binary operators -
-representing boolean and, xor and or, respectively - and the ~ unary boolean
-operator - representing the boolean not operator. Finally, the - binary
-operator is implemented to represent the NOT IN non-symetric binary relation
-between two qualifiers (the difference operator on the resulting sets).
-
-So for example, to get a qualifier that qualifies all columns that have AT
-LEAST two missing values, one can use:
-
-    >>> import pandas as pd; import pdpipe as pdp;
-    >>> df = pd.DataFrame(
-    ...    [[None, 1, 2],[None, None, 5]], [1,2], ['ph', 'grade', 'age'])
-    >>> cq = ~ pdp.cq.WithAtMostMissingValues(1)
-    >>> cq(df)
-    ['ph']
-
-While to get a qualifier matching all columns with at most one missing value
-AND starting with 'gr' one can use:
-
-    >>> import pandas as pd; import pdpipe as pdp;
-    >>> df = pd.DataFrame(
-    ...    [[None, 1, 2],[None, None, 5]], [1,2], ['grep', 'grade', 'age'])
-    >>> cq = pdp.cq.WithAtMostMissingValues(1) & pdp.cq.StartWith('gr')
-    >>> cq(df)
-    ['grade']
-
-And a qualifier that qualifies all columns with no missing values except those
-that start with 'b' can be generated with:
-
-    >>> import pandas as pd; import pdpipe as pdp;
-    >>> df = pd.DataFrame(
-    ...    [[1, 2, 3, 4],[5, 6, 7, None]], [1,2], ['abe', 'bee', 'cry', 'no'])
-    >>> cq = pdp.cq.WithoutMissingValues() - pdp.cq.StartWith('b')
-    >>> cq(df)
-    ['abe', 'cry']
-"""
+"""Column qualifiers for pdpipe."""
 
 from .shared import _list_str
 
@@ -131,14 +32,14 @@ class ColumnQualifier(object):
 
     Example
     -------
-        >>> import numpy as np; import pdpipe as pdp;
-        >>> cq = pdp.cq.ColumnQualifier(lambda df: [
-        ...    l for l, s in df.iteritems()
-        ...    if s.dtype == np.int64 and l in ['a', 'b', 5]
-        ... ])
-        >>> cq
-        <ColumnQualifier: Qualify columns by function>
-        >>> col_drop = pdp.ColDrop(columns=cq)
+    >>> import numpy as np; import pdpipe as pdp;
+    >>> cq = pdp.cq.ColumnQualifier(lambda df: [
+    ...    l for l, s in df.iteritems()
+    ...    if s.dtype == np.int64 and l in ['a', 'b', 5]
+    ... ])
+    >>> cq
+    <ColumnQualifier: Qualify columns by function>
+    >>> col_drop = pdp.ColDrop(columns=cq)
     """
 
     def __init__(self, func, fittable=None, subset=None):
@@ -392,26 +293,26 @@ class AllColumns(ColumnQualifier):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> df = pd.DataFrame([[8,1],[5,2]], [1,2], ['a', 'b'])
-        >>> cq = pdp.cq.AllColumns()
-        >>> cq
-        <ColumnQualifier: Qualify all columns>
-        >>> cq(df)
-        ['a', 'b']
-        >>> df2 = pd.DataFrame([[8,1],[5,2]], [1,2], ['b', 'c'])
-        >>> cq(df2)
-        ['a', 'b']
-        >>> cq = pdp.cq.AllColumns(fittable=False)
-        >>> cq(df)
-        ['a', 'b']
-        >>> cq(df2)
-        ['b', 'c']
-        >>> cq = pdp.cq.AllColumns(subset=True)
-        >>> cq(df)
-        ['a', 'b']
-        >>> cq(df2)
-        ['b']
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> df = pd.DataFrame([[8,1],[5,2]], [1,2], ['a', 'b'])
+    >>> cq = pdp.cq.AllColumns()
+    >>> cq
+    <ColumnQualifier: Qualify all columns>
+    >>> cq(df)
+    ['a', 'b']
+    >>> df2 = pd.DataFrame([[8,1],[5,2]], [1,2], ['b', 'c'])
+    >>> cq(df2)
+    ['a', 'b']
+    >>> cq = pdp.cq.AllColumns(fittable=False)
+    >>> cq(df)
+    ['a', 'b']
+    >>> cq(df2)
+    ['b', 'c']
+    >>> cq = pdp.cq.AllColumns(subset=True)
+    >>> cq(df)
+    ['a', 'b']
+    >>> cq(df2)
+    ['b']
     """
 
     class _SelectAllColumns(object):
@@ -447,12 +348,12 @@ class ByColumnCondition(ColumnQualifier):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> df = pd.DataFrame(
-        ...    [[1, 2, 'A'],[4, 1, 'C']], [1,2], ['age', 'count', 'grade'])
-        >>> cq = pdp.cq.ByColumnCondition(lambda s: s.sum() > 3, safe=True)
-        >>> cq(df)
-        ['age']
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> df = pd.DataFrame(
+    ...    [[1, 2, 'A'],[4, 1, 'C']], [1,2], ['age', 'count', 'grade'])
+    >>> cq = pdp.cq.ByColumnCondition(lambda s: s.sum() > 3, safe=True)
+    >>> cq(df)
+    ['age']
     """
 
     class _SafeCond(object):
@@ -499,18 +400,18 @@ class ByLabels(ColumnQualifier):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> df = pd.DataFrame(
-        ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
-        >>> cq = pdp.cq.ByLabels('num')
-        >>> cq(df)
-        ['num']
-        >>> cq = pdp.cq.ByLabels(['chr', 'nur'])
-        >>> cq(df)
-        ['chr', 'nur']
-        >>> cq = pdp.cq.ByLabels(['num', 'foo'])
-        >>> cq(df)
-        ['num']
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> df = pd.DataFrame(
+    ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
+    >>> cq = pdp.cq.ByLabels('num')
+    >>> cq(df)
+    ['num']
+    >>> cq = pdp.cq.ByLabels(['chr', 'nur'])
+    >>> cq(df)
+    ['chr', 'nur']
+    >>> cq = pdp.cq.ByLabels(['num', 'foo'])
+    >>> cq(df)
+    ['num']
     """
 
     class _LabelsQualifierFunc(object):
@@ -556,13 +457,13 @@ def columns_to_qualifier(columns):
 
     Example
     -------
-        >>> import pdpipe as pdp;
-        >>> pdp.cq.columns_to_qualifier('nu')
-        <ColumnQualifier: By labels in nu>
-        >>> pdp.cq.columns_to_qualifier(['nu', 'bu'])
-        <ColumnQualifier: By labels in nu, bu>
-        >>> pdp.cq.columns_to_qualifier(lambda df: [l for l in df.columns])
-        <ColumnQualifier: Qualify columns by function>
+    >>> import pdpipe as pdp;
+    >>> pdp.cq.columns_to_qualifier('nu')
+    <ColumnQualifier: By labels in nu>
+    >>> pdp.cq.columns_to_qualifier(['nu', 'bu'])
+    <ColumnQualifier: By labels in nu, bu>
+    >>> pdp.cq.columns_to_qualifier(lambda df: [l for l in df.columns])
+    <ColumnQualifier: Qualify columns by function>
     """
     if callable(columns):
         if isinstance(columns, ColumnQualifier):
@@ -585,14 +486,14 @@ class StartWith(ColumnQualifier):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> df = pd.DataFrame(
-        ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
-        >>> cq = pdp.cq.StartWith('nu')
-        >>> cq
-        <ColumnQualifier: Columns starting with nu>
-        >>> cq(df)
-        ['num', 'nur']
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> df = pd.DataFrame(
+    ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
+    >>> cq = pdp.cq.StartWith('nu')
+    >>> cq
+    <ColumnQualifier: Columns starting with nu>
+    >>> cq(df)
+    ['num', 'nur']
     """
 
     @staticmethod
@@ -642,20 +543,20 @@ class OfDtypes(ColumnQualifier):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
-        >>> df = pd.DataFrame(
-        ...    [[8.2,'a',5],[5.1,'b',7]], [1,2], ['ph', 'grade', 'age'])
-        >>> cq = pdp.cq.OfDtypes(np.number)
-        >>> cq(df)
-        ['ph', 'age']
-        >>> cq = pdp.cq.OfDtypes([np.number, object])
-        >>> cq(df)
-        ['ph', 'grade', 'age']
-        >>> cq = pdp.cq.OfDtypes(np.int64)
-        >>> cq
-        <ColumnQualifier: With dtypes in <class 'numpy.int64'>>
-        >>> cq(df)
-        ['age']
+    >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
+    >>> df = pd.DataFrame(
+    ...    [[8.2,'a',5],[5.1,'b',7]], [1,2], ['ph', 'grade', 'age'])
+    >>> cq = pdp.cq.OfDtypes(np.number)
+    >>> cq(df)
+    ['ph', 'age']
+    >>> cq = pdp.cq.OfDtypes([np.number, object])
+    >>> cq(df)
+    ['ph', 'grade', 'age']
+    >>> cq = pdp.cq.OfDtypes(np.int64)
+    >>> cq
+    <ColumnQualifier: With dtypes in <class 'numpy.int64'>>
+    >>> cq(df)
+    ['age']
     """
 
     class _OfDtypeFunc(object):
@@ -694,14 +595,14 @@ class WithAtMostMissingValues(ColumnQualifier):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
-        >>> df = pd.DataFrame(
-        ...    [[None, 1, 2],[None, None, 5]], [1,2], ['ph', 'grade', 'age'])
-        >>> cq = pdp.cq.WithAtMostMissingValues(1)
-        >>> cq
-        <ColumnQualifier: With at most 1 missing values>
-        >>> cq(df)
-        ['grade', 'age']
+    >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
+    >>> df = pd.DataFrame(
+    ...    [[None, 1, 2],[None, None, 5]], [1,2], ['ph', 'grade', 'age'])
+    >>> cq = pdp.cq.WithAtMostMissingValues(1)
+    >>> cq
+    <ColumnQualifier: With at most 1 missing values>
+    >>> cq(df)
+    ['grade', 'age']
     """
 
     class _AtMostFunc(object):
@@ -738,14 +639,14 @@ class WithoutMissingValues(WithAtMostMissingValues):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
-        >>> df = pd.DataFrame(
-        ...    [[None, 1, 2],[None, None, 5]], [1,2], ['ph', 'grade', 'age'])
-        >>> cq = pdp.cq.WithoutMissingValues()
-        >>> cq
-        <ColumnQualifier: Without missing values>
-        >>> cq(df)
-        ['age']
+    >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
+    >>> df = pd.DataFrame(
+    ...    [[None, 1, 2],[None, None, 5]], [1,2], ['ph', 'grade', 'age'])
+    >>> cq = pdp.cq.WithoutMissingValues()
+    >>> cq
+    <ColumnQualifier: Without missing values>
+    >>> cq(df)
+    ['age']
     """
 
     def __init__(self, **kwargs):

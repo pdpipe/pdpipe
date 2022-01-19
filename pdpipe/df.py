@@ -1,28 +1,4 @@
-"""Handles for dynamic dataframe-method-wrapping pipeline stages.
-
-All `pandas.DataFrame` methods can be used as stages using this module.
-
-For example `pdp.df.dropna(axis=1)` will return a `pdpipe.PdPipelineStage`
-object that will call the `dropna` method of input DataFrames with the `axis=1`
-keyword argument provided, and return the resulting dataframe object
-(practically dropping any column with a missing value from the input
-dataframe).
-
-These stage combine naturally into `pdpipe` pipelines:
-
-    >>> import pdpipe as pdp;
-    >>> pipeline = pdp.PdPipeline([
-    ...     pdp.df.set_index(keys='datetime'),
-    ...     pdp.ColDrop('age'),
-    ... ])
-
-There are a couple of caveats:
-
-* `pdpipe` pipeline stages never alter input dataframes, so the `inplace`
-keyword argument is always ignored, even if provided.
-* All method parameters are fixed on pipeline stage creation time, and must be
-explicitly provided as keyword arguments, and not as positional ones.
-"""
+"""Handles for dynamic dataframe-method-wrapping pipeline stages."""
 
 
 from typing import Dict

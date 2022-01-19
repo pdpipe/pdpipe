@@ -108,6 +108,7 @@ except ImportError:
 from . import cq
 from . import cond
 from . import df
+from . import skintegrate
 
 
 from ._version import get_versions

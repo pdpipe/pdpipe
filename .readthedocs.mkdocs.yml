@@ -6,21 +6,35 @@ edit_uri: edit/master/doc
 docs_dir: docs
 copyright: © Copyright 2022 Shay Palachy | All Rights Reserved.
 nav:
-  - Home: index.md
+  - Home:
+      - index.md
+      - More on pdpipe: more.md
   - Getting Started:
       - Installation: starting/install.md
       - First Use: starting/first_use.md
       - Pipeline Stages: starting/stages.md
       - Pipelines: starting/pipelines.md
       - Types of Stages: starting/types.md
-      - Custom Stages: starting/create.md
+      - Conditions: starting/cond.md
       - Column Qualifiers: starting/cq.md
+      - Wrappers: starting/wrappers.md
+  - Develop:
+      - develop/adhoc.md
+      - develop/custom.md
   - Tutorials:
       - tutorials/index.md
       - Basic Usage: tutorials/basic.md
   - API Reference:
       - Core: reference/core.md
-      - PdPipelineStage: reference/pdpipelinestage.md
+      - Basic Stages: reference/basic.md
+      - Column Generation: reference/col_generation.md
+      - Scikit-learn Stages: reference/sklearn.md
+      - Scikit-learn Integrations: reference/skintegrate.md
+      - Text Stages: reference/text.md
+      - NLTK Stages: reference/nltk.md
+      - Conditions: reference/cond.md
+      - Column Qualifiers: reference/cq.md
+      - Wrappers: reference/wrappers.md
 
 theme:
   name: material
@@ -59,14 +73,33 @@ theme:
 plugins:
   - search
   - git-revision-date
+  - mkdocs-jupyter
   - awesome-pages
-  - mkdocstrings
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          rendering:
+            show_source: true
+            show_category_heading: true
+            members_order: source
+            show_if_no_docstring: true
+          selection:
+            docstring_style: numpy
+            filters: ["!^_"]
+# for how to adjust the filters selecting which functions get collected, see:
+# https://mkdocstrings.github.io/pytkdocs/#configuration
 
 
 # for code blocks syntax highlighting
 markdown_extensions:
+  - admonition
+  - footnotes
+  - codehilite
+  - tables
   - pymdownx.highlight:
       anchor_linenums: true
+  - pymdownx.details
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
@@ -91,6 +124,7 @@ extra_css:
   - "mkdocs/css/termynal.css"
   - "mkdocs/css/custom.css"
   - "mkdocs/css/extra.css"
+  - "mkdocs/css/admonitions.css"
 
 extra_javascript:
   - "mkdocs/js/termynal.js"

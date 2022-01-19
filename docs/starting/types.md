@@ -6,14 +6,30 @@ All built-in stages are thoroughly documented, including examples; if you find a
 
 Ad-hoc pipeline stages that wrap any `pandas.DataFrame` built-in method that returns a dataframe object can be easily created using the `pdpipe.df` submodule:
 
-```python
-  pipeline = pdp.PdPipeline([
-    pdp.df.set_index(keys='datetime'),
+For example `pdp.df.dropna(axis=1)` will return a `pdpipe.PdPipelineStage`
+object that will call the `dropna` method of input DataFrames with the `axis=1`
+keyword argument provided, and return the resulting dataframe object
+(practically dropping any column with a missing value from the input
+dataframe).
+
+```python title="Using pdp.df"
+pipeline = pdp.PdPipeline([
+    pdp.df.set_index(keys='datetime'),  # (1)
     pdp.ColDrop('age),
-  ])
+])
 ```
 
-Refer to the `pdpipe.df` module for a more detailed documentation.
+1. `keys` is simply a keyword argument of `pandas.DataFrame.set_index`!
+
+!!! info
+
+    `pdpipe` pipeline stages never alter input dataframes, so the `inplace` keyword argument is always ignored, even if provided.
+
+
+!!! attention
+
+    All method parameters are fixed on pipeline stage creation time, and must be explicitly provided as keyword arguments, and not as positional ones.
+
 
 ## Basic Stages
 

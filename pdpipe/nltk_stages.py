@@ -47,13 +47,13 @@ class TokenizeText(MapColVals):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> df = pd.DataFrame(
-        ...     [[3.2, "Kick the baby!"]], [1], ['freq', 'content'])
-        >>> tokenize_stage = pdp.TokenizeText('content')
-        >>> tokenize_stage(df)
-           freq               content
-        1   3.2  [Kick, the, baby, !]
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> df = pd.DataFrame(
+    ...     [[3.2, "Kick the baby!"]], [1], ['freq', 'content'])
+    >>> tokenize_stage = pdp.TokenizeText('content')
+    >>> tokenize_stage(df)
+       freq               content
+    1   3.2  [Kick, the, baby, !]
     """
 
     _DEF_TOKENIZE_EXC_MSG = ("Tokenize stage failed because not all columns "
@@ -115,13 +115,13 @@ class UntokenizeText(MapColVals):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> data = [[3.2, ['Shake', 'and', 'bake!']]]
-        >>> df = pd.DataFrame(data, [1], ['freq', 'content'])
-        >>> untokenize_stage = pdp.UntokenizeText('content')
-        >>> untokenize_stage(df)
-           freq          content
-        1   3.2  Shake and bake!
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> data = [[3.2, ['Shake', 'and', 'bake!']]]
+    >>> df = pd.DataFrame(data, [1], ['freq', 'content'])
+    >>> untokenize_stage = pdp.UntokenizeText('content')
+    >>> untokenize_stage(df)
+       freq          content
+    1   3.2  Shake and bake!
     """
 
     _DEF_UNTOKENIZE_EXC_MSG = (
@@ -272,13 +272,13 @@ class SnowballStem(MapColVals):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> data = [[3.2, ['kicking', 'boats']]]
-        >>> df = pd.DataFrame(data, [1], ['freq', 'content'])
-        >>> remove_stopwords = pdp.SnowballStem('EnglishStemmer', 'content')
-        >>> remove_stopwords(df)
-           freq       content
-        1   3.2  [kick, boat]
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> data = [[3.2, ['kicking', 'boats']]]
+    >>> df = pd.DataFrame(data, [1], ['freq', 'content'])
+    >>> remove_stopwords = pdp.SnowballStem('EnglishStemmer', 'content')
+    >>> remove_stopwords(df)
+       freq       content
+    1   3.2  [kick, boat]
     """
 
     _DEF_STEM_EXC_MSG = ("SnowballStem stage failed because not all "
@@ -412,14 +412,14 @@ class DropRareTokens(ColumnsBasedPipelineStage):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> data = [[7, ['a', 'a', 'b']], [3, ['b', 'c', 'd']]]
-        >>> df = pd.DataFrame(data, columns=['num', 'chars'])
-        >>> rare_dropper = pdp.DropRareTokens('chars', 1)
-        >>> rare_dropper(df)
-           num      chars
-        0    7  [a, a, b]
-        1    3        [b]
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> data = [[7, ['a', 'a', 'b']], [3, ['b', 'c', 'd']]]
+    >>> df = pd.DataFrame(data, columns=['num', 'chars'])
+    >>> rare_dropper = pdp.DropRareTokens('chars', 1)
+    >>> rare_dropper(df)
+       num      chars
+    0    7  [a, a, b]
+    1    3        [b]
     """
 
     def __init__(self, columns, threshold, drop=True, **kwargs):

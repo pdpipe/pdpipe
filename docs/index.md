@@ -38,6 +38,12 @@ mixed-type data.
     Nick     170        0         0
 ```
 
+!!! pied-piper "Why pdpipe?"
+
+    Ever written a preprocessing pipeline for pandas dataframes and had trouble serializing it for later deployment on a different machine? Ever needed fit-able preprocessing transformations, with tunable parameters that are inferred from training data, to be used later to transform input data? Ever struggled with preprocessing different types of data in the same pandas dataframe?
+
+    Enter **pdpipe**, a simple framework for **serializable, chainable and verbose** pandas pipelines. Its intuitive API enables you to generate, using only a few lines, complex pandas processing pipelines that can easily be broken down or composed together, examined and debugged, and that **adhere to scikit-learn's Transformer API**. Stop writing the same preprocessing boilerplate code again and again!
+
 ## Installation
 
 Install `pdpipe` using `pip`: `:::bash pip install pdpipe`
@@ -52,4 +58,6 @@ Install `pdpipe` using `pip`: `:::bash pip install pdpipe`
 
 The awesome Tirthajyoti Sarkar wrote [an excellent practical introduction on how to use pdpipe](https://tirthajyoti.github.io/Notebooks/Pandas-pipeline-with-pdpipe).
 
-For a thorough overview of all the capabilities of `pdpipe`, continue to the "Getting Started" section by clicking the "Next" on the bottom right.
+You can also [head over to our Tutorials section](https://pdpipe.readthedocs.io/en/latest/tutorials/).
+
+For a thorough overview of all the capabilities of `pdpipe`, [continue to the "Getting Started"](https://pdpipe.readthedocs.io/en/latest/starting/install/) section by clicking the **Next** on the bottom right.

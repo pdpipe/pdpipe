@@ -33,12 +33,12 @@ class ColDrop(ColumnsBasedPipelineStage):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'char'])
-        >>> pdp.ColDrop('num').apply(df)
-          char
-        1    a
-        2    b
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'char'])
+    >>> pdp.ColDrop('num').apply(df)
+      char
+    1    a
+    2    b
     """
 
     def __init__(
@@ -92,15 +92,15 @@ class ValDrop(ColumnsBasedPipelineStage):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> df = pd.DataFrame([[1,4],[4,5],[18,11]], [1,2,3], ['a','b'])
-        >>> pdp.ValDrop([4], 'a').apply(df)
-            a   b
-        1   1   4
-        3  18  11
-        >>> pdp.ValDrop([4]).apply(df)
-            a   b
-        3  18  11
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> df = pd.DataFrame([[1,4],[4,5],[18,11]], [1,2,3], ['a','b'])
+    >>> pdp.ValDrop([4], 'a').apply(df)
+        a   b
+    1   1   4
+    3  18  11
+    >>> pdp.ValDrop([4]).apply(df)
+        a   b
+    3  18  11
     """
 
     def __init__(
@@ -152,15 +152,15 @@ class ValKeep(ColumnsBasedPipelineStage):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], ['a','b'])
-        >>> pdp.ValKeep([4, 5], 'a').apply(df)
-           a   b
-        2  4   5
-        3  5  11
-        >>> pdp.ValKeep([4, 5]).apply(df)
-           a  b
-        2  4  5
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], ['a','b'])
+    >>> pdp.ValKeep([4, 5], 'a').apply(df)
+       a   b
+    2  4   5
+    3  5  11
+    >>> pdp.ValKeep([4, 5]).apply(df)
+       a  b
+    2  4  5
     """
 
     def __init__(self, values, columns=None, **kwargs):
@@ -195,21 +195,21 @@ class ColRename(PdPipelineStage):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'char'])
-        >>> pdp.ColRename({'num': 'len', 'char': 'initial'}).apply(df)
-           len initial
-        1    8       a
-        2    5       b
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'char'])
+    >>> pdp.ColRename({'num': 'len', 'char': 'initial'}).apply(df)
+       len initial
+    1    8       a
+    2    5       b
 
-        >>> def renamer(lbl: str):
-        ...    if lbl.startswith('n'):
-        ...       return 'foo'
-        ...    return lbl
-        >>> pdp.ColRename(renamer).apply(df)
-           foo char
-        1    8    a
-        2    5    b
+    >>> def renamer(lbl: str):
+    ...    if lbl.startswith('n'):
+    ...       return 'foo'
+    ...    return lbl
+    >>> pdp.ColRename(renamer).apply(df)
+       foo char
+    1    8    a
+    2    5    b
     """
 
     _DEF_COLDRENAME_EXC_MSG = ("ColRename stage failed because not all columns"
@@ -260,12 +260,12 @@ class DropNa(PdPipelineStage):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> df = pd.DataFrame([[1,4],[4,None],[1,11]], [1,2,3], ['a','b'])
-        >>> pdp.DropNa().apply(df)
-           a     b
-        1  1   4.0
-        3  1  11.0
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> df = pd.DataFrame([[1,4],[4,None],[1,11]], [1,2,3], ['a','b'])
+    >>> pdp.DropNa().apply(df)
+       a     b
+    1  1   4.0
+    3  1  11.0
     """
 
     _DEF_DROPNA_EXC_MSG = "DropNa stage failed."
@@ -304,13 +304,13 @@ class SetIndex(PdPipelineStage):
 
     Example
     -------
-        >> import pandas as pd; import pdpipe as pdp;
-        >> df = pd.DataFrame([[1,4],[3, 11]], [1,2], ['a','b'])
-        >> pdp.SetIndex('a').apply(df)
-            b
-        a
-        1   4
-        3  11
+    >> import pandas as pd; import pdpipe as pdp;
+    >> df = pd.DataFrame([[1,4],[3, 11]], [1,2], ['a','b'])
+    >> pdp.SetIndex('a').apply(df)
+        b
+    a
+    1   4
+    3  11
     """
 
     _DEF_SETIDX_EXC_MSG = "SetIndex stage failed."
@@ -352,12 +352,12 @@ class FreqDrop(PdPipelineStage):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> df = pd.DataFrame([[1,4],[4,5],[1,11]], [1,2,3], ['a','b'])
-        >>> pdp.FreqDrop(2, 'a').apply(df)
-           a   b
-        1  1   4
-        3  1  11
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> df = pd.DataFrame([[1,4],[4,5],[1,11]], [1,2,3], ['a','b'])
+    >>> pdp.FreqDrop(2, 'a').apply(df)
+       a   b
+    1  1   4
+    3  1  11
     """
 
     _DEF_FREQDROP_EXC_MSG = ("FreqDrop stage failed because column {} was not"
@@ -401,11 +401,11 @@ class ColReorder(PdPipelineStage):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> df = pd.DataFrame([[8,4,3,7]], columns=['a', 'b', 'c', 'd'])
-        >>> pdp.ColReorder({'b': 0, 'c': 3}).apply(df)
-           b  a  d  c
-        0  4  8  7  3
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> df = pd.DataFrame([[8,4,3,7]], columns=['a', 'b', 'c', 'd'])
+    >>> pdp.ColReorder({'b': 0, 'c': 3}).apply(df)
+       b  a  d  c
+    0  4  8  7  3
     """
 
     _DEF_ORD_EXC_MSG = ("ColReorder stage failed because not all columns in {}"
@@ -475,16 +475,16 @@ class RowDrop(ColumnsBasedPipelineStage):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], ['a','b'])
-        >>> pdp.RowDrop([lambda x: x < 2]).apply(df)
-           a   b
-        2  4   5
-        3  5  11
-        >>> pdp.RowDrop({'a': lambda x: x == 4}).apply(df)
-           a   b
-        1  1   4
-        3  5  11
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], ['a','b'])
+    >>> pdp.RowDrop([lambda x: x < 2]).apply(df)
+       a   b
+    2  4   5
+    3  5  11
+    >>> pdp.RowDrop({'a': lambda x: x == 4}).apply(df)
+       a   b
+    1  1   4
+    3  5  11
     """
 
     _REDUCERS = {
@@ -576,16 +576,16 @@ class Schematize(PdPipelineStage):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> df = pd.DataFrame([[2, 4, 8],[3, 6, 9]], [1, 2], ['a', 'b', 'c'])
-        >>> pdp.Schematize(['a', 'c']).apply(df)
-           a  c
-        1  2  8
-        2  3  9
-        >>> pdp.Schematize(['c', 'b']).apply(df)
-           c  b
-        1  8  4
-        2  9  6
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> df = pd.DataFrame([[2, 4, 8],[3, 6, 9]], [1, 2], ['a', 'b', 'c'])
+    >>> pdp.Schematize(['a', 'c']).apply(df)
+       a  c
+    1  2  8
+    2  3  9
+    >>> pdp.Schematize(['c', 'b']).apply(df)
+       c  b
+    1  8  4
+    2  9  6
     """
 
     def __init__(self, columns, **kwargs):
@@ -676,17 +676,17 @@ class ColumnDtypeEnforcer(PdPipelineStage):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'initial'])
-        >>> pdp.ColumnDtypeEnforcer({'num': float}).apply(df)
-           num initial
-        1  8.0       a
-        2  5.0       b
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'initial'])
+    >>> pdp.ColumnDtypeEnforcer({'num': float}).apply(df)
+       num initial
+    1  8.0       a
+    2  5.0       b
 
-        >>> pdp.ColumnDtypeEnforcer({pdp.cq.StartWith('n'): float}).apply(df)
-           num initial
-        1  8.0       a
-        2  5.0       b
+    >>> pdp.ColumnDtypeEnforcer({pdp.cq.StartWith('n'): float}).apply(df)
+       num initial
+    1  8.0       a
+    2  5.0       b
     """
 
     _DEF_COL_DTYPE_ENF_EXC_MSG = (
@@ -786,17 +786,17 @@ class ConditionValidator(PdPipelineStage):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> df = pd.DataFrame([[1,4],[4,None],[1,11]], [1,2,3], ['a','b'])
-        >>> pdp.ConditionValidator(lambda df: len(df.columns) == 5).apply(df)
-        Traceback (most recent call last):
-           ...
-        pdpipe.exceptions.FailedConditionError: ConditionValidator stage failed; some conditions did not hold for the input dataframe!
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> df = pd.DataFrame([[1,4],[4,None],[1,11]], [1,2,3], ['a','b'])
+    >>> pdp.ConditionValidator(lambda df: len(df.columns) == 5).apply(df)
+    Traceback (most recent call last):
+       ...
+    pdpipe.exceptions.FailedConditionError: ConditionValidator stage failed; some conditions did not hold for the input dataframe!
 
-        >>> pdp.ConditionValidator(pdp.cond.HasNoMissingValues()).apply(df)
-        Traceback (most recent call last):
-           ...
-        pdpipe.exceptions.FailedConditionError: ConditionValidator stage failed; some conditions did not hold for the input dataframe!
+    >>> pdp.ConditionValidator(pdp.cond.HasNoMissingValues()).apply(df)
+    Traceback (most recent call last):
+       ...
+    pdpipe.exceptions.FailedConditionError: ConditionValidator stage failed; some conditions did not hold for the input dataframe!
     """  # noqa: E501
 
     def __init__(

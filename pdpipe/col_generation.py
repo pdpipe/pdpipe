@@ -40,20 +40,20 @@ class Bin(PdPipelineStage):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> df = pd.DataFrame([[-3],[4],[5],[9]], [1,2,3,4], ['speed'])
-        >>> pdp.Bin({'speed': [5]}, drop=False).apply(df)
-           speed speed_bin
-        1     -3        <5
-        2      4        <5
-        3      5        5≤
-        4      9        5≤
-        >>> pdp.Bin({'speed': [0,5,8]}, drop=False).apply(df)
-           speed speed_bin
-        1     -3        <0
-        2      4       0-5
-        3      5       5-8
-        4      9        8≤
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> df = pd.DataFrame([[-3],[4],[5],[9]], [1,2,3,4], ['speed'])
+    >>> pdp.Bin({'speed': [5]}, drop=False).apply(df)
+       speed speed_bin
+    1     -3        <5
+    2      4        <5
+    3      5        5≤
+    4      9        5≤
+    >>> pdp.Bin({'speed': [0,5,8]}, drop=False).apply(df)
+       speed speed_bin
+    1     -3        <0
+    2      4       0-5
+    3      5       5-8
+    4      9        8≤
     """
 
     _DEF_BIN_EXC_MSG = (
@@ -166,13 +166,13 @@ class OneHotEncode(ColumnsBasedPipelineStage):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> df = pd.DataFrame([['USA'], ['UK'], ['Greece']], [1,2,3], ['Born'])
-        >>> pdp.OneHotEncode().apply(df)
-           Born_UK  Born_USA
-        1        0         1
-        2        1         0
-        3        0         0
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> df = pd.DataFrame([['USA'], ['UK'], ['Greece']], [1,2,3], ['Born'])
+    >>> pdp.OneHotEncode().apply(df)
+       Born_UK  Born_USA
+    1        0         1
+    2        1         0
+    3        0         0
     """
 
     class _FitterEncoder(object):
@@ -438,30 +438,30 @@ class MapColVals(ColumnTransformer):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> df = pd.DataFrame([[1], [3], [2]], ['UK', 'USSR', 'US'], ['Medal'])
-        >>> value_map = {1: 'Gold', 2: 'Silver', 3: 'Bronze'}
-        >>> pdp.MapColVals('Medal', value_map).apply(df)
-               Medal
-        UK      Gold
-        USSR  Bronze
-        US    Silver
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> df = pd.DataFrame([[1], [3], [2]], ['UK', 'USSR', 'US'], ['Medal'])
+    >>> value_map = {1: 'Gold', 2: 'Silver', 3: 'Bronze'}
+    >>> pdp.MapColVals('Medal', value_map).apply(df)
+           Medal
+    UK      Gold
+    USSR  Bronze
+    US    Silver
 
-        >>> from datetime import timedelta;
-        >>> df = pd.DataFrame(
-        ...    data=[
-        ...       [timedelta(weeks=2)],
-        ...       [timedelta(weeks=4)],
-        ...       [timedelta(weeks=10)]
-        ...    ],
-        ...    index=['proposal', 'midterm', 'finals'],
-        ...    columns=['Due'],
-        ... )
-        >>> pdp.MapColVals('Due', ('total_seconds', {})).apply(df)
-                        Due
-        proposal  1209600.0
-        midterm   2419200.0
-        finals    6048000.0
+    >>> from datetime import timedelta;
+    >>> df = pd.DataFrame(
+    ...    data=[
+    ...       [timedelta(weeks=2)],
+    ...       [timedelta(weeks=4)],
+    ...       [timedelta(weeks=10)]
+    ...    ],
+    ...    index=['proposal', 'midterm', 'finals'],
+    ...    columns=['Due'],
+    ... )
+    >>> pdp.MapColVals('Due', ('total_seconds', {})).apply(df)
+                    Due
+    proposal  1209600.0
+    midterm   2419200.0
+    finals    6048000.0
     """
 
     def __init__(
@@ -530,26 +530,26 @@ class ApplyToRows(PdPipelineStage):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> data = [[3, 2143], [10, 1321], [7, 1255]]
-        >>> df = pd.DataFrame(data, [1,2,3], ['years', 'avg_revenue'])
-        >>> total_rev = lambda row: row['years'] * row['avg_revenue']
-        >>> add_total_rev = pdp.ApplyToRows(total_rev, 'total_revenue')
-        >>> add_total_rev(df)
-           years  avg_revenue  total_revenue
-        1      3         2143           6429
-        2     10         1321          13210
-        3      7         1255           8785
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> data = [[3, 2143], [10, 1321], [7, 1255]]
+    >>> df = pd.DataFrame(data, [1,2,3], ['years', 'avg_revenue'])
+    >>> total_rev = lambda row: row['years'] * row['avg_revenue']
+    >>> add_total_rev = pdp.ApplyToRows(total_rev, 'total_revenue')
+    >>> add_total_rev(df)
+       years  avg_revenue  total_revenue
+    1      3         2143           6429
+    2     10         1321          13210
+    3      7         1255           8785
 
-        >>> def halfer(row):
-        ...     new = {'year/2': row['years']/2, 'rev/2': row['avg_revenue']/2}
-        ...     return pd.Series(new)
-        >>> half_cols = pdp.ApplyToRows(halfer, follow_column='years')
-        >>> half_cols(df)
-           years   rev/2  year/2  avg_revenue
-        1      3  1071.5     1.5         2143
-        2     10   660.5     5.0         1321
-        3      7   627.5     3.5         1255
+    >>> def halfer(row):
+    ...     new = {'year/2': row['years']/2, 'rev/2': row['avg_revenue']/2}
+    ...     return pd.Series(new)
+    >>> half_cols = pdp.ApplyToRows(halfer, follow_column='years')
+    >>> half_cols(df)
+       years   rev/2  year/2  avg_revenue
+    1      3  1071.5     1.5         2143
+    2     10   660.5     5.0         1321
+    3      7   627.5     3.5         1255
     """
 
     _DEF_APPLYTOROWS_EXC_MSG = "Applying a function {} failed."
@@ -649,15 +649,15 @@ class ApplyByCols(ColumnTransformer):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp; import math;
-        >>> data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
-        >>> df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
-        >>> round_ph = pdp.ApplyByCols("ph", math.ceil)
-        >>> round_ph(df)
-           ph  lbl
-        1   4  acd
-        2   8  alk
-        3  13  alk
+    >>> import pandas as pd; import pdpipe as pdp; import math;
+    >>> data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
+    >>> df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
+    >>> round_ph = pdp.ApplyByCols("ph", math.ceil)
+    >>> round_ph(df)
+       ph  lbl
+    1   4  acd
+    2   8  alk
+    3  13  alk
     """
 
     def __init__(
@@ -721,16 +721,16 @@ class ColByFrameFunc(PdPipelineStage):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> data = [[3, 3], [2, 4], [1, 5]]
-        >>> df = pd.DataFrame(data, [1,2,3], ["A","B"])
-        >>> func = lambda df: df['A'] == df['B']
-        >>> add_equal = pdp.ColByFrameFunc("A==B", func)
-        >>> add_equal(df)
-           A  B   A==B
-        1  3  3   True
-        2  2  4  False
-        3  1  5  False
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> data = [[3, 3], [2, 4], [1, 5]]
+    >>> df = pd.DataFrame(data, [1,2,3], ["A","B"])
+    >>> func = lambda df: df['A'] == df['B']
+    >>> add_equal = pdp.ColByFrameFunc("A==B", func)
+    >>> add_equal(df)
+       A  B   A==B
+    1  3  3   True
+    2  2  4  False
+    3  1  5  False
     """
 
     _BASE_STR = "Applying a function{} to generate column {}"
@@ -814,22 +814,22 @@ class AggByCols(ColumnTransformer):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
-        >>> data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
-        >>> df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
-        >>> log_ph = pdp.AggByCols("ph", np.log)
-        >>> log_ph(df)
-                 ph  lbl
-        1  1.163151  acd
-        2  1.974081  alk
-        3  2.493205  alk
+    >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
+    >>> data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
+    >>> df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
+    >>> log_ph = pdp.AggByCols("ph", np.log)
+    >>> log_ph(df)
+             ph  lbl
+    1  1.163151  acd
+    2  1.974081  alk
+    3  2.493205  alk
 
-        >>> min_ph = pdp.AggByCols("ph", min, drop=False, suffix='_min')
-        >>> min_ph(df)
-             ph  ph_min  lbl
-        1   3.2     3.2  acd
-        2   7.2     3.2  alk
-        3  12.1     3.2  alk
+    >>> min_ph = pdp.AggByCols("ph", min, drop=False, suffix='_min')
+    >>> min_ph(df)
+         ph  ph_min  lbl
+    1   3.2     3.2  acd
+    2   7.2     3.2  alk
+    3  12.1     3.2  alk
     """
 
     def __init__(
@@ -894,15 +894,15 @@ class Log(ColumnsBasedPipelineStage):
 
     Example
     -------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
-        >>> df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
-        >>> log_stage = pdp.Log("ph", drop=True)
-        >>> log_stage(df)
-                 ph  lbl
-        1  1.163151  acd
-        2  1.974081  alk
-        3  2.493205  alk
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
+    >>> df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
+    >>> log_stage = pdp.Log("ph", drop=True)
+    >>> log_stage(df)
+             ph  lbl
+    1  1.163151  acd
+    2  1.974081  alk
+    3  2.493205  alk
     """
 
     _DEF_LOG_APP_MSG = "Log-transforming {}..."

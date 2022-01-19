@@ -5,5 +5,7 @@ mkdocs-awesome-pages-plugin
 mkdocs-git-revision-date-plugin
 mkdocstrings
 GitPython
-pdpipe
+scikit-learn
+nltk
+git+https://github.com/pdpipe/pdpipe.git
 pytkdocs[numpy-style]>=0.5.0

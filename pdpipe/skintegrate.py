@@ -121,24 +121,24 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
         The model to connect to the pipeline.
 
     Example
-    ----------
-        >>> import pandas as pd; import pdpipe as pdp;
-        >>> from pdpipe.skintegrate import PdPipelineAndSklearnEstimator;
-        >>> from sklearn.linear_model import LogisticRegression;
-        >>> DF2 = pd.DataFrame(
-        ...    data=[['-1',0], ['-1',0], ['1',1], ['1',1]],
-        ...    index=[1, 2, 3, 4],
-        ...    columns=['feature1', 'target']
-        ... )
-        >>> all_x = DF2[['feature1']]
-        >>> all_y = DF2['target']
-        >>> mp = PdPipelineAndSklearnEstimator(
-        ...    pipeline=pdp.ColumnDtypeEnforcer({'feature1': int}),
-        ...    estimator=LogisticRegression()
-        ... )
-        >>> mp.fit(all_x, all_y)
-        <PdPipeline -> LogisticRegression>
-        >>> res = mp.predict(all_x)
+    -------
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> from pdpipe.skintegrate import PdPipelineAndSklearnEstimator;
+    >>> from sklearn.linear_model import LogisticRegression;
+    >>> DF2 = pd.DataFrame(
+    ...    data=[['-1',0], ['-1',0], ['1',1], ['1',1]],
+    ...    index=[1, 2, 3, 4],
+    ...    columns=['feature1', 'target']
+    ... )
+    >>> all_x = DF2[['feature1']]
+    >>> all_y = DF2['target']
+    >>> mp = PdPipelineAndSklearnEstimator(
+    ...    pipeline=pdp.ColumnDtypeEnforcer({'feature1': int}),
+    ...    estimator=LogisticRegression()
+    ... )
+    >>> mp.fit(all_x, all_y)
+    <PdPipeline -> LogisticRegression>
+    >>> res = mp.predict(all_x)
     """
 
     def __init__(
@@ -235,6 +235,7 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
         X : indexable, length n_samples
             Must fulfill the input assumptions of the
             underlying estimator.
+
         Returns
         -------
         y_pred : ndarray of shape (n_samples,) or (n_samples, n_classes)
@@ -258,6 +259,7 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
         X : indexable, length n_samples
             Must fulfill the input assumptions of the
             underlying estimator.
+
         Returns
         -------
         y_pred : ndarray of shape (n_samples,) or (n_samples, n_classes)
@@ -281,6 +283,7 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
         X : indexable, length n_samples
             Must fulfill the input assumptions of the
             underlying estimator.
+
         Returns
         -------
         y_score : ndarray of shape (n_samples,) or (n_samples, n_classes) \
@@ -293,8 +296,6 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
         y_score = self.estimator.decision_function(X=post_X.values)
         return y_score
 
-
-# scorers that work with the pipline+model object
 
 class _PdPipeScorer:
     """A pdpipe scorer object wrapping a standard sklearn scorer.
