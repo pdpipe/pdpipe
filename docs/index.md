@@ -40,7 +40,7 @@ mixed-type data.
 
 ## Installation
 
-Install `pdpipe` using `pip`: `pip install pdpipe`
+Install `pdpipe` using `pip`: `:::bash pip install pdpipe`
 
 ## Getting Help
 

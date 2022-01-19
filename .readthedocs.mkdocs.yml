@@ -19,6 +19,7 @@ nav:
       - tutorials/index.md
       - Basic Usage: tutorials/basic.md
   - API Reference:
+      - Core: reference/core.md
       - PdPipelineStage: reference/pdpipelinestage.md
 
 theme:

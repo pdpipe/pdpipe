@@ -98,6 +98,17 @@ At the time of writing, ``pdpipe`` is maintained with a test coverage of 100%. A
 
 Tests reside under the ``tests`` directory in the root of the repository. Each module has a separate test folder, with each class - usually a pipeline stage - having a dedicated file (always starting with the string "test") containing several tests (each a global function starting with the string "test"). Please adhere to this structure, and try to separate tests cases to different test functions; this allows us to quickly focus on problem areas and use cases. Thank you! :)
 
+
+Configuration
+-------------
+
+``pdpipe`` can be configured using both a configuration file - locaated at either ``$XDG_CONFIG_HOME/pdpipe/cfg.json`` or, if the ``XDG_CONFIG_HOME`` environment variable is not set, at ``~/.pdpipe/cfg.json`` - and environment variables.
+
+At the moment, these configuration options are only relevant for development. The available options are:
+
+* ``LOAD_STAGE_ATTRIBUTES`` - True by default. If set to False stage attributes, which enable the chainer construction pattern, e.g. ``pdp.ColDrop('b').Bin('f')``, are not loaded. This is used for sensible documentation generation. Set with this ``"LOAD_STAGE_ATTRIBUTES": false`` in ``cfg.json``, or with ``export PDPIPE__LOAD_STAGE_ATTRIBUTES=False`` for environment variable-driven configuration.
+
+
 Code style
 ----------
 

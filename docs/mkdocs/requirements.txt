@@ -6,3 +6,4 @@ mkdocs-git-revision-date-plugin
 mkdocstrings
 GitPython
 pdpipe
+pytkdocs[numpy-style]>=0.5.0

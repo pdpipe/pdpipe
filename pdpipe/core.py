@@ -96,6 +96,9 @@ try:
 except ImportError:
     from sys import getsizeof as asizeof
 
+from .cfg import (
+    LOAD_STAGE_ATTRIBUTES,
+)
 from .cq import is_fittable_column_qualifier, AllColumns
 from .shared import _get_args_list
 from .exceptions import (
@@ -135,6 +138,8 @@ def __load_stage_attribute__(class_obj):
 
 
 def __load_stage_attributes_from_module__(module_name):
+    if not LOAD_STAGE_ATTRIBUTES:
+        return  # pragma: no cover
     module_obj = sys.modules[module_name]
     for name, obj in inspect.getmembers(module_obj):
         if inspect.isclass(obj) and obj.__module__ == module_name:

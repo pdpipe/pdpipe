@@ -16,7 +16,12 @@ with open('README.rst', encoding="utf-8") as f:
     README_RST = f.read()
 
 INSTALL_REQUIRES = [
-    'pandas>=0.18.0', 'sortedcontainers', 'tqdm', 'strct', 'skutil>=0.0.15',
+    'pandas>=0.18.0',  # obviously
+    'sortedcontainers',  # the Bin stage needs a sorted list
+    'tqdm',  # for some pipeline application progress bars
+    'strct',  # ColReorder uses strct.dicts.reverse_dict_partial
+    'skutil>=0.0.15',  # Scale uses skutil.preprocessing.scaler_by_param
+    'birch>=0.0.34',  # for reading config from files / env vars
 ]
 TEST_REQUIRES = [
     # testing and coverage

@@ -3,7 +3,7 @@
 
 Install `pdpipe` with:
 
-```python
+```bash
   pip install pdpipe
 ```
 
