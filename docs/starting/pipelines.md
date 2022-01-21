@@ -4,7 +4,9 @@
 
 Pipelines can be created by supplying a list of pipeline stages:
 
+<!--phmdoctest-setup-->    
 ```python
+    import pdpipe as pdp
     pipeline = pdp.PdPipeline([pdp.ColDrop("Name"), pdp.OneHotEncode("Label")]
 ```
 
@@ -19,16 +21,17 @@ Additionally, the  method can be used to give stages as positional arguments.
 
 A pipeline structure can be clearly displayed by printing the object:
 
+<!--phmdoctest-skip--> 
 ```python
-  >>> drop_name = pdp.ColDrop("Name")
-  >>> binar_label = pdp.OneHotEncode("Label")
-  >>> map_job = pdp.MapColVals("Job", {"Part": True, "Full":True, "No": False})
-  >>> pipeline = pdp.PdPipeline([drop_name, binar_label, map_job])
-  >>> print(pipeline)
-  A pdpipe pipeline:
-  [ 0]  Drop column Name
-  [ 1]  OneHotEncode Label
-  [ 2]  Map values of column Job with {'Part': True, 'Full': True, 'No': False}.
+    >>> drop_name = pdp.ColDrop("Name")
+    >>> binar_label = pdp.OneHotEncode("Label")
+    >>> map_job = pdp.MapColVals("Job", {"Part": True, "Full":True, "No": False})
+    >>> pipeline = pdp.PdPipeline([drop_name, binar_label, map_job])
+    >>> print(pipeline)
+    A pdpipe pipeline:
+    [ 0]  Drop column Name
+    [ 1]  OneHotEncode Label
+    [ 2]  Map values of column Job with {'Part': True, 'Full': True, 'No': False}
 ```
 
 ## Pipeline Arithmetics
@@ -59,6 +62,7 @@ Pipeline stages can also be chained to other stages to create pipelines:
 
 Pipelines are Python Sequence objects, and as such can be sliced using Python's slicing notation, just like lists:
 
+<!--phmdoctest-skip--> 
 ```python
   >>> pipeline = pdp.ColDrop("Name").OneHotEncode("Label").ValDrop([-1], "Children").ApplyByCols("height", math.ceil)
   >>> pipeline[0]

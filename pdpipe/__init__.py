@@ -106,6 +106,7 @@ except ImportError:
     )
 
 from . import cq
+from . import rq
 from . import cond
 from . import df
 from . import skintegrate
