@@ -15,7 +15,7 @@ dataframe).
 ```python title="Using pdp.df"
 pipeline = pdp.PdPipeline([
     pdp.df.set_index(keys='datetime'),  # (1)
-    pdp.ColDrop('age),
+    pdp.ColDrop('age'),
 ])
 ```
 
