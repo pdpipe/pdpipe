@@ -69,6 +69,11 @@ from .wrappers import (
 
 core.__load_stage_attributes_from_module__("pdpipe.wrappers")
 
+from .fly import (
+    drop_rows_where,
+    keep_rows_where,
+)
+
 try:
     from . import sklearn_stages
     from .sklearn_stages import (

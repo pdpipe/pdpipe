@@ -1,5 +1,6 @@
 """Row qualifiers for pdpipe."""
 
+from typing import List, Set, Union
 from numbers import Number
 
 import pandas
@@ -259,6 +260,128 @@ class ColValEq(RowQualifier):
         super().__init__(
             func=ColValEq._EqRowFunc(label, value),
         )
+
+
+class ColValNe(RowQualifier):
+    """A row qualifier that qualifies rows with a value not equal to a value.
+
+    Parameters
+    ----------
+    label : object
+        The label of the column the qualifier checks.
+    value : Number
+        The value to check against.
+    """
+
+    class _NeRowFunc(object):
+        """A pickle-able ne callable class."""
+
+        def __init__(self, label: object, value: Number) -> None:
+            self.label = label
+            self.value = value
+            self.__doc__ = f"df[{label}] != {value}"
+
+        def __call__(self, df: pandas.DataFrame) -> pandas.Series:
+            return df[self.label].ne(self.value)
+
+    def __init__(self, label: object, value: Number) -> None:
+        super().__init__(
+            func=ColValNe._NeRowFunc(label, value),
+        )
+
+
+class ColValIsIn(RowQualifier):
+    """A row qualifier that qualifies rows with a value not equal to a value.
+
+    Parameters
+    ----------
+    label : object
+        The label of the column the qualifier checks.
+    value_list : list of object
+        The list of values to check against.
+    """
+
+    class _IsInRowFunc(object):
+        """A pickle-able isin callable class."""
+
+        def __init__(
+            self,
+            label: object,
+            value_list: Union[List[object], Set[object]],
+        ) -> None:
+            self.label = label
+            self.value_list = value_list
+            self.__doc__ = f"df[{label}] is in {value_list}"
+
+        def __call__(self, df: pandas.DataFrame) -> pandas.Series:
+            return df[self.label].isin(self.value_list)
+
+    def __init__(
+        self,
+        label: object,
+        value_list: Union[List[object], Set[object]],
+    ) -> None:
+        super().__init__(
+            func=ColValIsIn._IsInRowFunc(label, value_list),
+        )
+
+
+class ColValIsNa(RowQualifier):
+    """A row qualifier that qualifies rows with a null value in a column.
+
+    Parameters
+    ----------
+    label : object
+        The label of the column the qualifier checks.
+    """
+
+    class _IsNaRowFunc(object):
+        """A pickle-able isna callable class."""
+
+        def __init__(
+            self,
+            label: object,
+        ) -> None:
+            self.label = label
+            self.__doc__ = f"df[{label}] is NA"
+
+        def __call__(self, df: pandas.DataFrame) -> pandas.Series:
+            return df[self.label].isna()
+
+    def __init__(
+        self,
+        label: object,
+    ) -> None:
+        super().__init__(func=ColValIsNa._IsNaRowFunc(label))
+
+
+class ColValNotNa(RowQualifier):
+    """A row qualifier that qualifies rows with a non-NA value in a column.
+
+    Parameters
+    ----------
+    label : object
+        The label of the column the qualifier checks.
+    """
+
+    class _NotNaRowFunc(object):
+        """A pickle-able notna callable class."""
+
+        def __init__(
+            self,
+            label: object,
+        ) -> None:
+            self.label = label
+            self.__doc__ = f"df[{label}] is not NA"
+
+        def __call__(self, df: pandas.DataFrame) -> pandas.Series:
+            return df[self.label].notna()
+
+    def __init__(
+        self,
+        label: object,
+    ) -> None:
+        super().__init__(func=ColValNotNa._NotNaRowFunc(label))
 
 
 del pandas
