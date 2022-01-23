@@ -25,6 +25,7 @@ nav:
   - Tutorials:
       - tutorials/index.md
       - Basic Usage: tutorials/basic.md
+      - Halving Columns: tutorials/half.md
   - API Reference:
       - Core: reference/core.md
       - Basic Stages: reference/basic.md
@@ -99,12 +100,16 @@ markdown_extensions:
   - footnotes
   - codehilite
   - tables
+  - attr_list
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.details
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
 
 
 # use icon paths the match the folder structure in the fontawesome repo:

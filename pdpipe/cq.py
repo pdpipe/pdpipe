@@ -1,5 +1,7 @@
 """Column qualifiers for pdpipe."""
 
+import numpy as np
+
 from .shared import _list_str
 
 
@@ -578,6 +580,33 @@ class OfDtypes(ColumnQualifier):
 
     def __repr__(self):
         return f"<ColumnQualifier: With dtypes in {self._dtypes_str}>"
+
+
+class OfNumericDtypes(OfDtypes):
+    """Selectes all columns that are of a numeric dtypes.
+
+    Parameters
+    ----------
+    **kwargs
+        Additionaly accepts all keyword arguments of the constructor of
+        ColumnQualifier. See the documentation of `ColumnQualifier` for
+        details.
+
+    Example
+    -------
+    >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
+    >>> df = pd.DataFrame(
+    ...    [[8.2,'a',5],[5.1,'b',7]], [1,2], ['ph', 'grade', 'age'])
+    >>> cq = pdp.cq.OfNumericDtypes()
+    >>> cq
+    <ColumnQualifier: With dtypes in <class 'numpy.number'>>
+    >>> cq(df)
+    ['ph', 'age']
+    """
+
+    def __init__(self, **kwargs):
+        kwargs['dtypes'] = np.number
+        super().__init__(**kwargs)
 
 
 class WithAtMostMissingValues(ColumnQualifier):

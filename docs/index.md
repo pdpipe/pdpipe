@@ -50,14 +50,16 @@ Install `pdpipe` using `pip`: `:::bash pip install pdpipe`
 
 ## Getting Help
 
-* **Chat** — Join [our Gitter community](https://gitter.im/pdpipe/community) to chat for help!
-* **Questions & Discussions** can be found on our [GitHub Discussions](https://github.com/pdpipe/pdpipe/discussions) forum.
-* **Bugs and missing features** can opened on [our GitHub repository](https://github.com/pdpipe/pdpipe/issues).
+* :material-wechat: **Chat** — Join [our Gitter community](https://gitter.im/pdpipe/community) to chat for help!
+* :material-message-question: **Questions & Discussions** can be found on our [GitHub Discussions](https://github.com/pdpipe/pdpipe/discussions) forum.
+* :material-bug: **Bugs and missing feature** tickets can be opened on [our GitHub repository](https://github.com/pdpipe/pdpipe/issues).
 
 ## Getting Started
 
-The awesome Tirthajyoti Sarkar wrote [an excellent practical introduction on how to use pdpipe](https://tirthajyoti.github.io/Notebooks/Pandas-pipeline-with-pdpipe).
-
-You can also [head over to our Tutorials section](https://pdpipe.readthedocs.io/en/latest/tutorials/).
-
 For a thorough overview of all the capabilities of `pdpipe`, [continue to the "Getting Started"](https://pdpipe.readthedocs.io/en/latest/starting/install/) section by clicking the **Next** on the bottom right.
+
+<!-- You can also [head over to our Tutorials section](https://pdpipe.readthedocs.io/en/latest/tutorials/). -->
+
+Additionally, the awesome Tirthajyoti Sarkar wrote [an excellent practical introduction on how to use pdpipe](https://tirthajyoti.github.io/Notebooks/Pandas-pipeline-with-pdpipe).
+
+<!--- COLORS AT https://mycolor.space/?hex=%23D96700&sub=1 -->
