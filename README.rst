@@ -4,11 +4,9 @@ pdpipe ˨
 |PyPI-Status| |Downloads| |PyPI-Versions| |Build-Status| |Codecov| |Codefactor| |LICENCE|
 
 
+Website: `https://pdpipe.readthedocs.io/en/latest/ <https://pdpipe.readthedocs.io/en/latest/>`_
+
 Easy pipelines for pandas DataFrames (`learn how! <https://tirthajyoti.github.io/Notebooks/Pandas-pipeline-with-pdpipe>`_).
-
-Website: `https://pdpipe.github.io/pdpipe/ <https://pdpipe.github.io/pdpipe/>`_
-
-Documentation: `https://pdpipe.github.io/pdpipe/doc/pdpipe/ <https://pdpipe.github.io/pdpipe/doc/pdpipe/>`_
 
 .. code-block:: python
 
@@ -36,7 +34,7 @@ Documentation
 
 This is the repository of the ``pdpipe`` package, and this readme file is aimed to help potential contributors to the project.
 
-To learn more about how to use ``pdpipe``, either `visit pdpipe's homepage <https://pdpipe.github.io/pdpipe/>`_ or read the `online documentation of pdpipe <https://pdpipe.github.io/pdpipe/doc/pdpipe/>`_.
+To learn more about how to use ``pdpipe``, either `visit pdpipe's homepage <https://pdpipe.readthedocs.io/en/latest/>`_ or read the `getting started section <https://pdpipe.readthedocs.io/en/latest/starting/install/>`_.
 
 
 Installation

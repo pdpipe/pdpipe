@@ -42,7 +42,7 @@ setup(
     author_email="shaypal5@gmail.com",
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
-    url='https://pdpipe.github.io/pdpipe/',
+    url='https://pdpipe.readthedocs.io/en/latest/',
     license="MIT",
     packages=['pdpipe'],
     install_requires=INSTALL_REQUIRES,
