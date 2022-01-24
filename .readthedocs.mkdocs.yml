@@ -24,7 +24,7 @@ nav:
       - develop/custom.md
   - Tutorials:
       - tutorials/index.md
-      - Basic Usage: tutorials/basic.md
+      - Basic Usage: starting/first_use.md
       - Halving Columns: tutorials/half.md
   - API Reference:
       - Core: reference/core.md

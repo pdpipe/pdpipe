@@ -111,7 +111,7 @@ float_col_halver = pdp.MapColVals(
 
 This neat little pipeline stage will, when a dataframe is first passed through it, build a list of all columns of dtype float (any kind of numpy float, be it `float32`, `float64` and so on), and save it. Then, for each such column, it will apply the value map element-wise to generate a new `pandas.Series`, which it will assign to the input dataframe under the label `'x_half`', where `x` is the label of the original column.
 
-The cool thing is, that if applied once on a dataframe - let's say, your training set - it will remember the list of columns it "chose" by the criteria you fed it, and will only apply it to the same list of columns on any future dataframe, even if it has additional float columns. This property is invaluable in ML scenarios, when you need to generate a fixed schema for the model who follows. You can't just half a new column on inference time just because something changed in the input data (you actually have to discard it).
+The cool thing is, that if applied once on a dataframe — let's say, your training set — it will remember the list of columns it "chose" by the criteria you fed it, and will only apply it to the same list of columns on any future dataframe, even if it has additional float columns. This property is invaluable in ML scenarios, when you need to generate a fixed schema for the model who follows. You can't just half a new column on inference time just because something changed in the input data (you actually have to discard it).
 
 !!! tip "Tip: Advanced column qualifiers"
 
@@ -152,5 +152,3 @@ That's it!
 !!! help "Getting help"
 
     Remember you can get help on <a href="https://gitter.im/pdpipe/community" target="_blank">our :material-wechat: Gitter chat</a> or on <a href="https://github.com/pdpipe/pdpipe/discussions" target="_blank">our :material-message-question: GitHub Discussions forum</a>.
-
-
