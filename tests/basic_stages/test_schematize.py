@@ -24,6 +24,7 @@ def _df4():
     return pd.DataFrame([[2, 4, 8], [3, 6, 9]], [1, 2], ['b', 'c', 'a'])
 
 
+@pytest.mark.schematize
 def test_schematize():
     df = _df()
     stage = Schematize(['a', 'c'])
@@ -47,11 +48,11 @@ def test_schematize():
         stage(df)
 
 
-@pytest.mark.xfail
-def test_schematize_with_cq():
+@pytest.mark.schematize
+def test_schematize_adaptive():
     # fit the stage on an [a, b] df
     df = _df2()
-    stage = Schematize(pdp.cq.AllColumns())
+    stage = Schematize(None)
     res = stage(df)
     assert list(res.columns) == ['a', 'b']
 

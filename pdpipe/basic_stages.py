@@ -10,7 +10,7 @@ from pdpipe.core import PdPipelineStage, ColumnsBasedPipelineStage
 # from pdpipe.util import out_of_place_col_insert
 from pdpipe.shared import (
     _interpret_columns_param,
-    _list_str
+    _list_str,
 )
 
 import pdpipe.cond as cond
@@ -493,7 +493,7 @@ class RowDrop(ColumnsBasedPipelineStage):
         'xor': lambda x: sum(x) == 1
     }
 
-    class DictRowCond(object):
+    class _DictRowCond(object):
         """Filter rows by a dict of conditions."""
 
         def __init__(self, conditions, reducer):
@@ -504,7 +504,7 @@ class RowDrop(ColumnsBasedPipelineStage):
             res = [cond(row[lbl]) for lbl, cond in self.conditions.items()]
             return self.reducer(res)
 
-    class ListRowCond(object):
+    class _ListRowCond(object):
         """Filter rows by a list of conditions."""
 
         def __init__(self, conditions, reducer):
@@ -518,10 +518,10 @@ class RowDrop(ColumnsBasedPipelineStage):
     def _row_condition_builder(self, conditions, reduce):
         reducer = RowDrop._REDUCERS[reduce]
         if self._cond_is_dict:
-            row_cond = RowDrop.DictRowCond(
+            row_cond = RowDrop._DictRowCond(
                 conditions=conditions, reducer=reducer)
         else:
-            row_cond = RowDrop.ListRowCond(
+            row_cond = RowDrop._ListRowCond(
                 conditions=conditions, reducer=reducer)
         return row_cond
 
@@ -571,8 +571,9 @@ class Schematize(PdPipelineStage):
 
     Parameters
     ----------
-    columns: sequence of labels
-        The dataframe schema to enforce on input dataframes.
+    columns: sequence of label, optional
+        The dataframe schema to enforce on input dataframes. If set to None,
+        the schema is learned in fit time and applied in subsequent transforms.
 
     Example
     -------
@@ -588,16 +589,27 @@ class Schematize(PdPipelineStage):
     2  9  6
     """
 
-    def __init__(self, columns, **kwargs):
-        self._columns = _interpret_columns_param(columns)
-        self._columns_str = _list_str(self._columns)
+    def __init__(
+        self,
+        columns: Optional[List[object]],
+        **kwargs: object,
+    ) -> None:
+        if columns is None:
+            self._adaptive = True
+            self._columns = None
+            self._columns_str = '<Learnable Schema>'
+            exmsg = "Learnable schematize failed in precondition unexpectedly!"
+        else:
+            self._adaptive = False
+            self._columns = _interpret_columns_param(columns)
+            self._columns_str = _list_str(self._columns)
+            exmsg = (
+                f"Not all required columns {self._columns_str} "
+                f"found in input dataframe!"
+            )
         desc = (
             f"Transform input dataframes to the following schema: "
             f"{self._columns_str}"
-        )
-        exmsg = (
-            f"Not all required columns {self._columns_str} "
-            f"found in input dataframe!"
         )
         super_kwargs = {
             'exmsg': exmsg,
@@ -606,10 +618,21 @@ class Schematize(PdPipelineStage):
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
+    def _prec(self, df: pandas.DataFrame) -> bool:
+        if self._adaptive and not self.is_fitted:
+            return True
         return set(self._columns).issubset(df.columns)
 
-    def _transform(self, df, verbose=None):
+    def _transform(
+            self, df: pandas.DataFrame, verbose=None) -> pandas.DataFrame:
+        return df[self._columns]
+
+    def _fit_transform(
+            self, df: pandas.DataFrame, verbose=None) -> pandas.DataFrame:
+        if self._adaptive:
+            self._columns = df.columns
+            self.is_fitted = True
+            return df
         return df[self._columns]
 
 

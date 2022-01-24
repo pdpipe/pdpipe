@@ -19,7 +19,10 @@ from .cfg import (
     LOAD_STAGE_ATTRIBUTES,
 )
 from .cq import is_fittable_column_qualifier, AllColumns
-from .shared import _get_args_list
+from .shared import (
+    _get_args_list,
+    _always_true,
+)
 from .exceptions import (
     FailedPreconditionError,
     FailedPostconditionError,
@@ -524,7 +527,7 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
     @staticmethod
     def _interpret_columns_param(columns, none_error=False, none_columns=None):
         """Interprets the value provided to the columns parameter and returns
-        a list version of it - if needed - a string representation of it.
+        a list version of it - if needed - and a string representation of it.
         """
         if columns is None:
             if none_error:
@@ -634,10 +637,6 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
 
     def _transform(self, df, verbose):
         return self._transformation(df, verbose, fit=False)
-
-
-def _always_true(x):
-    return True
 
 
 class AdHocStage(PdPipelineStage):

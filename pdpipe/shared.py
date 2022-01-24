@@ -1,9 +1,10 @@
 """Shared inner functionalities for pdpipe."""
 
 import inspect
+from typing import List, Iterable
 
 
-def _interpret_columns_param(columns):
+def _interpret_columns_param(columns: object) -> List[object]:
     if isinstance(columns, str):
         return [columns]
     if hasattr(columns, '__iter__'):
@@ -11,7 +12,7 @@ def _interpret_columns_param(columns):
     return [columns]
 
 
-def _list_str(listi):
+def _list_str(listi: Iterable[object]) -> str:
     if listi is None:
         return None
     if isinstance(listi, (list, tuple)):
@@ -19,10 +20,15 @@ def _list_str(listi):
     return listi
 
 
-def _get_args_list(func):
+def _get_args_list(func: callable) -> List[str]:
     signature = inspect.signature(func)
     return list(signature.parameters.keys())
 
 
-def _identity_function(x):
+def _identity_function(x: object) -> object:
     return x
+
+
+def _always_true(x: object) -> bool:
+    """A function that always returns True."""
+    return True

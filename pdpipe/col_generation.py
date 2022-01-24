@@ -13,7 +13,11 @@ from pdpipe.util import out_of_place_col_insert
 from pdpipe.cq import OfDtypes
 from pdpipe.types import ColumnsParamType, ColumnLabelsType
 
-from pdpipe.shared import _interpret_columns_param, _list_str
+from pdpipe.shared import (
+    _interpret_columns_param,
+    _list_str,
+    _always_true,
+)
 
 from .exceptions import PipelineApplicationError
 
@@ -498,10 +502,6 @@ class MapColVals(ColumnTransformer):
 
     def _col_transform(self, series, label):
         return series.map(self._applied_value_map)
-
-
-def _always_true(x):
-    return True
 
 
 class ApplyToRows(PdPipelineStage):
