@@ -1,5 +1,6 @@
 """Testing application context.."""
 
+import pickle
 from random import randint
 
 import pandas as pd
@@ -13,6 +14,8 @@ from pdpipe.core import (
 from pdpipe.basic_stages import ColDrop
 from pdpipe.util import out_of_place_col_insert
 from pdpipe.core import PdpApplicationContext
+
+from pdptestutil import random_pickle_path
 
 
 def _test_df():
@@ -96,6 +99,29 @@ def test_application_context():
     pipeline.fit_context.clear()
     val2 = pipeline.fit_context['a']
     assert val2 == val
+
+
+def test_application_context_pickling(pdpipe_tests_dir_path):
+    """Testing something."""
+    context = PdpApplicationContext()
+    context.update({'a': 4})
+    items = list(context.items())
+    assert len(items) == 1
+    assert items[0][0] == 'a'
+    assert items[0][1] == 4
+    keys = list(context.keys())
+    assert len(keys) == 1
+    assert keys[0] == 'a'
+    assert context.get('a') == 4
+    assert context.get('b') is None
+    assert context.get('c', 8) == 8
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, 'wb+') as f:
+        pickle.dump(context, f)
+    with open(fpath, 'rb') as f:
+        loaded_context = pickle.load(f)
+
+    loaded_context['b'] = 3
 
 
 def test_application_context_injection():
