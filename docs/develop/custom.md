@@ -5,8 +5,92 @@
 
 To use other stages than the built-in ones (see [Types of Pipeline Stages](#types-of-pipeline-stages)) you can extend the  class. The constructor must pass the `PdPipelineStage` constructor the `exmsg`, `appmsg` and `desc` keyword arguments to set the exception message, application message and description for the pipeline stage, respectively. Additionally, the `_prec` and `_transform` abstract methods must be implemented to define the precondition and the effect of the new pipeline stage, respectively.
 
+Here is an example with a simple - non-fitable - version of the `Schematize` pipeline stage:
+
+```python
+class Schematize(PdPipelineStage):
+
+    def __init__(self, columns: List[object],**kwargs: object) -> None:
+		self._columns = columns 
+		self._columns_str = _list_str(self._columns)
+		exmsg = (
+			f"Not all required columns {self._columns_str} "
+			f"found in input dataframe!"
+		)
+        desc = (
+            f"Transform input dataframes to the following schema: "
+            f"{self._columns_str}"
+        )
+        super_kwargs = {
+            'exmsg': exmsg,
+            'desc': desc,
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df: pandas.DataFrame) -> bool:
+        return set(self._columns).issubset(df.columns)
+
+    def _transform(
+            self, df: pandas.DataFrame, verbose=None) -> pandas.DataFrame:
+        return df[self._columns]
+```
+
 Fittable custom pipeline stages should implement, additionally to the  method, the `_fit_transform` method, which should both fit pipeline stage by the input dataframe and transform transform the dataframe, while also setting `self.is_fitted = True`.
 
+Here is the the `Schematize` stage, this time with an adaptive capability 
+(activated when the parameter `columns=None`) that makes it a fittable pipeline
+stage:
+
+```python
+class Schematize(PdPipelineStage):
+
+    def __init__(
+        self,
+        columns: Optional[List[object]],
+        **kwargs: object,
+    ) -> None:
+        if columns is None:
+            self._adaptive = True
+            self._columns = None
+            self._columns_str = '<Learnable Schema>'
+            exmsg = "Learnable schematize failed in precondition unexpectedly!"
+        else:
+            self._adaptive = False
+            self._columns = columns 
+            self._columns_str = _list_str(self._columns)
+            exmsg = (
+                f"Not all required columns {self._columns_str} "
+                f"found in input dataframe!"
+            )
+        desc = (
+            f"Transform input dataframes to the following schema: "
+            f"{self._columns_str}"
+        )
+        super_kwargs = {
+            'exmsg': exmsg,
+            'desc': desc,
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df: pandas.DataFrame) -> bool:
+        if self._adaptive and not self.is_fitted:
+            return True
+        return set(self._columns).issubset(df.columns)
+
+    def _transform(
+            self, df: pandas.DataFrame, verbose=None) -> pandas.DataFrame:
+        return df[self._columns]
+
+    def _fit_transform(
+            self, df: pandas.DataFrame, verbose=None) -> pandas.DataFrame:
+        if self._adaptive:
+            self._columns = df.columns
+            self.is_fitted = True
+            return df
+        return df[self._columns]
+```
 
 ## Creating pipeline stages that operate on column subsets
 

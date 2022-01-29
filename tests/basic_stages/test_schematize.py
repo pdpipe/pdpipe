@@ -2,7 +2,6 @@
 
 import pytest
 import pandas as pd
-import pdpipe as pdp
 
 from pdpipe import Schematize
 from pdpipe.exceptions import FailedPreconditionError

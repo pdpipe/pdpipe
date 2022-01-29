@@ -1,6 +1,7 @@
-pdoc Documentation
-==================
+[DEPRECATED] pdoc Documentation
+===============================
 
+**Deprecated. Use the `docs` folder in the repository's root instead.**
 Requirements
 ------------
 

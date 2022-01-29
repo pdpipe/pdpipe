@@ -26,6 +26,7 @@ nav:
       - tutorials/index.md
       - Basic Usage: starting/first_use.md
       - Halving Columns: tutorials/half.md
+      - Standartizing: tutorials/standard_df.md
   - API Reference:
       - Core: reference/core.md
       - Basic Stages: reference/basic.md

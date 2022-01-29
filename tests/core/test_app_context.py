@@ -10,6 +10,7 @@ from pdpipe.core import (
     AdHocStage,
     PdPipeline
 )
+from pdpipe.basic_stages import ColDrop
 from pdpipe.util import out_of_place_col_insert
 from pdpipe.core import PdpApplicationContext
 
@@ -71,6 +72,41 @@ def test_application_context():
     assert len(pipeline) == 2
     df = _test_df()
     res_df = pipeline.apply(df, verbose=True)
+    assert 'num1' in res_df.columns
+    assert 'num1+val' in res_df.columns
+    assert 'num2' in res_df.columns
+    assert 'char' not in res_df.columns
+    num1 = df['num1']
+    resnum = res_df['num1+val']
+    assert resnum.iloc[0] == val + num1.iloc[0]
+    assert resnum.iloc[1] == val + num1.iloc[1]
+
+    val2 = pipeline.fit_context['a']
+    assert val2 == val
+    # check locking works
+    pipeline.fit_context['a'] = 0
+    val2 = pipeline.fit_context['a']
+    assert val2 == val
+    del pipeline.fit_context['a']
+    val2 = pipeline.fit_context['a']
+    assert val2 == val
+    pipeline.fit_context.pop('a', 0)
+    val2 = pipeline.fit_context['a']
+    assert val2 == val
+    pipeline.fit_context.clear()
+    val2 = pipeline.fit_context['a']
+    assert val2 == val
+
+
+def test_application_context_injection():
+    """Testing something."""
+    drop_char = ColDrop('char')
+    use_context = UseContextStage('num1')
+    pipeline = PdPipeline([drop_char, use_context])
+    assert len(pipeline) == 2
+    df = _test_df()
+    val = randint(840, 921)
+    res_df = pipeline.apply(df, verbose=True, context={'a': val})
     assert 'num1' in res_df.columns
     assert 'num1+val' in res_df.columns
     assert 'num2' in res_df.columns
