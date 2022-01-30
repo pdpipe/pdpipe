@@ -66,10 +66,10 @@ applies it to any future dataframe passed through it in `transform` calls.
 
 ## Enforcing data types
 
-The `ColumnDtypeEnforcer` stage allows you to coerce dataframe columns into a
+The `ColumnDtypeEnforcer` stage allows us to coerce dataframe columns into a
 desired datatype, with some optional powerful capabilities.
 
-In the basic way to use the stage, you can just provide a dictionary mapping
+In the basic way to use the stage, we can just provide a dictionary mapping
 column labels to the dtype the should be coerced into; columns not detailed by
 this mapping will remain untouched:
 
@@ -107,11 +107,62 @@ column with a label starting with `'n'`:
 !!! tip More column qualifiers
 
     Remember, column qualifiers are powerful objects, and `pdpipe` boasts
-    built-in qualifiers that can help you choose columns by their data types or
+    built-in qualifiers that can help us choose columns by their data types or
     by the rate of missing values they have. See more in 
     [the section introducing column qualifiers](https://pdpipe.readthedocs.io/en/latest/starting/cq/).
 
+
 ## Validating conditions
+
+The `ConditionValidator` stage allows us to to make sure various conditions
+hold for input dataframes.
+
+The most straightforward way to use it is to provide it with a function - or a
+list of them - that return `True` or `False` for input dataframes:
+
+```python
+>>> import pandas as pd; import pdpipe as pdp;
+>>> df = pd.DataFrame([[1,4],[4,None],[1,11]], [1,2,3], ['a','b'])
+>>> df
+   a     b
+1  1     4
+2  4  None
+3  1    11
+>>> validator = pdp.ConditionValidator(lambda df: len(df.columns) == 5)
+>>> validator(df)
+Traceback (most recent call last):
+   ...
+pdpipe.exceptions.FailedConditionError: ConditionValidator stage failed; some conditions did not hold for the input dataframe!
+```
+
+But again, `pdpipe` includes a special built-in type that makes this stage more
+power; in this case, `Condition` objects, defined in the `pdpipe.cond` module.
+
+For example:
+
+```python
+>>> df
+   a     b
+1  1     4
+2  4  None
+3  1    11
+>>> validator = pdp.ConditionValidator(pdp.cond.HasNoMissingValues())
+>>> validator(df)
+Traceback (most recent call last):
+   ...
+pdpipe.exceptions.FailedConditionError: ConditionValidator stage failed; some conditions did not hold for the input dataframe!
+```
+
+The `cond` module includes other useful conditions, such as 
+`HasAtMostMissingValues`, `HasAllColumns` and per-column conditions.
+Additionally, condition objects support all boolean operators, so both
+`~ cond.HasAllColumns(['a', 'b'])` and
+`cond.HasAtMostMissingValues(0.1) & HasNoColumn('forbidden_column')` are valid
+complex conditions that can be fed to `ConditionValidator`.
+
+You can read more about condition objects in our Getting Started section:
+
+[An Introduction to Conditions :fontawesome-brands-leanpub:](https://pdpipe.readthedocs.io/en/latest/starting/cond/){ .md-button .md-button--primary}
 
 
 That's it!
