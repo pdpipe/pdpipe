@@ -110,10 +110,12 @@ except ImportError:
         "stages will not be loaded."
     )
 
+
+from .df import DF_HANDLE as df
+
 from . import cq
 from . import rq
 from . import cond
-from . import df
 from . import skintegrate
 
 
@@ -133,6 +135,7 @@ for name in [
     "util",
     "_version",
     "get_versions",
+    "THE_DF_HANDLE",
 ]:
     try:
         globals().pop(name)
@@ -147,3 +150,6 @@ except NameError:
 __pdoc__ = {
     'shared': False,
 }
+
+from . import _version
+__version__ = _version.get_versions()['version']
