@@ -24,7 +24,6 @@ nav:
       - develop/custom.md
   - Tutorials:
       - tutorials/index.md
-      - Basic Usage: starting/first_use.md
       - Halving Columns: tutorials/half.md
       - Standartizing: tutorials/standard_df.md
   - API Reference:
@@ -102,6 +101,7 @@ markdown_extensions:
   - codehilite
   - tables
   - attr_list
+  - md_in_html
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.details
