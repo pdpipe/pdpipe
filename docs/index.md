@@ -56,7 +56,7 @@ Install `pdpipe` using `pip`: `:::bash pip install pdpipe`
 
 ## Getting Started
 
-For a thorough overview of all the capabilities of `pdpipe`, [continue to the "Getting Started"](https://pdpipe.readthedocs.io/en/latest/starting/install/) section by clicking the **Next** on the bottom right.
+For a thorough overview of all the capabilities of `pdpipe`, [continue to the "Getting Started"](https://pdpipe.readthedocs.io/en/latest/starting/install/).
 
 <!-- You can also [head over to our Tutorials section](https://pdpipe.readthedocs.io/en/latest/tutorials/). -->
 

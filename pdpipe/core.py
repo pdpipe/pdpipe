@@ -73,7 +73,7 @@ def __load_stage_attributes_from_module__(module_name: object) -> None:
 
 # === basic classes ===
 
-class PdpApplicationContext(dict):
+class PdpApplicationContext():
     """An object encapsulating the application context of a pipeline.
 
     It is meant to communicate data, information and variables between
@@ -91,30 +91,48 @@ class PdpApplicationContext(dict):
         self,
         fit_context: Optional['PdpApplicationContext'] = None,
     ) -> None:
-        self.__locked__ = False
-        self._fit_context__ = fit_context
+        self._locked = False
+        self._fit_context = fit_context
+        self._dict = {}
+
+    def __getitem__(self, key: object) -> object:
+        return self._dict[key]
 
     def __setitem__(self, key: object, value: object) -> None:
-        if not self.__locked__:
-            super().__setitem__(key, value)
+        if not self._locked:
+            self._dict[key] = value
 
     def __delitem__(self, key: object) -> object:
-        if not self.__locked__:
-            super().__delitem__(key)
+        if not self._locked:
+            self._dict.__delitem__(key)
+
+    def get(self, key: object, default: object = None) -> object:
+        """Return the value for key if key is in the dictionary, else default
+        If default is not given, it defaults to None, so that this method never
+        raises a KeyError."""
+        return self._dict.get(key, default)
+
+    def items(self):
+        """Return a new view of the context’s items ((key, value) pairs)."""
+        return self._dict.items()
+
+    def keys(self):
+        """Return a new view of the context's keys."""
+        return self._dict.keys()
 
     def pop(self, key: object, default: object) -> object:
         """If key is in the dictionary, remove it and return its value, else
         return default. If default is not given and key is not in the
         dictionary, a KeyError is raised.
         """
-        if not self.__locked__:
-            return super().pop(key, default)
-        return super().__getitem__(key)
+        if not self._locked:
+            return self._dict.pop(key, default)
+        return self._dict.__getitem__(key)
 
     def clear(self) -> None:
         """Remove all items from the dictionary."""
-        if not self.__locked__:
-            super().clear()
+        if not self._locked:
+            self._dict.clear()
 
     def popitem(self) -> object:
         """Not implemented!"""
@@ -128,16 +146,16 @@ class PdpApplicationContext(dict):
         keyword arguments are specified, the dictionary is then updated with
         those key/value pairs: d.update(red=1, blue=2).
         """
-        if not self.__locked__:
-            super().update(other)
+        if not self._locked:
+            self._dict.update(other)
 
     def lock(self) -> None:
         """Locks this application context for changes."""
-        self.__locked__ = True
+        self._locked = True
 
     def fit_context(self) -> 'PdpApplicationContext':
         """Returns a locked PdpApplicationContext object of a previous fit."""
-        return self._fit_context__
+        return self._fit_context
 
 
 class PdPipelineStage(abc.ABC):
