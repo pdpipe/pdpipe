@@ -4,35 +4,26 @@ So how does using `pdpipe` looks like? Let's first import `pandas` and `pdpipe`,
 
 ```python
 import pandas as pd
-import pdpipe as pdp
 
-df = pd.DataFrame(
+raw_df = pd.DataFrame(
     data=[
-        [23, 'Jo', 'M', True, 0.07, 'USA', 'Living life to its fullest'],
-        [23, 'Dana', 'F', True, 0.3, 'USA', 'the pen is mightier then the sword'],
-        [25, 'Bo', 'M', False, 2.3, 'Greece', 'all for one and one for all'],
-        [44, 'Derek', 'M', True, 1.1, 'Denmark', 'every life is precious'],
-        [72, 'Regina', 'F', True, 7.1, 'Greece', 'all of you get off my porch'],
-        [50, 'Jim', 'M', False, 0.2, 'Germany', 'boy do I love dogs and cats'],
-        [80, 'Richy', 'M', False, 100.2, 'Finland', 'I gots the dollarz'],
-        [80, 'Wealthus', 'F', False, 123.2, 'Finland', 'me likey them moniez'],
+        [42, 23, 'Jo', 'M', True, False, 0.07, 'USA', 'Living life to its fullest'],
+        [81, 23, 'Dana', 'F', True, True, 0.3, 'USA', 'the pen is mightier then the sword'],
+        [11, 25, 'Bo', 'M', False, True, 2.3, 'Greece', 'all for one and one for all'],
+        [14, 44, 'Derek', 'M', True, True, 1.1, 'Denmark', 'every life is precious'],
+        [22, 72, 'Regina', 'F', True, False, 7.1, 'Greece', 'all of you get off my porch'],
+        [48, 50, 'Jim', 'M', False, False, 0.2, 'Germany', 'boy do I love dogs and cats'],
+        [50, 80, 'Richy', 'M', False, True, 100.2, 'Finland', 'I love Euro bills'],
+        [80, 80, 'Wealthus', 'F', False, True, 123.2, 'Finland', 'In Finance We Trust'],
     ],
-    columns=['Age', 'Name', 'Gender', 'Smoking', 'Savings', 'Country', 'Quote'],
+    columns=['Id', 'Age', 'Name', 'Gender', 'Smoking', 'Runs', 'Savings', 'Country', 'Quote'],
 )
 ```
 
 This results in the following dataframe:
 
-|    |   Age | Name     | Gender   | Smoking   |   Savings | Country   | Quote                              |
-|---:|------:|:---------|:---------|:----------|----------:|:----------|:-----------------------------------|
-|  0 |    23 | Jo       | M        | True      |      0.07 | USA       | Living life to its fullest         |
-|  1 |    23 | Dana     | F        | True      |      0.3  | USA       | the pen is mightier then the sword |
-|  2 |    25 | Bo       | M        | False     |      2.3  | Greece    | all for one and one for all        |
-|  3 |    44 | Derek    | M        | True      |      1.1  | Denmark   | every life is precious             |
-|  4 |    72 | Regina   | F        | True      |      7.1  | Greece    | all of you get off my porch        |
-|  5 |    50 | Jim      | M        | False     |      0.2  | Germany   | boy do I love dogs and cats        |
-|  6 |    80 | Richy    | M        | False     |    100.2  | Finland   | I gots the dollarz                 |
-|  7 |    80 | Wealthus | F        | False     |    123.2  | Finland   | me likey them moniez               |
+![The raw dataframe](https://pdpipe.readthedocs.io/en/latest/images/gsdf1.png)
+
 
 ## Constructing pipelines
 
@@ -44,9 +35,14 @@ To build a pipeline, we will usually call the `PdPipeline` class constructor,
 and provide it with a list of pipeline stage objects:
 
 ```python
+import pdpipe as pdp
+from pdpipe import df
+
 pipeline = pdp.PdPipeline([
+    df.set_index('Id'),
     pdp.ColDrop('Name'),
-    pdp.drop_rows_where['Savings'] > 100,
+    df.drop_rows_where['Savings'] > 100,
+    df['Healthy'] << df['Runs'] & ~df['Smoking'],
     pdp.Bin({'Savings': [1]}, drop=False),
     pdp.Scale('StandardScaler'),
     pdp.TokenizeText('Quote'),
@@ -56,6 +52,18 @@ pipeline = pdp.PdPipeline([
     pdp.OneHotEncode('Country'),
 ])
 ```
+
+!!! faq "pdpipe's df handle"
+
+	`pdpipe` has a powerful handle named `df`, which can be used in several ways:
+
+	1. Creating column assignment pipeline stages that use series-level operators and functions, such as with
+    `df['c'] << df['a'] + df['b'].map({1: 3, 2:4})`.
+    
+    2. Create pipeline stages from `panads.DataFrame` methods that represent dataframe-to-dataframe transforms, such as `set_index`, `fillna`, `rename`, etc.
+    3. Use custom fly handles such as `drop_rows_where` and `keep_rows where`, such as with
+    `(df.drop_rows_where['a'] < 4) & (df.drop_rows_where['b'] >12)`.
+
 
 ??? tip "Chaining constructor syntax"
 
@@ -84,15 +92,17 @@ print(pipeline)
 
 ```bash
 A pdpipe pipeline:
-[ 0]  Drop columns Name
-[ 1]  Drop rows in columns Savings by conditions
-[ 2]  Bin Savings by [1].
-[ 3]  Scale columns Columns of dtypes <class 'numpy.number'>
-[ 4]  Tokenize Quote
-[ 5]  Stemming tokens in Quote...
-[ 6]  Remove stopwords from Quote
-[ 7]  Encode Gender
-[ 8]  One-hot encode Country
+[ 0]  Apply dataframe method set_index with kwargs {}
+[ 1]  Drop columns Name
+[ 2]  Drop rows by qualifier <RowQualifier: Qualify rows with df[Savings] > 100>
+[ 3]  Assign column Healthy with df[Runs] & ~df[Smoking]
+[ 4]  Bin Savings by [1].
+[ 5]  Scale columns Columns of dtypes <class 'numpy.number'>
+[ 6]  Tokenize Quote
+[ 7]  Stemming tokens in Quote...
+[ 8]  Remove stopwords from Quote
+[ 9]  Encode Gender
+[10]  One-hot encode Country
 ```
 
 !!! tip "Pipeline slicing"
@@ -115,32 +125,26 @@ res = pipeline(df, verbose=True)
 ```
 
 ```bash
+- set_index: Apply dataframe method set_index with kwargs {}
 - Drop columns Name
-- Drop rows by qualifier <RowQualifier: Qualify rows with df[Savings] >
-  100>
+- Drop rows by qualifier <RowQualifier: Qualify rows with df[Savings] > 100>
 2 rows dropped.
+- Assign column Healthy with df[Runs] & ~df[Smoking]
 - Bin Savings by [1].
-Savings: 100%|████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 110.24it/s]
+Savings: 100%|██████████████████████████████████| 1/1 [00:00<00:00, 158.35it/s]
 - Scale columns Columns of dtypes <class 'numpy.number'>
 - Tokenize Quote
 - Stemming tokens in Quote...
 - Remove stopwords from Quote
 - Encode Gender
-100%|█████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 204.45it/s]
+100%|█████████████████████████████████████| 1/1 [00:00<00:00, 297.36it/s]
 - One-hot encode Country
-Country: 100%|████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 140.72it/s]
+Country: 100%|█████████████████████████████████████| 1/1 [00:00<00:00, 240.78it/s]
 ```
 
 We will thus get the dataframe below. We can see all numerical columns were scaled, the `Country` column was one-hot-encoded, `Savings` also got a binned version and the textual `Quote` column underwent some word-level manipulations:
 
-|    |        Age |   Gender | Smoking   |   Savings | Savings_bin   | Quote                         |   Country_Germany |   Country_Greece |   Country_USA |
-|---:|-----------:|---------:|:----------|----------:|:--------------|:------------------------------|------------------:|-----------------:|--------------:|
-|  0 | -1.13505   |        1 | True      | -0.609615 | <1            | ['live', 'life', 'fullest']   |                 0 |                0 |             1 |
-|  1 | -1.13505   |        0 | True      | -0.60482  | <1            | ['pen', 'mightier', 'sword']  |                 0 |                0 |             1 |
-|  2 | -1.04979   |        1 | False     | -0.563121 | 1≤            | ['one', 'one']                |                 0 |                1 |             0 |
-|  3 | -0.2398    |        1 | True      | -0.58814  | 1≤            | ['everi', 'life', 'precious'] |                 0 |                0 |             0 |
-|  4 |  0.95387   |        0 | True      | -0.463043 | 1≤            | ['get', 'porch']              |                 0 |                1 |             0 |
-|  5 |  0.0159866 |        1 | False     | -0.606905 | <1            | ['boy', 'love', 'dog', 'cat'] |                 1 |                0 |             0 |
+![Post-processed dataframe](https://pdpipe.readthedocs.io/en/latest/images/gsdf2.png)
 
 
 ## Fit and transform
@@ -165,20 +169,11 @@ Let's say we want to utilize pdpipe's powerful slicing syntax to apply only
 `fit_transform` method of the pipeline itself to force all encompassed pipeline
 stages to fit-transform themselves:
 
-Here, we will use `pipeline[2:5]` to apply the binning, scaling and
+Here, we will use `pipeline[4:7]` to apply the binning, scaling and
 tokenization stages only:
 
 ```python
-pipeline[2:4].fit_transform(df)
+pipeline[4:7].fit_transform(df)
 ```
 
-|    |        Age | Name     | Gender   | Smoking   |   Savings | Savings_bin   | Country   | Quote                              |
-|---:|-----------:|:---------|:---------|:----------|----------:|:--------------|:----------|:-----------------------------------|
-|  0 | -1.13505   | Jo       | M        | True      | -0.609615 | <1            | USA       | Living life to its fullest         |
-|  1 | -1.13505   | Dana     | F        | True      | -0.60482  | <1            | USA       | the pen is mightier then the sword |
-|  2 | -1.04979   | Bo       | M        | False     | -0.563121 | 1≤            | Greece    | all for one and one for all        |
-|  3 | -0.2398    | Derek    | M        | True      | -0.58814  | 1≤            | Denmark   | every life is precious             |
-|  4 |  0.95387   | Regina   | F        | True      | -0.463043 | 1≤            | Greece    | all of you get off my porch        |
-|  5 |  0.0159866 | Jim      | M        | False     | -0.606905 | <1            | Germany   | boy do I love dogs and cats        |
-|  6 |  1.29492   | Richy    | M        | False     |  1.47805  | 1≤            | Finland   | I gots the dollarz                 |
-|  7 |  1.29492   | Wealthus | F        | False     |  1.95759  | 1≤            | Finland   | me likey them moniez               |
+![Partially processed dataframe](https://pdpipe.readthedocs.io/en/latest/images/gsdf3.png)

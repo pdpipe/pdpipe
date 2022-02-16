@@ -3,11 +3,7 @@
 # !/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
-
+from setuptools import setup, find_packages
 import versioneer
 
 
@@ -28,6 +24,8 @@ TEST_REQUIRES = [
     'pytest', 'coverage', 'pytest-cov', 'pytest-ordering',
     # non-testing packagesrequired by tests, not by the package
     'scikit-learn', 'pdutil', 'nltk', 'xdg',
+    # dev scripts
+    'rich',
     # to be able to run `python setup.py checkdocs`
     'collective.checkdocs', 'pygments',
 ]
@@ -44,7 +42,7 @@ setup(
     cmdclass=versioneer.get_cmdclass(),
     url='https://pdpipe.readthedocs.io/en/latest/',
     license="MIT",
-    packages=['pdpipe'],
+    packages=find_packages(),
     install_requires=INSTALL_REQUIRES,
     extras_require={
         'sklearn': ['scikit-learn'],

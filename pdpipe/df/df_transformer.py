@@ -1,21 +1,25 @@
-"""Handles for dynamic dataframe-method-wrapping pipeline stages."""
+"""Handles for all pandas.DataFrame dataframe-outputing transformations."""
 
-
-from typing import Dict
+from typing import List, Dict
 
 from pandas import DataFrame
 
-from .core import PdPipelineStage
+from ..core import PdPipelineStage
 
 
-# this_module = __import__(__name__)
-
+# === DataFrame methods  ===
 
 class _DataFrameMethodTransformer(PdPipelineStage):
 
-    def __init__(self, method_name: str, kwargs: Dict[str, object]) -> None:
+    def __init__(
+        self,
+        method_name: str,
+        args: List[object],
+        kwargs: Dict[str, object],
+    ) -> None:
         self._method_name = method_name
-        self._kwargs = kwargs.copy()
+        self._args = args
+        self._kwargs = kwargs
         # we must always pop 'inplace', if it's there
         found = self._kwargs.pop('inplace', None)
         if found is not None:
@@ -37,18 +41,19 @@ class _DataFrameMethodTransformer(PdPipelineStage):
 
     def _transform(self, df: DataFrame, verbose: bool) -> DataFrame:
         method = getattr(df, self._method_name)
-        return method(**self._kwargs)
+        return method(*self._args, **self._kwargs)
 
 
-class _DfMethodTransformerHandle(object):
+class _DfMethodTransformerHandle():
 
     def __init__(self, method_name: str, doc: str) -> None:
         self._method_name = method_name
         self.__doc__ = doc
 
-    def __call__(self, **kwargs: Dict[str, object]) -> PdPipelineStage:
+    def __call__(self, *args, **kwargs: Dict[str, object]) -> PdPipelineStage:
         return _DataFrameMethodTransformer(
             method_name=self._method_name,
+            args=args,
             kwargs=kwargs,
         )
 
@@ -63,8 +68,8 @@ def _is_dataframe_transform(attr_name: str, attr: object) -> bool:
     try:
         doc_lines = attr.__doc__.split('\n')
         returns_line_index = None
-        for i in range(len(doc_lines)):
-            if __RETURNS in doc_lines[i]:
+        for i, line in enumerate(doc_lines):
+            if __RETURNS in line:
                 returns_line_index = i + 2
                 break
         if returns_line_index:
@@ -76,22 +81,4 @@ def _is_dataframe_transform(attr_name: str, attr: object) -> bool:
         return False
 
 
-for attr_name in dir(DataFrame):
-    attr = getattr(DataFrame, attr_name)
-    if _is_dataframe_transform(attr_name, attr):
-        # print(f"Adding {attr_name} of {attr}")
-        handle = _DfMethodTransformerHandle(
-            method_name=attr_name,
-            doc=attr.__doc__,
-        )
-        globals()[attr_name] = handle
-        # setattr(this_module, attr_name, handle)
-
-# print(this_module)
-# del this_module
-del attr
-del handle
-del attr_name
-del Dict
-del DataFrame
-del PdPipelineStage
+# === END-OF DataFrame methods  ===
