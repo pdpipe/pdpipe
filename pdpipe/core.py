@@ -810,7 +810,8 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         raise NotImplementedError
 
     def _post_transform_lock(self):
-        self.application_context.lock()
+        # Application context is discarded after pipeline application
+        self.application_context = None
         self.fit_context.lock()
 
     def apply(
