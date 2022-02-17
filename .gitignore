@@ -104,3 +104,6 @@ tags
 # don't like pipfiles
 Pipfile
 Pipfile.lock
+
+# Temporary testing file
+notebooks/debug*.py
