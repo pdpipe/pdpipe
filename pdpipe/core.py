@@ -810,7 +810,8 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         raise NotImplementedError
 
     def _post_transform_lock(self):
-        self.application_context.lock()
+        # Application context is discarded after pipeline application
+        self.application_context = None
         self.fit_context.lock()
 
     def apply(
@@ -819,7 +820,8 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         exraise: Optional[bool] = None,
         verbose: Optional[bool] = False,
         time: Optional[bool] = False,
-        context: Optional[dict] = {},
+        fit_context: Optional[dict] = {},
+        application_context: Optional[dict] = {},
     ):
         """Applies this pipeline stage to the given dataframe.
 
@@ -860,7 +862,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                 exraise=exraise,
                 verbose=verbose,
                 time=time,
-                context=context,
+                application_context=application_context,
             )
             return res
         res = self.fit_transform(
@@ -868,7 +870,8 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             exraise=exraise,
             verbose=verbose,
             time=time,
-            context=context,
+            fit_context=fit_context,
+            application_context=application_context,
         )
         return res
 
@@ -878,12 +881,13 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         y: Optional[Iterable] = None,
         exraise: Optional[bool] = None,
         verbose: Optional[bool] = False,
-        context: Optional[dict] = {},
+        fit_context: Optional[dict] = {},
+        application_context: Optional[dict] = {},
     ):
         self.fit_context = PdpApplicationContext()
-        self.fit_context.update(context)
+        self.fit_context.update(fit_context)
         self.application_context = PdpApplicationContext()
-        self.application_context.update(context)
+        self.application_context.update(application_context)
         inter_x = X
         times = []
         prev = time.time()
@@ -918,7 +922,8 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         exraise: Optional[bool] = None,
         verbose: Optional[bool] = False,
         time: Optional[bool] = False,
-        context: Optional[dict] = {},
+        fit_context: Optional[dict] = {},
+        application_context: Optional[dict] = {},
     ):
         """Fits this pipeline and transforms the input dataframe.
 
@@ -942,7 +947,10 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         time : bool, default False
             If True, per-stage application time is measured and reported when
             pipeline application is done.
-        context : dict, optional
+        fit_context : dict, option
+            Context for the entire pipeline, is retained after the pipeline
+            application is completed.
+        application_context : dict, optional
             Context to add to the application context of this call. Can map
             str keys to arbitrary object values to be used by pipeline stages
             during this pipeline application.
@@ -954,12 +962,15 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         """
         if time:
             return self.__timed_fit_transform(
-                X=X, y=y, exraise=exraise, verbose=verbose, context=context)
+                X=X, y=y, exraise=exraise,
+                verbose=verbose,
+                fit_context=fit_context,
+                application_context=application_context)
         inter_x = X
         self.application_context = PdpApplicationContext()
-        self.application_context.update(context)
+        self.application_context.update(application_context)
         self.fit_context = PdpApplicationContext()
-        self.fit_context.update(context)
+        self.fit_context.update(fit_context)
         for i, stage in enumerate(self._stages):
             try:
                 stage.fit_context = self.fit_context
@@ -985,7 +996,8 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         exraise: Optional[bool] = None,
         verbose: Optional[bool] = False,
         time: Optional[bool] = False,
-        context: Optional[dict] = {},
+        fit_context: Optional[dict] = {},
+        application_context: Optional[dict] = {},
     ):
         """Fits this pipeline without transforming the input dataframe.
 
@@ -1009,7 +1021,10 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         time : bool, default False
             If True, per-stage application time is measured and reported when
             pipeline application is done.
-        context : dict, optional
+        fit_context : dict, option
+            Context for the entire pipeline, is retained after the pipeline
+            application is completed.
+        application_context : dict, optional
             Context to add to the application context of this call. Can map
             str keys to arbitrary object values to be used by pipeline stages
             during this pipeline application.
@@ -1025,7 +1040,8 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             exraise=exraise,
             verbose=verbose,
             time=time,
-            context=context,
+            fit_context=fit_context,
+            application_context=application_context,
         )
         return X
 
@@ -1035,13 +1051,13 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         y: Optional[Iterable[float]] = None,
         exraise: Optional[bool] = None,
         verbose: Optional[bool] = None,
-        context: Optional[dict] = {},
+        application_context: Optional[dict] = {},
     ) -> pandas.DataFrame:
         inter_x = X
         times = []
         prev = time.time()
         self.application_context = PdpApplicationContext()
-        self.application_context.update(context)
+        self.application_context.update(application_context)
         for i, stage in enumerate(self._stages):
             try:
                 stage.fit_context = self.fit_context
@@ -1073,7 +1089,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         exraise: Optional[bool] = None,
         verbose: Optional[bool] = None,
         time: Optional[bool] = False,
-        context: Optional[dict] = {},
+        application_context: Optional[dict] = {},
     ) -> pandas.DataFrame:
         """Transforms the given dataframe without fitting this pipeline.
 
@@ -1100,7 +1116,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         time : bool, default False
             If True, per-stage application time is measured and reported when
             pipeline application is done.
-        context : dict, optional
+        application_context : dict, optional
             Context to add to the application context of this call. Can map
             str keys to arbitrary object values to be used by pipeline stages
             during this pipeline application.
@@ -1117,10 +1133,11 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                     " unfitted!").format(stage))
         if time:
             return self.__timed_transform(
-                X=X, y=y, exraise=exraise, verbose=verbose, context=context)
+                X=X, y=y, exraise=exraise, verbose=verbose,
+                application_context=application_context)
         inter_df = X
         self.application_context = PdpApplicationContext()
-        self.application_context.update(context)
+        self.application_context.update(application_context)
         for i, stage in enumerate(self._stages):
             try:
                 stage.application_context = self.application_context
