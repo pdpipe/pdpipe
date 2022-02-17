@@ -132,7 +132,7 @@ def test_application_context_injection():
     assert len(pipeline) == 2
     df = _test_df()
     val = randint(840, 921)
-    res_df = pipeline.apply(df, verbose=True, context={'a': val})
+    res_df = pipeline.apply(df, verbose=True, fit_context={'a': val})
     assert 'num1' in res_df.columns
     assert 'num1+val' in res_df.columns
     assert 'num2' in res_df.columns
