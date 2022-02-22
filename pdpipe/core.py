@@ -846,10 +846,14 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         time : bool, default False
             If True, per-stage application time is measured and reported when
             pipeline application is done.
-        context : dict, optional
+        fit_context : dict, option
+            Context for the entire pipeline, is retained after the pipeline
+            application is completed.
+        application_context : dict, optional
             Context to add to the application context of this call. Can map
             str keys to arbitrary object values to be used by pipeline stages
-            during this pipeline application.
+            during this pipeline application. Discarded after pipeline
+            application.
 
         Returns
         -------
@@ -953,7 +957,8 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         application_context : dict, optional
             Context to add to the application context of this call. Can map
             str keys to arbitrary object values to be used by pipeline stages
-            during this pipeline application.
+            during this pipeline application. Discarded after pipeline
+            application.
 
         Returns
         -------
@@ -1140,6 +1145,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         self.application_context.update(application_context)
         for i, stage in enumerate(self._stages):
             try:
+                stage.fit_context = self.fit_context
                 stage.application_context = self.application_context
                 inter_df = stage.transform(
                     X=inter_df,
