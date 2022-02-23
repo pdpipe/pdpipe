@@ -174,6 +174,17 @@ Credits
 =======
 Created by Shay Palachy  (shay.palachy@gmail.com).
 
+🐞 Bugfixes & Documentation:
+----------------------------
+
+* `@carbonleakage <https://github.com/carbonleakage>`_
+
+* `@yarkhinephyo <https://github.com/yarkhinephyo>`_
+
+* `@Silun <https://github.com/Silun>`_
+
+* `@naveenkaushik2504 <https://github.com/naveenkaushik2504>`_
+
 .. alternative:
 .. https://badge.fury.io/py/yellowbrick.svg
 
