@@ -75,6 +75,7 @@ from .fly import (
 )
 
 try:
+    from . import skintegrate
     from . import sklearn_stages
     from .sklearn_stages import (
         Encode,
@@ -116,7 +117,6 @@ from .df import DF_HANDLE as df
 from . import cq
 from . import rq
 from . import cond
-from . import skintegrate
 
 
 from ._version import get_versions
