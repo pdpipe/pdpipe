@@ -3,7 +3,9 @@
 import math
 
 import pytest
+import numpy as np
 import pandas as pd
+import pdpipe as pdp
 
 from pdpipe.col_generation import ApplyByCols
 
@@ -128,3 +130,39 @@ def test_applybycols_with_bad_len_result_columns():
 #     assert res_df['sum'][2] == 6
 #     assert res_df['diff'][1] == -1
 #     assert res_df['diff'][2] == -2
+
+
+DF1 = pd.DataFrame({'a': ['a', 'b', 'c', 'd'], 'b': [5, 6, 7, 1]})
+
+
+def test_complex_drop():
+    pline = pdp.PdPipeline([
+        pdp.ApplicationContextEnricher(
+            numeric_means=lambda df:
+                df.select_dtypes(include=np.number).mean().to_dict(),
+        ),
+        pdp.ApplyByCols(
+            columns=pdp.cq.OfNumericDtypes(),
+            func=lambda x, label, application_context:
+                'DROP' if x < application_context['numeric_means'][label]
+                else x,
+        ),
+        pdp.ValDrop(['DROP']),
+    ])
+    res = pline(DF1)
+    assert res.index.tolist() == [0, 1, 2]
+    assert 1 not in res['b'].values
+
+
+def test_applybycols_use_fit_context():
+    pline = pdp.PdPipeline([
+        pdp.ApplyByCols(
+            columns=pdp.cq.OfNumericDtypes(),
+            func=lambda x, label, fit_context:
+                'BLAH' if (label in fit_context.keys()) else x,
+        ),
+    ])
+    res = pline(DF1)
+    assert res.index.tolist() == [0, 1, 2, 3]
+    assert 'BLAH' not in res['a'].values
+    assert 'BLAH' not in res['b'].values

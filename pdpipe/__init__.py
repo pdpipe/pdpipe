@@ -35,6 +35,7 @@ from .basic_stages import (
     DropDuplicates,
     ColumnDtypeEnforcer,
     ConditionValidator,
+    ApplicationContextEnricher,
 )
 
 core.__load_stage_attributes_from_module__("pdpipe.basic_stages")

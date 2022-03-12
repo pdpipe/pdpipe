@@ -1,6 +1,8 @@
 """Column generation pdpipe PdPipelineStages."""
 
 import abc
+import inspect
+import warnings
 from typing import Union, Tuple, Optional, Dict, Callable
 
 import numpy as np
@@ -8,7 +10,11 @@ import pandas as pd
 import sortedcontainers as sc
 import tqdm
 
-from pdpipe.core import PdPipelineStage, ColumnsBasedPipelineStage
+from pdpipe.core import (
+    PdpApplicationContext,
+    PdPipelineStage,
+    ColumnsBasedPipelineStage,
+)
 from pdpipe.util import out_of_place_col_insert
 from pdpipe.cq import OfDtypes
 from pdpipe.types import ColumnsParamType, ColumnLabelsType
@@ -288,6 +294,21 @@ class OneHotEncode(ColumnsBasedPipelineStage):
 class ColumnTransformer(ColumnsBasedPipelineStage):
     """A pipeline stage that applies transformation to dataframe columns.
 
+    This is an abstract base class for pipeline stages that apply
+    transformations to dataframe columns. Subclasses should implement the
+    `_col_transform` method with the following signature:
+
+    def _col_transform(
+        self,
+        series: pd.Series,
+        label: str,
+    ) -> pd.Series:
+        # implementation goes here
+
+    The `series` argument is a pandas.Series - the column to transform. `label`
+    is the name of the column to transform.  Naturally, the method must return
+    the new, transformed column.
+
     Parameters
     ----------
     columns : single label, list-like or callable
@@ -306,6 +327,10 @@ class ColumnTransformer(ColumnsBasedPipelineStage):
     suffix : str, default '_transformed'
         The suffix transformed columns gain if no new column labels are given.
     """
+
+    _INIT_KWARGS = [
+        'result_columns', 'drop', 'suffix',
+    ] + ColumnsBasedPipelineStage._INIT_KWARGS
 
     def __init__(
         self,
@@ -337,7 +362,13 @@ class ColumnTransformer(ColumnsBasedPipelineStage):
         super().__init__(**super_kwargs)
 
     @abc.abstractmethod
-    def _col_transform(self, series, label):
+    def _col_transform(
+        self,
+        series: pd.Series,
+        label: str,
+        fit_context: Optional[PdpApplicationContext] = None,
+        application_context: Optional[PdpApplicationContext] = None,
+    ) -> pd.Series:
         raise NotImplementedError
 
     def _transformation(self, df, verbose, fit):
@@ -645,7 +676,12 @@ class ApplyByCols(ColumnTransformer):
     suffix : str, default None
         If provided, this string is concated to resulting column labels instead
         of '_app'.
-
+    args : tuple, optional
+        Positional arguments to pass to func in addition to the array/series.
+    **kwargs : dict, optional
+        Additional keyword arguments to pass as keywords arguments to func.
+        Valid constructor parameters of superclasses are extracted and used
+        on intialization.
 
     Example
     -------
@@ -668,14 +704,32 @@ class ApplyByCols(ColumnTransformer):
         drop=True,
         func_desc=None,
         suffix=None,
+        args=(),
         **kwargs
     ):
         self._func = func
+        self._inject_label = False
+        self._inject_fit_context = False
+        self._inject_application_context = False
+        try:
+            param_names = inspect.signature(func).parameters.keys()
+            self._inject_label = "label" in param_names
+            self._inject_fit_context = "fit_context" in param_names
+            self._inject_application_context = \
+                "application_context" in param_names
+        except Exception:  # pragma: no cover
+            warnings.warn(
+                "Function {} does not have signature.".format(func),
+                UserWarning,
+            )
         if suffix is None:
             suffix = "_app"
         if func_desc is None:
             func_desc = ""
         self._func_desc = func_desc
+        self._args = args
+        init_kwargs, other_kwargs = super()._split_kwargs(kwargs)
+        self._apply_kwargs = other_kwargs
         super_kwargs = {
             'columns': columns,
             'result_columns': result_columns,
@@ -683,11 +737,22 @@ class ApplyByCols(ColumnTransformer):
             'suffix': suffix,
             'desc_temp': f'Apply a function {func_desc} to columns {{}}',
         }
-        super_kwargs.update(**kwargs)
+        super_kwargs.update(**init_kwargs)
         super().__init__(**super_kwargs)
 
-    def _col_transform(self, series, label):
-        return series.apply(self._func)
+    def _col_transform(
+        self,
+        series: pd.Series,
+        label: str,
+    ) -> pd.Series:
+        kwargs = self._apply_kwargs
+        if self._inject_label:
+            kwargs["label"] = label
+        if self._inject_fit_context:
+            kwargs["fit_context"] = self.fit_context
+        if self._inject_application_context:
+            kwargs["application_context"] = self.application_context
+        return series.apply(self._func, args=self._args, **kwargs)
 
 
 class ColByFrameFunc(PdPipelineStage):
