@@ -253,6 +253,28 @@ class PdPipelineStage(abc.ABC):
     def _init_kwargs(cls):
         return cls._INIT_KWARGS
 
+    @classmethod
+    def _split_kwargs(cls, kwargs: dict) -> dict:
+        """Splits the given kwargs dict into init and non-init kwargs.
+
+        Parameters
+        ----------
+        kwargs : dict
+            The kwargs dict to split.
+
+        Returns
+        -------
+        init_kwargs : dict
+            The init kwargs dict.
+        other_kwargs : dict
+            The non-init kwargs dict.
+        """
+        init_kwargs = {
+            k: v for k, v in kwargs.items() if k in cls._INIT_KWARGS}
+        other_kwargs = {
+            k: v for k, v in kwargs.items() if k not in cls._INIT_KWARGS}
+        return init_kwargs, other_kwargs
+
     @abc.abstractmethod
     def _prec(
         self,
@@ -541,6 +563,10 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
     **kwargs
         Additionally supports all constructor parameters of PdPipelineStage.
     """
+
+    _INIT_KWARGS = [
+        'columns', 'exclude_columns', 'desc_temp', 'none_columns',
+    ] + PdPipelineStage._INIT_KWARGS
 
     @staticmethod
     def _interpret_columns_param(columns, none_error=False, none_columns=None):

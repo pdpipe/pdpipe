@@ -869,3 +869,78 @@ class ConditionValidator(PdPipelineStage):
                 "ConditionValidator stage failed; some conditions did not hold"
                 " for the input dataframe!")
         return df
+
+
+class ApplicationContextEnricher(PdPipelineStage):
+    """A pipeline stage that enriches the pipeline's application context.
+
+    Keyword arguments can be either PdPipelineStage constructor arguments, in
+    which case they are passed to the stage constructor, or they can be
+    mappings to be added to the application context. If a key maps to a
+    callable, then the callable is called with the input dataframe as the first
+    argument, and the application context is passed as a keyword argument if
+    the callable expects it (otherwise only the input dataframe is passed),
+    and the result is stored in the application context mapped by the key. If
+    the key maps to a non-callable object, the mapping is simply stored in the
+    application context.
+
+    Mappings are evaluated in the order they are passed to the constructor.
+
+    For example, `ApplicationContextEnricher(suma=lambda df: df['a'].sum())'
+    will add the sum of the 'a' column to the application context keys under
+    the key 'suma'. Lated stages can then access the value of 'suma' with
+    `self.application_context['suma']`.
+
+    Similarly, `ApplicationContextEnricher(b=5)` will add the {'b': 5} mapping
+    to the application context.
+
+    Gradual mappings that use earlier mappings should be given in order, e.g.:
+    ```
+    ApplicationContextEnricher(
+        asum=lambda df: df['a'].sum(),
+        bsum=lambda df: df['a'].mean(),
+        absumdiff=lambda df, application_context: application_context['asum'] - application_context['bsum'],
+    )
+    ```
+    If all three quantities are required by later stages, and computation time
+    for the intermediate quantities is substantial, then this approach can save
+    redundant computation.
+
+    Parameters
+    ----------
+    **kwargs : str to object mapping
+        The mappings to be added to the application context.
+    """  # noqa: E501
+
+    def __init__(
+        self,
+        **kwargs: object,
+    ):
+        init_kwargs, enrichments = self._split_kwargs(kwargs)
+        self._enrichments = enrichments
+        super_kwargs = {
+            'desc': "Enrich application context"
+        }
+        super_kwargs.update(**init_kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, df):
+        return True
+
+    def _transform(self, df, verbose):
+        for k, v in self._enrichments.items():
+            if callable(v):
+                try:
+                    self.application_context[k] = v(
+                        df, application_context=self.application_context)
+                except TypeError:
+                    try:
+                        self.application_context[k] = v(df)
+                    except Exception as e:
+                        raise ValueError((
+                            f"Supplied enrichment function raised a {e} "
+                            "exception when applied to input dataframe!"
+                        )) from e
+            else:
+                self.application_context[k] = v
+        return df

@@ -15,6 +15,13 @@ from pdpipe.cond import Condition
 from pdptestutil import random_pickle_path
 
 
+def test_split_kwargs():
+    kwargs = {'a': 1, 'b': 2, 'c': 3, 'exraise': True, 'desc': 'test'}
+    init_kwargs, other_kwargs = PdPipelineStage._split_kwargs(kwargs)
+    assert init_kwargs == {'exraise': True, 'desc': 'test'}
+    assert other_kwargs == {'a': 1, 'b': 2, 'c': 3}
+
+
 def _test_df():
     return pd.DataFrame(
         data=[[1, 'a'], [2, 'b']],
