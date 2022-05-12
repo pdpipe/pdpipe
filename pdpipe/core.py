@@ -599,8 +599,8 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
             none_columns='error', **kwargs):
         self._exclude_columns = exclude_columns
         if exclude_columns:
-            self._exclude_columns = self._interpret_columns_param(
-                exclude_columns)
+            self._exclude_columns, self._exc_col_str = \
+                self._interpret_columns_param(exclude_columns)
         self._none_error = False
         self._none_cols = None
         # handle none_columns
@@ -625,13 +625,14 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
         # done handling none_columns
         self._col_arg, self._col_str = self._interpret_columns_param(
             columns, self._none_error, none_columns=self._none_cols)
+        self._final_col_str = '{self._col_str} (except {self._exc_col_str})'
         if (kwargs.get('desc') is None) and desc_temp:
-            kwargs['desc'] = desc_temp.format(self._col_str)
+            kwargs['desc'] = desc_temp.format(self._final_col_str)
         if kwargs.get('exmsg') is None:
             kwargs['exmsg'] = (
                 'Pipeline stage failed because not all columns {} '
                 'were found in the input dataframe.'
-            ).format(self._col_str)
+            ).format(self._final_col_str)
         super().__init__(**kwargs)
 
     def _is_fittable(self):
