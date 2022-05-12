@@ -1,6 +1,7 @@
 """Testing columns-based pipeline stages."""
 
 import pandas as pd
+import pdpipe as pdp
 import pytest
 
 from pdpipe.core import (
@@ -235,3 +236,54 @@ def test_columns_based_stage_none_columns_is_list():
     assert 'num' not in res.columns
     assert 'char' in res.columns
     assert 4 in res.columns
+
+
+def _df5():
+    return pd.DataFrame(
+        data=[[1, 'a', 8], [2, 'b', 9]],
+        index=[1, 2],
+        columns=['num', 'nim', 'koj']
+    )
+
+
+def test_columns_based_stage_exclude_cols():
+    df = _df5()
+
+    stage = Drop(
+        columns=pdp.cq.StartWith('n'),
+    )
+    res = stage(df)
+    assert 'num' not in res.columns
+    assert 'nim' not in res.columns
+    assert 'koj' in res.columns
+
+    stage = Drop(
+        columns=pdp.cq.StartWith('n'),
+        exclude_columns='nim',
+    )
+    res = stage(df)
+    assert 'num' not in res.columns
+    assert 'nim' in res.columns
+    assert 'koj' in res.columns
+
+    stage = Drop(
+        columns=pdp.cq.StartWith('n'),
+        exclude_columns=['nim'],
+    )
+    res = stage(df)
+    assert 'num' not in res.columns
+    assert 'nim' in res.columns
+    assert 'koj' in res.columns
+
+    stage = Drop(
+        columns=pdp.cq.StartWith('n'),
+        exclude_columns=lambda df: [
+            col_lbl
+            for col_lbl in df.columns
+            if col_lbl.endswith('im')
+        ],
+    )
+    res = stage(df)
+    assert 'num' not in res.columns
+    assert 'nim' in res.columns
+    assert 'koj' in res.columns
