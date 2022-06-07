@@ -30,7 +30,7 @@ Easy pipelines for pandas DataFrames (`learn how! <https://tirthajyoti.github.io
 .. section-numbering::
 
 📚 Documentation
-===============
+================
 
 This is the repository of the ``pdpipe`` package, and this readme file is aimed to help potential contributors to the project.
 
@@ -38,7 +38,7 @@ To learn more about how to use ``pdpipe``, either `visit pdpipe's homepage <http
 
 
 🔩 Installation
-==============
+===============
 
 Install ``pdpipe`` with:
 
@@ -54,12 +54,12 @@ Similarly, some pipeline stages require ``nltk``; they will simply not be loaded
 
 
 🎁 Contributing
-==============
+===============
 
 Package author and current maintainer is `Shay Palachy <http://www.shaypalachy.com/>`_ (shay.palachy@gmail.com); You are more than welcome to approach him for help. Contributions are very welcomed, especially since this package is very much in its infancy and many other pipeline stages can be added.
 
 🪛 Installing for development
-----------------------------
+--------------=--------------
 
 Clone:
 
@@ -77,7 +77,7 @@ Install in development mode with test dependencies:
 
 
 ⚗️ Running the tests
--------------------
+--------------------
 
 To run the tests, use:
 
@@ -90,7 +90,7 @@ Notice ``pytest`` runs are configured by the ``pytest.ini`` file. Read it to und
 
 
 🔬 Adding tests
---------------
+---------------
 
 At the time of writing, ``pdpipe`` is maintained with a test coverage of 100%. Although challenging, I hope to maintain this status. If you add code to the package, please make sure you thoroughly test it. Codecov automatically reports changes in coverage on each PR, and so PR reducing test coverage will not be examined before that is fixed.
 
@@ -98,7 +98,7 @@ Tests reside under the ``tests`` directory in the root of the repository. Each m
 
 
 ⚙️ Configuration
----------------
+----------------
 
 ``pdpipe`` can be configured using both a configuration file - locaated at either ``$XDG_CONFIG_HOME/pdpipe/cfg.json`` or, if the ``XDG_CONFIG_HOME`` environment variable is not set, at ``~/.pdpipe/cfg.json`` - and environment variables.
 
@@ -108,7 +108,7 @@ At the moment, these configuration options are only relevant for development. Th
 
 
 ✒️ Code style
-------------
+-------------
 
 ``pdpip`` code is written to adhere to the coding style dictated by `flake8 <http://flake8.pycqa.org/en/latest/>`_. Practically, this means that one of the jobs that runs on `the project's Travis <https://travis-ci.org/pdpipe/pdpipe>`_ for each commit and pull request checks for a successfull run of the ``flake8`` CLI command in the repository's root. Which means pull requests will be flagged red by the Travis bot if non-flake8-compliant code was added.
 
@@ -116,7 +116,7 @@ To solve this, please run ``flake8`` on your code (whether through your text edi
 
 
 📓 Adding documentation
-----------------------
+-----------------------
 
 This project is documented using the `numpy docstring conventions`_, which were chosen as they are perhaps the most widely-spread conventions that are both supported by common tools such as Sphinx and result in human-readable docstrings (in my personal opinion, of course). When documenting code you add to this project, please follow `these conventions`_.
 
@@ -127,7 +127,7 @@ Additionally, if you update this ``README.rst`` file,  use ``python setup.py che
 
 
 📋 Adding doctests
------------------
+------------------
 
 Please notice that for ``pdoc3`` - the Python package used to generate the html documentation files for ``pdpipe`` - to successfully include doctests in the generated documentation files, the whole doctest must be indented in relation to the opening multi-string indentation, like so:
 
@@ -171,7 +171,7 @@ Please notice that for ``pdoc3`` - the Python package used to generate the html 
 
 
 💳 Credits
-=========
+==========
 Created by `Shay Palachy <http://www.shaypalachy.com/>`_  (shay.palachy@gmail.com).
 
 🐞 Bugfixes & Documentation:

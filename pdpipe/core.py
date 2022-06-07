@@ -625,7 +625,11 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
         # done handling none_columns
         self._col_arg, self._col_str = self._interpret_columns_param(
             columns, self._none_error, none_columns=self._none_cols)
-        self._final_col_str = '{self._col_str} (except {self._exc_col_str})'
+        if exclude_columns:
+            self._final_col_str = (
+                f'{self._col_str} (except {self._exc_col_str})')
+        else:
+            self._final_col_str = f'{self._col_str}'
         if (kwargs.get('desc') is None) and desc_temp:
             kwargs['desc'] = desc_temp.format(self._final_col_str)
         if kwargs.get('exmsg') is None:
