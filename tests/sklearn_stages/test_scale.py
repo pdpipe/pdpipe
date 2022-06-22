@@ -93,14 +93,14 @@ def test_scale_with_exclude_cols():
 
     # check fit_transform when already fitted
     df3 = _some_df1b()
-    res_df3 = scale_stage.fit_transform(df2)
+    res_df3 = scale_stage.fit_transform(df3)
     assert "ph" in res_df3.columns
     assert "gt" in res_df3.columns
     assert res_df3["ph"][1] < df3["ph"][1]
     assert res_df3["ph"][1] < res_df2["ph"][1]
 
 
-def test_scale_with_exclude():
+def test_scale_with_std():
     """Basic binning test."""
     df = _some_df2()
     scale_stage = Scale("StandardScaler", with_std=False)

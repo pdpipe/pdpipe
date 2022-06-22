@@ -82,6 +82,7 @@ try:
         Encode,
         Scale,
         TfidfVectorizeTokenLists,
+        Decompose,
     )
 
     core.__load_stage_attributes_from_module__("pdpipe.sklearn_stages")

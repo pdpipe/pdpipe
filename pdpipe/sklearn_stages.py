@@ -17,6 +17,7 @@ from skutil.preprocessing import scaler_by_params
 from sklearn.feature_extraction.text import (
     TfidfVectorizer,
 )
+from sklearn.base import clone
 
 from pdpipe.core import PdPipelineStage, ColumnsBasedPipelineStage
 from pdpipe.util import (
@@ -376,4 +377,150 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
         inter_df = pd.concat([df, vec_df], axis=1)
         if self._drop:
             return inter_df.drop(self._column, axis=1)
+        return inter_df
+
+
+class Decompose(ColumnsBasedPipelineStage):
+    """A pipeline stage applying dimensionality reduction through matrix
+    decomposition.
+
+    Parameters
+    ----------
+    transformer : sklearn.TransformerMixin
+        An instance of a matrix decomposer transformer from the
+        `sklearn. decomposition` module.
+    columns : single label, list-like or callable, default None
+        Column labels in the DataFrame to be transformer. If columns is None
+        then all columns of numeric dtype will be scaled, except those given
+        in the exclude_columns parameter. Alternatively, this parameter can be
+        assigned a callable returning an iterable of labels from an input
+        pandas.DataFrame. See `pdpipe.cq`.
+    exclude_columns : single label, list-like or callable, default None
+        Label or labels of columns to be excluded from encoding. Alternatively,
+        this parameter can be assigned a callable returning an iterable of
+        labels from an input pandas.DataFrame. See `pdpipe.cq`.
+    drop : bool, default True
+        If set to True, decomposed columns are dropped, and the resulting set
+        of columns are concatenated to all un-transformed columns, with
+        matching column labels (see the `lbl_format` parameters). If set to
+        False, the new columns are instead concatenated to the input dataframe.
+    lbl_format : str, optional
+        An f-string with a single {} slot, used to generated post-decomposition
+        column labels. For example, 'pca{:0>3}' will yield columns 'pca000',
+        'pca001', etc. If not provided, the default 'mdc{}' is used.
+    **kwargs : extra keyword arguments
+        PdPipelineStage valid keyword arguments are used to override
+        Decompose class defaults. All other extra keyword arguments are
+        forwarded to the transformer constructor on transformer creation.
+
+    Example
+    -------
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> from sklearn.decomposition import PCA
+    >>> data = [[3, 1, 1], [7, 2, 4], [8, 3, 1]]
+    >>> df = pd.DataFrame(data, [1,2,3], ["a", "b", "c"])
+    >>> pca_stage = pdp.Decompose(PCA(), n_components=2)
+    >>> pca_stage(df)
+           mdc0      mdc1
+    1  3.313301 -0.148453
+    2 -1.432127  1.717269
+    3 -1.881174 -1.568816
+    """
+
+    def __init__(
+        self,
+        transformer,
+        columns=None,
+        exclude_columns=None,
+        drop=True,
+        lbl_format=None,
+        **kwargs
+    ):
+        self.transformer = transformer
+        self.drop = drop
+        self.lbl_format = lbl_format
+        if lbl_format is None:
+            self.lbl_format = 'mdc{}'
+        self._kwargs = kwargs.copy()
+        super_kwargs = {
+            'columns': columns,
+            'exclude_columns': exclude_columns,
+            'desc_temp': "Scale columns {}",
+        }
+        valid_super_kwargs = super()._init_kwargs()
+        for key in kwargs:
+            if key in valid_super_kwargs:
+                super_kwargs[key] = kwargs[key]
+                self._kwargs.pop(key)
+        super_kwargs['none_columns'] = OfDtypes([np.number])
+        super().__init__(**super_kwargs)
+
+    def _transformation(self, df, verbose, fit):
+        raise NotImplementedError
+
+    def _fit_transform(self, df, verbose):
+        self._columns_to_transform = self._get_columns(df, fit=True)
+        untransformed_cols = [
+            x for x in df.columns
+            if x not in self._columns_to_transform
+        ]
+        sub_df = df[self._columns_to_transform]
+        self._transformer = clone(self.transformer)
+        self._transformer = self._transformer.set_params(**self._kwargs)
+        try:
+            inter_df = self._transformer.fit_transform(sub_df.values)
+            n_cols = inter_df.shape[1]
+            columns = [
+                self.lbl_format.format(i)
+                for i in range(n_cols)
+            ]
+            inter_df = pd.DataFrame(
+                data=inter_df,
+                index=df.index,
+                columns=columns,
+            )
+        except Exception as e:
+            raise PipelineApplicationError(
+                "Exception raised when Decompose applied to columns"
+                f" {self._columns_to_transform} by class {self.__class__}"
+            ) from e
+        if self.drop:
+            if len(untransformed_cols) > 0:
+                untransformed = df[untransformed_cols]
+                inter_df = pd.concat([untransformed, inter_df], axis=1)
+        else:
+            inter_df = pd.concat([df, inter_df], axis=1)
+        self.is_fitted = True
+        return inter_df
+
+    def _transform(self, df, verbose):
+        untransformed_cols = [
+            x for x in df.columns
+            if x not in self._columns_to_transform
+        ]
+        sub_df = df[self._columns_to_transform]
+        try:
+            inter_df = self._transformer.transform(sub_df.values)
+            n_cols = inter_df.shape[1]
+            columns = [
+                self.lbl_format.format(i)
+                for i in range(n_cols)
+            ]
+            inter_df = pd.DataFrame(
+                data=inter_df,
+                index=df.index,
+                columns=columns,
+            )
+        except Exception as e:
+            raise PipelineApplicationError(
+                "Exception raised when Decompose applied to columns"
+                f" {self._columns_to_transform} by class {self.__class__}"
+            ) from e
+        if self.drop:
+            if len(untransformed_cols) > 0:
+                untransformed = df[untransformed_cols]
+                inter_df = pd.concat([untransformed, inter_df], axis=1)
+        else:
+            inter_df = pd.concat([df, inter_df], axis=1)
+        self.is_fitted = True
         return inter_df
