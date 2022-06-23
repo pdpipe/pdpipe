@@ -282,7 +282,7 @@ class OneHotEncode(ColumnsBasedPipelineStage):
                     "Missing encoder for column {} when applying a fitted "
                     "OneHotEncode pipeline stage by class {} !")
                     .format(colname, self.__class__))
-            res_cols = col.apply(encoder)
+            res_cols = col.astype('object').apply(encoder)
             for res_col in res_cols:
                 assign_map[res_col] = res_cols[res_col]
         inter_df = df.assign(**assign_map)

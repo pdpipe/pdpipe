@@ -7,12 +7,18 @@ from pdpipe.col_generation import OneHotEncode
 from pdpipe import cq
 
 
-def _one_categ_df():
-    return pd.DataFrame([["USA"], ["UK"], ["Greece"]], [1, 2, 3], ["Born"])
+def _one_categ_df(category=False):
+    df = pd.DataFrame([["USA"], ["UK"], ["Greece"]], [1, 2, 3], ["Born"])
+    if category:
+        df['Born'] = df['Born'].astype('category')
+    return df
 
 
-def _one_categ_single_row_df():
-    return pd.DataFrame([["Greece"]], [1], ["Born"])
+def _one_categ_single_row_df(category=False):
+    df = pd.DataFrame([["Greece"]], [1], ["Born"])
+    if category:
+        df['Born'] = df['Born'].astype('category')
+    return df
 
 
 def _one_categ_df_large():
@@ -42,6 +48,36 @@ def test_onehotencode_one():
 
     # check when fitted
     df2 = _one_categ_single_row_df()
+    assert onehotencode.is_fitted
+    res_df2 = onehotencode(df2, verbose=True)
+    print(res_df2)
+    assert "Born" not in res_df2.columns
+    assert "Born_Greece" not in res_df2.columns
+    assert "Born_UK" in res_df2.columns
+    assert res_df2["Born_UK"][1] == 0
+    assert "Born_USA" in res_df.columns
+    assert res_df2["Born_USA"][1] == 0
+
+
+@pytest.mark.onehotencode
+def test_onehotencode_one_category_dytype():
+    """Basic binning test."""
+    df = _one_categ_df(category=True)
+    onehotencode = OneHotEncode("Born")
+    res_df = onehotencode(df, verbose=True)
+    assert "Born" not in res_df.columns
+    assert "Born_Greece" not in res_df.columns
+    assert "Born_UK" in res_df.columns
+    assert res_df["Born_UK"][1] == 0
+    assert res_df["Born_UK"][2] == 1
+    assert res_df["Born_UK"][3] == 0
+    assert "Born_USA" in res_df.columns
+    assert res_df["Born_USA"][1] == 1
+    assert res_df["Born_USA"][2] == 0
+    assert res_df["Born_USA"][3] == 0
+
+    # check when fitted
+    df2 = _one_categ_single_row_df(category=True)
     assert onehotencode.is_fitted
     res_df2 = onehotencode(df2, verbose=True)
     print(res_df2)
