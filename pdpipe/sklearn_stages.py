@@ -30,7 +30,11 @@ from pdpipe.shared import (
     _identity_function,
 )
 
-from .exceptions import PipelineApplicationError
+from .exceptions import (
+    PipelineApplicationError,
+    UnfittedPipelineStageError,
+    UnexpectedPipelineMethodCallError,
+)
 
 
 class Encode(ColumnsBasedPipelineStage):
@@ -93,52 +97,52 @@ class Encode(ColumnsBasedPipelineStage):
         super_kwargs['none_columns'] = OfDtypes(['object', 'category'])
         super().__init__(**super_kwargs)
 
-    def _transformation(self, df, verbose, fit):
+    def _transformation(self, X, verbose, fit):
         raise NotImplementedError
 
-    def _fit_transform(self, df, verbose):
+    def _fit_transform(self, X, verbose):
         self.encoders = {}
-        columns_to_encode = self._get_columns(df, fit=True)
+        columns_to_encode = self._get_columns(X, fit=True)
         if verbose:
             columns_to_encode = tqdm.tqdm(columns_to_encode)
-        inter_df = df
+        inter_X = X
         for colname in columns_to_encode:
             lbl_enc = sklearn.preprocessing.LabelEncoder()
-            source_col = df[colname]
-            loc = df.columns.get_loc(colname) + 1
+            source_col = X[colname]
+            loc = X.columns.get_loc(colname) + 1
             new_name = colname + "_enc"
             if self._drop:
-                inter_df = inter_df.drop(colname, axis=1)
+                inter_X = inter_X.drop(colname, axis=1)
                 new_name = colname
                 loc -= 1
-            inter_df = out_of_place_col_insert(
-                df=inter_df,
+            inter_X = out_of_place_col_insert(
+                X=inter_X,
                 series=lbl_enc.fit_transform(source_col),
                 loc=loc,
                 column_name=new_name,
             )
             self.encoders[colname] = lbl_enc
         self.is_fitted = True
-        return inter_df
+        return inter_X
 
-    def _transform(self, df, verbose):
-        inter_df = df
+    def _transform(self, X, verbose):
+        inter_X = X
         for colname in self.encoders:
             lbl_enc = self.encoders[colname]
-            source_col = df[colname]
-            loc = df.columns.get_loc(colname) + 1
+            source_col = X[colname]
+            loc = X.columns.get_loc(colname) + 1
             new_name = colname + "_enc"
             if self._drop:
-                inter_df = inter_df.drop(colname, axis=1)
+                inter_X = inter_X.drop(colname, axis=1)
                 new_name = colname
                 loc -= 1
-            inter_df = out_of_place_col_insert(
-                df=inter_df,
+            inter_X = out_of_place_col_insert(
+                X=inter_X,
                 series=lbl_enc.transform(source_col),
                 loc=loc,
                 column_name=new_name,
             )
-        return inter_df
+        return inter_X
 
 
 class Scale(ColumnsBasedPipelineStage):
@@ -207,30 +211,30 @@ class Scale(ColumnsBasedPipelineStage):
         super_kwargs['none_columns'] = OfDtypes([np.number])
         super().__init__(**super_kwargs)
 
-    def _transformation(self, df, verbose, fit):
+    def _transformation(self, X, verbose, fit):
         raise NotImplementedError
 
-    def _fit_transform(self, df, verbose):
-        self._columns_to_scale = self._get_columns(df, fit=True)
+    def _fit_transform(self, X, verbose):
+        self._columns_to_scale = self._get_columns(X, fit=True)
         unscaled_cols = [
-            x for x in df.columns
+            x for x in X.columns
             if x not in self._columns_to_scale
         ]
-        col_order = list(df.columns)
-        inter_df = df[self._columns_to_scale]
+        col_order = list(X.columns)
+        inter_X = X[self._columns_to_scale]
         self._scaler = scaler_by_params(self.scaler, **self._kwargs)
         try:
             if self.joint:
-                self._scaler.fit(np.array([inter_df.values.flatten()]).T)
-                inter_df = per_column_values_sklearn_transform(
-                    df=inter_df,
+                self._scaler.fit(np.array([inter_X.values.flatten()]).T)
+                inter_X = per_column_values_sklearn_transform(
+                    X=inter_X,
                     transform=self._scaler.transform
                 )
             else:
-                inter_df = pd.DataFrame(
-                    data=self._scaler.fit_transform(inter_df.values),
-                    index=inter_df.index,
-                    columns=inter_df.columns,
+                inter_X = pd.DataFrame(
+                    data=self._scaler.fit_transform(inter_X.values),
+                    index=inter_X.index,
+                    columns=inter_X.columns,
                 )
         except Exception as e:
             raise PipelineApplicationError(
@@ -238,30 +242,30 @@ class Scale(ColumnsBasedPipelineStage):
                 f" {self._columns_to_scale} by class {self.__class__}"
             ) from e
         if len(unscaled_cols) > 0:
-            unscaled = df[unscaled_cols]
-            inter_df = pd.concat([inter_df, unscaled], axis=1)
-            inter_df = inter_df[col_order]
+            unscaled = X[unscaled_cols]
+            inter_X = pd.concat([inter_X, unscaled], axis=1)
+            inter_X = inter_X[col_order]
         self.is_fitted = True
-        return inter_df
+        return inter_X
 
-    def _transform(self, df, verbose):
+    def _transform(self, X, verbose):
         unscaled_cols = [
-            x for x in df.columns
+            x for x in X.columns
             if x not in self._columns_to_scale
         ]
-        col_order = list(df.columns)
-        inter_df = df[self._columns_to_scale]
+        col_order = list(X.columns)
+        inter_X = X[self._columns_to_scale]
         try:
             if self.joint:
-                inter_df = per_column_values_sklearn_transform(
-                    df=inter_df,
+                inter_X = per_column_values_sklearn_transform(
+                    X=inter_X,
                     transform=self._scaler.transform
                 )
             else:
-                inter_df = pd.DataFrame(
-                    data=self._scaler.transform(inter_df.values),
-                    index=inter_df.index,
-                    columns=inter_df.columns,
+                inter_X = pd.DataFrame(
+                    data=self._scaler.transform(inter_X.values),
+                    index=inter_X.index,
+                    columns=inter_X.columns,
                 )
         except Exception:
             raise PipelineApplicationError(
@@ -269,10 +273,10 @@ class Scale(ColumnsBasedPipelineStage):
                 f" {self._columns_to_scale} by class {self.__class__}"
             )
         if len(unscaled_cols) > 0:
-            unscaled = df[unscaled_cols]
-            inter_df = pd.concat([inter_df, unscaled], axis=1)
-            inter_df = inter_df[col_order]
-        return inter_df
+            unscaled = X[unscaled_cols]
+            inter_X = pd.concat([inter_X, unscaled], axis=1)
+            inter_X = inter_X[col_order]
+        return inter_X
 
 
 class TfidfVectorizeTokenLists(PdPipelineStage):
@@ -344,16 +348,16 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
         super_kwargs.update(**pipeline_stage_args)
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
-        return self._column in df.columns
+    def _prec(self, X):
+        return self._column in X.columns
 
-    def _fit_transform(self, df, verbose):
+    def _fit_transform(self, X, verbose):
         self._tfidf_vectorizer = TfidfVectorizer(
             input='content',
             analyzer=_identity_function,
             **self._vectorizer_args,
         )
-        vectorized = self._tfidf_vectorizer.fit_transform(df[self._column])
+        vectorized = self._tfidf_vectorizer.fit_transform(X[self._column])
         self._n_features = vectorized.shape[1]
         if self._hierarchical_labels:
             self._res_col_names = [
@@ -362,22 +366,22 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
             ]
         else:
             self._res_col_names = self._tfidf_vectorizer.get_feature_names()
-        vec_df = pd.DataFrame.sparse.from_spmatrix(
-            data=vectorized, index=df.index, columns=self._res_col_names)
-        inter_df = pd.concat([df, vec_df], axis=1)
+        vec_X = pd.DataFrame.sparse.from_spmatrix(
+            data=vectorized, index=X.index, columns=self._res_col_names)
+        inter_X = pd.concat([X, vec_X], axis=1)
         self.is_fitted = True
         if self._drop:
-            return inter_df.drop(self._column, axis=1)
-        return inter_df
+            return inter_X.drop(self._column, axis=1)
+        return inter_X
 
-    def _transform(self, df, verbose):
-        vectorized = self._tfidf_vectorizer.transform(df[self._column])
-        vec_df = pd.DataFrame.sparse.from_spmatrix(
-            data=vectorized, index=df.index, columns=self._res_col_names)
-        inter_df = pd.concat([df, vec_df], axis=1)
+    def _transform(self, X, verbose):
+        vectorized = self._tfidf_vectorizer.transform(X[self._column])
+        vec_X = pd.DataFrame.sparse.from_spmatrix(
+            data=vectorized, index=X.index, columns=self._res_col_names)
+        inter_X = pd.concat([X, vec_X], axis=1)
         if self._drop:
-            return inter_df.drop(self._column, axis=1)
-        return inter_df
+            return inter_X.drop(self._column, axis=1)
+        return inter_X
 
 
 class Decompose(ColumnsBasedPipelineStage):
@@ -455,28 +459,28 @@ class Decompose(ColumnsBasedPipelineStage):
         super_kwargs['none_columns'] = OfDtypes([np.number])
         super().__init__(**super_kwargs)
 
-    def _transformation(self, df, verbose, fit):
+    def _transformation(self, X, verbose, fit):
         raise NotImplementedError
 
-    def _fit_transform(self, df, verbose):
-        self._columns_to_transform = self._get_columns(df, fit=True)
+    def _fit_transform(self, X, verbose):
+        self._columns_to_transform = self._get_columns(X, fit=True)
         untransformed_cols = [
-            x for x in df.columns
+            x for x in X.columns
             if x not in self._columns_to_transform
         ]
-        sub_df = df[self._columns_to_transform]
+        sub_X = X[self._columns_to_transform]
         self._transformer = clone(self.transformer)
         self._transformer = self._transformer.set_params(**self._kwargs)
         try:
-            inter_df = self._transformer.fit_transform(sub_df.values)
-            n_cols = inter_df.shape[1]
+            inter_X = self._transformer.fit_transform(sub_X.values)
+            n_cols = inter_X.shape[1]
             columns = [
                 self.lbl_format.format(i)
                 for i in range(n_cols)
             ]
-            inter_df = pd.DataFrame(
-                data=inter_df,
-                index=df.index,
+            inter_X = pd.DataFrame(
+                data=inter_X,
+                index=X.index,
                 columns=columns,
             )
         except Exception as e:
@@ -486,29 +490,29 @@ class Decompose(ColumnsBasedPipelineStage):
             ) from e
         if self.drop:
             if len(untransformed_cols) > 0:
-                untransformed = df[untransformed_cols]
-                inter_df = pd.concat([untransformed, inter_df], axis=1)
+                untransformed = X[untransformed_cols]
+                inter_X = pd.concat([untransformed, inter_X], axis=1)
         else:
-            inter_df = pd.concat([df, inter_df], axis=1)
+            inter_X = pd.concat([X, inter_X], axis=1)
         self.is_fitted = True
-        return inter_df
+        return inter_X
 
-    def _transform(self, df, verbose):
+    def _transform(self, X, verbose):
         untransformed_cols = [
-            x for x in df.columns
+            x for x in X.columns
             if x not in self._columns_to_transform
         ]
-        sub_df = df[self._columns_to_transform]
+        sub_X = X[self._columns_to_transform]
         try:
-            inter_df = self._transformer.transform(sub_df.values)
-            n_cols = inter_df.shape[1]
+            inter_X = self._transformer.transform(sub_X.values)
+            n_cols = inter_X.shape[1]
             columns = [
                 self.lbl_format.format(i)
                 for i in range(n_cols)
             ]
-            inter_df = pd.DataFrame(
-                data=inter_df,
-                index=df.index,
+            inter_X = pd.DataFrame(
+                data=inter_X,
+                index=X.index,
                 columns=columns,
             )
         except Exception as e:
@@ -518,9 +522,76 @@ class Decompose(ColumnsBasedPipelineStage):
             ) from e
         if self.drop:
             if len(untransformed_cols) > 0:
-                untransformed = df[untransformed_cols]
-                inter_df = pd.concat([untransformed, inter_df], axis=1)
+                untransformed = X[untransformed_cols]
+                inter_X = pd.concat([untransformed, inter_X], axis=1)
         else:
-            inter_df = pd.concat([df, inter_df], axis=1)
+            inter_X = pd.concat([X, inter_X], axis=1)
         self.is_fitted = True
-        return inter_df
+        return inter_X
+
+
+class EncodeLabel(PdPipelineStage):
+    """A pipeline stage that encodes the input label series to integer values.
+
+    The encoder for each column is saved in the attribute 'encoder', which
+    is a dict mapping each encoded column name to the
+    The used `sklearn.preprocessing.LabelEncoder` object is saved in the
+    `encoder_` attribute.
+
+    Attributes
+    ----------
+    encoder_ : sklearn.preprocessing.LabelEncoder
+        The sklearn.preprocessing.LabelEncoder object used to encode the series
+        label.
+
+    Example
+    -------
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> data = [[3.2, 31], [7.2, 33], [12.1, 28]]
+    >>> X = pd.DataFrame(data, [1,2,3], ["ph","temp"])
+    >>> y = pd.Series(["acd", "alk", "alk"])
+    >>> encode_stage = pdp.EncodeLabel()
+    >>> X, y = encode_stage(X, y)
+    >>> X
+         ph  temp
+    1   3.2    31
+    2   7.2    33
+    3  12.1    28
+    >>> y
+    1    0
+    2    1
+    3    1
+    dtype: int...
+    >>> encode_stage.encoder_.inverse_transform([0,1,1])
+    array(['acd', 'alk', 'alk'], dtype=object)
+    """
+
+    def __init__(self, **kwargs):
+        super_kwargs = {
+            'desc': "Encode label values",
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, X, y):
+        return y is not None
+
+    def _transform(self, X, verbose):
+        raise UnexpectedPipelineMethodCallError(
+            "EncodeLabel._transform() is not expected to be called!")
+
+    def _fit_transform_Xy(self, X, y, verbose):
+        self.encoder_ = sklearn.preprocessing.LabelEncoder()
+        post_y = self.encoder_.fit_transform(y)
+        post_y = pd.Series(data=post_y, index=y.index)
+        # print(post_y)
+        self.is_fitted = True
+        return X, post_y
+
+    def _transform_Xy(self, X, y, verbose):
+        try:
+            post_y = self.encoder_.transform(y)
+            post_y = pd.Series(data=post_y, index=y.index)
+            return X, post_y
+        except AttributeError:
+            raise UnfittedPipelineStageError("EncodeLabel is not fitted!")

@@ -165,10 +165,12 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
         return self.__str__()
 
     def score(self, X, y=None):
+        if y is None:
+            post_X = self.pipeline.transform(X)
+            return self.estimator.score(X)
         y = pd.Series(y)
         y.index = X.index
-        post_X = self.pipeline.transform(X)
-        post_y = y.loc[post_X.index]
+        post_X, post_y = self.pipeline.transform(X, y)
         assert len(post_X) == len(post_y)
         return self.estimator.score(post_X.values, post_y.values)
 
@@ -202,11 +204,14 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
         """
         # X, y = check_X_y(X, y, accept_sparse=True)
         y = pd.Series(y)
+        assert len(X) == len(y)
         y.index = X.index
-        post_X = self.pipeline.fit_transform(X=X, y=y)
-        post_y = y.loc[post_X.index]
-        assert len(post_X) == len(post_y)
-        self.estimator.fit(X=post_X.values, y=post_y.values)
+        post_X, post_y = self.pipeline.fit_transform(X=X, y=y)
+        if post_y is None:
+            self.estimator.fit(X=post_X.values, y=None)
+        else:
+            assert len(post_X) == len(post_y)
+            self.estimator.fit(X=post_X.values, y=post_y.values)
         self.is_fitted_ = True
         return self
 

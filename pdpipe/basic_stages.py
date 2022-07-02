@@ -57,19 +57,19 @@ class ColDrop(ColumnsBasedPipelineStage):
         super_kwargs['none_columns'] = 'error'
         super().__init__(**super_kwargs)
 
-    def _prec(self, df: pandas.DataFrame) -> bool:
+    def _prec(self, X: pandas.DataFrame) -> bool:
         if self._errors != 'ignore':
-            return super()._prec(df)
+            return super()._prec(X)
         return True
 
-    def _post(self, df: pandas.DataFrame) -> bool:
-        return self._post_cond(df)
+    def _post(self, X: pandas.DataFrame) -> bool:
+        return self._post_cond(X)
 
     def _transformation(
-        self, df: pandas.DataFrame, verbose: bool, fit: bool,
+        self, X: pandas.DataFrame, verbose: bool, fit: bool,
     ) -> pandas.DataFrame:
-        return df.drop(
-            self._get_columns(df, fit=fit), axis=1, errors=self._errors)
+        return X.drop(
+            self._get_columns(X, fit=fit), axis=1, errors=self._errors)
 
 
 class ValDrop(ColumnsBasedPipelineStage):
@@ -120,16 +120,16 @@ class ValDrop(ColumnsBasedPipelineStage):
         super().__init__(**super_kwargs)
 
     def _transformation(
-        self, df: pandas.DataFrame, verbose: bool, fit: bool,
+        self, X: pandas.DataFrame, verbose: bool, fit: bool,
     ) -> pandas.DataFrame:
-        inter_df = df
-        before_count = len(inter_df)
-        columns_to_check = self._get_columns(df, fit=fit)
+        inter_X = X
+        before_count = len(inter_X)
+        columns_to_check = self._get_columns(X, fit=fit)
         for col in columns_to_check:
-            inter_df = inter_df[~inter_df[col].isin(self._values)]
+            inter_X = inter_X[~inter_X[col].isin(self._values)]
         if verbose:
-            print(f"{before_count - len(inter_df)} rows dropped.")
-        return inter_df
+            print(f"{before_count - len(inter_X)} rows dropped.")
+        return inter_X
 
 
 class ValKeep(ColumnsBasedPipelineStage):
@@ -174,15 +174,15 @@ class ValKeep(ColumnsBasedPipelineStage):
         super_kwargs['none_columns'] = 'all'
         super().__init__(**super_kwargs)
 
-    def _transformation(self, df, verbose, fit):
-        inter_df = df
-        before_count = len(inter_df)
-        columns_to_check = self._get_columns(df, fit=fit)
+    def _transformation(self, X, verbose, fit):
+        inter_X = X
+        before_count = len(inter_X)
+        columns_to_check = self._get_columns(X, fit=fit)
         for col in columns_to_check:
-            inter_df = inter_df[inter_df[col].isin(self._values)]
+            inter_X = inter_X[inter_X[col].isin(self._values)]
         if verbose:
-            print(f"{before_count - len(inter_df)} rows dropped.")
-        return inter_df
+            print(f"{before_count - len(inter_X)} rows dropped.")
+        return inter_X
 
 
 class ColRename(PdPipelineStage):
@@ -246,11 +246,11 @@ class ColRename(PdPipelineStage):
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
-        return self._tprec(df)
+    def _prec(self, X):
+        return self._tprec(X)
 
-    def _transform(self, df, verbose):
-        return df.rename(columns=self._rename_mapper)
+    def _transform(self, X, verbose):
+        return X.rename(columns=self._rename_mapper)
 
 
 class DropNa(PdPipelineStage):
@@ -281,19 +281,19 @@ class DropNa(PdPipelineStage):
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
+    def _prec(self, X):
         return True
 
-    def _transform(self, df, verbose):
-        before_count = len(df)
-        ncols_before = len(df.columns)
-        inter_df = df.dropna(**self.dropna_kwargs)
+    def _transform(self, X, verbose):
+        before_count = len(X)
+        ncols_before = len(X.columns)
+        inter_X = X.dropna(**self.dropna_kwargs)
         if verbose:
             print(
-                f"{before_count - len(inter_df)} rows, "
-                f"{ncols_before - len(inter_df.columns)} columns dropeed"
+                f"{before_count - len(inter_X)} rows, "
+                f"{ncols_before - len(inter_X.columns)} columns dropeed"
             )
-        return inter_df
+        return inter_X
 
 
 class SetIndex(PdPipelineStage):
@@ -333,11 +333,11 @@ class SetIndex(PdPipelineStage):
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
-        return self._tprec(df)
+    def _prec(self, X):
+        return self._tprec(X)
 
-    def _transform(self, df, verbose):
-        return df.set_index(keys=self.keys, **self.setindex_kwargs)
+    def _transform(self, X, verbose):
+        return X.set_index(keys=self.keys, **self.setindex_kwargs)
 
 
 class FreqDrop(PdPipelineStage):
@@ -375,18 +375,18 @@ class FreqDrop(PdPipelineStage):
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
-        return self._column in df.columns
+    def _prec(self, X):
+        return self._column in X.columns
 
-    def _transform(self, df, verbose):
-        inter_df = df
-        before_count = len(inter_df)
-        valcount = df[self._column].value_counts()
+    def _transform(self, X, verbose):
+        inter_X = X
+        before_count = len(inter_X)
+        valcount = X[self._column].value_counts()
         to_drop = valcount[valcount < self._threshold].index
-        inter_df = inter_df[~inter_df[self._column].isin(to_drop)]
+        inter_X = inter_X[~inter_X[self._column].isin(to_drop)]
         if verbose:
-            print(f"{before_count - len(inter_df)} rows dropped.")
-        return inter_df
+            print(f"{before_count - len(inter_X)} rows dropped.")
+        return inter_X
 
 
 class ColReorder(PdPipelineStage):
@@ -421,11 +421,11 @@ class ColReorder(PdPipelineStage):
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
-        return set(self._col_to_pos.keys()).issubset(df.columns)
+    def _prec(self, X):
+        return set(self._col_to_pos.keys()).issubset(X.columns)
 
-    def _transform(self, df, verbose):
-        cols = df.columns
+    def _transform(self, X, verbose):
+        cols = X.columns
         map_cols = list(self._col_to_pos.keys())
         non_map_cols = deque(x for x in cols if x not in map_cols)
         new_columns = []
@@ -435,7 +435,7 @@ class ColReorder(PdPipelineStage):
                     new_columns.append(self._pos_to_col[pos])
                 else:
                     new_columns.append(non_map_cols.popleft())
-            return df[new_columns]
+            return X[new_columns]
         except (IndexError):
             raise ValueError(f"Bad positions mapping given: {new_columns}")
 
@@ -555,15 +555,15 @@ class RowDrop(ColumnsBasedPipelineStage):
         super_kwargs['none_columns'] = 'all'
         super().__init__(**super_kwargs)
 
-    def _transformation(self, df, verbose, fit):
-        before_count = len(df)
-        columns = self._get_columns(df, fit=fit)
-        subdf = df[columns]
-        drop_index = ~subdf.apply(self._row_cond, axis=1)
-        inter_df = df[drop_index]
+    def _transformation(self, X, verbose, fit):
+        before_count = len(X)
+        columns = self._get_columns(X, fit=fit)
+        subX = X[columns]
+        drop_index = ~subX.apply(self._row_cond, axis=1)
+        inter_X = X[drop_index]
         if verbose:
-            print(f"{before_count - len(inter_df)} rows dropped.")
-        return inter_df
+            print(f"{before_count - len(inter_X)} rows dropped.")
+        return inter_X
 
 
 class Schematize(PdPipelineStage):
@@ -618,22 +618,22 @@ class Schematize(PdPipelineStage):
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
-    def _prec(self, df: pandas.DataFrame) -> bool:
+    def _prec(self, X: pandas.DataFrame) -> bool:
         if self._adaptive and not self.is_fitted:
             return True
-        return set(self._columns).issubset(df.columns)
+        return set(self._columns).issubset(X.columns)
 
     def _transform(
-            self, df: pandas.DataFrame, verbose=None) -> pandas.DataFrame:
-        return df[self._columns]
+            self, X: pandas.DataFrame, verbose=None) -> pandas.DataFrame:
+        return X[self._columns]
 
     def _fit_transform(
-            self, df: pandas.DataFrame, verbose=None) -> pandas.DataFrame:
+            self, X: pandas.DataFrame, verbose=None) -> pandas.DataFrame:
         if self._adaptive:
-            self._columns = df.columns
+            self._columns = X.columns
             self.is_fitted = True
-            return df
-        return df[self._columns]
+            return X
+        return X[self._columns]
 
 
 class DropDuplicates(ColumnsBasedPipelineStage):
@@ -669,12 +669,12 @@ class DropDuplicates(ColumnsBasedPipelineStage):
         super_kwargs['none_columns'] = 'all'
         super().__init__(**super_kwargs)
 
-    def _transformation(self, df, verbose, fit):
-        columns = self._get_columns(df, fit=fit)
-        inter_df = df.drop_duplicates(subset=columns)
+    def _transformation(self, X, verbose, fit):
+        columns = self._get_columns(X, fit=fit)
+        inter_X = X.drop_duplicates(subset=columns)
         if verbose:
-            print(f"{len(df) - len(inter_df)} rows dropped.")
-        return inter_df
+            print(f"{len(X) - len(inter_X)} rows dropped.")
+        return inter_X
 
 
 class ColumnDtypeEnforcer(PdPipelineStage):
@@ -746,7 +746,7 @@ class ColumnDtypeEnforcer(PdPipelineStage):
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
-    def _col_to_dtype_from_df(self, df: pandas.DataFrame) -> Dict:
+    def _col_to_dtype_from_X(self, X: pandas.DataFrame) -> Dict:
         try:
             return self._column_to_dtype
         except AttributeError:
@@ -755,22 +755,22 @@ class ColumnDtypeEnforcer(PdPipelineStage):
                 try:
                     column_to_dtype.update({
                         lbl: dtype
-                        for lbl in k(df)
+                        for lbl in k(X)
                     })
                 except TypeError:  # k is not a callable
                     column_to_dtype[k] = dtype
             return column_to_dtype
 
-    def _prec(self, df: pandas.DataFrame) -> bool:
-        return self._tprec(df)
+    def _prec(self, X: pandas.DataFrame) -> bool:
+        return self._tprec(X)
 
     def _transform(
         self,
-        df: pandas.DataFrame,
+        X: pandas.DataFrame,
         verbose: bool,
     ) -> pandas.DataFrame:
-        lbl_to_dtype = self._col_to_dtype_from_df(df)
-        return df.astype(
+        lbl_to_dtype = self._col_to_dtype_from_X(X)
+        return X.astype(
             dtype=lbl_to_dtype,
             copy=True,
             errors=self._errors,
@@ -844,14 +844,14 @@ class ConditionValidator(PdPipelineStage):
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
+    def _prec(self, X):
         return True
 
-    def _transform(self, df, verbose):
+    def _transform(self, X, verbose):
         results = []
         for cond_obj in self._conditions:
             try:
-                res = cond_obj(df)
+                res = cond_obj(X)
             except Exception as e:
                 raise ValueError(
                     f"Supplied condition raised a {e} exception when applied "
@@ -868,7 +868,7 @@ class ConditionValidator(PdPipelineStage):
             raise FailedConditionError(
                 "ConditionValidator stage failed; some conditions did not hold"
                 " for the input dataframe!")
-        return df
+        return X
 
 
 class ApplicationContextEnricher(PdPipelineStage):
@@ -886,7 +886,7 @@ class ApplicationContextEnricher(PdPipelineStage):
 
     Mappings are evaluated in the order they are passed to the constructor.
 
-    For example, `ApplicationContextEnricher(suma=lambda df: df['a'].sum())'
+    For example, `ApplicationContextEnricher(suma=lambda df: df['a'].sum())`
     will add the sum of the 'a' column to the application context keys under
     the key 'suma'. Lated stages can then access the value of 'suma' with
     `self.application_context['suma']`.
@@ -924,18 +924,18 @@ class ApplicationContextEnricher(PdPipelineStage):
         super_kwargs.update(**init_kwargs)
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
+    def _prec(self, X):
         return True
 
-    def _transform(self, df, verbose):
+    def _transform(self, X, verbose):
         for k, v in self._enrichments.items():
             if callable(v):
                 try:
                     self.application_context[k] = v(
-                        df, application_context=self.application_context)
+                        X, application_context=self.application_context)
                 except TypeError:
                     try:
-                        self.application_context[k] = v(df)
+                        self.application_context[k] = v(X)
                     except Exception as e:
                         raise ValueError((
                             f"Supplied enrichment function raised a {e} "
@@ -943,4 +943,4 @@ class ApplicationContextEnricher(PdPipelineStage):
                         )) from e
             else:
                 self.application_context[k] = v
-        return df
+        return X

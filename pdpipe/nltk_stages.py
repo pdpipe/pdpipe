@@ -89,9 +89,9 @@ class TokenizeText(MapColVals):
         super_kwargs['none_columns'] = 'error'
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
-        return super()._prec(df) and all(
-            col_type == object for col_type in df.dtypes[self._columns])
+    def _prec(self, X):
+        return super()._prec(X) and all(
+            col_type == object for col_type in X.dtypes[self._columns])
 
 
 class UntokenizeText(MapColVals):
@@ -147,9 +147,9 @@ class UntokenizeText(MapColVals):
         super_kwargs['none_columns'] = 'error'
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
-        return super()._prec(df) and all(
-            col_type == object for col_type in df.dtypes[self._columns])
+    def _prec(self, X):
+        return super()._prec(X) and all(
+            col_type == object for col_type in X.dtypes[self._columns])
 
 
 class RemoveStopwords(MapColVals):
@@ -239,9 +239,9 @@ class RemoveStopwords(MapColVals):
         super_kwargs['none_columns'] = 'error'
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
-        return super()._prec(df) and all(
-            col_type == object for col_type in df.dtypes[self._columns])
+    def _prec(self, X):
+        return super()._prec(X) and all(
+            col_type == object for col_type in X.dtypes[self._columns])
 
 
 class SnowballStem(MapColVals):
@@ -383,9 +383,9 @@ class SnowballStem(MapColVals):
         super_kwargs['none_columns'] = 'error'
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
-        return super()._prec(df) and all(
-            col_type == object for col_type in df.dtypes[self._columns])
+    def _prec(self, X):
+        return super()._prec(X) and all(
+            col_type == object for col_type in X.dtypes[self._columns])
 
 
 class DropRareTokens(ColumnsBasedPipelineStage):
@@ -449,50 +449,50 @@ class DropRareTokens(ColumnsBasedPipelineStage):
         rare_words = freq_series[freq_series <= threshold]
         return DropRareTokens._RareRemover(rare_words)
 
-    def _fit_transform(self, df, verbose):
-        inter_df = df
-        columns_to_transform = self._get_columns(df, fit=True)
+    def _fit_transform(self, X, verbose):
+        inter_X = X
+        columns_to_transform = self._get_columns(X, fit=True)
         if verbose:
             columns_to_transform = tqdm.tqdm(columns_to_transform)
         for colname in columns_to_transform:
-            source_col = df[colname]
-            loc = df.columns.get_loc(colname) + 1
+            source_col = X[colname]
+            loc = X.columns.get_loc(colname) + 1
             new_name = colname + "_norare"
             if self._drop:
-                inter_df = inter_df.drop(colname, axis=1)
+                inter_X = inter_X.drop(colname, axis=1)
                 new_name = colname
                 loc -= 1
             rare_remover = DropRareTokens.__get_rare_remover(
                 source_col, self._threshold)
             self._rare_removers[colname] = rare_remover
-            inter_df = out_of_place_col_insert(
-                df=inter_df,
+            inter_X = out_of_place_col_insert(
+                X=inter_X,
                 series=source_col.map(rare_remover),
                 loc=loc,
                 column_name=new_name)
         self.is_fitted = True
-        return inter_df
+        return inter_X
 
-    def _transformation(self, df, verbose, fit):
+    def _transformation(self, X, verbose, fit):
         raise NotImplementedError
 
-    def _transform(self, df, verbose):
-        inter_df = df
-        columns_to_transform = self._get_columns(df, fit=False)
+    def _transform(self, X, verbose):
+        inter_X = X
+        columns_to_transform = self._get_columns(X, fit=False)
         if verbose:
             columns_to_transform = tqdm.tqdm(columns_to_transform)
         for colname in columns_to_transform:
-            source_col = df[colname]
-            loc = df.columns.get_loc(colname) + 1
+            source_col = X[colname]
+            loc = X.columns.get_loc(colname) + 1
             new_name = colname + "_norare"
             if self._drop:
-                inter_df = inter_df.drop(colname, axis=1)
+                inter_X = inter_X.drop(colname, axis=1)
                 new_name = colname
                 loc -= 1
             rare_remover = self._rare_removers[colname]
-            inter_df = out_of_place_col_insert(
-                df=inter_df,
+            inter_X = out_of_place_col_insert(
+                X=inter_X,
                 series=source_col.map(rare_remover),
                 loc=loc,
                 column_name=new_name)
-        return inter_df
+        return inter_X

@@ -58,7 +58,7 @@ class UseContextStage(PdPipelineStage):
         loc = df.columns.get_loc(self.colname) + 1
         series = source_col.apply(lambda x: x + val)
         inter_df = out_of_place_col_insert(
-            df=df,
+            df,
             series=series,
             loc=loc,
             column_name=self.colname + "+val",
@@ -212,7 +212,7 @@ def use_context(df, fit_context):
     loc = df.columns.get_loc(SRC_LBL) + 1
     series = source_col.apply(lambda x: x + val)
     inter_df = out_of_place_col_insert(
-        df=df,
+        df,
         series=series,
         loc=loc,
         column_name=TRGT_LBL,

@@ -18,7 +18,7 @@ pline = pdp.PdPipeline([
 ```
 
 
-The second ability is the creation of column assignment stages in an intuitive manned - using the `<<` operator to denote assignment - allowing the user of operators between columns, Series objects and scalars, and the use of `pandas.Series` methods:
+The second ability is the creation of column assignment stages in an intuitive manner - using the `<<` operator to denote assignment - allowing the user of operators between columns, Series objects and scalars, and the use of `pandas.Series` methods:
 
 ```python
 pline = pdp.PdPipeline([

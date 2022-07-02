@@ -21,8 +21,8 @@ class RowQualifier(object):
     def __init__(self, func: callable) -> None:
         self._rqfunc = func
 
-    def __call__(self, df: pandas.DataFrame) -> pandas.Series:
-        return self._rqfunc(df)
+    def __call__(self, X: pandas.DataFrame) -> pandas.Series:
+        return self._rqfunc(X)
 
     def __repr__(self):
         if self._rqfunc.__doc__:  # pragma: no cover
@@ -38,8 +38,8 @@ class RowQualifier(object):
             self.first = first
             self.second = second
 
-        def __call__(self, df):
-            return self.first(df) & self.second(df)
+        def __call__(self, X):
+            return self.first(X) & self.second(X)
 
     def __and__(self, other):
         try:
@@ -62,8 +62,8 @@ class RowQualifier(object):
             self.first = first
             self.second = second
 
-        def __call__(self, df):
-            return self.first(df) | self.second(df)
+        def __call__(self, X):
+            return self.first(X) | self.second(X)
 
     def __or__(self, other):
         try:
@@ -86,8 +86,8 @@ class RowQualifier(object):
             self.first = first
             self.second = second
 
-        def __call__(self, df):
-            return self.first(df) ^ self.second(df)
+        def __call__(self, X):
+            return self.first(X) ^ self.second(X)
 
     def __xor__(self, other):
         try:
@@ -109,8 +109,8 @@ class RowQualifier(object):
         def __init__(self, rq):
             self.rq = rq
 
-        def __call__(self, df):
-            return ~ self.rq(df)
+        def __call__(self, X):
+            return ~ self.rq(X)
 
     def __invert__(self):
         res_func = RowQualifier._NotQualifierFunc(rq=self._rqfunc)
@@ -137,10 +137,10 @@ class ColValGt(RowQualifier):
         def __init__(self, label: object, value: Number) -> None:
             self.label = label
             self.value = value
-            self.__doc__ = f"df[{label}] > {value}"
+            self.__doc__ = f"X[{label}] > {value}"
 
-        def __call__(self, df: pandas.DataFrame) -> pandas.Series:
-            return df[self.label].gt(self.value)
+        def __call__(self, X: pandas.DataFrame) -> pandas.Series:
+            return X[self.label].gt(self.value)
 
     def __init__(self, label: object, value: Number) -> None:
         super().__init__(
@@ -166,10 +166,10 @@ class ColValGe(RowQualifier):
         def __init__(self, label: object, value: Number) -> None:
             self.label = label
             self.value = value
-            self.__doc__ = f"df[{label}] => {value}"
+            self.__doc__ = f"X[{label}] => {value}"
 
-        def __call__(self, df: pandas.DataFrame) -> pandas.Series:
-            return df[self.label].ge(self.value)
+        def __call__(self, X: pandas.DataFrame) -> pandas.Series:
+            return X[self.label].ge(self.value)
 
     def __init__(self, label: object, value: Number) -> None:
         super().__init__(
@@ -194,10 +194,10 @@ class ColValLt(RowQualifier):
         def __init__(self, label: object, value: Number) -> None:
             self.label = label
             self.value = value
-            self.__doc__ = f"df[{label}] < {value}"
+            self.__doc__ = f"X[{label}] < {value}"
 
-        def __call__(self, df: pandas.DataFrame) -> pandas.Series:
-            return df[self.label].lt(self.value)
+        def __call__(self, X: pandas.DataFrame) -> pandas.Series:
+            return X[self.label].lt(self.value)
 
     def __init__(self, label: object, value: Number) -> None:
         super().__init__(
@@ -223,10 +223,10 @@ class ColValLe(RowQualifier):
         def __init__(self, label: object, value: Number) -> None:
             self.label = label
             self.value = value
-            self.__doc__ = f"df[{label}] <= {value}"
+            self.__doc__ = f"X[{label}] <= {value}"
 
-        def __call__(self, df: pandas.DataFrame) -> pandas.Series:
-            return df[self.label].le(self.value)
+        def __call__(self, X: pandas.DataFrame) -> pandas.Series:
+            return X[self.label].le(self.value)
 
     def __init__(self, label: object, value: Number) -> None:
         super().__init__(
@@ -251,10 +251,10 @@ class ColValEq(RowQualifier):
         def __init__(self, label: object, value: Number) -> None:
             self.label = label
             self.value = value
-            self.__doc__ = f"df[{label}] == {value}"
+            self.__doc__ = f"X[{label}] == {value}"
 
-        def __call__(self, df: pandas.DataFrame) -> pandas.Series:
-            return df[self.label].eq(self.value)
+        def __call__(self, X: pandas.DataFrame) -> pandas.Series:
+            return X[self.label].eq(self.value)
 
     def __init__(self, label: object, value: Number) -> None:
         super().__init__(
@@ -279,10 +279,10 @@ class ColValNe(RowQualifier):
         def __init__(self, label: object, value: Number) -> None:
             self.label = label
             self.value = value
-            self.__doc__ = f"df[{label}] != {value}"
+            self.__doc__ = f"X[{label}] != {value}"
 
-        def __call__(self, df: pandas.DataFrame) -> pandas.Series:
-            return df[self.label].ne(self.value)
+        def __call__(self, X: pandas.DataFrame) -> pandas.Series:
+            return X[self.label].ne(self.value)
 
     def __init__(self, label: object, value: Number) -> None:
         super().__init__(
@@ -311,10 +311,10 @@ class ColValIsIn(RowQualifier):
         ) -> None:
             self.label = label
             self.value_list = value_list
-            self.__doc__ = f"df[{label}] is in {value_list}"
+            self.__doc__ = f"X[{label}] is in {value_list}"
 
-        def __call__(self, df: pandas.DataFrame) -> pandas.Series:
-            return df[self.label].isin(self.value_list)
+        def __call__(self, X: pandas.DataFrame) -> pandas.Series:
+            return X[self.label].isin(self.value_list)
 
     def __init__(
         self,
@@ -343,10 +343,10 @@ class ColValIsNa(RowQualifier):
             label: object,
         ) -> None:
             self.label = label
-            self.__doc__ = f"df[{label}] is NA"
+            self.__doc__ = f"X[{label}] is NA"
 
-        def __call__(self, df: pandas.DataFrame) -> pandas.Series:
-            return df[self.label].isna()
+        def __call__(self, X: pandas.DataFrame) -> pandas.Series:
+            return X[self.label].isna()
 
     def __init__(
         self,
@@ -372,10 +372,10 @@ class ColValNotNa(RowQualifier):
             label: object,
         ) -> None:
             self.label = label
-            self.__doc__ = f"df[{label}] is not NA"
+            self.__doc__ = f"X[{label}] is not NA"
 
-        def __call__(self, df: pandas.DataFrame) -> pandas.Series:
-            return df[self.label].notna()
+        def __call__(self, X: pandas.DataFrame) -> pandas.Series:
+            return X[self.label].notna()
 
     def __init__(
         self,

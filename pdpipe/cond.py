@@ -30,7 +30,7 @@ class Condition(object):
     Example
     -------
     >>> import numpy as np; import pdpipe as pdp;
-    >>> cond = pdp.cond.Condition(lambda df: 'a' in df.columns)
+    >>> cond = pdp.cond.Condition(lambda X: 'a' in X.columns)
     >>> cond
     <pdpipe.Condition: By function>
     >>> col_drop = pdp.ColDrop(['lbl'], prec=cond)
@@ -42,12 +42,12 @@ class Condition(object):
         if error_message is not None:
             self.error_message = error_message
 
-    def __call__(self, df):
+    def __call__(self, X):
         """Returns column labels of qualified columns from an input dataframe.
 
         Parameters
         ----------
-        df : pandas.DataFrame
+        X : pandas.DataFrame
             The input dataframe on which the condition is checked.
 
         Returns
@@ -56,16 +56,16 @@ class Condition(object):
             Either True of False.
         """
         try:
-            return self.transform(df)
+            return self.transform(X)
         except UnfittedConditionError:
-            return self.fit_transform(df)
+            return self.fit_transform(X)
 
-    def fit_transform(self, df):
+    def fit_transform(self, X):
         """Fits this condition and returns the result.
 
         Parameters
         ----------
-        df : pandas.DataFrame
+        X : pandas.DataFrame
             The input dataframe on which the condition is checked.
 
         Returns
@@ -73,20 +73,20 @@ class Condition(object):
         bool
             Either True or False.
         """
-        self._result = self._func(df)
+        self._result = self._func(X)
         return self._result
 
-    def fit(self, df):
+    def fit(self, X):
         """Fits this condition on the input dataframe.
 
         Parameters
         ----------
-        df : pandas.DataFrame
+        X : pandas.DataFrame
             The input dataframe on which the condition is checked.
         """
-        self.fit_transform(df)
+        self.fit_transform(X)
 
-    def transform(self, df):
+    def transform(self, X):
         """Returns the result of this condition.
 
         Is this Condition is fittable, it will return the result that was
@@ -95,7 +95,7 @@ class Condition(object):
 
         Parameters
         ----------
-        df : pandas.DataFrame
+        X : pandas.DataFrame
             The input dataframe on which the condition is checked.
 
         Returns
@@ -104,7 +104,7 @@ class Condition(object):
             Either True or False.
         """
         if not self._fittable:
-            return self._func(df)
+            return self._func(X)
         try:
             return self._result
         except AttributeError:
@@ -125,8 +125,8 @@ class Condition(object):
             self.first = first
             self.second = second
 
-        def __call__(self, df):
-            return self.first(df) and self.second(df)
+        def __call__(self, X):
+            return self.first(X) and self.second(X)
 
     def __and__(self, other):
         try:
@@ -145,8 +145,8 @@ class Condition(object):
             self.first = first
             self.second = second
 
-        def __call__(self, df):
-            return self.first(df) != self.second(df)
+        def __call__(self, X):
+            return self.first(X) != self.second(X)
 
     def __xor__(self, other):
         try:
@@ -165,8 +165,8 @@ class Condition(object):
             self.first = first
             self.second = second
 
-        def __call__(self, df):
-            return self.first(df) or self.second(df)
+        def __call__(self, X):
+            return self.first(X) or self.second(X)
 
     def __or__(self, other):
         try:
@@ -184,8 +184,8 @@ class Condition(object):
         def __init__(self, first):
             self.first = first
 
-        def __call__(self, df):
-            return not self.first(df)
+        def __call__(self, X):
+            return not self.first(X)
 
     def __invert__(self):
         _func = Condition._NotCondition(self._func)
@@ -219,7 +219,7 @@ class PerColumnCondition(Condition):
     Example
     -------
     >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
-    >>> df = pd.DataFrame(
+    >>> X = pd.DataFrame(
     ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
     >>> cond = pdp.cond.PerColumnCondition(
     ...     conditions=lambda x: x.dtype == np.int64,
@@ -227,13 +227,13 @@ class PerColumnCondition(Condition):
     >>> cond
     <pdpipe.Condition: Dataframes with all columns satisfying all \
 conditions: anonymous condition>
-    >>> cond(df)
+    >>> cond(X)
     False
     >>> cond = pdp.cond.PerColumnCondition(
     ...     conditions=lambda x: x.dtype == np.int64,
     ...     columns_reduce='any',
     ... )
-    >>> cond(df)
+    >>> cond(X)
     True
     >>> cond = pdp.cond.PerColumnCondition(
     ...     conditions=[
@@ -241,7 +241,7 @@ conditions: anonymous condition>
     ...         lambda x: x.dtype == object,
     ...     ],
     ... )
-    >>> cond(df)
+    >>> cond(X)
     False
     >>> cond = pdp.cond.PerColumnCondition(
     ...     conditions=[
@@ -250,7 +250,7 @@ conditions: anonymous condition>
     ...     ],
     ...     conditions_reduce='any',
     ... )
-    >>> cond(df)
+    >>> cond(X)
     True
     """
 
@@ -261,13 +261,13 @@ conditions: anonymous condition>
             self.cond_reduce = cond_reduce
             self.col_reduce = col_reduce
 
-        def __call__(self, df):
+        def __call__(self, X):
             return self.col_reduce([
                 self.cond_reduce([
-                    cond(df[lbl])
+                    cond(X[lbl])
                     for cond in self.conditions
                 ])
-                for lbl in df.columns
+                for lbl in X.columns
             ])
 
     def __init__(self, conditions, conditions_reduce=None, columns_reduce=None,
@@ -336,18 +336,18 @@ class HasAllColumns(Condition):
     Example
     -------
     >>> import pandas as pd; import pdpipe as pdp;
-    >>> df = pd.DataFrame(
+    >>> X = pd.DataFrame(
     ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
     >>> cond = pdp.cond.HasAllColumns('num')
     >>> cond
     <pdpipe.Condition: Has all columns in num>
-    >>> cond(df)
+    >>> cond(X)
     True
     >>> cond = pdp.cond.HasAllColumns(['num', 'chr'])
-    >>> cond(df)
+    >>> cond(X)
     True
     >>> cond = pdp.cond.HasAllColumns(['num', 'gar'])
-    >>> cond(df)
+    >>> cond(X)
     False
     """
 
@@ -356,9 +356,9 @@ class HasAllColumns(Condition):
             labels = [labels]
         self._labels = labels
         self._labels_str = _list_str(self._labels)
-        def _func(df):  # noqa: E306
+        def _func(X):  # noqa: E306
             return all([
-                lbl in df.columns
+                lbl in X.columns
                 for lbl in self._labels
             ])
         _func.__doc__ = f"Dataframes with columns {self._labels_str}"
@@ -394,20 +394,20 @@ class ColumnsFromList(PerColumnCondition):
     Example
     -------
     >>> import pandas as pd; import pdpipe as pdp;
-    >>> df = pd.DataFrame(
+    >>> X = pd.DataFrame(
     ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
     >>> cond = pdp.cond.ColumnsFromList('num')
     >>> cond
     <pdpipe.Condition: Dataframes with all columns satisfying all \
 conditions: Series with labels in num>
-    >>> cond(df)
+    >>> cond(X)
     False
     >>> cond = pdp.cond.ColumnsFromList(['num', 'chr', 'nur'])
-    >>> cond(df)
+    >>> cond(X)
     True
     >>> cond = pdp.cond.ColumnsFromList(
     ...     ['num', 'gar'], columns_reduce='any')
-    >>> cond(df)
+    >>> cond(X)
     True
     """
 
@@ -445,18 +445,18 @@ class HasNoColumn(Condition):
     Example
     -------
     >>> import pandas as pd; import pdpipe as pdp;
-    >>> df = pd.DataFrame(
+    >>> X = pd.DataFrame(
     ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
     >>> cond = pdp.cond.HasNoColumn('num')
     >>> cond
     <pdpipe.Condition: Has no column in num>
-    >>> cond(df)
+    >>> cond(X)
     False
     >>> cond = pdp.cond.HasNoColumn(['num', 'gar'])
-    >>> cond(df)
+    >>> cond(X)
     False
     >>> cond = pdp.cond.HasNoColumn(['ph', 'gar'])
-    >>> cond(df)
+    >>> cond(X)
     True
     """
 
@@ -465,9 +465,9 @@ class HasNoColumn(Condition):
         def __init__(self, labels):
             self.labels = labels
 
-        def __call__(self, df):
+        def __call__(self, X):
             return all([
-                lbl not in df.columns
+                lbl not in X.columns
                 for lbl in self.labels
             ])
 
@@ -509,21 +509,21 @@ class HasAtMostMissingValues(Condition):
     Example
     -------
     >>> import pandas as pd; import pdpipe as pdp;
-    >>> df = pd.DataFrame(
+    >>> X = pd.DataFrame(
     ...    [[None,'a',5],[5,None,7]], [1,2], ['num', 'chr', 'nur'])
     >>> cond = pdp.cond.HasAtMostMissingValues(1)
     >>> cond
     <pdpipe.Condition: Has at most 1 missing values>
-    >>> cond(df)
+    >>> cond(X)
     False
     >>> cond = pdp.cond.HasAtMostMissingValues(2)
-    >>> cond(df)
+    >>> cond(X)
     True
     >>> cond = pdp.cond.HasAtMostMissingValues(0.4)
-    >>> cond(df)
+    >>> cond(X)
     True
     >>> cond = pdp.cond.HasAtMostMissingValues(0.2)
-    >>> cond(df)
+    >>> cond(X)
     False
     """
 
@@ -532,8 +532,8 @@ class HasAtMostMissingValues(Condition):
         def __init__(self, n_missing):
             self.n_missing = n_missing
 
-        def __call__(self, df):
-            nmiss = df.isna().sum().sum()
+        def __call__(self, X):
+            nmiss = X.isna().sum().sum()
             return nmiss <= self.n_missing
 
     class _FloatMissingValuesFunc(object):
@@ -541,9 +541,9 @@ class HasAtMostMissingValues(Condition):
         def __init__(self, n_missing):
             self.n_missing = n_missing
 
-        def __call__(self, df):
-            nmiss = df.isna().sum().sum()
-            return (nmiss / df.size) <= self.n_missing
+        def __call__(self, X):
+            nmiss = X.isna().sum().sum()
+            return (nmiss / X.size) <= self.n_missing
 
     def __init__(self, n_missing, **kwargs):
         self._n_missing = n_missing
@@ -583,12 +583,12 @@ class HasNoMissingValues(HasAtMostMissingValues):
     Example
     -------
     >>> import pandas as pd; import pdpipe as pdp;
-    >>> df = pd.DataFrame(
+    >>> X = pd.DataFrame(
     ...    [[None,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
     >>> cond = pdp.cond.HasNoMissingValues()
     >>> cond
     <pdpipe.Condition: Has no missing values>
-    >>> cond(df)
+    >>> cond(X)
     False
     """
 
@@ -604,7 +604,7 @@ class HasNoMissingValues(HasAtMostMissingValues):
         return "<pdpipe.Condition: Has no missing values>"
 
 
-def _AlwaysTrue(df: pandas.DataFrame) -> bool:
+def _AlwaysTrue(X: pandas.DataFrame) -> bool:
     """A function that always returns True."""
     return True
 
@@ -615,12 +615,12 @@ class AlwaysTrue(Condition):
     Example
     -------
     >>> import pandas as pd; import pdpipe as pdp;
-    >>> df = pd.DataFrame(
+    >>> X = pd.DataFrame(
     ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
     >>> cond = pdp.cond.AlwaysTrue()
     >>> cond
     <pdpipe.Condition: AlwaysTrue>
-    >>> cond(df)
+    >>> cond(X)
     True
     """
 
