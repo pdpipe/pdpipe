@@ -52,12 +52,12 @@ class ColumnQualifier(object):
         self._fittable = fittable
         self._subset = subset
 
-    def __call__(self, df):
+    def __call__(self, X):
         """Returns column labels of qualified columns from an input dataframe.
 
         Parameters
         ----------
-        df : pandas.DataFrame
+        X : pandas.DataFrame
             The input dataframe, from which columns are selected.
 
         Returns
@@ -66,16 +66,16 @@ class ColumnQualifier(object):
             A list of labels of the qualified columns for the input dataframe.
         """
         try:
-            return self.transform(df)
+            return self.transform(X)
         except UnfittedColumnQualifierError:
-            return self.fit_transform(df)
+            return self.fit_transform(X)
 
-    def fit_transform(self, df):
+    def fit_transform(self, X):
         """Fits this qualifier and returns the labels of the qualifying columns.
 
         Parameters
         ----------
-        df : pandas.DataFrame
+        X : pandas.DataFrame
             The input dataframe, from which columns are selected.
 
         Returns
@@ -83,21 +83,21 @@ class ColumnQualifier(object):
         list of objects
             A list of labels of the qualified columns for the input dataframe.
         """
-        self._columns = self._cqfunc(df)
+        self._columns = self._cqfunc(X)
         return self._columns
 
-    def fit(self, df):
+    def fit(self, X):
         """Fits this qualifier on the input dataframe.
 
         Parameters
         ----------
-        df : pandas.DataFrame
+        X : pandas.DataFrame
             The input dataframe, from which columns are selected.
 
         """
-        self.fit_transform(df)
+        self.fit_transform(X)
 
-    def transform(self, df):
+    def transform(self, X):
         """Applies and returns the labels of the qualifying columns.
 
         If this ColumnQualifier is fittable, it will return the list of column
@@ -107,7 +107,7 @@ class ColumnQualifier(object):
 
         Parameters
         ----------
-        df : pandas.DataFrame
+        X : pandas.DataFrame
             The input dataframe, from which columns are selected.
 
         Returns
@@ -116,10 +116,10 @@ class ColumnQualifier(object):
             A list of labels of the qualified columns for the input dataframe.
         """
         if not self._fittable:
-            return self._cqfunc(df)
+            return self._cqfunc(X)
         try:
             if self._subset:
-                return [x for x in self._columns if x in df.columns]
+                return [x for x in self._columns if x in X.columns]
             return self._columns
         except AttributeError:
             raise UnfittedColumnQualifierError
@@ -143,10 +143,10 @@ class ColumnQualifier(object):
             self.first = first
             self.second = second
 
-        def __call__(self, df):
+        def __call__(self, X):
             return ColumnQualifier._x_inorderof_y(
-                x=set(self.first(df)).intersection(self.second(df)),
-                y=df.columns,
+                x=set(self.first(X)).intersection(self.second(X)),
+                y=X.columns,
             )
 
     def __and__(self, other):
@@ -170,10 +170,10 @@ class ColumnQualifier(object):
             self.first = first
             self.second = second
 
-        def __call__(self, df):
+        def __call__(self, X):
             return ColumnQualifier._x_inorderof_y(
-                x=set(self.first(df)).symmetric_difference(self.second(df)),
-                y=df.columns,
+                x=set(self.first(X)).symmetric_difference(self.second(X)),
+                y=X.columns,
             )
 
     def __xor__(self, other):
@@ -197,10 +197,10 @@ class ColumnQualifier(object):
             self.first = first
             self.second = second
 
-        def __call__(self, df):
+        def __call__(self, X):
             return ColumnQualifier._x_inorderof_y(
-                x=set(self.first(df)).union(self.second(df)),
-                y=df.columns,
+                x=set(self.first(X)).union(self.second(X)),
+                y=X.columns,
             )
 
     def __or__(self, other):
@@ -224,10 +224,10 @@ class ColumnQualifier(object):
             self.first = first
             self.second = second
 
-        def __call__(self, df):
+        def __call__(self, X):
             return ColumnQualifier._x_inorderof_y(
-                x=set(self.first(df)).difference(self.second(df)),
-                y=df.columns,
+                x=set(self.first(X)).difference(self.second(X)),
+                y=X.columns,
             )
 
     def __sub__(self, other):
@@ -250,10 +250,10 @@ class ColumnQualifier(object):
         def __init__(self, cq):
             self.cq = cq
 
-        def __call__(self, df):
+        def __call__(self, X):
             return ColumnQualifier._x_inorderof_y(
-                x=set(df.columns).difference(self.cq(df)),
-                y=df.columns,
+                x=set(X.columns).difference(self.cq(X)),
+                y=X.columns,
             )
 
     def __invert__(self):
@@ -319,8 +319,8 @@ class AllColumns(ColumnQualifier):
 
     class _SelectAllColumns(object):
 
-        def __call__(self, df):
-            return list(df.columns)
+        def __call__(self, X):
+            return list(X.columns)
 
     def __init__(self, **kwargs):
         kwargs['func'] = AllColumns._SelectAllColumns()
@@ -374,9 +374,9 @@ class ByColumnCondition(ColumnQualifier):
         def __init__(self, cond):
             self.cond = cond
 
-        def __call__(self, df):
+        def __call__(self, X):
             return list([
-                lbl for lbl, series in df.iteritems()
+                lbl for lbl, series in X.iteritems()
                 if self.cond(series)
             ])
 
@@ -421,9 +421,9 @@ class ByLabels(ColumnQualifier):
         def __init__(self, labels):
             self.labels = labels
 
-        def __call__(self, df):
+        def __call__(self, X):
             return [
-                lbl for lbl in df.columns
+                lbl for lbl in X.columns
                 if lbl in self.labels
             ]
 
@@ -510,9 +510,9 @@ class StartWith(ColumnQualifier):
         def __init__(self, prefix):
             self.prefix = prefix
 
-        def __call__(self, df):
+        def __call__(self, X):
             return [
-                lbl for lbl in df.columns
+                lbl for lbl in X.columns
                 if StartWith._safe_startwith(lbl, self.prefix)
             ]
 
@@ -566,8 +566,8 @@ class OfDtypes(ColumnQualifier):
         def __init__(self, dtypes):
             self.dtypes = dtypes
 
-        def __call__(self, df):
-            return list(df.select_dtypes(include=self.dtypes).columns)
+        def __call__(self, X):
+            return list(X.select_dtypes(include=self.dtypes).columns)
 
     def __init__(self, dtypes, **kwargs):
         self._dtypes = dtypes
@@ -639,8 +639,8 @@ class WithAtMostMissingValues(ColumnQualifier):
         def __init__(self, n_missing):
             self._n_missing = n_missing
 
-        def __call__(self, df):
-            return list(df.columns[df.isna().sum() <= self._n_missing])
+        def __call__(self, X):
+            return list(X.columns[X.isna().sum() <= self._n_missing])
 
     def __init__(self, n_missing, **kwargs):
         self._n_missing = n_missing

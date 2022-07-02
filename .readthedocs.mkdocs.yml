@@ -26,6 +26,8 @@ nav:
       - tutorials/index.md
       - Halving Columns: tutorials/half.md
       - Standartizing: tutorials/standard_df.md
+      - Building Pipelines: tutorials/building_pipelines.md
+      - Custom Stages: tutorials/custom_stages.md
   - API Reference:
       - Core: reference/core.md
       - Basic Stages: reference/basic.md

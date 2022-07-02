@@ -75,6 +75,7 @@ class MyPipelineAndModel(PdPipelineAndSklearnEstimator):
         super().__init__(pipeline=pline, estimator=model)
 
 
+@pytest.mark.skintegrate
 def test_pdpipeline_and_sklearn_model():
     mp = MyPipelineAndModel(
         savings_max_val=101,

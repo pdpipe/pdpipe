@@ -40,19 +40,20 @@ If this is not set in stone, but is indeed always known on pipeline creation tim
 ```python
 from typing import List
 
+import pandas as pd
 import pdpipe as pdp
 
-def _halfer_constructor(columns_to_halve: List[object]) -> callable:
+class Halfer:  # (1)
 
-  # having this defined as a named function and not a lambda makes the resulting
-  # pipeline stage, and thus the whole pipeline, pickle-able/serializable
-  def halfer(row):
+  def __init__(self, columns_to_halve: List[object]) -> None:
+    self.columns_to_halve = columns_to_halve
+
+  def __call__(self, row: pd.Series) -> pd.Series:
     new = {
       f'{lbl}/2': row[lbl] / 2
-      for lbl in columns_to_halve
+      for lbl in self.columns_to_halve
     }
     return pd.Series(new)
-  return halfer
 
 
 def pipeline_constructor(
@@ -80,11 +81,16 @@ def pipeline_constructor(
   return pdp.PdPipeline([
     pdp.ColDrop(columns_to_drop),
     pdp.ApplyToRows(
-      func=_halfer_constructor(columns_to_half),
+      func=Halfer(columns_to_half),
       follow_column='years',
     ),
   ])
 ```
+
+1. Defining this as a callable object and not a lambda makes the resulting
+   pipeline stage, and thus the whole pipeline, pickle-able/serializable.
+   Note that a named function defined in some inner scope will not solve this
+   as well.
 
 
 ## 3. Columns are determined on pipeline fit

@@ -16,6 +16,7 @@ def _test_df():
     )
 
 
+@pytest.mark.coldrop
 def test_coldrop_one_col():
     """Testing the ColDrop pipeline stage."""
     df = _test_df()
@@ -60,6 +61,7 @@ def test_coldrop_one_col():
     assert 'char' in res_df.columns
 
 
+@pytest.mark.coldrop
 def test_coldrop_missing_col():
     """Testing the ColDrop pipeline stage."""
     df = _test_df()
@@ -118,6 +120,7 @@ def test_coldrop_missing_col():
     assert res_df.equals(df)
 
 
+@pytest.mark.coldrop
 def test_coldrop_multi_col():
     """Testing the ColDrop pipeline stage."""
     df = _test_df()
@@ -130,6 +133,7 @@ def test_coldrop_multi_col():
     assert 'char' in res_df.columns
 
 
+@pytest.mark.coldrop
 def test_coldrop_col_qualifier():
     """Testing the ColDrop pipeline stage."""
     df = _test_df()
@@ -150,6 +154,7 @@ def _test_df2():
     )
 
 
+@pytest.mark.coldrop
 def test_coldrop_non_str_lbl():
     """Testing the ColDrop pipeline stage."""
     df = _test_df2()

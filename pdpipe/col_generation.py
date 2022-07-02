@@ -92,8 +92,8 @@ class Bin(PdPipelineStage):
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
-        return set(self._bin_map.keys()).issubset(df.columns)
+    def _prec(self, X):
+        return set(self._bin_map.keys()).issubset(X.columns)
 
     @staticmethod
     def _get_col_binner(bin_list):
@@ -116,30 +116,30 @@ class Bin(PdPipelineStage):
 
         return _col_binner
 
-    def _transform(self, df, verbose):
-        inter_df = df
+    def _transform(self, X, verbose):
+        inter_X = X
         colnames = list(self._bin_map.keys())
         if verbose:
             colnames = tqdm.tqdm(colnames)
         for colname in colnames:
             if verbose:
                 colnames.set_description(colname)
-            source_col = df[colname]
-            loc = df.columns.get_loc(colname) + 1
+            source_col = X[colname]
+            loc = X.columns.get_loc(colname) + 1
             new_name = colname + "_bin"
             if self._drop:
-                inter_df = inter_df.drop(colname, axis=1)
+                inter_X = inter_X.drop(colname, axis=1)
                 new_name = colname
                 loc -= 1
-            inter_df = out_of_place_col_insert(
-                df=inter_df,
+            inter_X = out_of_place_col_insert(
+                X=inter_X,
                 series=source_col.apply(
                     self._get_col_binner(self._bin_map[colname])
                 ),
                 loc=loc,
                 column_name=new_name,
             )
-        return inter_df
+        return inter_X
 
 
 class OneHotEncode(ColumnsBasedPipelineStage):
@@ -223,11 +223,11 @@ class OneHotEncode(ColumnsBasedPipelineStage):
         super_kwargs['none_columns'] = OfDtypes(['object', 'category'])
         super().__init__(**super_kwargs)
 
-    def _transformation(self, df, verbose, fit):
+    def _transformation(self, X, verbose, fit):
         raise NotImplementedError
 
-    def _fit_transform(self, df, verbose):
-        columns_to_encode = self._get_columns(df, fit=True)
+    def _fit_transform(self, X, verbose):
+        columns_to_encode = self._get_columns(X, fit=True)
         assign_map = {}
         if verbose:
             columns_to_encode = tqdm.tqdm(columns_to_encode)
@@ -235,7 +235,7 @@ class OneHotEncode(ColumnsBasedPipelineStage):
             if verbose:
                 columns_to_encode.set_description(colname)
             dummies = pd.get_dummies(
-                df[colname],
+                X[colname],
                 drop_first=False,
                 dummy_na=self._dummy_na,
                 prefix=colname,
@@ -264,17 +264,17 @@ class OneHotEncode(ColumnsBasedPipelineStage):
             for column in dummies:
                 assign_map[column] = dummies[column]
 
-        inter_df = df.assign(**assign_map)
+        inter_X = X.assign(**assign_map)
         self.is_fitted = True
         if self._drop:
-            return inter_df.drop(columns_to_encode, axis=1)
-        return inter_df
+            return inter_X.drop(columns_to_encode, axis=1)
+        return inter_X
 
-    def _transform(self, df, verbose):
+    def _transform(self, X, verbose):
         assign_map = {}
-        columns_to_encode = self._get_columns(df, fit=False)
+        columns_to_encode = self._get_columns(X, fit=False)
         for colname in columns_to_encode:
-            col = df[colname]
+            col = X[colname]
             try:
                 encoder = self._encoder_map[colname]
             except KeyError:  # pragma: no cover
@@ -285,10 +285,10 @@ class OneHotEncode(ColumnsBasedPipelineStage):
             res_cols = col.astype('object').apply(encoder)
             for res_col in res_cols:
                 assign_map[res_col] = res_cols[res_col]
-        inter_df = df.assign(**assign_map)
+        inter_X = X.assign(**assign_map)
         if self._drop:
-            return inter_df.drop(columns_to_encode, axis=1)
-        return inter_df
+            return inter_X.drop(columns_to_encode, axis=1)
+        return inter_X
 
 
 class ColumnTransformer(ColumnsBasedPipelineStage):
@@ -371,8 +371,8 @@ class ColumnTransformer(ColumnsBasedPipelineStage):
     ) -> pd.Series:
         raise NotImplementedError
 
-    def _transformation(self, df, verbose, fit):
-        columns = self._get_columns(df, fit=fit)
+    def _transformation(self, X, verbose, fit):
+        columns = self._get_columns(X, fit=fit)
         result_columns = self._result_columns
         if self._result_columns is None:
             if self._drop:
@@ -381,21 +381,21 @@ class ColumnTransformer(ColumnsBasedPipelineStage):
                 result_columns = [
                     f'{col}{self.suffix}' for col in columns
                 ]
-        inter_df = df
+        inter_X = X
         for i, colname in enumerate(columns):
-            source_col = df[colname]
-            loc = df.columns.get_loc(colname) + 1
+            source_col = X[colname]
+            loc = X.columns.get_loc(colname) + 1
             new_name = result_columns[i]
             if self._drop:
-                inter_df = inter_df.drop(colname, axis=1)
+                inter_X = inter_X.drop(colname, axis=1)
                 loc -= 1
-            inter_df = out_of_place_col_insert(
-                df=inter_df,
+            inter_X = out_of_place_col_insert(
+                X=inter_X,
                 series=self._col_transform(source_col, colname),
                 loc=loc,
                 column_name=new_name,
             )
-        return inter_df
+        return inter_X
 
 
 class _AttrGetter():
@@ -613,37 +613,37 @@ class ApplyToRows(PdPipelineStage):
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
-        return self._prec_func(df)
+    def _prec(self, X):
+        return self._prec_func(X)
 
-    def _transform(self, df, verbose):
-        new_cols = df.apply(self._func, axis=1)
+    def _transform(self, X, verbose):
+        new_cols = X.apply(self._func, axis=1)
         if isinstance(new_cols, pd.Series):
-            loc = len(df.columns)
+            loc = len(X.columns)
             if self._follow_column:
-                loc = df.columns.get_loc(self._follow_column) + 1
+                loc = X.columns.get_loc(self._follow_column) + 1
             return out_of_place_col_insert(
-                df=df, series=new_cols, loc=loc, column_name=self._colname
+                X=X, series=new_cols, loc=loc, column_name=self._colname
             )
         if isinstance(new_cols, pd.DataFrame):
             sorted_cols = sorted(list(new_cols.columns))
             new_cols = new_cols[sorted_cols]
             if self._follow_column:
-                inter_df = df
-                loc = df.columns.get_loc(self._follow_column) + 1
+                inter_X = X
+                loc = X.columns.get_loc(self._follow_column) + 1
                 for colname in new_cols.columns:
-                    inter_df = out_of_place_col_insert(
-                        df=inter_df,
+                    inter_X = out_of_place_col_insert(
+                        X=inter_X,
                         series=new_cols[colname],
                         loc=loc,
                         column_name=colname,
                     )
                     loc += 1
-                return inter_df
+                return inter_X
             assign_map = {
                 colname: new_cols[colname] for colname in new_cols.columns
             }
-            return df.assign(**assign_map)
+            return X.assign(**assign_map)
         raise TypeError(  # pragma: no cover
             "Unexpected type generated by applying a function to a DataFrame."
             " Only Series and DataFrame are allowed."
@@ -823,28 +823,28 @@ class ColByFrameFunc(PdPipelineStage):
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
+    def _prec(self, X):
         return True
 
-    def _transform(self, df, verbose):
-        inter_df = df
+    def _transform(self, X, verbose):
+        inter_X = X
         try:
-            new_col = self._func(df)
+            new_col = self._func(X)
         except Exception:
             raise PipelineApplicationError(
                 f"Exception raised applying function {self._func_desc} to "
                 f"dataframe by class {self.__class__}."
             )
         if self._follow_column:
-            loc = df.columns.get_loc(self._follow_column) + 1
+            loc = X.columns.get_loc(self._follow_column) + 1
         elif self._before_column:
-            loc = df.columns.get_loc(self._before_column)
+            loc = X.columns.get_loc(self._before_column)
         else:
-            loc = len(df.columns)
-        inter_df = out_of_place_col_insert(
-            df=inter_df, series=new_col, loc=loc, column_name=self._column
+            loc = len(X.columns)
+        inter_X = out_of_place_col_insert(
+            X=inter_X, series=new_col, loc=loc, column_name=self._column
         )
-        return inter_df
+        return inter_X
 
 
 class AggByCols(ColumnTransformer):
@@ -994,20 +994,20 @@ class Log(ColumnsBasedPipelineStage):
         super_kwargs['none_columns'] = OfDtypes([np.number])
         super().__init__(**super_kwargs)
 
-    def _transformation(self, df, verbose, fit):
+    def _transformation(self, X, verbose, fit):
         raise NotImplementedError
 
-    def _fit_transform(self, df, verbose):
-        columns_to_transform = self._get_columns(df, fit=True)
+    def _fit_transform(self, X, verbose):
+        columns_to_transform = self._get_columns(X, fit=True)
         if verbose:
             columns_to_transform = tqdm.tqdm(columns_to_transform)
-        inter_df = df
+        inter_X = X
         for colname in columns_to_transform:
-            source_col = df[colname]
-            loc = df.columns.get_loc(colname) + 1
+            source_col = X[colname]
+            loc = X.columns.get_loc(colname) + 1
             new_name = colname + "_log"
             if self._drop:
-                inter_df = inter_df.drop(colname, axis=1)
+                inter_X = inter_X.drop(colname, axis=1)
                 new_name = colname
                 loc -= 1
             new_col = source_col
@@ -1022,29 +1022,29 @@ class Log(ColumnsBasedPipelineStage):
             if self._const_shift is not None:
                 new_col = new_col + self._const_shift
             new_col = np.log(new_col)
-            inter_df = out_of_place_col_insert(
-                df=inter_df, series=new_col, loc=loc, column_name=new_name
+            inter_X = out_of_place_col_insert(
+                X=inter_X, series=new_col, loc=loc, column_name=new_name
             )
         self.is_fitted = True
-        return inter_df
+        return inter_X
 
-    def _transform(self, df, verbose):
-        inter_df = df
-        columns_to_transform = self._get_columns(df, fit=False)
+    def _transform(self, X, verbose):
+        inter_X = X
+        columns_to_transform = self._get_columns(X, fit=False)
         if verbose:
             columns_to_transform = tqdm.tqdm(columns_to_transform)
         for colname in columns_to_transform:
             try:
-                source_col = df[colname]
+                source_col = X[colname]
             except KeyError:  # pragma: no cover
                 raise PipelineApplicationError((
                     "Missig column {} when applying a fitted "
                     "Log pipeline stage by class {} !").format(
                         colname, self.__class__))
-            loc = df.columns.get_loc(colname) + 1
+            loc = X.columns.get_loc(colname) + 1
             new_name = colname + "_log"
             if self._drop:
-                inter_df = inter_df.drop(colname, axis=1)
+                inter_X = inter_X.drop(colname, axis=1)
                 new_name = colname
                 loc -= 1
             new_col = source_col
@@ -1061,7 +1061,7 @@ class Log(ColumnsBasedPipelineStage):
             if self._const_shift is not None:
                 new_col = new_col + self._const_shift
             new_col = np.log(new_col)
-            inter_df = out_of_place_col_insert(
-                df=inter_df, series=new_col, loc=loc, column_name=new_name
+            inter_X = out_of_place_col_insert(
+                X=inter_X, series=new_col, loc=loc, column_name=new_name
             )
-        return inter_df
+        return inter_X

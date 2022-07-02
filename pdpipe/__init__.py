@@ -60,6 +60,12 @@ from .text_stages import (
     DropTokensByLength,
     DropTokensByList,
 )
+from . import lbl
+from .lbl import (
+    DropLabelsByValues,
+)
+
+core.__load_stage_attributes_from_module__("pdpipe.lbl")
 
 core.__load_stage_attributes_from_module__("pdpipe.text_stages")
 
@@ -83,6 +89,7 @@ try:
         Scale,
         TfidfVectorizeTokenLists,
         Decompose,
+        EncodeLabel,
     )
 
     core.__load_stage_attributes_from_module__("pdpipe.sklearn_stages")

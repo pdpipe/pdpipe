@@ -93,16 +93,16 @@ class KeepRowsByQualifier(PdPipelineStage):
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
-    def _prec(self, df: pandas.DataFrame) -> bool:
+    def _prec(self, X: pandas.DataFrame) -> bool:
         return True
 
-    def _transform(self, df, verbose=None):
-        before_count = len(df)
-        bool_ix = self._keeprowsby_rq(df)
-        inter_df = df[bool_ix]
+    def _transform(self, X, verbose=None):
+        before_count = len(X)
+        bool_ix = self._keeprowsby_rq(X)
+        inter_X = X[bool_ix]
         if verbose:
-            print(f"{before_count - len(inter_df)} rows dropped.")
-        return inter_df
+            print(f"{before_count - len(inter_X)} rows dropped.")
+        return inter_X
 
     def __and__(self, other):
         try:
@@ -162,16 +162,16 @@ class DropRowsByQualifier(PdPipelineStage):
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
-    def _prec(self, df: pandas.DataFrame) -> bool:
+    def _prec(self, X: pandas.DataFrame) -> bool:
         return True
 
-    def _transform(self, df, verbose=None):
-        before_count = len(df)
-        bool_ix = ~ self._droprowsby_rq(df)
-        inter_df = df[bool_ix]
+    def _transform(self, X, verbose=None):
+        before_count = len(X)
+        bool_ix = ~ self._droprowsby_rq(X)
+        inter_X = X[bool_ix]
         if verbose:
-            print(f"{before_count - len(inter_df)} rows dropped.")
-        return inter_df
+            print(f"{before_count - len(inter_X)} rows dropped.")
+        return inter_X
 
     def __and__(self, other):
         try:

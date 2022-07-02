@@ -41,19 +41,19 @@ class FitOnly(PdPipelineStage):
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
-    def _prec(self, df):
+    def _prec(self, X):
         if self.is_fitted:
             return True
-        return self._stage._prec(df)
+        return self._stage._prec(X)
 
-    def _fit_transform(self, df, verbose):
+    def _fit_transform(self, X, verbose):
         self.is_fitted = True
-        return self._stage.fit_transform(df, verbose=verbose)
+        return self._stage.fit_transform(X, verbose=verbose)
 
-    def _transform(self, df, verbose):
+    def _transform(self, X, verbose):
         if verbose:
             print(
                 f"Skipping, because not in fit, "
                 f"the stage: {self._stage.description()}"
             )
-        return df
+        return X
