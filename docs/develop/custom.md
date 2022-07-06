@@ -121,19 +121,17 @@ and forward it, without transforming it, to the constructor of
 `::: python super().__init__(columns=columns, **kwargs)`. See the
 implementation of any such extending class for a more complete example.
 
-!!! code-example annotate "Forwarding the `columns` parameter"
+```python
+class ColDrop(ColumnsBasedPipelineStage):
 
-    ```python
-	class ColDrop(ColumnsBasedPipelineStage):
-
-		def __init__(
-			self,
-			columns: ColumnsParamType,
-			**kwargs: object,
-		) -> None:
-			self._post_cond = cond.HasNoColumn(columns)  # (1)
-			super().__init__(columns=columns, **kwargs)
-    ```
+    def __init__(
+        self,
+        columns: ColumnsParamType,
+        **kwargs: object,
+    ) -> None:
+        self._post_cond = cond.HasNoColumn(columns)  # (1)
+        super().__init__(columns=columns, **kwargs)
+```
 
 1. Unrelated to this specific use case, this is a good example of a post-condition that makes sure the output dataframe the stage returns indeed does not include the columns meant to be removed.
 
@@ -224,3 +222,103 @@ stage you're creating is inherently fittable or not:
 Again, taking a look at the VERY concise implementation of simple columns-based
 stages, like `ColDrop` or `ValDrop` in `pdpipe.basic_stages`, will probably make
 things clearer, and you can use those implementations as a template for yours.
+
+
+## Transforming both X and y
+
+`pdpipe` has built-in support for X-y transformations for supervised learning, and both pipelines and pipeline stages are adaptive: If only `X`, and input dataframe, was provided, than the transformed dataframe is returned. If both `X` and `y` were returned, the appropriately transformed versions of both of them are returned, as an `(X, y)` tuple.
+
+However, since most pipeline stages only transform `X`, the common way to define custom pipeline stages only requires you to implement your transformation of the input dataframe. As long as you only drop and/or rearrange rows, we will make sure `y` will go through the respective transformation, as `pdpipe` makes sure `X` and `y` has an identical index.
+
+If you want to write pipeline stages that either add rows or change the index, you must explicitly define your transformation for both `X` and `y`. This is done by additionally defining the `_transform_Xy()` method if you're writing a transform-only stage (with no fit/not-fit state), and the `_fit_transform_Xy()` method if you need your stage to have a fit-dependent state.
+
+Take, for example, a very simplified version of the `DropLabelsByValues` stage (the actual version supports several ways to detail the by-value dropping logic), as an example for a transform-only X-y tranformer:
+
+
+```python
+class DropLabelsByValues(PdPipelineStage):
+
+    def __init__(
+        self,
+        in_set: Optional[Iterable[object]] = None,
+        **kwargs: object,
+    ) -> None:
+        self.in_set = in_set
+        super_kwargs = {
+            'desc': "Drop labels by values",
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, X, y):  # (1)
+        return y is not None
+
+    def _transform(self, X, verbose):  # (2)
+        raise UnexpectedPipelineMethodCallError(  # (3)
+            "DropLabelsByValues._transform() is not expected to be called!")
+
+    def _transform_Xy(self, X, y, verbose):  # (4)
+        post_y = y
+        if self.in_set is not None:
+            post_y = post_y.loc[~ post_y.isin(self.in_set)]
+        elif self.in_ranges is not None:
+            to_drop = y.copy()
+            to_drop.loc[:] = False
+            for in_range in self.in_ranges:
+                to_drop = to_drop | (y.between(*in_range))
+            post_y = post_y.loc[~to_drop]
+        elif self.not_in_set is not None:
+            post_y = y.isin(self.not_in_set)
+        elif self.not_in_ranges is not None:
+            to_keep = y.copy()
+            to_keep.loc[:] = False
+            for in_range in self.not_in_ranges:
+                to_keep = to_keep | (y.between(*in_range))
+            post_y = post_y.loc[to_keep]
+        else:
+            raise PipelineInitializationError(
+                "DropLabelsByValues: No drop conditions specified.")
+        return X, post_y  # (5)
+
+```
+
+1. We implement a standard precondition for pipeline stages that wish to transform `y`, or both `X` and `y`; checking that the input `y` parameter isn't `None`.
+2. We have to implement `_transform()` as its an abstract method of `PdPipelineStage`.
+3. We make sure our benign implementation of `_transform()` raise the unique `UnexpectedPipelineMethodCallError` exception on each call. This code would never be called (unless someone calls it by hand, or an implementation bug is found in the `pdpipe` library itself.
+4. Unlike `_transform()`, the `_transform_Xy()` recieves both `X` and `y` as parameters, and return both of them.
+5. A nice thing that `PdPipelineStage` does for us is automatically re-align and re-index `X` according to the transformed `y` (and the other way around), so the method just needs to detail the transformation for `y`. You may, of course, transform both, or manually re-align them using `return X.loc[post_y.index], post_y`.
+
+Similarly, the `EncodeLabel` pipeline stage provides a simple example for an X-y tranformer with a fit-state, so one implementing both the `_transform_Xy()` and the `_fit_transform_Xy()` methods: 
+
+```python
+class EncodeLabel(PdPipelineStage):
+
+    def __init__(self, **kwargs: object) -> None:
+        super_kwargs = {
+            'desc': "Encode label values",
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _prec(self, X, y):
+        return y is not None
+
+    def _transform(self, X, verbose):
+        raise UnexpectedPipelineMethodCallError(
+            "EncodeLabel._transform() is not expected to be called!")
+
+    def _fit_transform_Xy(self, X, y, verbose):
+        self.encoder_ = sklearn.preprocessing.LabelEncoder()
+        post_y = self.encoder_.fit_transform(y)
+        post_y = pd.Series(data=post_y, index=y.index)
+        self.is_fitted = True
+        return X, post_y
+
+    def _transform_Xy(self, X, y, verbose):
+        try:
+            post_y = self.encoder_.transform(y)
+            post_y = pd.Series(data=post_y, index=y.index)
+            return X, post_y
+        except AttributeError:
+            raise UnfittedPipelineStageError("EncodeLabel is not fitted!")
+```

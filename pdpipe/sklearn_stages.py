@@ -566,7 +566,7 @@ class EncodeLabel(PdPipelineStage):
     array(['acd', 'alk', 'alk'], dtype=object)
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: object) -> None:
         super_kwargs = {
             'desc': "Encode label values",
         }
@@ -584,7 +584,6 @@ class EncodeLabel(PdPipelineStage):
         self.encoder_ = sklearn.preprocessing.LabelEncoder()
         post_y = self.encoder_.fit_transform(y)
         post_y = pd.Series(data=post_y, index=y.index)
-        # print(post_y)
         self.is_fitted = True
         return X, post_y
 

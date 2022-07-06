@@ -1,5 +1,7 @@
 """PdPipeline stages that transform the optional label column."""
 
+from typing import Optional, Iterable
+
 from pdpipe.core import PdPipelineStage
 
 from .exceptions import (
@@ -43,18 +45,18 @@ class DropLabelsByValues(PdPipelineStage):
 
     def __init__(
         self,
-        in_set=None,
-        in_ranges=None,
-        not_in_set=None,
-        not_in_ranges=None,
+        in_set: Optional[Iterable[object]] = None,
+        in_ranges: Optional[Iterable[Iterable[object]]]= None,
+        not_in_set: Optional[Iterable[object]] = None,
+        not_in_ranges: Optional[Iterable[Iterable[object]]]= None,
         **kwargs: object,
-    ):
+    ) -> None:
         self.in_set = in_set
         self.in_ranges = in_ranges
         self.not_in_set = not_in_set
         self.not_in_ranges = not_in_ranges
         super_kwargs = {
-            'desc': "Encode label values",
+            'desc': "Drop labels by values",
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -64,7 +66,7 @@ class DropLabelsByValues(PdPipelineStage):
 
     def _transform(self, X, verbose):
         raise UnexpectedPipelineMethodCallError(
-            "EncodeLabel._transform() is not expected to be called!")
+            "DropLabelsByValues._transform() is not expected to be called!")
 
     def _transform_Xy(self, X, y, verbose):
         post_y = y
