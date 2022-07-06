@@ -4,16 +4,16 @@
 
 Pipelines can be created by supplying a list of pipeline stages:
 
-<!--phmdoctest-setup-->    
+<!--phmdoctest-setup-->
 ```python
-    import pdpipe as pdp
-    pipeline = pdp.PdPipeline([pdp.ColDrop("Name"), pdp.OneHotEncode("Label")]
+import pdpipe as pdp
+pipeline = pdp.PdPipeline([pdp.ColDrop("Name"), pdp.OneHotEncode("Label")]
 ```
 
 Additionally, the  method can be used to give stages as positional arguments.
 
 ```python
-    pipeline = pdp.make_pdpipeline(pdp.ColDrop("Name"), pdp.OneHotEncode("Label"))
+pipeline = pdp.make_pdpipeline(pdp.ColDrop("Name"), pdp.OneHotEncode("Label"))
 ```
 
 

@@ -46,9 +46,9 @@ class DropLabelsByValues(PdPipelineStage):
     def __init__(
         self,
         in_set: Optional[Iterable[object]] = None,
-        in_ranges: Optional[Iterable[Iterable[object]]]= None,
+        in_ranges: Optional[Iterable[Iterable[object]]] = None,
         not_in_set: Optional[Iterable[object]] = None,
-        not_in_ranges: Optional[Iterable[Iterable[object]]]= None,
+        not_in_ranges: Optional[Iterable[Iterable[object]]] = None,
         **kwargs: object,
     ) -> None:
         self.in_set = in_set
