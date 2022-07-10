@@ -863,7 +863,7 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
                 columns=none_columns)
         if isinstance(columns, str):
             # always check str first, because it has __iter__
-            return [columns], columns
+            return [columns], f"'{columns}'"
         if callable(columns):
             # if isinstance(columns, ColumnQualifier):
             #     return columns, columns.__repr__() or ''
@@ -871,9 +871,9 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
         # if it was a single string it was already made a list, and it's not a
         # callable, so it's either an iterable of labels... or
         if hasattr(columns, '__iter__'):
-            return columns, ', '.join(str(elem) for elem in columns)
+            return columns, ', '.join(f"'{str(elem)}'" for elem in columns)
         # a single non-string label.
-        return [columns], str(columns)
+        return [columns], f"'{columns}'"
 
     def __init__(
             self, columns, exclude_columns=None, desc_temp=None,
