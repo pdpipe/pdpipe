@@ -1000,8 +1000,8 @@ class AdHocStage(PdPipelineStage):
         used to determine whether this stage can be applied to a given
         dataframe. If None is given, set to a function always returning True.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[1, 'a'], [2, 'b']], [1, 2], ['num', 'char'])
     >>> drop_num = pdp.AdHocStage(

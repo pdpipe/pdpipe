@@ -45,8 +45,8 @@ class TokenizeText(MapColVals):
         and the resulting tokenized columns retain the names of the source
         columns. Otherwise, tokenized columns gain the suffix '_tok'.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame(
     ...     [[3.2, "Kick the baby!"]], [1], ['freq', 'content'])
@@ -113,8 +113,8 @@ class UntokenizeText(MapColVals):
         and the resulting columns retain the names of the source columns.
         Otherwise, untokenized columns gain the suffix '_untok'.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> data = [[3.2, ['Shake', 'and', 'bake!']]]
     >>> df = pd.DataFrame(data, [1], ['freq', 'content'])
@@ -176,8 +176,8 @@ class RemoveStopwords(MapColVals):
         and the resulting columns retain the names of the source columns.
         Otherwise, resulting columns gain the suffix '_nostop'.
 
-    Example
-    -------
+    Examples
+    --------
         >> import pandas as pd; import pdpipe as pdp;
         >> data = [[3.2, ['kick', 'the', 'baby']]]
         >> df = pd.DataFrame(data, [1], ['freq', 'content'])
@@ -270,8 +270,8 @@ class SnowballStem(MapColVals):
     max_len : int, optional
         If provided, tokens longer than this length are not stemmed.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> data = [[3.2, ['kicking', 'boats']]]
     >>> df = pd.DataFrame(data, [1], ['freq', 'content'])
@@ -410,8 +410,8 @@ class DropRareTokens(ColumnsBasedPipelineStage):
         and the resulting columns retain the names of the source columns.
         Otherwise, the new columns gain the suffix '_norare'.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> data = [[7, ['a', 'a', 'b']], [3, ['b', 'c', 'd']]]
     >>> df = pd.DataFrame(data, columns=['num', 'chars'])

@@ -25,8 +25,8 @@ class DropLabelsByValues(PdPipelineStage):
         Drop all labels not in the input ranges of values.
 
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> data = [[3.2, 31], [7.2, 33], [12.1, 28]]
     >>> X = pd.DataFrame(data, [1,2,3], ["ph","temp"])

@@ -48,8 +48,8 @@ class Bin(PdPipelineStage):
     drop : bool, default True
         If set to True, the source columns are dropped after being binned.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[-3],[4],[5],[9]], [1,2,3,4], ['speed'])
     >>> pdp.Bin({'speed': [5]}, drop=False).apply(df)
@@ -174,8 +174,8 @@ class OneHotEncode(ColumnsBasedPipelineStage):
     drop : bool, default True
         If set to True, the source columns are dropped after being encoded.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([['USA'], ['UK'], ['Greece']], [1,2,3], ['Born'])
     >>> pdp.OneHotEncode().apply(df)
@@ -471,8 +471,8 @@ class MapColVals(ColumnTransformer):
     suffix : str, default '_map'
         The suffix mapped columns gain if no new column labels are given.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[1], [3], [2]], ['UK', 'USSR', 'US'], ['Medal'])
     >>> value_map = {1: 'Gold', 2: 'Silver', 3: 'Bronze'}
@@ -559,8 +559,8 @@ class ApplyToRows(PdPipelineStage):
         returning True is used.
 
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> data = [[3, 2143], [10, 1321], [7, 1255]]
     >>> df = pd.DataFrame(data, [1,2,3], ['years', 'avg_revenue'])
@@ -683,8 +683,8 @@ class ApplyByCols(ColumnTransformer):
         Valid constructor parameters of superclasses are extracted and used
         on intialization.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp; import math;
     >>> data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
     >>> df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
@@ -784,8 +784,8 @@ class ColByFrameFunc(PdPipelineStage):
         by company size'. A default description is used if None is given.
 
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> data = [[3, 3], [2, 4], [1, 5]]
     >>> df = pd.DataFrame(data, [1,2,3], ["A","B"])
@@ -877,8 +877,8 @@ class AggByCols(ColumnTransformer):
         is None and drop is set to False. Of not given, defaults to '_agg'.
 
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
     >>> data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
     >>> df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
@@ -957,8 +957,8 @@ class Log(ColumnsBasedPipelineStage):
         non_neg is True then that transformation is applied first, and only
         then is the column shifted by this constant.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
     >>> df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])

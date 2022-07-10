@@ -31,8 +31,8 @@ class RegexReplace(ApplyByCols):
     drop : bool, default True
         If set to True, source columns are dropped after being transformed.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp; import re;
     >>> data = [[4, "more than 12"], [5, "with 5 more"]]
     >>> df = pd.DataFrame(data, [1,2], ["age","text"])
@@ -124,8 +124,8 @@ class DropTokensByLength(ApplyByCols):
     drop : bool, default True
         If set to True, source columns are dropped after being transformed.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> data = [[4, ["a", "bad", "nice"]], [5, ["good", "university"]]]
     >>> df = pd.DataFrame(data, [1,2], ["age","text"])
@@ -202,8 +202,8 @@ class DropTokensByList(ApplyByCols):
     drop : bool, default True
         If set to True, source columns are dropped after being transformed.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> data = [[4, ["a", "bad", "cat"]], [5, ["bad", "not", "good"]]]
     >>> df = pd.DataFrame(data, [1,2], ["age","text"])

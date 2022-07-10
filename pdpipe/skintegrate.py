@@ -120,8 +120,8 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
     model : sklearn.base.BaseEstimator
         The model to connect to the pipeline.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> from pdpipe.skintegrate import PdPipelineAndSklearnEstimator;
     >>> from sklearn.linear_model import LogisticRegression;

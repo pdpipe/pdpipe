@@ -68,8 +68,8 @@ class Encode(ColumnsBasedPipelineStage):
         A dictionary mapping each encoded column name to the corresponding
         sklearn.preprocessing.LabelEncoder object. Empty object if not fitted.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
     >>> df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
@@ -174,8 +174,8 @@ class Scale(ColumnsBasedPipelineStage):
         QuantileTransformer). PdPipelineStage valid keyword arguments are used
         to override Scale class defaults.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> data = [[3.2, 0.3], [7.2, 0.35], [12.1, 0.29]]
     >>> df = pd.DataFrame(data, [1,2,3], ["ph","gt"])
@@ -309,8 +309,8 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
         token-list columns, you should set this to true, so tf-idf features
         originating in different text columns do not overwrite one another.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> data = [[2, ['hovercraft', 'eels']], [5, ['eels', 'urethra']]]
     >>> df = pd.DataFrame(data, [1, 2], ['Age', 'tokens'])
@@ -417,8 +417,8 @@ class Decompose(ColumnsBasedPipelineStage):
         Decompose class defaults. All other extra keyword arguments are
         forwarded to the transformer constructor on transformer creation.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> from sklearn.decomposition import PCA
     >>> data = [[3, 1, 1], [7, 2, 4], [8, 3, 1]]
@@ -544,8 +544,8 @@ class EncodeLabel(PdPipelineStage):
         The sklearn.preprocessing.LabelEncoder object used to encode the series
         label.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> data = [[3.2, 31], [7.2, 33], [12.1, 28]]
     >>> X = pd.DataFrame(data, [1,2,3], ["ph","temp"])

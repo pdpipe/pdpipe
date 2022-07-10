@@ -15,8 +15,8 @@ class FitOnly(PdPipelineStage):
     stage : PdPipelineStage
         The pipeline stage to operate on input data only when fitting.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'char'])
     >>> stage = pdp.FitOnly(pdp.ColDrop('num'))

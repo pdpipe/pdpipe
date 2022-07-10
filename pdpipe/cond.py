@@ -27,8 +27,8 @@ class Condition(object):
     error_message : str, default None
         A string that describes the error when the condition fails.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np; import pdpipe as pdp;
     >>> cond = pdp.cond.Condition(lambda X: 'a' in X.columns)
     >>> cond
@@ -216,8 +216,8 @@ class PerColumnCondition(Condition):
         Additionaly accepts all keyword arguments of the constructor of
         Condition. See the documentation of Condition for details.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
     >>> X = pd.DataFrame(
     ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
@@ -333,8 +333,8 @@ class HasAllColumns(Condition):
         Additionaly accepts all keyword arguments of the constructor of
         Condition. See the documentation of Condition for details.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> X = pd.DataFrame(
     ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
@@ -391,8 +391,8 @@ class ColumnsFromList(PerColumnCondition):
         Additionaly accepts all keyword arguments of the constructor of
         Condition. See the documentation of Condition for details.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> X = pd.DataFrame(
     ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
@@ -442,8 +442,8 @@ class HasNoColumn(Condition):
         Additionaly accepts all keyword arguments of the constructor of
         Condition. See the documentation of Condition for details.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> X = pd.DataFrame(
     ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
@@ -506,8 +506,8 @@ class HasAtMostMissingValues(Condition):
         Additionally accepts all keyword arguments of the constructor of
         Condition. See the documentation of Condition for details.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> X = pd.DataFrame(
     ...    [[None,'a',5],[5,None,7]], [1,2], ['num', 'chr', 'nur'])
@@ -580,8 +580,8 @@ class HasNoMissingValues(HasAtMostMissingValues):
         Accepts all keyword arguments of the constructor of Condition. See the
         documentation of Condition for details.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> X = pd.DataFrame(
     ...    [[None,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
@@ -612,8 +612,8 @@ def _AlwaysTrue(X: pandas.DataFrame) -> bool:
 class AlwaysTrue(Condition):
     """A condition letting all dataframes through, always returning True.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> X = pd.DataFrame(
     ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])

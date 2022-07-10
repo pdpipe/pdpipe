@@ -32,8 +32,8 @@ class ColumnQualifier(object):
         stage will fail on its precondition if trying to transform with it a
         dataframe that is missing some values in the fitted qualifier.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np; import pdpipe as pdp;
     >>> cq = pdp.cq.ColumnQualifier(lambda df: [
     ...    l for l, s in df.iteritems()
@@ -293,8 +293,8 @@ class AllColumns(ColumnQualifier):
         ColumnQualifier. See the documentation of `ColumnQualifier` for
         details.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[8,1],[5,2]], [1,2], ['a', 'b'])
     >>> cq = pdp.cq.AllColumns()
@@ -348,8 +348,8 @@ class ByColumnCondition(ColumnQualifier):
         ColumnQualifier. See the documentation of `ColumnQualifier` for
         details.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame(
     ...    [[1, 2, 'A'],[4, 1, 'C']], [1,2], ['age', 'count', 'grade'])
@@ -400,8 +400,8 @@ class ByLabels(ColumnQualifier):
         ColumnQualifier. See the documentation of `ColumnQualifier` for
         details.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame(
     ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
@@ -457,8 +457,8 @@ def columns_to_qualifier(columns):
     qualifier : ColumnQualifier
         The equivalent ColumnQualifier object.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pdpipe as pdp;
     >>> pdp.cq.columns_to_qualifier('nu')
     <ColumnQualifier: By labels in nu>
@@ -486,8 +486,8 @@ class StartWith(ColumnQualifier):
         ColumnQualifier. See the documentation of `ColumnQualifier` for
         details.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame(
     ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
@@ -543,8 +543,8 @@ class OfDtypes(ColumnQualifier):
         ColumnQualifier. See the documentation of `ColumnQualifier` for
         details.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
     >>> df = pd.DataFrame(
     ...    [[8.2,'a',5],[5.1,'b',7]], [1,2], ['ph', 'grade', 'age'])
@@ -592,8 +592,8 @@ class OfNumericDtypes(OfDtypes):
         ColumnQualifier. See the documentation of `ColumnQualifier` for
         details.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
     >>> df = pd.DataFrame(
     ...    [[8.2,'a',5],[5.1,'b',7]], [1,2], ['ph', 'grade', 'age'])
@@ -622,8 +622,8 @@ class WithAtMostMissingValues(ColumnQualifier):
         ColumnQualifier. See the documentation of `ColumnQualifier` for
         details.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
     >>> df = pd.DataFrame(
     ...    [[None, 1, 2],[None, None, 5]], [1,2], ['ph', 'grade', 'age'])
@@ -666,8 +666,8 @@ class WithoutMissingValues(WithAtMostMissingValues):
         Accepts all keyword arguments of the constructor of ColumnQualifier.
         See the documentation of `ColumnQualifier` for details.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
     >>> df = pd.DataFrame(
     ...    [[None, 1, 2],[None, None, 5]], [1,2], ['ph', 'grade', 'age'])

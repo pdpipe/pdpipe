@@ -74,8 +74,8 @@ class KeepRowsByQualifier(PdPipelineStage):
         An object that returns a boolean series from input dataframes. See more
         in `pdpipe.rq`.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], ['a','b'])
     >>> q = pdp.rq.ColValGt('a', 3)
@@ -143,8 +143,8 @@ class DropRowsByQualifier(PdPipelineStage):
         An object that returns a boolean series from input dataframes. See more
         in `pdpipe.rq`.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], ['a','b'])
     >>> q = pdp.rq.ColValLt('a', 3)

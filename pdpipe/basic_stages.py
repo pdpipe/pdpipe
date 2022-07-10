@@ -31,8 +31,8 @@ class ColDrop(ColumnsBasedPipelineStage):
     errors : {‘ignore’, ‘raise’}, default ‘raise’
         If ‘ignore’, suppress error and existing labels are dropped.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'char'])
     >>> pdp.ColDrop('num').apply(df)
@@ -90,8 +90,8 @@ class ValDrop(ColumnsBasedPipelineStage):
         callable returning a labels iterable from an input pandas.DataFrame.
         See `pdpipe.cq`. Optional. By default no columns are excluded.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[1,4],[4,5],[18,11]], [1,2,3], ['a','b'])
     >>> pdp.ValDrop([4], 'a').apply(df)
@@ -150,8 +150,8 @@ class ValKeep(ColumnsBasedPipelineStage):
         callable returning a labels iterable from an input pandas.DataFrame.
         See `pdpipe.cq`. Optional. By default no columns are excluded.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], ['a','b'])
     >>> pdp.ValKeep([4, 5], 'a').apply(df)
@@ -193,8 +193,8 @@ class ColRename(PdPipelineStage):
     rename_mapper : dict-like or callable
         Maps old column names to new ones.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'char'])
     >>> pdp.ColRename({'num': 'len', 'char': 'initial'}).apply(df)
@@ -258,8 +258,8 @@ class DropNa(PdPipelineStage):
 
     Supports all parameter supported by pandas.dropna function.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[1,4],[4,None],[1,11]], [1,2,3], ['a','b'])
     >>> pdp.DropNa().apply(df)
@@ -302,8 +302,8 @@ class SetIndex(PdPipelineStage):
     Supports all parameter supported by pandas.set_index function except for
     `inplace`.
 
-    Example
-    -------
+    Examples
+    --------
     >> import pandas as pd; import pdpipe as pdp;
     >> df = pd.DataFrame([[1,4],[3, 11]], [1,2], ['a','b'])
     >> pdp.SetIndex('a').apply(df)
@@ -350,8 +350,8 @@ class FreqDrop(PdPipelineStage):
     column : str
         The name of the colum to check for the given value frequency.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[1,4],[4,5],[1,11]], [1,2,3], ['a','b'])
     >>> pdp.FreqDrop(2, 'a').apply(df)
@@ -399,8 +399,8 @@ class ColReorder(PdPipelineStage):
         Columns not included in the mapping will maintain their relative
         positions over the non-mapped colums.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[8,4,3,7]], columns=['a', 'b', 'c', 'd'])
     >>> pdp.ColReorder({'b': 0, 'c': 3}).apply(df)
@@ -473,8 +473,8 @@ class RowDrop(ColumnsBasedPipelineStage):
         callable returning a labels iterable from an input pandas.DataFrame.
         See `pdpipe.cq`. Optional. By default no columns are excluded.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], ['a','b'])
     >>> pdp.RowDrop([lambda x: x < 2]).apply(df)
@@ -575,8 +575,8 @@ class Schematize(PdPipelineStage):
         The dataframe schema to enforce on input dataframes. If set to None,
         the schema is learned in fit time and applied in subsequent transforms.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[2, 4, 8],[3, 6, 9]], [1, 2], ['a', 'b', 'c'])
     >>> pdp.Schematize(['a', 'c']).apply(df)
@@ -697,8 +697,8 @@ class ColumnDtypeEnforcer(PdPipelineStage):
         - raise : allow exceptions to be raised
         - ignore : suppress exceptions. On error return original object.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'initial'])
     >>> pdp.ColumnDtypeEnforcer({'num': float}).apply(df)
@@ -807,8 +807,8 @@ class ConditionValidator(PdPipelineStage):
         application was called with `verbose=True`, and pipeline application
         continues. Any other value is interpreted as 'raise'.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[1,4],[4,None],[1,11]], [1,2,3], ['a','b'])
     >>> pdp.ConditionValidator(lambda df: len(df.columns) == 5).apply(df)
