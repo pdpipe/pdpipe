@@ -17,3 +17,9 @@ To create a custom pipeline stage without creating a proper new class, you can i
     Since Python lambdas are not serializable by Python `pickle`, note that
     using a lambda as the transform operator of an AdHocStage will make
     unpickleable.
+
+That's it!
+
+!!! help "Getting help"
+
+    Remember you can get help on <a href="https://gitter.im/pdpipe/community" target="_blank">our :material-wechat: Gitter chat</a> or on <a href="https://github.com/pdpipe/pdpipe/discussions" target="_blank">our :material-message-question: GitHub Discussions forum</a>.
