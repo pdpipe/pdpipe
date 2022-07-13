@@ -270,6 +270,11 @@ class SnowballStem(MapColVals):
     max_len : int, optional
         If provided, tokens longer than this length are not stemmed.
 
+    Attributes
+    ----------
+    stemmer : nltk.stem.snowball.SnowballStemmer
+        The Snowball stemmer instance used by this pipeline stage.
+
     Examples
     --------
     >>> import pandas as pd; import pdpipe as pdp;
@@ -286,7 +291,7 @@ class SnowballStem(MapColVals):
                          "are of dtype object.")
     _DEF_STEM_DESC = "Stemming tokens{} in {}..."
 
-    class MinLenStemCondition(object):
+    class _MinLenStemCondition(object):
 
         def __init__(self, min_len):
             self.min_len = min_len
@@ -294,7 +299,7 @@ class SnowballStem(MapColVals):
         def __call__(self, x):
             return len(x) >= self.min_len
 
-    class MaxLenStemCondition(object):
+    class _MaxLenStemCondition(object):
 
         def __init__(self, max_len):
             self.max_len = max_len
@@ -302,7 +307,7 @@ class SnowballStem(MapColVals):
         def __call__(self, x):
             return len(x) <= self.max_len
 
-    class MinMaxLenStemCondition(object):
+    class _Min_MaxLenStemCondition(object):
 
         def __init__(self, min_len, max_len):
             self.min_len = min_len
@@ -317,12 +322,12 @@ class SnowballStem(MapColVals):
             self.cond = None
             if min_len:
                 if max_len:
-                    self.cond = SnowballStem.MinMaxLenStemCondition(
+                    self.cond = SnowballStem._Min_MaxLenStemCondition(
                         min_len=min_len, max_len=max_len)
                 else:
-                    self.cond = SnowballStem.MinLenStemCondition(min_len)
+                    self.cond = SnowballStem._MinLenStemCondition(min_len)
             elif max_len:
-                self.cond = SnowballStem.MaxLenStemCondition(max_len)
+                self.cond = SnowballStem._MaxLenStemCondition(max_len)
             self.__stem__ = self.__uncond_stem__
             if self.cond:
                 self.__stem__ = self.__cond_stem__
@@ -357,9 +362,9 @@ class SnowballStem(MapColVals):
 
     def __init__(self, stemmer_name, columns, drop=True, min_len=None,
                  max_len=None, **kwargs):
-        self.stemmer_name = stemmer_name
+        self._stemmer_name = stemmer_name
         self.stemmer = SnowballStem.__safe_stemmer_by_name(stemmer_name)
-        self.list_stemmer = SnowballStem._TokenListStemmer(
+        self._list_stemmer = SnowballStem._TokenListStemmer(
             stemmer=self.stemmer, min_len=min_len, max_len=max_len)
         self._columns = _interpret_columns_param(columns)
         col_str = _list_str(self._columns)
@@ -373,7 +378,7 @@ class SnowballStem(MapColVals):
         desc = SnowballStem._DEF_STEM_DESC.format(cond_str, col_str)
         super_kwargs = {
             'columns': columns,
-            'value_map': self.list_stemmer,
+            'value_map': self._list_stemmer,
             'drop': drop,
             'suffix': '_stem',
             'exmsg': SnowballStem._DEF_STEM_EXC_MSG.format(col_str),

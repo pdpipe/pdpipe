@@ -204,11 +204,11 @@ class PdPipelineStage(abc.ABC):
 
     Attributes
     ----------
-    fit_context : `PdpApplicationContext`
+    fit_context : PdpApplicationContext
         An application context object that is only re-initialized before
         `fit_transform` calls, and is locked after pipeline application. It is
         injected into the PipelineStage by the encapsulating pipeline object.
-    application_context : `PdpApplicationContext`
+    application_context : PdpApplicationContext
         An application context object that is re-initialized before every
         pipeline application (so, also during transform operations of fitted
         pipelines), and is locked after pipeline application.It is injected
@@ -1078,6 +1078,20 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         sub-pipeline of it which should be used to transform dataframes after
         the pipeline has been fitted. If not given, the fitted pipeline is used
         entirely.
+
+    Attributes
+    ----------
+    fit_context : PdpApplicationContext
+        An application context object that is only re-initialized before
+        `fit_transform` calls, and is locked after pipeline application. It is
+        injected into the PipelineStage by the encapsulating pipeline object.
+    application_context : PdpApplicationContext
+        An application context object that is re-initialized before every
+        pipeline application (so, also during transform operations of fitted
+        pipelines), and is locked after pipeline application.It is injected
+        into the PipelineStage by the encapsulating pipeline object.
+    is_fitted : bool
+        Whether this pipeline has been fitted.
     """
 
     _DEF_EXC_MSG = 'Pipeline precondition failed!'

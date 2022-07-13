@@ -120,6 +120,13 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
     model : sklearn.base.BaseEstimator
         The model to connect to the pipeline.
 
+    Attributes
+    ----------
+    pipeline : PdPipeline
+        The preprocssing pipeline composing this pipeline+model object.
+    model : sklearn.base.BaseEstimator
+        The sklearn model composing this pipeline+model object.
+
     Examples
     --------
     >>> import pandas as pd; import pdpipe as pdp;

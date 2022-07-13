@@ -342,7 +342,7 @@ class ColumnTransformer(ColumnsBasedPipelineStage):
     ):
         if suffix is None:  # pragma: no cover
             suffix = "_transformed"
-        self.suffix = suffix
+        self._suffix = suffix
         self._result_columns = result_columns
         if result_columns:
             self._result_columns = _interpret_columns_param(result_columns)
@@ -379,7 +379,7 @@ class ColumnTransformer(ColumnsBasedPipelineStage):
                 result_columns = columns
             else:
                 result_columns = [
-                    f'{col}{self.suffix}' for col in columns
+                    f'{col}{self._suffix}' for col in columns
                 ]
         inter_X = X
         for i, colname in enumerate(columns):

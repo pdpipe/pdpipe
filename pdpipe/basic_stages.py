@@ -273,7 +273,7 @@ class DropNa(PdPipelineStage):
 
     def __init__(self, **kwargs):
         common = set(kwargs.keys()).intersection(DropNa._DROPNA_KWARGS)
-        self.dropna_kwargs = {key: kwargs.pop(key) for key in common}
+        self._dropna_kwargs = {key: kwargs.pop(key) for key in common}
         super_kwargs = {
             'exmsg': DropNa._DEF_DROPNA_EXC_MSG,
             'desc': "Drops null values."
@@ -287,7 +287,7 @@ class DropNa(PdPipelineStage):
     def _transform(self, X, verbose):
         before_count = len(X)
         ncols_before = len(X.columns)
-        inter_X = X.dropna(**self.dropna_kwargs)
+        inter_X = X.dropna(**self._dropna_kwargs)
         if verbose:
             print(
                 f"{before_count - len(inter_X)} rows, "
@@ -319,8 +319,8 @@ class SetIndex(PdPipelineStage):
 
     def __init__(self, keys, **kwargs):
         common = set(kwargs.keys()).intersection(SetIndex._SETINDEX_KWARGS)
-        self.setindex_kwargs = {key: kwargs.pop(key) for key in common}
-        self.keys = keys
+        self._setindex_kwargs = {key: kwargs.pop(key) for key in common}
+        self._keys = keys
         if hasattr(keys, '__iter__') and not isinstance(keys, str):
             _tprec = cond.HasAllColumns(list(keys))
         else:
@@ -337,7 +337,7 @@ class SetIndex(PdPipelineStage):
         return self._tprec(X)
 
     def _transform(self, X, verbose):
-        return X.set_index(keys=self.keys, **self.setindex_kwargs)
+        return X.set_index(keys=self._keys, **self._setindex_kwargs)
 
 
 class FreqDrop(PdPipelineStage):

@@ -174,6 +174,11 @@ class Scale(ColumnsBasedPipelineStage):
         QuantileTransformer). PdPipelineStage valid keyword arguments are used
         to override Scale class defaults.
 
+    Attributes
+    ----------
+    scaler : sklearn._OneToOneFeatureMixin
+        A scikit-learn scaler object.
+
     Examples
     --------
     >>> import pandas as pd; import pdpipe as pdp;
@@ -196,7 +201,7 @@ class Scale(ColumnsBasedPipelineStage):
         **kwargs
     ):
         self.scaler = scaler
-        self.joint = joint
+        self._joint = joint
         self._kwargs = kwargs.copy()
         super_kwargs = {
             'columns': columns,
@@ -224,7 +229,7 @@ class Scale(ColumnsBasedPipelineStage):
         inter_X = X[self._columns_to_scale]
         self._scaler = scaler_by_params(self.scaler, **self._kwargs)
         try:
-            if self.joint:
+            if self._joint:
                 self._scaler.fit(np.array([inter_X.values.flatten()]).T)
                 inter_X = per_column_values_sklearn_transform(
                     X=inter_X,
@@ -256,7 +261,7 @@ class Scale(ColumnsBasedPipelineStage):
         col_order = list(X.columns)
         inter_X = X[self._columns_to_scale]
         try:
-            if self.joint:
+            if self._joint:
                 inter_X = per_column_values_sklearn_transform(
                     X=inter_X,
                     transform=self._scaler.transform
@@ -330,7 +335,7 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
         self._hierarchical_labels = hierarchical_labels
         msg = TfidfVectorizeTokenLists._DEF_CNTVEC_MSG.format(column)
         super_kwargs = {
-            "exmsg": ("TfIdfVectorizeTokenLists precondition not met:"
+            "exmsg": ("TfidfVectorizeTokenLists precondition not met:"
                       f"{column} column not found."),
             "desc": msg,
         }
@@ -417,6 +422,11 @@ class Decompose(ColumnsBasedPipelineStage):
         Decompose class defaults. All other extra keyword arguments are
         forwarded to the transformer constructor on transformer creation.
 
+    Attributes
+    ----------
+    transformer : sklearn.TransformerMixin
+        The transformer instance used to perform the decomposition.
+
     Examples
     --------
     >>> import pandas as pd; import pdpipe as pdp;
@@ -441,10 +451,10 @@ class Decompose(ColumnsBasedPipelineStage):
         **kwargs
     ):
         self.transformer = transformer
-        self.drop = drop
-        self.lbl_format = lbl_format
+        self._drop = drop
+        self._lbl_format = lbl_format
         if lbl_format is None:
-            self.lbl_format = 'mdc{}'
+            self._lbl_format = 'mdc{}'
         self._kwargs = kwargs.copy()
         super_kwargs = {
             'columns': columns,
@@ -475,7 +485,7 @@ class Decompose(ColumnsBasedPipelineStage):
             inter_X = self._transformer.fit_transform(sub_X.values)
             n_cols = inter_X.shape[1]
             columns = [
-                self.lbl_format.format(i)
+                self._lbl_format.format(i)
                 for i in range(n_cols)
             ]
             inter_X = pd.DataFrame(
@@ -488,7 +498,7 @@ class Decompose(ColumnsBasedPipelineStage):
                 "Exception raised when Decompose applied to columns"
                 f" {self._columns_to_transform} by class {self.__class__}"
             ) from e
-        if self.drop:
+        if self._drop:
             if len(untransformed_cols) > 0:
                 untransformed = X[untransformed_cols]
                 inter_X = pd.concat([untransformed, inter_X], axis=1)
@@ -507,7 +517,7 @@ class Decompose(ColumnsBasedPipelineStage):
             inter_X = self._transformer.transform(sub_X.values)
             n_cols = inter_X.shape[1]
             columns = [
-                self.lbl_format.format(i)
+                self._lbl_format.format(i)
                 for i in range(n_cols)
             ]
             inter_X = pd.DataFrame(
@@ -520,7 +530,7 @@ class Decompose(ColumnsBasedPipelineStage):
                 "Exception raised when Decompose applied to columns"
                 f" {self._columns_to_transform} by class {self.__class__}"
             ) from e
-        if self.drop:
+        if self._drop:
             if len(untransformed_cols) > 0:
                 untransformed = X[untransformed_cols]
                 inter_X = pd.concat([untransformed, inter_X], axis=1)

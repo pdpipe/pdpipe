@@ -40,7 +40,7 @@ class Condition(object):
         self._func = func
         self._fittable = fittable
         if error_message is not None:
-            self.error_message = error_message
+            self._error_message = error_message
 
     def __call__(self, X):
         """Returns column labels of qualified columns from an input dataframe.
