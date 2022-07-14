@@ -79,7 +79,7 @@ class DropLabelsByValues(PdPipelineStage):
                 to_drop = to_drop | (y.between(*in_range))
             post_y = post_y.loc[~to_drop]
         elif self.not_in_set is not None:
-            post_y = y.isin(self.not_in_set)
+            post_y = post_y.loc[post_y.isin(self.not_in_set)]
         elif self.not_in_ranges is not None:
             to_keep = y.copy()
             to_keep.loc[:] = False

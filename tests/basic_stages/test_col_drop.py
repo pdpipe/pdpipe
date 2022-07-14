@@ -139,7 +139,7 @@ def test_coldrop_col_qualifier():
     df = _test_df()
     assert 'num1' in df.columns
     assert 'num2' in df.columns
-    stage = ColDrop(pdp.cq.StartWith('num'))
+    stage = ColDrop(pdp.cq.StartsWith('num'))
     res_df = stage.apply(df)
     assert 'num1' not in res_df.columns
     assert 'num2' not in res_df.columns

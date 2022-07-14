@@ -474,7 +474,7 @@ def columns_to_qualifier(columns):
     return ByLabels(columns)
 
 
-class StartWith(ColumnQualifier):
+class StartsWith(ColumnQualifier):
     """Selectes all columns that start with the given string.
 
     Parameters
@@ -491,7 +491,7 @@ class StartWith(ColumnQualifier):
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame(
     ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
-    >>> cq = pdp.cq.StartWith('nu')
+    >>> cq = pdp.cq.StartsWith('nu')
     >>> cq
     <ColumnQualifier: Columns starting with nu>
     >>> cq(df)
@@ -505,7 +505,7 @@ class StartWith(ColumnQualifier):
         except AttributeError:
             return False
 
-    class _StartWithFunc(object):
+    class _StartsWithFunc(object):
 
         def __init__(self, prefix):
             self.prefix = prefix
@@ -513,12 +513,12 @@ class StartWith(ColumnQualifier):
         def __call__(self, X):
             return [
                 lbl for lbl in X.columns
-                if StartWith._safe_startwith(lbl, self.prefix)
+                if StartsWith._safe_startwith(lbl, self.prefix)
             ]
 
     def __init__(self, prefix, **kwargs):
         self._prefix = prefix
-        cqfunc = StartWith._StartWithFunc(prefix)
+        cqfunc = StartsWith._StartsWithFunc(prefix)
         cqfunc.__doc__ = f"Columns that start with {self._prefix}"
         self.__doc__ = cqfunc.__doc__
         kwargs['func'] = cqfunc

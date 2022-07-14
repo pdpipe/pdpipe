@@ -706,7 +706,7 @@ class ColumnDtypeEnforcer(PdPipelineStage):
     1  8.0       a
     2  5.0       b
 
-    >>> pdp.ColumnDtypeEnforcer({pdp.cq.StartWith('n'): float}).apply(df)
+    >>> pdp.ColumnDtypeEnforcer({pdp.cq.StartsWith('n'): float}).apply(df)
        num initial
     1  8.0       a
     2  5.0       b

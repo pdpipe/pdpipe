@@ -98,7 +98,7 @@ column with a label starting with `'n'`:
 ```python
 >>> import pandas as pd; import pdpipe as pdp;
 >>> df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'initial'])
->>> pdp.ColumnDtypeEnforcer({pdp.cq.StartWith('n'): float}).apply(df)
+>>> pdp.ColumnDtypeEnforcer({pdp.cq.StartsWith('n'): float}).apply(df)
    num initial
 1  8.0       a
 2  5.0       b

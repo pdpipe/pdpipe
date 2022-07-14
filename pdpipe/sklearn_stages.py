@@ -367,10 +367,11 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
         if self._hierarchical_labels:
             self._res_col_names = [
                 f'{self._column}_{f}'
-                for f in self._tfidf_vectorizer.get_feature_names()
+                for f in self._tfidf_vectorizer.get_feature_names_out()
             ]
         else:
-            self._res_col_names = self._tfidf_vectorizer.get_feature_names()
+            self._res_col_names = self._tfidf_vectorizer.get_feature_names_out(
+            )
         vec_X = pd.DataFrame.sparse.from_spmatrix(
             data=vectorized, index=X.index, columns=self._res_col_names)
         inter_X = pd.concat([X, vec_X], axis=1)

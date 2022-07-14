@@ -330,6 +330,7 @@ class PdPipelineStage(abc.ABC):
                 raise e  # pragma: no cover
         # now, do the same for the _prec abstractmethod, so as to support
         # implementations only including X in their signatur
+
         if y is None:
             return self._prec(X)
         try:
@@ -403,14 +404,14 @@ class PdPipelineStage(abc.ABC):
     def _raise_precondition_error(self) -> None:
         try:
             raise FailedPreconditionError(
-                f"{self._exmsg} [Reason] {self._prec_arg.error_message}")
+                f"{self._exmsg} [Reason] {self._prec_arg._error_message}")
         except AttributeError:
             raise FailedPreconditionError(self._exmsg)
 
     def _raise_postcondition_error(self) -> None:
         try:
             raise FailedPostconditionError(
-                f"{self._exmsg_post} [Reason] {self._post_arg.error_message}")
+                f"{self._exmsg_post} [Reason] {self._post_arg._error_message}")
         except AttributeError:
             raise FailedPostconditionError(self._exmsg_post)
 

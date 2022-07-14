@@ -250,7 +250,7 @@ def test_columns_based_stage_exclude_cols():
     df = _df5()
 
     stage = Drop(
-        columns=pdp.cq.StartWith('n'),
+        columns=pdp.cq.StartsWith('n'),
     )
     res = stage(df)
     assert 'num' not in res.columns
@@ -258,7 +258,7 @@ def test_columns_based_stage_exclude_cols():
     assert 'koj' in res.columns
 
     stage = Drop(
-        columns=pdp.cq.StartWith('n'),
+        columns=pdp.cq.StartsWith('n'),
         exclude_columns='nim',
     )
     res = stage(df)
@@ -267,7 +267,7 @@ def test_columns_based_stage_exclude_cols():
     assert 'koj' in res.columns
 
     stage = Drop(
-        columns=pdp.cq.StartWith('n'),
+        columns=pdp.cq.StartsWith('n'),
         exclude_columns=['nim'],
     )
     res = stage(df)
@@ -276,7 +276,7 @@ def test_columns_based_stage_exclude_cols():
     assert 'koj' in res.columns
 
     stage = Drop(
-        columns=pdp.cq.StartWith('n'),
+        columns=pdp.cq.StartsWith('n'),
         exclude_columns=lambda df: [
             col_lbl
             for col_lbl in df.columns

@@ -105,7 +105,7 @@ AND starting with 'gr' one can use:
 >>> import pandas as pd; import pdpipe as pdp;
 >>> df = pd.DataFrame(
 ...    [[None, 1, 2],[None, None, 5]], [1,2], ['grep', 'grade', 'age'])
->>> cq = pdp.cq.WithAtMostMissingValues(1) & pdp.cq.StartWith('gr')
+>>> cq = pdp.cq.WithAtMostMissingValues(1) & pdp.cq.StartsWith('gr')
 >>> cq(df)
 ['grade']
 ```
@@ -117,7 +117,7 @@ that start with 'b' can be generated with:
 >>> import pandas as pd; import pdpipe as pdp;
 >>> df = pd.DataFrame(
 ...    [[1, 2, 3, 4],[5, 6, 7, None]], [1,2], ['abe', 'bee', 'cry', 'no'])
->>> cq = pdp.cq.WithoutMissingValues() - pdp.cq.StartWith('b')
+>>> cq = pdp.cq.WithoutMissingValues() - pdp.cq.StartsWith('b')
 >>> cq(df)
 ['abe', 'cry']
 ```
