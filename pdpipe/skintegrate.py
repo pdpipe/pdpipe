@@ -210,10 +210,14 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
             Returns self.
         """
         # X, y = check_X_y(X, y, accept_sparse=True)
-        y = pd.Series(y)
-        assert len(X) == len(y)
-        y.index = X.index
-        post_X, post_y = self.pipeline.fit_transform(X=X, y=y)
+        if y is not None:
+            y = pd.Series(y)
+            assert len(X) == len(y)
+            y.index = X.index
+            post_X, post_y = self.pipeline.fit_transform(X=X, y=y)
+        else:
+            post_X = self.pipeline.fit_transform(X)
+            post_y = None
         if post_y is None:
             self.estimator.fit(X=post_X.values, y=None)
         else:
