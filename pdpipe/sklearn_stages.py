@@ -588,7 +588,7 @@ class EncodeLabel(PdPipelineStage):
         return y is not None
 
     def _transform(self, X, verbose):
-        raise UnexpectedPipelineMethodCallError(
+        raise UnexpectedPipelineMethodCallError(  # pragma: no cover
             "EncodeLabel._transform() is not expected to be called!")
 
     def _fit_transform_Xy(self, X, y, verbose):

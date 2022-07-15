@@ -65,7 +65,7 @@ class DropLabelsByValues(PdPipelineStage):
         return y is not None
 
     def _transform(self, X, verbose):
-        raise UnexpectedPipelineMethodCallError(
+        raise UnexpectedPipelineMethodCallError(  # pragma: no cover
             "DropLabelsByValues._transform() is not expected to be called!")
 
     def _transform_Xy(self, X, y, verbose):
@@ -87,6 +87,6 @@ class DropLabelsByValues(PdPipelineStage):
                 to_keep = to_keep | (y.between(*in_range))
             post_y = post_y.loc[to_keep]
         else:
-            raise PipelineInitializationError(
+            raise PipelineInitializationError(  # pragma: no cover
                 "DropLabelsByValues: No drop conditions specified.")
         return X, post_y
