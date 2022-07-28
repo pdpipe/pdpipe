@@ -460,7 +460,7 @@ class Decompose(ColumnsBasedPipelineStage):
         super_kwargs = {
             'columns': columns,
             'exclude_columns': exclude_columns,
-            'desc_temp': "Scale columns {}",
+            'desc_temp': f"Decompose columns {{}} with {transformer}",
         }
         valid_super_kwargs = super()._init_kwargs()
         for key in kwargs:
