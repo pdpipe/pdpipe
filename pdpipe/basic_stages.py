@@ -68,8 +68,10 @@ class ColDrop(ColumnsBasedPipelineStage):
     def _transformation(
         self, X: pandas.DataFrame, verbose: bool, fit: bool,
     ) -> pandas.DataFrame:
-        return X.drop(
-            self._get_columns(X, fit=fit), axis=1, errors=self._errors)
+        to_drop = self._get_columns(X, fit=fit)
+        if verbose:
+            print(f'Dropping columns {_list_str(to_drop)}')
+        return X.drop(to_drop, axis=1, errors=self._errors)
 
 
 class ValDrop(ColumnsBasedPipelineStage):

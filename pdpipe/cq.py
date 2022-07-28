@@ -684,3 +684,99 @@ class WithoutMissingValues(WithAtMostMissingValues):
 
     def __repr__(self):
         return "<ColumnQualifier: Without missing values>"
+
+
+class WithAtMostMissingValueRate(ColumnQualifier):
+    """Selectes all columns with no more than P% missing values.
+
+    Parameters
+    ----------
+    rate : float, between 0 and 1
+        The maximum rate of missing values with which columns can still
+        qualify.
+    **kwargs
+        Additionaly accepts all keyword arguments of the constructor of
+        ColumnQualifier. See the documentation of `ColumnQualifier` for
+        details.
+
+    Examples
+    --------
+    >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
+    >>> df = pd.DataFrame(
+    ...    [[None, 1, 2],[None, None, 5]], [1,2], ['ph', 'grade', 'age'])
+    >>> cq = pdp.cq.WithAtMostMissingValueRate(0.6)
+    >>> cq
+    <ColumnQualifier: With at most 0.6 missing value rate>
+    >>> cq(df)
+    ['grade', 'age']
+    """
+
+    class _AtMostRateFunc(object):
+
+        def __init__(self, rate):
+            self._rate = rate
+
+        def __call__(self, X):
+            return list(X.columns[(X.isna().sum() / len(X)) <= self._rate])
+
+    def __init__(self, rate, **kwargs):
+        self._rate = rate
+        cqfunc = WithAtMostMissingValueRate._AtMostRateFunc(rate)
+        cqfunc.__doc__ = (
+            f"Columns with at most {self._rate} missing value rate"
+        )
+        self.__doc__ = cqfunc.__doc__
+        kwargs['func'] = cqfunc
+        super().__init__(**kwargs)
+
+    def __repr__(self):
+        return f"<ColumnQualifier: " \
+               f"With at most {self._rate} missing value rate>"
+
+
+class WithAtLeastMissingValueRate(ColumnQualifier):
+    """Selectes all columns with no less than P% missing values.
+
+    Parameters
+    ----------
+    rate : float, between 0 and 1
+        The minimum rate of missing values with which columns can still
+        qualify.
+    **kwargs
+        Additionaly accepts all keyword arguments of the constructor of
+        ColumnQualifier. See the documentation of `ColumnQualifier` for
+        details.
+
+    Examples
+    --------
+    >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
+    >>> df = pd.DataFrame(
+    ...    [[None, 1, 2],[None, None, 5]], [1,2], ['ph', 'grade', 'age'])
+    >>> cq = pdp.cq.WithAtLeastMissingValueRate(0.6)
+    >>> cq
+    <ColumnQualifier: With at least 0.6 missing value rate>
+    >>> cq(df)
+    ['ph']
+    """
+
+    class _AtLeastRateFunc(object):
+
+        def __init__(self, rate):
+            self._rate = rate
+
+        def __call__(self, X):
+            return list(X.columns[(X.isna().sum() / len(X)) >= self._rate])
+
+    def __init__(self, rate, **kwargs):
+        self._rate = rate
+        cqfunc = WithAtLeastMissingValueRate._AtLeastRateFunc(rate)
+        cqfunc.__doc__ = (
+            f"Columns with at least {self._rate} missing value rate"
+        )
+        self.__doc__ = cqfunc.__doc__
+        kwargs['func'] = cqfunc
+        super().__init__(**kwargs)
+
+    def __repr__(self):
+        return f"<ColumnQualifier: " \
+               f"With at least {self._rate} missing value rate>"
