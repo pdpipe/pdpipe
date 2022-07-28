@@ -243,7 +243,7 @@ We can now fit our `GridSearchCV` object and look at what was found (we truncate
         0.31180478, 0.31180478, 0.31180478, 0.31180478, 0.31180478,
         0.31180478]),
  'rank_test_score': array([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], dtype=int32)}
- ```
+```
 
 The best estimator is itself, of course, a pipeline-estimator object, and we got the best parameters for both the pipeline and the model:
 
