@@ -12,7 +12,7 @@ pipeline stages.
 import numpy as np
 import pandas as pd
 import sklearn.preprocessing
-import tqdm
+from tqdm.autonotebook import tqdm
 from skutil.preprocessing import scaler_by_params
 from sklearn.feature_extraction.text import (
     TfidfVectorizer,
@@ -104,7 +104,7 @@ class Encode(ColumnsBasedPipelineStage):
         self.encoders = {}
         columns_to_encode = self._get_columns(X, fit=True)
         if verbose:
-            columns_to_encode = tqdm.tqdm(columns_to_encode)
+            columns_to_encode = tqdm(columns_to_encode)
         inter_X = X
         for colname in columns_to_encode:
             lbl_enc = sklearn.preprocessing.LabelEncoder()
