@@ -1110,12 +1110,18 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
 
     # implementing a collections.abc.Sequence abstract method
     def __getitem__(self, index):
+        stages = None
         if isinstance(index, slice):
-            return PdPipeline(self._stages[index])
+            stages = self._stages[index]
 
         if isinstance(index, list) and all(isinstance(x, str) for x in index):
             stages = [stage for stage in self._stages if stage._name in index]
-            return PdPipeline(stages)
+
+        if stages is not None:
+            pline = PdPipeline(stages)
+            pline.fit_context = self.fit_context
+            pline.is_fitted = self.is_fitted
+            return pline
 
         if isinstance(index, str):
             stages = [stage for stage in self._stages if stage._name == index]
