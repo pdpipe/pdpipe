@@ -1523,7 +1523,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             messages are printed.
         time : bool, default False
             If True, per-stage application time is measured and reported when
-            pipeline application is done.
+            pipeline application is performed.
         application_context : dict, optional
             Context to add to the application context of this call. Can map
             str keys to arbitrary object values to be used by pipeline stages
@@ -1534,11 +1534,6 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         pandas.DataFrame
             The resulting dataframe.
         """
-        for stage in self._stages:
-            if stage._is_fittable() and not stage.is_fitted:
-                raise UnfittedPipelineStageError((
-                    "PipelineStage {} in pipeline is fittable but"
-                    " unfitted!").format(stage))
         if time:
             return self.__timed_transform(
                 X, y, exraise=exraise, verbose=verbose,
