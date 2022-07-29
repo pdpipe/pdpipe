@@ -18,7 +18,7 @@ except ImportError:  # pragma: no cover:
 
 import nltk
 import pandas as pd
-import tqdm
+from tqdm.autonotebook import tqdm
 
 from pdpipe.core import ColumnsBasedPipelineStage
 from pdpipe.util import out_of_place_col_insert
@@ -458,7 +458,7 @@ class DropRareTokens(ColumnsBasedPipelineStage):
         inter_X = X
         columns_to_transform = self._get_columns(X, fit=True)
         if verbose:
-            columns_to_transform = tqdm.tqdm(columns_to_transform)
+            columns_to_transform = tqdm(columns_to_transform)
         for colname in columns_to_transform:
             source_col = X[colname]
             loc = X.columns.get_loc(colname) + 1
@@ -485,7 +485,7 @@ class DropRareTokens(ColumnsBasedPipelineStage):
         inter_X = X
         columns_to_transform = self._get_columns(X, fit=False)
         if verbose:
-            columns_to_transform = tqdm.tqdm(columns_to_transform)
+            columns_to_transform = tqdm(columns_to_transform)
         for colname in columns_to_transform:
             source_col = X[colname]
             loc = X.columns.get_loc(colname) + 1

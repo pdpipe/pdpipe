@@ -8,7 +8,8 @@ from typing import Union, Tuple, Optional, Dict, Callable
 import numpy as np
 import pandas as pd
 import sortedcontainers as sc
-import tqdm
+# import tqdm
+from tqdm.autonotebook import tqdm
 
 from pdpipe.core import (
     PdpApplicationContext,
@@ -120,7 +121,7 @@ class Bin(PdPipelineStage):
         inter_X = X
         colnames = list(self._bin_map.keys())
         if verbose:
-            colnames = tqdm.tqdm(colnames)
+            colnames = tqdm(colnames)
         for colname in colnames:
             if verbose:
                 colnames.set_description(colname)
@@ -230,7 +231,7 @@ class OneHotEncode(ColumnsBasedPipelineStage):
         columns_to_encode = self._get_columns(X, fit=True)
         assign_map = {}
         if verbose:
-            columns_to_encode = tqdm.tqdm(columns_to_encode)
+            columns_to_encode = tqdm(columns_to_encode)
         for colname in columns_to_encode:
             if verbose:
                 columns_to_encode.set_description(colname)
@@ -1000,7 +1001,7 @@ class Log(ColumnsBasedPipelineStage):
     def _fit_transform(self, X, verbose):
         columns_to_transform = self._get_columns(X, fit=True)
         if verbose:
-            columns_to_transform = tqdm.tqdm(columns_to_transform)
+            columns_to_transform = tqdm(columns_to_transform)
         inter_X = X
         for colname in columns_to_transform:
             source_col = X[colname]
@@ -1032,7 +1033,7 @@ class Log(ColumnsBasedPipelineStage):
         inter_X = X
         columns_to_transform = self._get_columns(X, fit=False)
         if verbose:
-            columns_to_transform = tqdm.tqdm(columns_to_transform)
+            columns_to_transform = tqdm(columns_to_transform)
         for colname in columns_to_transform:
             try:
                 source_col = X[colname]
