@@ -537,7 +537,6 @@ class Decompose(ColumnsBasedPipelineStage):
                 inter_X = pd.concat([untransformed, inter_X], axis=1)
         else:
             inter_X = pd.concat([X, inter_X], axis=1)
-        self.is_fitted = True
         return inter_X
 
 
