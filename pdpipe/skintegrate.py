@@ -21,6 +21,7 @@ from sklearn.base import BaseEstimator
 from sklearn.utils.validation import check_is_fitted
 
 from .core import PdPipeline
+from .util import LabelPlaceholderForPredict
 
 
 def _estimator_has(attr):
@@ -117,7 +118,7 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
     ----------
     pipeline : PdPipeline
         The preprocssing pipeline to connect.
-    model : sklearn.base.BaseEstimator
+    estimator : sklearn.base.BaseEstimator
         The model to connect to the pipeline.
 
     Attributes
@@ -175,7 +176,8 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
         if y is None:
             post_X = self.pipeline.transform(X)
             return self.estimator.score(X)
-        y = pd.Series(y)
+        if not isinstance(y, pd.Series):
+            y = pd.Series(y)
         y.index = X.index
         post_X, post_y = self.pipeline.transform(X, y)
         assert len(post_X) == len(post_y)
@@ -211,7 +213,8 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
         """
         # X, y = check_X_y(X, y, accept_sparse=True)
         if y is not None:
-            y = pd.Series(y)
+            if not isinstance(y, pd.Series):
+                y = pd.Series(y)
             assert len(X) == len(y)
             y.index = X.index
             post_X, post_y = self.pipeline.fit_transform(X=X, y=y)
@@ -244,7 +247,8 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
         """
         # X = check_array(X, accept_sparse=True)
         check_is_fitted(self, 'is_fitted_')
-        post_X = self.pipeline.transform(X=X)
+        post_X, post_y = self.pipeline.transform(
+            X=X, y=LabelPlaceholderForPredict(X))
         y_pred = self.estimator.predict(X=post_X.values)
         return y_pred
 
@@ -268,7 +272,8 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
             to that in the fitted attribute :term:`classes_`.
         """
         check_is_fitted(self, 'is_fitted_')
-        post_X = self.pipeline.transform(X=X)
+        post_X, post_y = self.pipeline.transform(
+            X=X, y=LabelPlaceholderForPredict(X))
         y_pred = self.estimator.predict_proba(X=post_X.values)
         return y_pred
 
@@ -292,7 +297,8 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
             corresponds to that in the fitted attribute :term:`classes_`.
         """
         check_is_fitted(self, 'is_fitted_')
-        post_X = self.pipeline.transform(X=X)
+        post_X, post_y = self.pipeline.transform(
+            X=X, y=LabelPlaceholderForPredict(X))
         y_pred = self.estimator.predict_log_proba(X=post_X.values)
         return y_pred
 
@@ -316,7 +322,8 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
             the best found parameters.
         """
         check_is_fitted(self, 'is_fitted_')
-        post_X = self.pipeline.transform(X=X)
+        post_X, post_y = self.pipeline.transform(
+            X=X, y=LabelPlaceholderForPredict(X))
         y_score = self.estimator.decision_function(X=post_X.values)
         return y_score
 

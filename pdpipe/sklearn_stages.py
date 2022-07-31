@@ -35,6 +35,7 @@ from .exceptions import (
     UnfittedPipelineStageError,
     UnexpectedPipelineMethodCallError,
 )
+from .lbl import _SkipOnLabelPlaceholderPredict
 
 
 class Encode(ColumnsBasedPipelineStage):
@@ -577,8 +578,12 @@ class EncodeLabel(PdPipelineStage):
     """
 
     def __init__(self, **kwargs: object) -> None:
+        skipi = _SkipOnLabelPlaceholderPredict()
+        if 'skip' in kwargs:
+            skipi.skip_cond = kwargs.pop('skip')
         super_kwargs = {
             'desc': "Encode label values",
+            'skip': skipi,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)

@@ -2,12 +2,34 @@
 
 from typing import Optional, Iterable
 
+import pandas
 from pdpipe.core import PdPipelineStage
 
 from .exceptions import (
     PipelineInitializationError,
     UnexpectedPipelineMethodCallError,
 )
+from .util import _LBL_PHOLDER_PREDICT
+
+
+class _SkipOnLabelPlaceholderPredict:
+
+    def __init__(self, skip_cond: Optional[callable] = None) -> None:
+        self.skip_cond = skip_cond
+
+    def __call__(
+        self,
+        X: pandas.DataFrame,
+        y: Optional[pandas.Series] = None,
+    ) -> bool:  # pylint: disable=R0201,W0613
+        try:
+            if y.iloc[0] == _LBL_PHOLDER_PREDICT:
+                return True
+        except (AttributeError, IndexError):
+            pass
+        if self.skip_cond is not None:
+            return self.skip_cond(X, y)
+        return False
 
 
 class DropLabelsByValues(PdPipelineStage):
@@ -55,8 +77,12 @@ class DropLabelsByValues(PdPipelineStage):
         self.in_ranges = in_ranges
         self.not_in_set = not_in_set
         self.not_in_ranges = not_in_ranges
+        skipi = _SkipOnLabelPlaceholderPredict()
+        if 'skip' in kwargs:
+            skipi.skip_cond = kwargs.pop('skip')
         super_kwargs = {
             'desc': "Drop labels by values",
+            'skip': skipi,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)

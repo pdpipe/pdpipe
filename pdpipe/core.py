@@ -291,6 +291,9 @@ class PdPipelineStage(abc.ABC):
     _POS_ARG_MISMTCH_PAT = re.compile(
         r'\d positional argument[s]? but \d (were|was) given')
 
+    _MISSING_POS_ARG_PAT = re.compile(
+        r'missing \d+ required positional argument')
+
     @abc.abstractmethod
     def _prec(
         self,
@@ -332,7 +335,14 @@ class PdPipelineStage(abc.ABC):
         # implementations only including X in their signatur
 
         if y is None:
-            return self._prec(X)
+            try:
+                return self._prec(X)
+            except TypeError as e:
+                if len(PdPipelineStage._MISSING_POS_ARG_PAT.findall(
+                        str(e))) > 0:
+                    # self._prec is hopefully expecting y
+                    return self._prec(X, y)
+                raise e
         try:
             return self._prec(X, y)
         except TypeError as e:
