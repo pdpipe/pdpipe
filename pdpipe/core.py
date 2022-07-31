@@ -161,6 +161,10 @@ class PdpApplicationContext():
         """Returns a locked PdpApplicationContext object of a previous fit."""
         return self._fit_context
 
+    def is_locked(self) -> bool:
+        """Returns True if this application context is locked."""
+        return self._locked
+
 
 class PdPipelineStage(abc.ABC):
     """A stage of a pandas DataFrame-processing pipeline.
@@ -261,6 +265,13 @@ class PdPipelineStage(abc.ABC):
         self.fit_context: PdpApplicationContext = None
         self.application_context: PdpApplicationContext = None
         self.is_fitted = False
+
+    def is_being_fitted_by_pipeline(self) -> bool:
+        """Returns True if this stage is being fitted."""
+        try:
+            return not self.fit_context.is_locked()
+        except AttributeError:
+            return False
 
     @classmethod
     def _init_kwargs(cls):
