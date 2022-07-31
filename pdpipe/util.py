@@ -97,3 +97,20 @@ def per_column_values_sklearn_transform(X: pd.DataFrame, transform: callable):
         index=X.index,
         columns=X.columns,
     )
+
+
+_LBL_PHOLDER_PREDICT = "__pdpipe_lbl_pholder_predict__"
+
+
+class LabelPlaceholderForPredict(pd.Series):
+    """A placeholder for y while predicting.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        The dataframe to use as the index for the placeholder.
+    """
+
+    def __init__(self, df: pd.DataFrame) -> None:
+        data = np.array([_LBL_PHOLDER_PREDICT] * len(df))
+        super().__init__(data, index=df.index)
