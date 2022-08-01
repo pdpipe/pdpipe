@@ -10,7 +10,7 @@ import pdpipe as pdp
 pipeline = pdp.PdPipeline([pdp.ColDrop("Name"), pdp.OneHotEncode("Label")]
 ```
 
-Additionally, the  method can be used to give stages as positional arguments.
+Additionally, the `make_pdpipeline` method can be used to give stages as positional arguments.
 
 ```python
 pipeline = pdp.make_pdpipeline(pdp.ColDrop("Name"), pdp.OneHotEncode("Label"))
