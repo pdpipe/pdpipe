@@ -347,11 +347,11 @@ class _PdPipeScorer:
         y=None,
         **kwargs,
     ):
-        post_X = estimator.pipeline.transform(X)
+        post_X, post_y = estimator.pipeline.transform(X, y)
         return self._scorer(
             estimator.estimator,
-            post_X,
-            y,
+            post_X.values,
+            post_y.values,
             **kwargs,
         )
 
