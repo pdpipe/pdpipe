@@ -593,7 +593,7 @@ class Schematize(PdPipelineStage):
 
     def __init__(
         self,
-        columns: Optional[List[object]],
+        columns: Optional[List[object]] = None,
         **kwargs: object,
     ) -> None:
         if columns is None:
@@ -621,7 +621,7 @@ class Schematize(PdPipelineStage):
         super().__init__(**super_kwargs)
 
     def _prec(self, X: pandas.DataFrame) -> bool:
-        if self._adaptive and not self.is_fitted:
+        if self._adaptive and self._is_being_fitted:
             return True
         return set(self._columns).issubset(X.columns)
 
