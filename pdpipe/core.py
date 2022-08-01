@@ -667,6 +667,7 @@ class PdPipelineStage(abc.ABC):
                 else:
                     res_X = self._fit_transform(X, verbose=verbose)
                     res_y = y
+                self.is_fitted = True
                 if exraise and not self._compound_post(
                         X=res_X, y=res_y, fit=True):
                     self._raise_postcondition_error()
