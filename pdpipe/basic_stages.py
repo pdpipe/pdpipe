@@ -755,15 +755,24 @@ class ColumnDtypeEnforcer(PdPipelineStage):
             column_to_dtype = {}
             for k, dtype in self._dynamic_column_to_dtype.items():
                 try:
+                    columns = []
+                    try:
+                        if k._fittable and self._is_being_fitted:
+                            columns = k.fit_transform(X)
+                    except AttributeError:
+                        # k is not a ColumnQualifier
+                        columns = k(X)
                     column_to_dtype.update({
                         lbl: dtype
-                        for lbl in k(X)
+                        for lbl in columns
                     })
                 except TypeError:  # k is not a callable
                     column_to_dtype[k] = dtype
             return column_to_dtype
 
     def _prec(self, X: pandas.DataFrame) -> bool:
+        if self._is_being_fitted:
+            return self._tprec.fit_transform(X)
         return self._tprec(X)
 
     def _transform(
