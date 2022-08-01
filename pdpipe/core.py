@@ -616,60 +616,9 @@ class PdPipelineStage(abc.ABC):
             The returned dataframe. If `y` was also provided, the transformed
             `X` and `y` are returned as a tuple instead.
         """
-        if exraise is None:
-            exraise = self._exraise
-        if self._should_skip(X, y):
-            if y is not None:
-                return X, y
-            return X
-        if y is not None:
-            y = self._cast_y_to_series(X, y)
-        prec_holds = False
-        res_X = X
-        res_y = y
-        self._is_being_applied = True
-        with AppContextMgr(self):
-            if self.is_fitted:
-                if self._compound_prec(X, y, fit=False):
-                    prec_holds = True
-                    if verbose:
-                        msg = '- ' + '\n  '.join(textwrap.wrap(self._appmsg))
-                        print(msg, flush=True)
-                    if self._is_an_Xy_transformer:
-                        res_X, res_y = self._transform_Xy(
-                            X, y, verbose=verbose)
-                    else:
-                        res_X = self._transform(X, verbose=verbose)
-            else:
-                self._is_being_fitted = True
-                if self._compound_prec(X, y, fit=True):
-                    prec_holds = True
-                    if self._is_an_Xy_fit_transformer:
-                        res_X, res_y = self._fit_transform_Xy(
-                            X, y, verbose=verbose)
-                    elif self._is_an_Xy_transformer:
-                        res_X, res_y = self._transform_Xy(
-                            X, y, verbose=verbose)
-                    else:
-                        res_X = self._fit_transform(X, verbose=verbose)
-            if prec_holds:
-                if exraise and not self._compound_post(
-                        X=res_X, y=res_y, fit=not self.is_fitted):
-                    self._raise_postcondition_error()
-                # if we're here, the postcondition is satisfied after a
-                # successful transformation of the input frame, so return it
-                if y is not None:
-                    res_X, res_y = self._align_Xy(X=res_X, y=res_y)
-                    return res_X, res_y
-                return res_X
-            # precondition doesn't hold, so if exraise==True raise an error
-            if exraise:
-                self._raise_precondition_error()
-            # precondition doesn't hold, but we don't want to raise an error
-            # as exraise is False, so return untransformed X or X, y
-            if y is not None:
-                return X, y
-            return X
+        if self.is_fitted:
+            return self.transform(X, y=y, exraise=exraise, verbose=verbose)
+        return self.fit_transform(X, y=y, exraise=exraise, verbose=verbose)
 
     __call__ = apply
 
