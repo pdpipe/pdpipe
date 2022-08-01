@@ -541,6 +541,7 @@ class PdPipelineStage(abc.ABC):
     def _align_Xy(
         X: pandas.DataFrame,
         y: pandas.Series,
+        preX: pandas.DataFrame,
     ) -> Tuple[pandas.DataFrame, pandas.Series]:
         """Aligns the input dataframe and label series.
 
@@ -555,6 +556,10 @@ class PdPipelineStage(abc.ABC):
             The input dataframe.
         y : pandas.Series
             The label series.
+        preX : pandas.DataFrame, optional
+            The input dataframe before transformation.
+        prey : pandas.Series, optional
+            The label series before transformation.
 
         Returns
         -------
@@ -566,9 +571,18 @@ class PdPipelineStage(abc.ABC):
         # if values were dropped from y, reindex X according to y
         if len(y) < len(X):
             return X.loc[y.index], y
-        # otherwise, transformation was almost certainly done on X (might have
-        # been reordered), so reindex y according to X
-        return X, y.loc[X.index]
+        try:
+            # otherwise, transformation was almost certainly done on X (might
+            # have been reordered), so reindex y according to X
+            return X, y.loc[X.index]
+        except KeyError:
+            if len(X) == len(preX) and not X.index.equals(preX.index) and (
+                    len(X) == len(y)):
+                # index values have changes, as in pandas.set_index
+                post_y = y.copy()
+                post_y.index = X.index
+                return X, post_y
+            return X, y
 
     def _should_skip(self, X, y) -> bool:
         if self._skip:
@@ -672,7 +686,7 @@ class PdPipelineStage(abc.ABC):
                         X=res_X, y=res_y, fit=True):
                     self._raise_postcondition_error()
                 if y is not None:
-                    res_X, res_y = self._align_Xy(X=res_X, y=res_y)
+                    res_X, res_y = self._align_Xy(X=res_X, y=res_y, preX=X)
                     return res_X, res_y
                 return res_X
             if exraise:
@@ -761,7 +775,8 @@ class PdPipelineStage(abc.ABC):
                                 X=res_X, y=res_y):
                             self._raise_postcondition_error()
                         if y is not None:
-                            res_X, res_y = self._align_Xy(X=res_X, y=res_y)
+                            res_X, res_y = self._align_Xy(
+                                X=res_X, y=res_y, preX=X)
                             return res_X, res_y
                         return res_X
                     raise UnfittedPipelineStageError(
@@ -775,7 +790,7 @@ class PdPipelineStage(abc.ABC):
                 if exraise and not self._compound_post(X=res_X, y=res_y):
                     self._raise_postcondition_error()
                 if y is not None:
-                    res_X, res_y = self._align_Xy(X=res_X, y=res_y)
+                    res_X, res_y = self._align_Xy(X=res_X, y=res_y, preX=X)
                     return res_X, res_y
                 return res_X
             if exraise:
