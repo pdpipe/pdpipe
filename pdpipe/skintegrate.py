@@ -279,7 +279,7 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
 
     @available_if(_estimator_has("predict_log_proba"))
     def predict_log_proba(self, X):
-        """Call predict_log_proba on the estimator with the best found parameters.
+        """Call predict_log_proba on the estimator with best found parameters.
         Only available if the underlying estimator supports
         ``predict_log_proba``.
 
@@ -304,7 +304,7 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
 
     @available_if(_estimator_has("decision_function"))
     def decision_function(self, X):
-        """Call decision_function on the estimator with the best found parameters.
+        """Call decision_function on the estimator with best found parameters.
         Only available if the underlying estimator supports
         ``decision_function``.
 

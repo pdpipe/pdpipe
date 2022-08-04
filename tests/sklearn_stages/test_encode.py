@@ -5,7 +5,10 @@ import pandas as pd
 
 import pdpipe as pdp
 from pdpipe.sklearn_stages import Encode
-from pdpipe.exceptions import UnfittedPipelineStageError, PipelineApplicationError
+from pdpipe.exceptions import (
+    UnfittedPipelineStageError,
+    PipelineApplicationError,
+)
 
 
 def _some_df():
