@@ -81,7 +81,7 @@ class DropLabelsByValues(PdPipelineStage):
         if 'skip' in kwargs:
             skipi.skip_cond = kwargs.pop('skip')
         super_kwargs = {
-            'desc': "Drop labels by values",
+            'desc': "Drop rows by label values",
             'skip': skipi,
         }
         super_kwargs.update(**kwargs)

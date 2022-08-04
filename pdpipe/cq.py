@@ -71,7 +71,7 @@ class ColumnQualifier(object):
             return self.fit_transform(X)
 
     def fit_transform(self, X):
-        """Fits this qualifier and returns the labels of the qualifying columns.
+        """Fit this qualifier and return the labels of the qualifying columns.
 
         Parameters
         ----------
