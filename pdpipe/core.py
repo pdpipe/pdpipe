@@ -12,6 +12,8 @@ from typing import Tuple, Union, Iterable, Optional
 import numpy
 import pandas
 
+from .run_time_parameters import DynamicParameter
+
 try:
     from pympler.asizeof import asizeof
 except ImportError:
@@ -261,6 +263,14 @@ class PdPipelineStage(abc.ABC):
         self.fit_context: PdpApplicationContext = None
         self.application_context: PdpApplicationContext = None
         self.is_fitted = False
+        self._dynamics = []
+        self._process_dynamics()
+
+    def _process_dynamics(self):
+        for attr in self.__dict__:
+            attr_obj = self.__getattribute__(attr)
+            if isinstance(attr_obj, DynamicParameter):
+                self._dynamics.append({'name': attr, 'callable': attr_obj})
 
     @classmethod
     def _init_kwargs(cls):
@@ -1327,6 +1337,13 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                 try:
                     stage.fit_context = self.fit_context
                     stage.application_context = self.application_context
+                    for dynamic in stage._dynamics:
+                        setattr(
+                                stage,
+                                dynamic['name'],
+                                dynamic['callable'](inter_X)
+                        )
+
                     inter_X = stage.fit_transform(
                         X=inter_X,
                         y=None,
