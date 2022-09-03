@@ -24,7 +24,7 @@ from .cfg import (
 )
 from .cq import is_fittable_column_qualifier, AllColumns
 from .shared import (
-    _get_args_list,
+    POS_ARG_MISMTCH_PAT, _get_args_list,
     _always_true,
 )
 from .exceptions import (
@@ -296,8 +296,20 @@ class PdPipelineStage(abc.ABC):
         except AttributeError:
             return False
 
+    class_attrs = {'_exraise', '_exmsg', '_exmsg_post',
+                   '_desc', '_prec_arg', '_post_arg', '_skip',
+                   '_appmsg', '_name', '_is_an_Xy_transformer',
+                   '_is_an_Xy_fit_transformer', 'fit_context',
+                   'application_context', 'is_fitted', '_dynamics'}
+
     def _process_dynamics(self):
-        for attr in self.__dict__:
+        """
+        Creates a list of Dynamic fields
+        Returns
+        -------
+        """
+        potential_dynamics_attrs = set(self.__dict__).difference(self.class_attrs)
+        for attr in potential_dynamics_attrs:
             attr_obj = self.__getattribute__(attr)
             if isinstance(attr_obj, DynamicParameter):
                 self._dynamics.append({'name': attr, 'callable': attr_obj})
@@ -328,8 +340,8 @@ class PdPipelineStage(abc.ABC):
             k: v for k, v in kwargs.items() if k not in cls._INIT_KWARGS}
         return init_kwargs, other_kwargs
 
-    _POS_ARG_MISMTCH_PAT = re.compile(
-        r'\d positional argument[s]? but \d (were|was) given')
+    # _POS_ARG_MISMTCH_PAT = re.compile(
+    #     r'\d positional argument[s]? but \d (were|was) given')
 
     _MISSING_POS_ARG_PAT = re.compile(
         r'missing \d+ required positional argument')
@@ -374,8 +386,7 @@ class PdPipelineStage(abc.ABC):
             try:
                 return to_call(X, y)
             except TypeError as e:
-                if len(PdPipelineStage._POS_ARG_MISMTCH_PAT.findall(
-                        str(e))) > 0:
+                if len(POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
                     return to_call(X)
                 raise e  # pragma: no cover
 
@@ -393,7 +404,7 @@ class PdPipelineStage(abc.ABC):
         try:
             return self._prec(X, y)
         except TypeError as e:
-            if len(PdPipelineStage._POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
+            if len(POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
                 return self._prec(X)
             raise e  # pragma: no cover
 
@@ -441,8 +452,7 @@ class PdPipelineStage(abc.ABC):
             try:
                 return to_call(X, y)
             except TypeError as e:
-                if len(PdPipelineStage._POS_ARG_MISMTCH_PAT.findall(
-                        str(e))) > 0:
+                if len(POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
                     return to_call(X)
                 raise e  # pragma: no cover
 
@@ -453,7 +463,7 @@ class PdPipelineStage(abc.ABC):
         try:
             return self._post(X, y)
         except TypeError as e:
-            if len(PdPipelineStage._POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
+            if len(POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
                 return self._post(X)
             raise e  # pragma: no cover
 
@@ -599,8 +609,7 @@ class PdPipelineStage(abc.ABC):
             try:
                 return self._skip(X, y)
             except TypeError as e:
-                if len(PdPipelineStage._POS_ARG_MISMTCH_PAT.findall(
-                        str(e))) > 0:
+                if len(POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
                     return self._skip(X)
                 else:
                     raise e  # pragma: no cover
@@ -1068,7 +1077,7 @@ class AdHocStage(PdPipelineStage):
         try:
             return self._adhoc_prec(X, y)
         except TypeError as e:
-            if len(PdPipelineStage._POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
+            if len(POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
                 return self._adhoc_prec(X)
             raise e
 
@@ -1411,6 +1420,12 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                 try:
                     stage.fit_context = self.fit_context
                     stage.application_context = self.application_context
+                    for dynamic in stage._dynamics:
+                        setattr(
+                                stage,
+                                dynamic['name'],
+                                dynamic['callable'](inter_X, inter_y)
+                        )
                     inter_X, inter_y = stage.fit_transform(
                         X=inter_X,
                         y=inter_y,

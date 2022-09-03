@@ -18,7 +18,7 @@ from pdpipe.core import (
 )
 from pdpipe.util import out_of_place_col_insert
 from pdpipe.cq import OfDtypes
-from pdpipe.types import ColumnsParamType, ColumnLabelsType
+from pdpipe.pdp_types import ColumnsParamType, ColumnLabelsType
 
 from pdpipe.shared import (
     _interpret_columns_param,

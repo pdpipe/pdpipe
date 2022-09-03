@@ -1,9 +1,21 @@
-from typing import Callable, Optional
+from typing import Any, Callable, Optional
 import pandas as pd
 
+from .shared import POS_ARG_MISMTCH_PAT
 
-def dynamic(parameter_selector: Callable):
-    return DynamicParameter(parameter_selector)
+
+def dynamic(parameter_selector: Callable, fittable: Optional[bool] = True):
+    """
+    Factory for the DynamicParameter class. This is used
+    Parameters
+    ----------
+    parameter_selector: callable holding the logic on how to select a certain parameter based on given df
+    fittable: boolean denoting whether the parameter can be fitted, or should perform the deciding logic every time.
+    Returns
+    -------
+
+    """
+    return DynamicParameter(parameter_selector, fittable)
 
 
 class DynamicParameter:
@@ -11,11 +23,21 @@ class DynamicParameter:
     This class represents a dynamic parameter that is decided at fit time when
     there is access to the given dataframe. This allows the parameter to be
     decided at "run time" depending on the given dataframe
+
+    Parameters
+    ----------
+    parameter_selector: Callable, preforms logic in order to decide on a given parameter at run time, using the given
+                        DataFrame and optionally y label series.
+    fittable: boolean denoting whether the parameter can be fitted, or should perform the deciding logic every time.
     """
-    def __init__(self, parameter_selector: Callable):
+    def __init__(
+            self,
+            parameter_selector: Callable,
+            fittable: Optional[bool] = True,  # if False, fit in each use
+    ) -> None:
         self._parameter_selector = parameter_selector
-        self.is_fitted = False
-        self._parameter = None
+        self._fittable = fittable
+        self._parameter: Any
 
     def fit_transform(self,
                       X: pd.DataFrame,
@@ -35,10 +57,11 @@ class DynamicParameter:
         """
         try:
             self._parameter = self._parameter_selector(X, y)
-        except TypeError:
-            raise TypeError('Parameter selector must be callable')
-
-        self.is_fitted = True
+        except TypeError as e:
+            if len(POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
+                self._parameter = self._parameter_selector(X)
+            else:
+                raise TypeError('Parameter selector must be callable') from e
         return self._parameter
 
     def transform(self):
@@ -47,7 +70,7 @@ class DynamicParameter:
         -------
         Transform returns the fitted parameter based on given dataframe
         """
-        if self._parameter is None:
+        if hasattr(self, '_parameter'):
             raise AttributeError('Parameter not fitted')
         return self._parameter
 
@@ -55,7 +78,7 @@ class DynamicParameter:
                  X: pd.DataFrame,
                  y: Optional[pd.Series] = None,
                  *args, **kwargs):
-        if self.is_fitted:
+        if self._fittable and hasattr(self, '_parameter'):
             return self.transform()
         else:
             return self.fit_transform(X, y)

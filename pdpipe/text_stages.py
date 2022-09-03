@@ -4,7 +4,7 @@ import re
 from typing import Optional
 
 from pdpipe.col_generation import ApplyByCols
-from pdpipe.types import ColumnsParamType, ColumnLabelsType
+from pdpipe.pdp_types import ColumnsParamType, ColumnLabelsType
 
 
 class RegexReplace(ApplyByCols):

@@ -41,6 +41,7 @@ nav:
       - Conditions: reference/cond.md
       - Column Qualifiers: reference/cq.md
       - Wrappers: reference/wrappers.md
+      - Run time parameters: reference/runtime_parameters.md
 
 theme:
   name: material

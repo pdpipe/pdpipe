@@ -14,7 +14,7 @@ from pdpipe.shared import (
 )
 
 import pdpipe.cond as cond
-from pdpipe.types import ColumnsParamType
+from pdpipe.pdp_types import ColumnsParamType
 from pdpipe.exceptions import FailedConditionError
 from pdpipe.cq import ColumnQualifier
 
