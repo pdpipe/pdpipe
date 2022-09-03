@@ -1,11 +1,35 @@
 """PdPipeline stages that transform the optional label column."""
 
+from typing import Optional, Iterable
+
+import pandas
 from pdpipe.core import PdPipelineStage
 
 from .exceptions import (
     PipelineInitializationError,
     UnexpectedPipelineMethodCallError,
 )
+from .util import _LBL_PHOLDER_PREDICT
+
+
+class _SkipOnLabelPlaceholderPredict:
+
+    def __init__(self, skip_cond: Optional[callable] = None) -> None:
+        self.skip_cond = skip_cond
+
+    def __call__(
+        self,
+        X: pandas.DataFrame,
+        y: Optional[pandas.Series] = None,
+    ) -> bool:  # pylint: disable=R0201,W0613
+        try:
+            if y.iloc[0] == _LBL_PHOLDER_PREDICT:
+                return True
+        except (AttributeError, IndexError):
+            pass
+        if self.skip_cond is not None:
+            return self.skip_cond(X, y)
+        return False
 
 
 class DropLabelsByValues(PdPipelineStage):
@@ -23,8 +47,8 @@ class DropLabelsByValues(PdPipelineStage):
         Drop all labels not in the input ranges of values.
 
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> data = [[3.2, 31], [7.2, 33], [12.1, 28]]
     >>> X = pd.DataFrame(data, [1,2,3], ["ph","temp"])
@@ -43,18 +67,22 @@ class DropLabelsByValues(PdPipelineStage):
 
     def __init__(
         self,
-        in_set=None,
-        in_ranges=None,
-        not_in_set=None,
-        not_in_ranges=None,
+        in_set: Optional[Iterable[object]] = None,
+        in_ranges: Optional[Iterable[Iterable[object]]] = None,
+        not_in_set: Optional[Iterable[object]] = None,
+        not_in_ranges: Optional[Iterable[Iterable[object]]] = None,
         **kwargs: object,
-    ):
+    ) -> None:
         self.in_set = in_set
         self.in_ranges = in_ranges
         self.not_in_set = not_in_set
         self.not_in_ranges = not_in_ranges
+        skipi = _SkipOnLabelPlaceholderPredict()
+        if 'skip' in kwargs:
+            skipi.skip_cond = kwargs.pop('skip')
         super_kwargs = {
-            'desc': "Encode label values",
+            'desc': "Drop rows by label values",
+            'skip': skipi,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -63,8 +91,8 @@ class DropLabelsByValues(PdPipelineStage):
         return y is not None
 
     def _transform(self, X, verbose):
-        raise UnexpectedPipelineMethodCallError(
-            "EncodeLabel._transform() is not expected to be called!")
+        raise UnexpectedPipelineMethodCallError(  # pragma: no cover
+            "DropLabelsByValues._transform() is not expected to be called!")
 
     def _transform_Xy(self, X, y, verbose):
         post_y = y
@@ -77,7 +105,7 @@ class DropLabelsByValues(PdPipelineStage):
                 to_drop = to_drop | (y.between(*in_range))
             post_y = post_y.loc[~to_drop]
         elif self.not_in_set is not None:
-            post_y = y.isin(self.not_in_set)
+            post_y = post_y.loc[post_y.isin(self.not_in_set)]
         elif self.not_in_ranges is not None:
             to_keep = y.copy()
             to_keep.loc[:] = False
@@ -85,6 +113,6 @@ class DropLabelsByValues(PdPipelineStage):
                 to_keep = to_keep | (y.between(*in_range))
             post_y = post_y.loc[to_keep]
         else:
-            raise PipelineInitializationError(
+            raise PipelineInitializationError(  # pragma: no cover
                 "DropLabelsByValues: No drop conditions specified.")
         return X, post_y

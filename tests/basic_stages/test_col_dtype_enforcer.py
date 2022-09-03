@@ -20,12 +20,12 @@ DF2 = pd.DataFrame(
 
 
 def test_dtype_enf_col_qualifier():
-    stage = ColumnDtypeEnforcer({'rank': bool, cq.StartWith('num'): float})
+    stage = ColumnDtypeEnforcer({'rank': bool, cq.StartsWith('num'): float})
     res = stage(DF2)
     assert res['num1'].dtype == float
     assert res['num2'].dtype == float
     assert res['rank'].dtype == bool
 
     # Only col_qualifier as key, used as documentation example
-    res = ColumnDtypeEnforcer({cq.StartWith('n'): float}).apply(DF)
+    res = ColumnDtypeEnforcer({cq.StartsWith('n'): float}).apply(DF)
     assert res['num'].dtype == float

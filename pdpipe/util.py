@@ -25,8 +25,8 @@ def out_of_place_col_insert(X, series, loc, column_name=None):
     pandas.DataFrame
         The resulting dataframe.
 
-    Example
-    -------
+    Examples
+    --------
         >>> import pandas as pd; import pdpipe as pdp;
         >>> df = pd.DataFrame([[1, 'a'], [4, 'b']], columns=['a', 'g'])
         >>> ser = pd.Series([7, 5])
@@ -59,8 +59,8 @@ def get_numeric_column_names(X):
     list of str
         The names of all columns of numeric type.
 
-    Example
-    -------
+    Examples
+    --------
         >>> import pandas as pd; import pdpipe as pdp;
         >>> data = [[2, 3.2, "acd"], [1, 7.2, "alk"], [8, 12.1, "alk"]]
         >>> df = pd.DataFrame(data, [1,2,3], ["rank", "ph","lbl"])
@@ -97,3 +97,20 @@ def per_column_values_sklearn_transform(X: pd.DataFrame, transform: callable):
         index=X.index,
         columns=X.columns,
     )
+
+
+_LBL_PHOLDER_PREDICT = "__pdpipe_lbl_pholder_predict__"
+
+
+class LabelPlaceholderForPredict(pd.Series):
+    """A placeholder for y while predicting.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        The dataframe to use as the index for the placeholder.
+    """
+
+    def __init__(self, df: pd.DataFrame) -> None:
+        data = np.array([_LBL_PHOLDER_PREDICT] * len(df))
+        super().__init__(data, index=df.index)

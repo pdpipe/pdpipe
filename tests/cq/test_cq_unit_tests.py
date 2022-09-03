@@ -40,17 +40,17 @@ NA_GLBL_DF = pd.DataFrame(
 
 
 def test_and_operator():
-    cq = pdp.cq.WithAtMostMissingValues(1) & pdp.cq.StartWith('gr')
+    cq = pdp.cq.WithAtMostMissingValues(1) & pdp.cq.StartsWith('gr')
     assert cq(NA_GLBL_DF) == ['grade']
 
 
 def test_xor_operator():
-    cq = pdp.cq.WithAtMostMissingValues(1) ^ pdp.cq.StartWith('gr')
+    cq = pdp.cq.WithAtMostMissingValues(1) ^ pdp.cq.StartsWith('gr')
     assert cq(NA_GLBL_DF) == ['grep', 'age']
 
 
 def test_or_operator():
-    cq = pdp.cq.WithAtMostMissingValues(1) | pdp.cq.StartWith('gr')
+    cq = pdp.cq.WithAtMostMissingValues(1) | pdp.cq.StartsWith('gr')
     assert cq(NA_GLBL_DF) == ['grep', 'grade', 'age']
 
 
@@ -59,7 +59,7 @@ NA_VARIOUS_FIRST_CHAR_DF = pd.DataFrame(
 
 
 def test_difference_operator():
-    cq = pdp.cq.WithoutMissingValues() - pdp.cq.StartWith('b')
+    cq = pdp.cq.WithoutMissingValues() - pdp.cq.StartsWith('b')
     assert cq(NA_VARIOUS_FIRST_CHAR_DF) == ['abe', 'cry']
 
 
@@ -100,11 +100,11 @@ MIXED_LABELS_DF = pd.DataFrame(
 
 
 def test_start_with():
-    cq = pdp.cq.StartWith('g')
+    cq = pdp.cq.StartsWith('g')
     assert cq(MIXED_LABELS_DF) == ['grad']
 
 
 def test_columns_to_qualifier():
-    cq = pdp.cq.StartWith('g')
+    cq = pdp.cq.StartsWith('g')
     b = pdp.cq.columns_to_qualifier(cq)
     assert b == cq

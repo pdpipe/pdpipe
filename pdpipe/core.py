@@ -163,6 +163,27 @@ class PdpApplicationContext():
         """Returns a locked PdpApplicationContext object of a previous fit."""
         return self._fit_context
 
+    def is_locked(self) -> bool:
+        """Returns True if this application context is locked."""
+        return self._locked
+
+
+class AppContextMgr:
+
+    def __init__(self, stage: 'PdPipelineStage', fit: Optional[bool] = False):
+        self.stage = stage
+        self.fit = fit
+
+    def __enter__(self):
+        self.stage._is_being_applied = True
+        if self.fit:
+            self.stage._is_being_fitted = True
+        return None
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.stage._is_being_applied = False
+        self.stage._is_being_fitted = False
+
 
 class PdPipelineStage(abc.ABC):
     """A stage of a pandas DataFrame-processing pipeline.
@@ -206,11 +227,11 @@ class PdPipelineStage(abc.ABC):
 
     Attributes
     ----------
-    fit_context : `PdpApplicationContext`
+    fit_context : PdpApplicationContext
         An application context object that is only re-initialized before
         `fit_transform` calls, and is locked after pipeline application. It is
         injected into the PipelineStage by the encapsulating pipeline object.
-    application_context : `PdpApplicationContext`
+    application_context : PdpApplicationContext
         An application context object that is re-initialized before every
         pipeline application (so, also during transform operations of fitted
         pipelines), and is locked after pipeline application.It is injected
@@ -263,8 +284,17 @@ class PdPipelineStage(abc.ABC):
         self.fit_context: PdpApplicationContext = None
         self.application_context: PdpApplicationContext = None
         self.is_fitted = False
+        self._is_being_applied = False
+        self._is_being_fitted = False
         self._dynamics = []
         self._process_dynamics()
+
+    def is_being_fitted_by_pipeline(self) -> bool:
+        """Returns True if this stage is being fitted."""
+        try:
+            return not self.fit_context.is_locked()
+        except AttributeError:
+            return False
 
     def _process_dynamics(self):
         for attr in self.__dict__:
@@ -301,6 +331,9 @@ class PdPipelineStage(abc.ABC):
     _POS_ARG_MISMTCH_PAT = re.compile(
         r'\d positional argument[s]? but \d (were|was) given')
 
+    _MISSING_POS_ARG_PAT = re.compile(
+        r'missing \d+ required positional argument')
+
     @abc.abstractmethod
     def _prec(
         self,
@@ -329,19 +362,34 @@ class PdPipelineStage(abc.ABC):
         self,
         X: pandas.DataFrame,
         y: Optional[pandas.Series] = None,
+        fit: Optional[bool] = False,
     ) -> bool:
         if self._prec_arg:
+            to_call = self._prec_arg
+            if fit:
+                try:
+                    to_call = self._prec_arg.fit_transform
+                except AttributeError:
+                    pass
             try:
-                return self._prec_arg(X, y)
+                return to_call(X, y)
             except TypeError as e:
                 if len(PdPipelineStage._POS_ARG_MISMTCH_PAT.findall(
                         str(e))) > 0:
-                    return self._prec_arg(X)
+                    return to_call(X)
                 raise e  # pragma: no cover
+
         # now, do the same for the _prec abstractmethod, so as to support
-        # implementations only including X in their signatur
+        # implementations only including X in their signature
         if y is None:
-            return self._prec(X)
+            try:
+                return self._prec(X)
+            except TypeError as e:
+                if len(PdPipelineStage._MISSING_POS_ARG_PAT.findall(
+                        str(e))) > 0:
+                    # self._prec is hopefully expecting y
+                    return self._prec(X, y)
+                raise e
         try:
             return self._prec(X, y)
         except TypeError as e:
@@ -354,13 +402,29 @@ class PdPipelineStage(abc.ABC):
         X: pandas.DataFrame,
         y: Optional[pandas.Series] = None,
     ) -> bool:  # pylint: disable=R0201,W0613
-        """Returns True if this stage resulted in an expected output frame."""
+        """Returns True if this stage resulted in an expected output frame.
+
+        Parameters
+        ----------
+        X : pandas.DataFrame
+            The transformed dataframe.
+        y : pandas.Series, optional
+            A possible label column for processing of supervised learning
+            datasets. Might also be inspected, if provided.
+
+        Returns
+        -------
+        bool
+            True if this stage resulted in an expected output dataframe; False
+            otherwise.
+        """
         return True
 
     def _compound_post(
         self,
         X: pandas.DataFrame,
         y: Optional[pandas.Series] = None,
+        fit: Optional[bool] = False,
     ) -> bool:
         """An inner implementation of the post-condition functionality.
 
@@ -368,13 +432,22 @@ class PdPipelineStage(abc.ABC):
         Otherwise, uses the build-it function.
         """
         if self._post_arg:
+            to_call = self._post_arg
+            if fit:
+                try:
+                    to_call = self._post_arg.fit_transform
+                except AttributeError:
+                    pass
             try:
-                return self._post_arg(X, y)
+                return to_call(X, y)
             except TypeError as e:
                 if len(PdPipelineStage._POS_ARG_MISMTCH_PAT.findall(
                         str(e))) > 0:
-                    return self._post_arg(X)
+                    return to_call(X)
                 raise e  # pragma: no cover
+
+        # now, do the same for the _post abstractmethod, so as to support
+        # implementations only including X in their signature
         if y is None:
             return self._post(X)
         try:
@@ -413,14 +486,14 @@ class PdPipelineStage(abc.ABC):
     def _raise_precondition_error(self) -> None:
         try:
             raise FailedPreconditionError(
-                f"{self._exmsg} [Reason] {self._prec_arg.error_message}")
+                f"{self._exmsg} [Reason] {self._prec_arg._error_message}")
         except AttributeError:
             raise FailedPreconditionError(self._exmsg)
 
     def _raise_postcondition_error(self) -> None:
         try:
             raise FailedPostconditionError(
-                f"{self._exmsg_post} [Reason] {self._post_arg.error_message}")
+                f"{self._exmsg_post} [Reason] {self._post_arg._error_message}")
         except AttributeError:
             raise FailedPostconditionError(self._exmsg_post)
 
@@ -478,6 +551,7 @@ class PdPipelineStage(abc.ABC):
     def _align_Xy(
         X: pandas.DataFrame,
         y: pandas.Series,
+        preX: pandas.DataFrame,
     ) -> Tuple[pandas.DataFrame, pandas.Series]:
         """Aligns the input dataframe and label series.
 
@@ -492,6 +566,10 @@ class PdPipelineStage(abc.ABC):
             The input dataframe.
         y : pandas.Series
             The label series.
+        preX : pandas.DataFrame, optional
+            The input dataframe before transformation.
+        prey : pandas.Series, optional
+            The label series before transformation.
 
         Returns
         -------
@@ -503,9 +581,18 @@ class PdPipelineStage(abc.ABC):
         # if values were dropped from y, reindex X according to y
         if len(y) < len(X):
             return X.loc[y.index], y
-        # otherwise, transformation was almost certainly done on X (might have
-        # been reordered), so reindex y according to X
-        return X, y.loc[X.index]
+        try:
+            # otherwise, transformation was almost certainly done on X (might
+            # have been reordered), so reindex y according to X
+            return X, y.loc[X.index]
+        except KeyError:
+            if len(X) == len(preX) and not X.index.equals(preX.index) and (
+                    len(X) == len(y)):
+                # index values have changes, as in pandas.set_index
+                post_y = y.copy()
+                post_y.index = X.index
+                return X, post_y
+            return X, y
 
     def _should_skip(self, X, y) -> bool:
         if self._skip:
@@ -553,51 +640,9 @@ class PdPipelineStage(abc.ABC):
             The returned dataframe. If `y` was also provided, the transformed
             `X` and `y` are returned as a tuple instead.
         """
-        if exraise is None:
-            exraise = self._exraise
-        if self._should_skip(X, y):
-            if y is not None:
-                return X, y
-            return X
-        if y is not None:
-            y = self._cast_y_to_series(X, y)
-        if self._compound_prec(X, y):
-            if verbose:
-                msg = '- ' + '\n  '.join(textwrap.wrap(self._appmsg))
-                print(msg, flush=True)
-            if self.is_fitted:
-                if self._is_an_Xy_transformer:
-                    res_X, res_y = self._transform_Xy(
-                        X, y, verbose=verbose)
-                else:
-                    res_X = self._transform(X, verbose=verbose)
-                    res_y = y
-            else:
-                if self._is_an_Xy_fit_transformer:
-                    res_X, res_y = self._fit_transform_Xy(
-                        X, y, verbose=verbose)
-                elif self._is_an_Xy_transformer:
-                    res_X, res_y = self._transform_Xy(
-                        X, y, verbose=verbose)
-                else:
-                    res_X = self._fit_transform(X, verbose=verbose)
-                    res_y = y
-            if exraise and not self._compound_post(X=res_X, y=res_y):
-                self._raise_postcondition_error()
-            # if were here, the postcondition is satisfied after a successful
-            # transformation of the input dataframe, so return it
-            if y is not None:
-                res_X, res_y = self._align_Xy(X=res_X, y=res_y)
-                return res_X, res_y
-            return res_X
-        # precondition doesn't hold, so if exraise==True raise an error
-        if exraise:
-            self._raise_precondition_error()
-        # precondition doesn't hold, but we don't want to raise an error
-        # as exraise is False, so return untransformed X or X, y
-        if y is not None:
-            return X, y
-        return X
+        if self.is_fitted:
+            return self.transform(X, y=y, exraise=exraise, verbose=verbose)
+        return self.fit_transform(X, y=y, exraise=exraise, verbose=verbose)
 
     __call__ = apply
 
@@ -624,38 +669,41 @@ class PdPipelineStage(abc.ABC):
         pandas.DataFrame
             The resulting dataframe.
         """
-        if exraise is None:
-            exraise = self._exraise
-        if self._should_skip(X, y):
+        with AppContextMgr(self, fit=True):
+            if exraise is None:
+                exraise = self._exraise
+            if self._should_skip(X, y):
+                if y is not None:
+                    return X, y
+                return X
+            if y is not None:
+                y = self._cast_y_to_series(X, y)
+            if self._compound_prec(X, y, fit=True):
+                if verbose:
+                    msg = '- ' + '\n  '.join(textwrap.wrap(self._appmsg))
+                    print(msg, flush=True)
+                if self._is_an_Xy_fit_transformer:
+                    res_X, res_y = self._fit_transform_Xy(
+                        X, y, verbose=verbose)
+                elif self._is_an_Xy_transformer:
+                    res_X, res_y = self._transform_Xy(
+                        X, y, verbose=verbose)
+                else:
+                    res_X = self._fit_transform(X, verbose=verbose)
+                    res_y = y
+                self.is_fitted = True
+                if exraise and not self._compound_post(
+                        X=res_X, y=res_y, fit=True):
+                    self._raise_postcondition_error()
+                if y is not None:
+                    res_X, res_y = self._align_Xy(X=res_X, y=res_y, preX=X)
+                    return res_X, res_y
+                return res_X
+            if exraise:
+                self._raise_precondition_error()
             if y is not None:
                 return X, y
             return X
-        if y is not None:
-            y = self._cast_y_to_series(X, y)
-        if self._compound_prec(X, y):
-            if verbose:
-                msg = '- ' + '\n  '.join(textwrap.wrap(self._appmsg))
-                print(msg, flush=True)
-            if self._is_an_Xy_fit_transformer:
-                res_X, res_y = self._fit_transform_Xy(
-                    X, y, verbose=verbose)
-            elif self._is_an_Xy_transformer:
-                res_X, res_y = self._transform_Xy(
-                    X, y, verbose=verbose)
-            else:
-                res_X = self._fit_transform(X, verbose=verbose)
-                res_y = y
-            if exraise and not self._compound_post(X=res_X, y=res_y):
-                self._raise_postcondition_error()
-            if y is not None:
-                res_X, res_y = self._align_Xy(X=res_X, y=res_y)
-                return res_X, res_y
-            return res_X
-        if exraise:
-            self._raise_precondition_error()
-        if y is not None:
-            return X, y
-        return X
 
     def fit(self, X, y=None, exraise=None, verbose=False):
         """Fits this stage without transforming the given dataframe.
@@ -680,34 +728,8 @@ class PdPipelineStage(abc.ABC):
         pandas.DataFrame
             The resulting dataframe.
         """
-        if exraise is None:
-            exraise = self._exraise
-        if self._should_skip(X, y):
-            if y is not None:
-                return X, y
-            return X
-        if y is not None:
-            y = self._cast_y_to_series(X, y)
-        if self._compound_prec(X, y):
-            if verbose:
-                msg = '- ' + '\n  '.join(textwrap.wrap(self._appmsg))
-                print(msg, flush=True)
-            if self._is_an_Xy_fit_transformer:
-                res_X, res_y = self._fit_transform_Xy(
-                    X, y, verbose=verbose)
-            elif self._is_an_Xy_transformer:
-                res_X, res_y = self._transform_Xy(
-                    X, y, verbose=verbose)
-            else:
-                res_X = self._fit_transform(X, verbose=verbose)
-                res_y = y
-            if exraise and not self._compound_post(X=res_X, y=res_y):
-                self._raise_postcondition_error()
-            if y is not None:
-                return X, y
-            return X
-        if exraise:
-            self._raise_precondition_error()
+        self.fit_transform(
+            X, y=y, exraise=exraise, verbose=verbose)
         if y is not None:
             return X, y
         return X
@@ -738,53 +760,56 @@ class PdPipelineStage(abc.ABC):
         pandas.DataFrame
             The resulting dataframe.
         """
-        if exraise is None:
-            exraise = self._exraise
-        if self._should_skip(X, y):
+        with AppContextMgr(self):
+            if exraise is None:
+                exraise = self._exraise
+            if self._should_skip(X, y):
+                if y is not None:
+                    return X, y
+                return X
+            if y is not None:
+                y = self._cast_y_to_series(X, y)
+            if self._compound_prec(X, y):
+                if verbose:
+                    msg = '- ' + '\n  '.join(textwrap.wrap(self._appmsg))
+                    print(msg, flush=True)
+                if self._is_fittable():
+                    if self.is_fitted:
+                        if self._is_an_Xy_transformer:
+                            res_X, res_y = self._transform_Xy(
+                                X, y, verbose=verbose)
+                        else:
+                            res_X = self._transform(X, verbose=verbose)
+                            res_y = y
+                        if exraise and not self._compound_post(
+                                X=res_X, y=res_y):
+                            self._raise_postcondition_error()
+                        if y is not None:
+                            res_X, res_y = self._align_Xy(
+                                X=res_X, y=res_y, preX=X)
+                            return res_X, res_y
+                        return res_X
+                    raise UnfittedPipelineStageError(
+                        "transform of an unfitted pipeline stage was called!")
+                if self._is_an_Xy_transformer:
+                    res_X, res_y = self._transform_Xy(
+                        X, y, verbose=verbose)
+                else:
+                    res_X = self._transform(X, verbose=verbose)
+                    res_y = y
+                if exraise and not self._compound_post(X=res_X, y=res_y):
+                    self._raise_postcondition_error()
+                if y is not None:
+                    res_X, res_y = self._align_Xy(X=res_X, y=res_y, preX=X)
+                    return res_X, res_y
+                return res_X
+            if exraise:
+                self._raise_precondition_error()
+            # precondition doesn't hold, but we don't want to raise an error
+            # as exraise is False, so return untransformed X or X, y
             if y is not None:
                 return X, y
             return X
-        if y is not None:
-            y = self._cast_y_to_series(X, y)
-        if self._compound_prec(X, y):
-            if verbose:
-                msg = '- ' + '\n  '.join(textwrap.wrap(self._appmsg))
-                print(msg, flush=True)
-            if self._is_fittable():
-                if self.is_fitted:
-                    if self._is_an_Xy_transformer:
-                        res_X, res_y = self._transform_Xy(
-                            X, y, verbose=verbose)
-                    else:
-                        res_X = self._transform(X, verbose=verbose)
-                        res_y = y
-                    if exraise and not self._compound_post(X=res_X, y=res_y):
-                        self._raise_postcondition_error()
-                    if y is not None:
-                        res_X, res_y = self._align_Xy(X=res_X, y=res_y)
-                        return res_X, res_y
-                    return res_X
-                raise UnfittedPipelineStageError(
-                    "transform of an unfitted pipeline stage was called!")
-            if self._is_an_Xy_transformer:
-                res_X, res_y = self._transform_Xy(
-                    X, y, verbose=verbose)
-            else:
-                res_X = self._transform(X, verbose=verbose)
-                res_y = y
-            if exraise and not self._compound_post(X=res_X, y=res_y):
-                self._raise_postcondition_error()
-            if y is not None:
-                res_X, res_y = self._align_Xy(X=res_X, y=res_y)
-                return res_X, res_y
-            return res_X
-        if exraise:
-            self._raise_precondition_error()
-        # precondition doesn't hold, but we don't want to raise an error
-        # as exraise is False, so return untransformed X or X, y
-        if y is not None:
-            return X, y
-        return X
 
     def __add__(self, other):
         if isinstance(other, PdPipeline):
@@ -873,7 +898,7 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
                 columns=none_columns)
         if isinstance(columns, str):
             # always check str first, because it has __iter__
-            return [columns], columns
+            return [columns], f"'{columns}'"
         if callable(columns):
             # if isinstance(columns, ColumnQualifier):
             #     return columns, columns.__repr__() or ''
@@ -881,9 +906,9 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
         # if it was a single string it was already made a list, and it's not a
         # callable, so it's either an iterable of labels... or
         if hasattr(columns, '__iter__'):
-            return columns, ', '.join(str(elem) for elem in columns)
+            return columns, ', '.join(f"'{str(elem)}'" for elem in columns)
         # a single non-string label.
-        return [columns], str(columns)
+        return [columns], f"'{columns}'"
 
     def __init__(
             self, columns, exclude_columns=None, desc_temp=None,
@@ -963,7 +988,8 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
         return cols
 
     def _prec(self, X, y=None):
-        return set(self._get_columns(X)).issubset(X.columns)
+        required_cols = set(self._get_columns(X, fit=self._is_being_fitted))
+        return required_cols.issubset(X.columns)
 
     @abc.abstractmethod
     def _transformation(self, X, verbose, fit):
@@ -1010,8 +1036,8 @@ class AdHocStage(PdPipelineStage):
         used to determine whether this stage can be applied to a given
         dataframe. If None is given, set to a function always returning True.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[1, 'a'], [2, 'b']], [1, 2], ['num', 'char'])
     >>> drop_num = pdp.AdHocStage(
@@ -1088,6 +1114,20 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         sub-pipeline of it which should be used to transform dataframes after
         the pipeline has been fitted. If not given, the fitted pipeline is used
         entirely.
+
+    Attributes
+    ----------
+    fit_context : PdpApplicationContext
+        An application context object that is only re-initialized before
+        `fit_transform` calls, and is locked after pipeline application. It is
+        injected into the PipelineStage by the encapsulating pipeline object.
+    application_context : PdpApplicationContext
+        An application context object that is re-initialized before every
+        pipeline application (so, also during transform operations of fitted
+        pipelines), and is locked after pipeline application.It is injected
+        into the PipelineStage by the encapsulating pipeline object.
+    is_fitted : bool
+        Whether this pipeline has been fitted.
     """
 
     _DEF_EXC_MSG = 'Pipeline precondition failed!'
@@ -1105,12 +1145,18 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
 
     # implementing a collections.abc.Sequence abstract method
     def __getitem__(self, index):
+        stages = None
         if isinstance(index, slice):
-            return PdPipeline(self._stages[index])
+            stages = self._stages[index]
 
         if isinstance(index, list) and all(isinstance(x, str) for x in index):
             stages = [stage for stage in self._stages if stage._name in index]
-            return PdPipeline(stages)
+
+        if stages is not None:
+            pline = PdPipeline(stages)
+            pline.fit_context = self.fit_context
+            pline.is_fitted = self.is_fitted
+            return pline
 
         if isinstance(index, str):
             stages = [stage for stage in self._stages if stage._name == index]
@@ -1240,10 +1286,12 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                         exraise=exraise,
                         verbose=verbose,
                     )
+                    stage.application_context = None
                     now = time.time()
                     times.append(now - prev)
                     prev = now
                 except Exception as e:
+                    stage.application_context = None
                     raise PipelineApplicationError(
                         f"Exception raised in stage [ {i}] {stage}"
                     ) from e
@@ -1258,10 +1306,12 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                         exraise=exraise,
                         verbose=verbose,
                     )
+                    stage.application_context = None
                     now = time.time()
                     times.append(now - prev)
                     prev = now
                 except Exception as e:
+                    stage.application_context = None
                     raise PipelineApplicationError(
                         f"Exception raised in stage [ {i}] {stage}"
                     ) from e
@@ -1350,7 +1400,9 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                         exraise=exraise,
                         verbose=verbose,
                     )
+                    stage.application_context = None
                 except Exception as e:
+                    stage.application_context = None
                     raise PipelineApplicationError(
                         f"Exception raised in stage [ {i}] {stage}"
                     ) from e
@@ -1365,7 +1417,9 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                         exraise=exraise,
                         verbose=verbose,
                     )
+                    stage.application_context = None
                 except Exception as e:
+                    stage.application_context = None
                     raise PipelineApplicationError(
                         f"Exception raised in stage [ {i}] {stage}"
                     ) from e
@@ -1461,7 +1515,9 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                     now = time.time()
                     times.append(now - prev)
                     prev = now
+                    stage.application_context = None
                 except Exception as e:
+                    stage.application_context = None
                     raise PipelineApplicationError(
                         f"Exception raised in stage [ {i}] {stage}"
                     ) from e
@@ -1476,10 +1532,12 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                         exraise=exraise,
                         verbose=verbose,
                     )
+                    stage.application_context = None
                     now = time.time()
                     times.append(now - prev)
                     prev = now
                 except Exception as e:
+                    stage.application_context = None
                     raise PipelineApplicationError(
                         f"Exception raised in stage [ {i}] {stage}"
                     ) from e
@@ -1525,7 +1583,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             messages are printed.
         time : bool, default False
             If True, per-stage application time is measured and reported when
-            pipeline application is done.
+            pipeline application is performed.
         application_context : dict, optional
             Context to add to the application context of this call. Can map
             str keys to arbitrary object values to be used by pipeline stages
@@ -1536,11 +1594,6 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         pandas.DataFrame
             The resulting dataframe.
         """
-        for stage in self._stages:
-            if stage._is_fittable() and not stage.is_fitted:
-                raise UnfittedPipelineStageError((
-                    "PipelineStage {} in pipeline is fittable but"
-                    " unfitted!").format(stage))
         if time:
             return self.__timed_transform(
                 X, y, exraise=exraise, verbose=verbose,
@@ -1560,7 +1613,9 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                         exraise=exraise,
                         verbose=verbose,
                     )
+                    stage.application_context = None
                 except Exception as e:
+                    stage.application_context = None
                     raise PipelineApplicationError(
                         f"Exception raised in stage [ {i}] {stage}"
                     ) from e
@@ -1575,7 +1630,9 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                         exraise=exraise,
                         verbose=verbose,
                     )
+                    stage.application_context = None
                 except Exception as e:
+                    stage.application_context = None
                     raise PipelineApplicationError(
                         f"Exception raised in stage [ {i}] {stage}"
                     ) from e

@@ -6,6 +6,7 @@ import pytest
 import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
+from sklearn.cluster import KMeans
 from sklearn.model_selection import GridSearchCV
 from sklearn.utils.validation import check_is_fitted
 from sklearn.exceptions import NotFittedError
@@ -171,3 +172,32 @@ def test_pdpipeline_and_sklearn_model_documentation():
     assert isinstance(res, np.ndarray)
     assert len(res) == len(DF2)
     assert res.dtype == all_y.dtype
+
+
+def test_pdpipeline_and_sklearn_model_Kmeans():
+    all_x = DF2[['feature1']]
+    all_y = DF2['target']
+
+    # first check that y is ignored successfuly everywhere
+    mp = PdPipelineAndSklearnEstimator(
+        pipeline=pdp.ColumnDtypeEnforcer({'feature1': int}),
+        estimator=KMeans(n_clusters=2)
+    )
+    mp.fit(all_x, all_y)
+    res = mp.predict(all_x)
+    assert isinstance(res, np.ndarray)
+    assert len(res) == len(DF2)
+    res = mp.score(all_x, all_y)
+    assert isinstance(res, float)
+
+    # now without sending y
+    mp = PdPipelineAndSklearnEstimator(
+        pipeline=pdp.ColumnDtypeEnforcer({'feature1': int}),
+        estimator=KMeans(n_clusters=2)
+    )
+    mp.fit(all_x, None)
+    res = mp.predict(all_x)
+    assert isinstance(res, np.ndarray)
+    assert len(res) == len(DF2)
+    res = mp.score(all_x)
+    assert isinstance(res, float)

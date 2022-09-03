@@ -135,3 +135,9 @@ class MyPipeline(pdp.PdPipeline):
 1. This is the correct way to type-hint the ``**kwargs`` variable argument
    operator. We only need to hint the type of values in the ``kwargs`` dict,
    and thus, if we don't want to contrain them at all, we type-hint ``object``.
+
+That's it!
+
+!!! help "Getting help"
+
+    Remember you can get help on <a href="https://gitter.im/pdpipe/community" target="_blank">our :material-wechat: Gitter chat</a> or on <a href="https://github.com/pdpipe/pdpipe/discussions" target="_blank">our :material-message-question: GitHub Discussions forum</a>.

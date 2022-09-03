@@ -129,7 +129,7 @@ Additionally, if you update this ``README.rst`` file,  use ``python setup.py che
 📋 Adding doctests
 ------------------
 
-Please notice that in order to successfully include doctests in the generated documentation files, the whole doctest must be indented in relation to the opening multi-string indentation, like so:
+Doctests can be added in the traditional manner:
 
 .. code-block:: python
 
@@ -158,15 +158,15 @@ Please notice that in order to successfully include doctests in the generated do
 
         Example
         -------
-            >>> import pandas as pd; import pdpipe as pdp; import math;
-            >>> data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
-            >>> df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
-            >>> round_ph = pdp.ApplyByCols("ph", math.ceil)
-            >>> round_ph(df)
-               ph  lbl
-            1   4  acd
-            2   8  alk
-            3  13  alk
+        >>> import pandas as pd; import pdpipe as pdp; import math;
+        >>> data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
+        >>> df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
+        >>> round_ph = pdp.ApplyByCols("ph", math.ceil)
+        >>> round_ph(df)
+           ph  lbl
+        1   4  acd
+        2   8  alk
+        3  13  alk
         """
 
 

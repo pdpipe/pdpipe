@@ -15,7 +15,7 @@ nav:
       - Pipeline Stages: starting/stages.md
       - Pipelines: starting/pipelines.md
       - Types of Stages: starting/types.md
-      - Fly Handles: starting/fly.md
+      - Fly Handles 🚀: starting/fly.md
       - Conditions: starting/cond.md
       - Column Qualifiers: starting/cq.md
       - Wrappers: starting/wrappers.md
@@ -28,6 +28,7 @@ nav:
       - Standartizing: tutorials/standard_df.md
       - Building Pipelines: tutorials/building_pipelines.md
       - Custom Stages: tutorials/custom_stages.md
+      - pdpipe❤️sklearn: tutorials/skintegrate.md
   - API Reference:
       - Core: reference/core.md
       - Basic Stages: reference/basic.md

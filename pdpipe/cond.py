@@ -27,8 +27,8 @@ class Condition(object):
     error_message : str, default None
         A string that describes the error when the condition fails.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np; import pdpipe as pdp;
     >>> cond = pdp.cond.Condition(lambda X: 'a' in X.columns)
     >>> cond
@@ -40,7 +40,7 @@ class Condition(object):
         self._func = func
         self._fittable = fittable
         if error_message is not None:
-            self.error_message = error_message
+            self._error_message = error_message
 
     def __call__(self, X):
         """Returns column labels of qualified columns from an input dataframe.
@@ -216,8 +216,8 @@ class PerColumnCondition(Condition):
         Additionaly accepts all keyword arguments of the constructor of
         Condition. See the documentation of Condition for details.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
     >>> X = pd.DataFrame(
     ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
@@ -333,8 +333,8 @@ class HasAllColumns(Condition):
         Additionaly accepts all keyword arguments of the constructor of
         Condition. See the documentation of Condition for details.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> X = pd.DataFrame(
     ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
@@ -391,8 +391,8 @@ class ColumnsFromList(PerColumnCondition):
         Additionaly accepts all keyword arguments of the constructor of
         Condition. See the documentation of Condition for details.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> X = pd.DataFrame(
     ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
@@ -442,8 +442,8 @@ class HasNoColumn(Condition):
         Additionaly accepts all keyword arguments of the constructor of
         Condition. See the documentation of Condition for details.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> X = pd.DataFrame(
     ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
@@ -506,8 +506,8 @@ class HasAtMostMissingValues(Condition):
         Additionally accepts all keyword arguments of the constructor of
         Condition. See the documentation of Condition for details.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> X = pd.DataFrame(
     ...    [[None,'a',5],[5,None,7]], [1,2], ['num', 'chr', 'nur'])
@@ -580,8 +580,8 @@ class HasNoMissingValues(HasAtMostMissingValues):
         Accepts all keyword arguments of the constructor of Condition. See the
         documentation of Condition for details.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> X = pd.DataFrame(
     ...    [[None,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
@@ -612,8 +612,8 @@ def _AlwaysTrue(X: pandas.DataFrame) -> bool:
 class AlwaysTrue(Condition):
     """A condition letting all dataframes through, always returning True.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> X = pd.DataFrame(
     ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
@@ -632,3 +632,170 @@ class AlwaysTrue(Condition):
 
     def __repr__(self):
         return "<pdpipe.Condition: AlwaysTrue>"
+
+
+class HasAtMostNQualifyingColumns(Condition):
+    """Checks whether a dataframe has at most N columns statisfying a qualifier.
+
+    Parameters
+    ----------
+    n : int
+        The maximal number of columns that should satisfy the qualifier.
+    qualifier : callable
+        A function that takes a pandas.DataFrame and returns the labels of the
+        subset of qualifying columns. See the pdp.cq module.
+    **kwargs
+        Additionaly accepts all keyword arguments of the constructor of
+        Condition. See the documentation of Condition for details.
+
+    Examples
+    --------
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> X = pd.DataFrame(
+    ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
+    >>> cond = pdp.cond.HasAtMostNQualifyingColumns(
+    ...     n=2, qualifier=pdp.cq.StartsWith('n'))
+    >>> cond
+    <pdpipe.Condition: Has at most 2 columns qualifying <ColumnQualifier: Columns starting with n>>
+    >>> cond(X)
+    True
+    >>> cond = pdp.cond.HasAtMostNQualifyingColumns(
+    ...     n=1, qualifier=pdp.cq.StartsWith('n'))
+    >>> cond(X)
+    False
+    """  # noqa: E501
+
+    class _AtMostNQualifyingCallable():
+
+        def __init__(self, n, qualifier):
+            self._n = n
+            self._qualifier = qualifier
+
+        def __call__(self, X):
+            return len(self._qualifier(X)) <= self._n
+
+    def __init__(self, n: int, qualifier: callable, **kwargs):
+        _func = HasAtMostNQualifyingColumns._AtMostNQualifyingCallable(
+            n, qualifier)
+        _func.__doc__ = (
+            f"Dataframes with at most {n} columns qualifying "
+            f"{qualifier}"
+        )
+        self._rpr = (
+            f"<pdpipe.Condition: Has at most {n} columns qualifying "
+            f"{qualifier}>"
+        )
+        super_kwargs = {
+            "error_message": (
+                f"More than {n} columns qualify {qualifier} in the input "
+                "dataframe!"
+            )
+        }
+        super_kwargs.update(**kwargs)
+        super_kwargs['func'] = _func
+        super().__init__(**super_kwargs)
+
+    def __repr__(self):
+        return self._rpr
+
+
+class HasAtLeastNQualifyingColumns(Condition):
+    """Checks whether a dataframe has at least N columns statisfying a
+    qualifier.
+
+    Parameters
+    ----------
+    n : int
+        The minimal number of columns that should satisfy the qualifier.
+    qualifier : callable
+        A function that takes a pandas.DataFrame and returns the labels of the
+        subset of qualifying columns. See the pdp.cq module.
+    **kwargs
+        Additionaly accepts all keyword arguments of the constructor of
+        Condition. See the documentation of Condition for details.
+
+    Examples
+    --------
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> X = pd.DataFrame(
+    ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
+    >>> cond = pdp.cond.HasAtLeastNQualifyingColumns(
+    ...     n=2, qualifier=pdp.cq.StartsWith('n'))
+    >>> cond
+    <pdpipe.Condition: Has at least 2 columns qualifying <ColumnQualifier: Columns starting with n>>
+    >>> cond(X)
+    True
+    >>> cond = pdp.cond.HasAtLeastNQualifyingColumns(
+    ...     n=3, qualifier=pdp.cq.StartsWith('n'))
+    >>> cond(X)
+    False
+    """  # noqa: E501
+
+    class _AtLeastNQualifyingCallable():
+
+        def __init__(self, n, qualifier):
+            self._n = n
+            self._qualifier = qualifier
+
+        def __call__(self, X):
+            return len(self._qualifier(X)) >= self._n
+
+    def __init__(self, n: int, qualifier: callable, **kwargs):
+        _func = HasAtLeastNQualifyingColumns._AtLeastNQualifyingCallable(
+            n, qualifier)
+        _func.__doc__ = (
+            f"Dataframes with at least {n} columns qualifying "
+            f"{qualifier}"
+        )
+        self._rpr = (
+            f"<pdpipe.Condition: Has at least {n} columns qualifying "
+            f"{qualifier}>"
+        )
+        super_kwargs = {
+            "error_message": (
+                f"Less than {n} columns qualify {qualifier} in the input "
+                "dataframe!"
+            )
+        }
+        super_kwargs.update(**kwargs)
+        super_kwargs['func'] = _func
+        super().__init__(**super_kwargs)
+
+    def __repr__(self):
+        return self._rpr
+
+
+class HasNoQualifyingColumns(HasAtMostNQualifyingColumns):
+    """Checks whether a dataframe has no columns statisfying a qualifier.
+
+    Parameters
+    ----------
+    qualifier : callable
+        A function that takes a pandas.DataFrame and returns the labels of the
+        subset of qualifying columns. See the pdp.cq module.
+    **kwargs
+        Additionaly accepts all keyword arguments of the constructor of
+        Condition. See the documentation of Condition for details.
+
+    Examples
+    --------
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> X = pd.DataFrame(
+    ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
+    >>> cond = pdp.cond.HasNoQualifyingColumns(
+    ...     qualifier=pdp.cq.StartsWith('n'))
+    >>> cond
+    <pdpipe.Condition: Has no columns qualifying <ColumnQualifier: Columns starting with n>>
+    >>> cond(X)
+    False
+    """  # noqa: E501
+
+    def __init__(self, qualifier: callable, **kwargs):
+        super_kwargs = {
+            "error_message": (
+                f"Found columns qualifing {qualifier} in the input dataframe!")
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(n=0, qualifier=qualifier, **super_kwargs)
+        self._rpr = (
+            f"<pdpipe.Condition: Has no columns qualifying {qualifier}>")

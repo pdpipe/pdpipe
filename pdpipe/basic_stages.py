@@ -31,8 +31,8 @@ class ColDrop(ColumnsBasedPipelineStage):
     errors : {‘ignore’, ‘raise’}, default ‘raise’
         If ‘ignore’, suppress error and existing labels are dropped.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'char'])
     >>> pdp.ColDrop('num').apply(df)
@@ -68,8 +68,10 @@ class ColDrop(ColumnsBasedPipelineStage):
     def _transformation(
         self, X: pandas.DataFrame, verbose: bool, fit: bool,
     ) -> pandas.DataFrame:
-        return X.drop(
-            self._get_columns(X, fit=fit), axis=1, errors=self._errors)
+        to_drop = self._get_columns(X, fit=fit)
+        if verbose:
+            print(f'Dropping columns {_list_str(to_drop)}')
+        return X.drop(to_drop, axis=1, errors=self._errors)
 
 
 class ValDrop(ColumnsBasedPipelineStage):
@@ -90,8 +92,8 @@ class ValDrop(ColumnsBasedPipelineStage):
         callable returning a labels iterable from an input pandas.DataFrame.
         See `pdpipe.cq`. Optional. By default no columns are excluded.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[1,4],[4,5],[18,11]], [1,2,3], ['a','b'])
     >>> pdp.ValDrop([4], 'a').apply(df)
@@ -150,8 +152,8 @@ class ValKeep(ColumnsBasedPipelineStage):
         callable returning a labels iterable from an input pandas.DataFrame.
         See `pdpipe.cq`. Optional. By default no columns are excluded.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], ['a','b'])
     >>> pdp.ValKeep([4, 5], 'a').apply(df)
@@ -193,8 +195,8 @@ class ColRename(PdPipelineStage):
     rename_mapper : dict-like or callable
         Maps old column names to new ones.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'char'])
     >>> pdp.ColRename({'num': 'len', 'char': 'initial'}).apply(df)
@@ -258,8 +260,8 @@ class DropNa(PdPipelineStage):
 
     Supports all parameter supported by pandas.dropna function.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[1,4],[4,None],[1,11]], [1,2,3], ['a','b'])
     >>> pdp.DropNa().apply(df)
@@ -273,7 +275,7 @@ class DropNa(PdPipelineStage):
 
     def __init__(self, **kwargs):
         common = set(kwargs.keys()).intersection(DropNa._DROPNA_KWARGS)
-        self.dropna_kwargs = {key: kwargs.pop(key) for key in common}
+        self._dropna_kwargs = {key: kwargs.pop(key) for key in common}
         super_kwargs = {
             'exmsg': DropNa._DEF_DROPNA_EXC_MSG,
             'desc': "Drops null values."
@@ -287,7 +289,7 @@ class DropNa(PdPipelineStage):
     def _transform(self, X, verbose):
         before_count = len(X)
         ncols_before = len(X.columns)
-        inter_X = X.dropna(**self.dropna_kwargs)
+        inter_X = X.dropna(**self._dropna_kwargs)
         if verbose:
             print(
                 f"{before_count - len(inter_X)} rows, "
@@ -302,8 +304,8 @@ class SetIndex(PdPipelineStage):
     Supports all parameter supported by pandas.set_index function except for
     `inplace`.
 
-    Example
-    -------
+    Examples
+    --------
     >> import pandas as pd; import pdpipe as pdp;
     >> df = pd.DataFrame([[1,4],[3, 11]], [1,2], ['a','b'])
     >> pdp.SetIndex('a').apply(df)
@@ -319,8 +321,8 @@ class SetIndex(PdPipelineStage):
 
     def __init__(self, keys, **kwargs):
         common = set(kwargs.keys()).intersection(SetIndex._SETINDEX_KWARGS)
-        self.setindex_kwargs = {key: kwargs.pop(key) for key in common}
-        self.keys = keys
+        self._setindex_kwargs = {key: kwargs.pop(key) for key in common}
+        self._keys = keys
         if hasattr(keys, '__iter__') and not isinstance(keys, str):
             _tprec = cond.HasAllColumns(list(keys))
         else:
@@ -337,7 +339,7 @@ class SetIndex(PdPipelineStage):
         return self._tprec(X)
 
     def _transform(self, X, verbose):
-        return X.set_index(keys=self.keys, **self.setindex_kwargs)
+        return X.set_index(keys=self._keys, **self._setindex_kwargs)
 
 
 class FreqDrop(PdPipelineStage):
@@ -350,8 +352,8 @@ class FreqDrop(PdPipelineStage):
     column : str
         The name of the colum to check for the given value frequency.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[1,4],[4,5],[1,11]], [1,2,3], ['a','b'])
     >>> pdp.FreqDrop(2, 'a').apply(df)
@@ -399,8 +401,8 @@ class ColReorder(PdPipelineStage):
         Columns not included in the mapping will maintain their relative
         positions over the non-mapped colums.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[8,4,3,7]], columns=['a', 'b', 'c', 'd'])
     >>> pdp.ColReorder({'b': 0, 'c': 3}).apply(df)
@@ -473,8 +475,8 @@ class RowDrop(ColumnsBasedPipelineStage):
         callable returning a labels iterable from an input pandas.DataFrame.
         See `pdpipe.cq`. Optional. By default no columns are excluded.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[1,4],[4,5],[5,11]], [1,2,3], ['a','b'])
     >>> pdp.RowDrop([lambda x: x < 2]).apply(df)
@@ -575,8 +577,8 @@ class Schematize(PdPipelineStage):
         The dataframe schema to enforce on input dataframes. If set to None,
         the schema is learned in fit time and applied in subsequent transforms.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[2, 4, 8],[3, 6, 9]], [1, 2], ['a', 'b', 'c'])
     >>> pdp.Schematize(['a', 'c']).apply(df)
@@ -591,7 +593,7 @@ class Schematize(PdPipelineStage):
 
     def __init__(
         self,
-        columns: Optional[List[object]],
+        columns: Optional[List[object]] = None,
         **kwargs: object,
     ) -> None:
         if columns is None:
@@ -619,7 +621,7 @@ class Schematize(PdPipelineStage):
         super().__init__(**super_kwargs)
 
     def _prec(self, X: pandas.DataFrame) -> bool:
-        if self._adaptive and not self.is_fitted:
+        if self._adaptive and self._is_being_fitted:
             return True
         return set(self._columns).issubset(X.columns)
 
@@ -697,8 +699,8 @@ class ColumnDtypeEnforcer(PdPipelineStage):
         - raise : allow exceptions to be raised
         - ignore : suppress exceptions. On error return original object.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[8,'a'],[5,'b']], [1,2], ['num', 'initial'])
     >>> pdp.ColumnDtypeEnforcer({'num': float}).apply(df)
@@ -706,7 +708,7 @@ class ColumnDtypeEnforcer(PdPipelineStage):
     1  8.0       a
     2  5.0       b
 
-    >>> pdp.ColumnDtypeEnforcer({pdp.cq.StartWith('n'): float}).apply(df)
+    >>> pdp.ColumnDtypeEnforcer({pdp.cq.StartsWith('n'): float}).apply(df)
        num initial
     1  8.0       a
     2  5.0       b
@@ -753,15 +755,24 @@ class ColumnDtypeEnforcer(PdPipelineStage):
             column_to_dtype = {}
             for k, dtype in self._dynamic_column_to_dtype.items():
                 try:
+                    columns = []
+                    try:
+                        if k._fittable and self._is_being_fitted:
+                            columns = k.fit_transform(X)
+                    except AttributeError:
+                        # k is not a ColumnQualifier
+                        columns = k(X)
                     column_to_dtype.update({
                         lbl: dtype
-                        for lbl in k(X)
+                        for lbl in columns
                     })
                 except TypeError:  # k is not a callable
                     column_to_dtype[k] = dtype
             return column_to_dtype
 
     def _prec(self, X: pandas.DataFrame) -> bool:
+        if self._is_being_fitted:
+            return self._tprec.fit_transform(X)
         return self._tprec(X)
 
     def _transform(
@@ -807,8 +818,8 @@ class ConditionValidator(PdPipelineStage):
         application was called with `verbose=True`, and pipeline application
         continues. Any other value is interpreted as 'raise'.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[1,4],[4,None],[1,11]], [1,2,3], ['a','b'])
     >>> pdp.ConditionValidator(lambda df: len(df.columns) == 5).apply(df)

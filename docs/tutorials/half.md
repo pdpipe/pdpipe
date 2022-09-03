@@ -121,9 +121,9 @@ The cool thing is, that if applied once on a dataframe — let's say, your train
 
 !!! tip "Tip: Advanced column qualifiers"
 
-    Now, if you instead want to halve all columns with string labels starting with "revenue", you could use `pdp.cq.StartWith("revenue")` instead. If you want all number columns (int or float or others), you could use `pdp.cq.OfNumericDtypes()`. And the coolest thing? You can easily combine such criteria:
+    Now, if you instead want to halve all columns with string labels starting with "revenue", you could use `pdp.cq.StartsWith("revenue")` instead. If you want all number columns (int or float or others), you could use `pdp.cq.OfNumericDtypes()`. And the coolest thing? You can easily combine such criteria:
 
-    ```#!python pdp.cq.WithAtMostMissingValues(1) & pdp.cq.StartWith('revenue')``` will make sure the stage is applied only to columns with at most one missing value and a label. ```#!python pdp.cq.WithoutMissingValues() - pdp.cq.StartWith('b')``` is a qualifier that qualifies all columns with no missing values except those that start with 'b'. And ```#!python pdp.cq.StartWith('revenue') | pdp.cq.StartWith('expenses')``` will yield all columns that start with either "expenses" or "revenue". You can also create custom conditions with ```#!python pdp.cq.ByColumnCondition(some_function)```.
+    ```#!python pdp.cq.WithAtMostMissingValues(1) & pdp.cq.StartsWith('revenue')``` will make sure the stage is applied only to columns with at most one missing value and a label. ```#!python pdp.cq.WithoutMissingValues() - pdp.cq.StartsWith('b')``` is a qualifier that qualifies all columns with no missing values except those that start with 'b'. And ```#!python pdp.cq.StartsWith('revenue') | pdp.cq.StartsWith('expenses')``` will yield all columns that start with either "expenses" or "revenue". You can also create custom conditions with ```#!python pdp.cq.ByColumnCondition(some_function)```.
 
 ??? help "How to keep things pickle-able?"
 

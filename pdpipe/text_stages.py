@@ -31,8 +31,8 @@ class RegexReplace(ApplyByCols):
     drop : bool, default True
         If set to True, source columns are dropped after being transformed.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp; import re;
     >>> data = [[4, "more than 12"], [5, "with 5 more"]]
     >>> df = pd.DataFrame(data, [1,2], ["age","text"])
@@ -54,7 +54,7 @@ class RegexReplace(ApplyByCols):
     2    x   25
     """  # noqa: W605
 
-    class RegexReplacer(object):
+    class _RegexReplacer(object):
         """A pickle-able regex replacement function."""
 
         def __init__(
@@ -89,7 +89,7 @@ class RegexReplace(ApplyByCols):
         desc_temp = desc_temp.format(pattern, replace)
         super_kwargs = {
             'columns': columns,
-            'func': RegexReplace.RegexReplacer(
+            'func': RegexReplace._RegexReplacer(
                 self._pattern_str, self._replace, self._flags),
             'suffix': '_regex',
             'result_columns': result_columns,
@@ -124,8 +124,8 @@ class DropTokensByLength(ApplyByCols):
     drop : bool, default True
         If set to True, source columns are dropped after being transformed.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> data = [[4, ["a", "bad", "nice"]], [5, ["good", "university"]]]
     >>> df = pd.DataFrame(data, [1,2], ["age","text"])
@@ -136,7 +136,7 @@ class DropTokensByLength(ApplyByCols):
     2    5       [good]
     """  # noqa: W605
 
-    class MinLengthTokenFilter(object):
+    class _MinLengthTokenFilter(object):
 
         def __init__(self, min_len):
             self.min_len = min_len
@@ -144,7 +144,7 @@ class DropTokensByLength(ApplyByCols):
         def __call__(self, token_list):
             return [x for x in token_list if len(x) >= self.min_len]
 
-    class MinMaxLengthTokenFilter(object):
+    class _MinMaxLengthTokenFilter(object):
 
         def __init__(self, min_len, max_len):
             self.min_len = min_len
@@ -162,10 +162,10 @@ class DropTokensByLength(ApplyByCols):
     ):
         self._min_len = min_len
         self._max_len = max_len
-        token_filter = DropTokensByLength.MinLengthTokenFilter(min_len)
+        token_filter = DropTokensByLength._MinLengthTokenFilter(min_len)
         cond_str = f" > {min_len}"
         if max_len:
-            token_filter = DropTokensByLength.MinMaxLengthTokenFilter(
+            token_filter = DropTokensByLength._MinMaxLengthTokenFilter(
                 min_len=min_len, max_len=max_len)
             cond_str += f" < {max_len}"
         desc_temp = "Filtering out tokens of length{} in columns {{}}"
@@ -202,8 +202,8 @@ class DropTokensByList(ApplyByCols):
     drop : bool, default True
         If set to True, source columns are dropped after being transformed.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> data = [[4, ["a", "bad", "cat"]], [5, ["bad", "not", "good"]]]
     >>> df = pd.DataFrame(data, [1,2], ["age","text"])
@@ -214,7 +214,7 @@ class DropTokensByList(ApplyByCols):
     2    5  [not, good]
     """  # noqa: W605
 
-    class ListTokenFilter(object):
+    class _ListTokenFilter(object):
 
         def __init__(self, bad_tokens):
             self.bad_tokens = bad_tokens
@@ -234,7 +234,7 @@ class DropTokensByList(ApplyByCols):
         desc_temp = base_str.format(cond_str)
         super_kwargs = {
             'columns': columns,
-            'func': DropTokensByList.ListTokenFilter(bad_tokens),
+            'func': DropTokensByList._ListTokenFilter(bad_tokens),
             'result_columns': result_columns,
             'drop': drop,
             'suffix': "_filtered",

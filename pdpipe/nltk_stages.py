@@ -18,7 +18,7 @@ except ImportError:  # pragma: no cover:
 
 import nltk
 import pandas as pd
-import tqdm
+from tqdm.autonotebook import tqdm
 
 from pdpipe.core import ColumnsBasedPipelineStage
 from pdpipe.util import out_of_place_col_insert
@@ -45,8 +45,8 @@ class TokenizeText(MapColVals):
         and the resulting tokenized columns retain the names of the source
         columns. Otherwise, tokenized columns gain the suffix '_tok'.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame(
     ...     [[3.2, "Kick the baby!"]], [1], ['freq', 'content'])
@@ -113,8 +113,8 @@ class UntokenizeText(MapColVals):
         and the resulting columns retain the names of the source columns.
         Otherwise, untokenized columns gain the suffix '_untok'.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> data = [[3.2, ['Shake', 'and', 'bake!']]]
     >>> df = pd.DataFrame(data, [1], ['freq', 'content'])
@@ -176,8 +176,8 @@ class RemoveStopwords(MapColVals):
         and the resulting columns retain the names of the source columns.
         Otherwise, resulting columns gain the suffix '_nostop'.
 
-    Example
-    -------
+    Examples
+    --------
         >> import pandas as pd; import pdpipe as pdp;
         >> data = [[3.2, ['kick', 'the', 'baby']]]
         >> df = pd.DataFrame(data, [1], ['freq', 'content'])
@@ -270,8 +270,13 @@ class SnowballStem(MapColVals):
     max_len : int, optional
         If provided, tokens longer than this length are not stemmed.
 
-    Example
-    -------
+    Attributes
+    ----------
+    stemmer : nltk.stem.snowball.SnowballStemmer
+        The Snowball stemmer instance used by this pipeline stage.
+
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> data = [[3.2, ['kicking', 'boats']]]
     >>> df = pd.DataFrame(data, [1], ['freq', 'content'])
@@ -286,7 +291,7 @@ class SnowballStem(MapColVals):
                          "are of dtype object.")
     _DEF_STEM_DESC = "Stemming tokens{} in {}..."
 
-    class MinLenStemCondition(object):
+    class _MinLenStemCondition(object):
 
         def __init__(self, min_len):
             self.min_len = min_len
@@ -294,7 +299,7 @@ class SnowballStem(MapColVals):
         def __call__(self, x):
             return len(x) >= self.min_len
 
-    class MaxLenStemCondition(object):
+    class _MaxLenStemCondition(object):
 
         def __init__(self, max_len):
             self.max_len = max_len
@@ -302,7 +307,7 @@ class SnowballStem(MapColVals):
         def __call__(self, x):
             return len(x) <= self.max_len
 
-    class MinMaxLenStemCondition(object):
+    class _Min_MaxLenStemCondition(object):
 
         def __init__(self, min_len, max_len):
             self.min_len = min_len
@@ -317,12 +322,12 @@ class SnowballStem(MapColVals):
             self.cond = None
             if min_len:
                 if max_len:
-                    self.cond = SnowballStem.MinMaxLenStemCondition(
+                    self.cond = SnowballStem._Min_MaxLenStemCondition(
                         min_len=min_len, max_len=max_len)
                 else:
-                    self.cond = SnowballStem.MinLenStemCondition(min_len)
+                    self.cond = SnowballStem._MinLenStemCondition(min_len)
             elif max_len:
-                self.cond = SnowballStem.MaxLenStemCondition(max_len)
+                self.cond = SnowballStem._MaxLenStemCondition(max_len)
             self.__stem__ = self.__uncond_stem__
             if self.cond:
                 self.__stem__ = self.__cond_stem__
@@ -357,9 +362,9 @@ class SnowballStem(MapColVals):
 
     def __init__(self, stemmer_name, columns, drop=True, min_len=None,
                  max_len=None, **kwargs):
-        self.stemmer_name = stemmer_name
+        self._stemmer_name = stemmer_name
         self.stemmer = SnowballStem.__safe_stemmer_by_name(stemmer_name)
-        self.list_stemmer = SnowballStem._TokenListStemmer(
+        self._list_stemmer = SnowballStem._TokenListStemmer(
             stemmer=self.stemmer, min_len=min_len, max_len=max_len)
         self._columns = _interpret_columns_param(columns)
         col_str = _list_str(self._columns)
@@ -373,7 +378,7 @@ class SnowballStem(MapColVals):
         desc = SnowballStem._DEF_STEM_DESC.format(cond_str, col_str)
         super_kwargs = {
             'columns': columns,
-            'value_map': self.list_stemmer,
+            'value_map': self._list_stemmer,
             'drop': drop,
             'suffix': '_stem',
             'exmsg': SnowballStem._DEF_STEM_EXC_MSG.format(col_str),
@@ -410,8 +415,8 @@ class DropRareTokens(ColumnsBasedPipelineStage):
         and the resulting columns retain the names of the source columns.
         Otherwise, the new columns gain the suffix '_norare'.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> data = [[7, ['a', 'a', 'b']], [3, ['b', 'c', 'd']]]
     >>> df = pd.DataFrame(data, columns=['num', 'chars'])
@@ -453,7 +458,7 @@ class DropRareTokens(ColumnsBasedPipelineStage):
         inter_X = X
         columns_to_transform = self._get_columns(X, fit=True)
         if verbose:
-            columns_to_transform = tqdm.tqdm(columns_to_transform)
+            columns_to_transform = tqdm(columns_to_transform)
         for colname in columns_to_transform:
             source_col = X[colname]
             loc = X.columns.get_loc(colname) + 1
@@ -480,7 +485,7 @@ class DropRareTokens(ColumnsBasedPipelineStage):
         inter_X = X
         columns_to_transform = self._get_columns(X, fit=False)
         if verbose:
-            columns_to_transform = tqdm.tqdm(columns_to_transform)
+            columns_to_transform = tqdm(columns_to_transform)
         for colname in columns_to_transform:
             source_col = X[colname]
             loc = X.columns.get_loc(colname) + 1

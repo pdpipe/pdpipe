@@ -12,7 +12,7 @@ pipeline stages.
 import numpy as np
 import pandas as pd
 import sklearn.preprocessing
-import tqdm
+from tqdm.autonotebook import tqdm
 from skutil.preprocessing import scaler_by_params
 from sklearn.feature_extraction.text import (
     TfidfVectorizer,
@@ -35,6 +35,7 @@ from .exceptions import (
     UnfittedPipelineStageError,
     UnexpectedPipelineMethodCallError,
 )
+from .lbl import _SkipOnLabelPlaceholderPredict
 
 
 class Encode(ColumnsBasedPipelineStage):
@@ -68,8 +69,8 @@ class Encode(ColumnsBasedPipelineStage):
         A dictionary mapping each encoded column name to the corresponding
         sklearn.preprocessing.LabelEncoder object. Empty object if not fitted.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
     >>> df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
@@ -104,7 +105,7 @@ class Encode(ColumnsBasedPipelineStage):
         self.encoders = {}
         columns_to_encode = self._get_columns(X, fit=True)
         if verbose:
-            columns_to_encode = tqdm.tqdm(columns_to_encode)
+            columns_to_encode = tqdm(columns_to_encode)
         inter_X = X
         for colname in columns_to_encode:
             lbl_enc = sklearn.preprocessing.LabelEncoder()
@@ -174,8 +175,13 @@ class Scale(ColumnsBasedPipelineStage):
         QuantileTransformer). PdPipelineStage valid keyword arguments are used
         to override Scale class defaults.
 
-    Example
-    -------
+    Attributes
+    ----------
+    scaler : sklearn._OneToOneFeatureMixin
+        A scikit-learn scaler object.
+
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> data = [[3.2, 0.3], [7.2, 0.35], [12.1, 0.29]]
     >>> df = pd.DataFrame(data, [1,2,3], ["ph","gt"])
@@ -196,7 +202,7 @@ class Scale(ColumnsBasedPipelineStage):
         **kwargs
     ):
         self.scaler = scaler
-        self.joint = joint
+        self._joint = joint
         self._kwargs = kwargs.copy()
         super_kwargs = {
             'columns': columns,
@@ -224,7 +230,7 @@ class Scale(ColumnsBasedPipelineStage):
         inter_X = X[self._columns_to_scale]
         self._scaler = scaler_by_params(self.scaler, **self._kwargs)
         try:
-            if self.joint:
+            if self._joint:
                 self._scaler.fit(np.array([inter_X.values.flatten()]).T)
                 inter_X = per_column_values_sklearn_transform(
                     X=inter_X,
@@ -256,7 +262,7 @@ class Scale(ColumnsBasedPipelineStage):
         col_order = list(X.columns)
         inter_X = X[self._columns_to_scale]
         try:
-            if self.joint:
+            if self._joint:
                 inter_X = per_column_values_sklearn_transform(
                     X=inter_X,
                     transform=self._scaler.transform
@@ -309,8 +315,8 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
         token-list columns, you should set this to true, so tf-idf features
         originating in different text columns do not overwrite one another.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> data = [[2, ['hovercraft', 'eels']], [5, ['eels', 'urethra']]]
     >>> df = pd.DataFrame(data, [1, 2], ['Age', 'tokens'])
@@ -330,7 +336,7 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
         self._hierarchical_labels = hierarchical_labels
         msg = TfidfVectorizeTokenLists._DEF_CNTVEC_MSG.format(column)
         super_kwargs = {
-            "exmsg": ("TfIdfVectorizeTokenLists precondition not met:"
+            "exmsg": ("TfidfVectorizeTokenLists precondition not met:"
                       f"{column} column not found."),
             "desc": msg,
         }
@@ -362,10 +368,11 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
         if self._hierarchical_labels:
             self._res_col_names = [
                 f'{self._column}_{f}'
-                for f in self._tfidf_vectorizer.get_feature_names()
+                for f in self._tfidf_vectorizer.get_feature_names_out()
             ]
         else:
-            self._res_col_names = self._tfidf_vectorizer.get_feature_names()
+            self._res_col_names = self._tfidf_vectorizer.get_feature_names_out(
+            )
         vec_X = pd.DataFrame.sparse.from_spmatrix(
             data=vectorized, index=X.index, columns=self._res_col_names)
         inter_X = pd.concat([X, vec_X], axis=1)
@@ -417,8 +424,13 @@ class Decompose(ColumnsBasedPipelineStage):
         Decompose class defaults. All other extra keyword arguments are
         forwarded to the transformer constructor on transformer creation.
 
-    Example
-    -------
+    Attributes
+    ----------
+    transformer : sklearn.TransformerMixin
+        The transformer instance used to perform the decomposition.
+
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> from sklearn.decomposition import PCA
     >>> data = [[3, 1, 1], [7, 2, 4], [8, 3, 1]]
@@ -441,15 +453,15 @@ class Decompose(ColumnsBasedPipelineStage):
         **kwargs
     ):
         self.transformer = transformer
-        self.drop = drop
-        self.lbl_format = lbl_format
+        self._drop = drop
+        self._lbl_format = lbl_format
         if lbl_format is None:
-            self.lbl_format = 'mdc{}'
+            self._lbl_format = 'mdc{}'
         self._kwargs = kwargs.copy()
         super_kwargs = {
             'columns': columns,
             'exclude_columns': exclude_columns,
-            'desc_temp': "Scale columns {}",
+            'desc_temp': f"Decompose columns {{}} with {transformer}",
         }
         valid_super_kwargs = super()._init_kwargs()
         for key in kwargs:
@@ -475,7 +487,7 @@ class Decompose(ColumnsBasedPipelineStage):
             inter_X = self._transformer.fit_transform(sub_X.values)
             n_cols = inter_X.shape[1]
             columns = [
-                self.lbl_format.format(i)
+                self._lbl_format.format(i)
                 for i in range(n_cols)
             ]
             inter_X = pd.DataFrame(
@@ -488,7 +500,7 @@ class Decompose(ColumnsBasedPipelineStage):
                 "Exception raised when Decompose applied to columns"
                 f" {self._columns_to_transform} by class {self.__class__}"
             ) from e
-        if self.drop:
+        if self._drop:
             if len(untransformed_cols) > 0:
                 untransformed = X[untransformed_cols]
                 inter_X = pd.concat([untransformed, inter_X], axis=1)
@@ -507,7 +519,7 @@ class Decompose(ColumnsBasedPipelineStage):
             inter_X = self._transformer.transform(sub_X.values)
             n_cols = inter_X.shape[1]
             columns = [
-                self.lbl_format.format(i)
+                self._lbl_format.format(i)
                 for i in range(n_cols)
             ]
             inter_X = pd.DataFrame(
@@ -520,13 +532,12 @@ class Decompose(ColumnsBasedPipelineStage):
                 "Exception raised when Decompose applied to columns"
                 f" {self._columns_to_transform} by class {self.__class__}"
             ) from e
-        if self.drop:
+        if self._drop:
             if len(untransformed_cols) > 0:
                 untransformed = X[untransformed_cols]
                 inter_X = pd.concat([untransformed, inter_X], axis=1)
         else:
             inter_X = pd.concat([X, inter_X], axis=1)
-        self.is_fitted = True
         return inter_X
 
 
@@ -544,8 +555,8 @@ class EncodeLabel(PdPipelineStage):
         The sklearn.preprocessing.LabelEncoder object used to encode the series
         label.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> data = [[3.2, 31], [7.2, 33], [12.1, 28]]
     >>> X = pd.DataFrame(data, [1,2,3], ["ph","temp"])
@@ -566,9 +577,13 @@ class EncodeLabel(PdPipelineStage):
     array(['acd', 'alk', 'alk'], dtype=object)
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: object) -> None:
+        skipi = _SkipOnLabelPlaceholderPredict()
+        if 'skip' in kwargs:
+            skipi.skip_cond = kwargs.pop('skip')
         super_kwargs = {
             'desc': "Encode label values",
+            'skip': skipi,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -577,14 +592,13 @@ class EncodeLabel(PdPipelineStage):
         return y is not None
 
     def _transform(self, X, verbose):
-        raise UnexpectedPipelineMethodCallError(
+        raise UnexpectedPipelineMethodCallError(  # pragma: no cover
             "EncodeLabel._transform() is not expected to be called!")
 
     def _fit_transform_Xy(self, X, y, verbose):
         self.encoder_ = sklearn.preprocessing.LabelEncoder()
         post_y = self.encoder_.fit_transform(y)
         post_y = pd.Series(data=post_y, index=y.index)
-        # print(post_y)
         self.is_fitted = True
         return X, post_y
 

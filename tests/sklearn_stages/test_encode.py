@@ -5,7 +5,10 @@ import pandas as pd
 
 import pdpipe as pdp
 from pdpipe.sklearn_stages import Encode
-from pdpipe.exceptions import UnfittedPipelineStageError
+from pdpipe.exceptions import (
+    UnfittedPipelineStageError,
+    PipelineApplicationError,
+)
 
 
 def _some_df():
@@ -171,8 +174,11 @@ def test_encode_in_pipelin_fit_n_transform():
 
     df = _some_df()
 
-    with pytest.raises(UnfittedPipelineStageError):
+    try:
         res_df = pline.transform(df)
+        assert False
+    except PipelineApplicationError as e:
+        assert isinstance(e.__cause__, UnfittedPipelineStageError)
 
     res_df = pline.fit(df)
     assert 'lbl' in res_df.columns

@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from pdpipe.cq import StartWith
+from pdpipe.cq import StartsWith
 from pdpipe.basic_stages import ValDrop
 
 
@@ -35,7 +35,7 @@ def test_valdrop_without_columns():
 
 def test_valdrop_w_fittable_cq():
     df = pd.DataFrame([[1, 4], [4, 5]], [1, 2], ['aa', 'ba'])
-    vdrop = ValDrop([4], columns=StartWith('a'))
+    vdrop = ValDrop([4], columns=StartsWith('a'))
     res_df = vdrop(df)
     assert 1 in res_df.index
     assert 2 not in res_df.index

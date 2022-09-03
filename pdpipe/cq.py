@@ -32,8 +32,8 @@ class ColumnQualifier(object):
         stage will fail on its precondition if trying to transform with it a
         dataframe that is missing some values in the fitted qualifier.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np; import pdpipe as pdp;
     >>> cq = pdp.cq.ColumnQualifier(lambda df: [
     ...    l for l, s in df.iteritems()
@@ -71,7 +71,7 @@ class ColumnQualifier(object):
             return self.fit_transform(X)
 
     def fit_transform(self, X):
-        """Fits this qualifier and returns the labels of the qualifying columns.
+        """Fit this qualifier and return the labels of the qualifying columns.
 
         Parameters
         ----------
@@ -293,8 +293,8 @@ class AllColumns(ColumnQualifier):
         ColumnQualifier. See the documentation of `ColumnQualifier` for
         details.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[8,1],[5,2]], [1,2], ['a', 'b'])
     >>> cq = pdp.cq.AllColumns()
@@ -348,8 +348,8 @@ class ByColumnCondition(ColumnQualifier):
         ColumnQualifier. See the documentation of `ColumnQualifier` for
         details.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame(
     ...    [[1, 2, 'A'],[4, 1, 'C']], [1,2], ['age', 'count', 'grade'])
@@ -400,8 +400,8 @@ class ByLabels(ColumnQualifier):
         ColumnQualifier. See the documentation of `ColumnQualifier` for
         details.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame(
     ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
@@ -457,8 +457,8 @@ def columns_to_qualifier(columns):
     qualifier : ColumnQualifier
         The equivalent ColumnQualifier object.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pdpipe as pdp;
     >>> pdp.cq.columns_to_qualifier('nu')
     <ColumnQualifier: By labels in nu>
@@ -474,7 +474,7 @@ def columns_to_qualifier(columns):
     return ByLabels(columns)
 
 
-class StartWith(ColumnQualifier):
+class StartsWith(ColumnQualifier):
     """Selectes all columns that start with the given string.
 
     Parameters
@@ -486,12 +486,12 @@ class StartWith(ColumnQualifier):
         ColumnQualifier. See the documentation of `ColumnQualifier` for
         details.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame(
     ...    [[8,'a',5],[5,'b',7]], [1,2], ['num', 'chr', 'nur'])
-    >>> cq = pdp.cq.StartWith('nu')
+    >>> cq = pdp.cq.StartsWith('nu')
     >>> cq
     <ColumnQualifier: Columns starting with nu>
     >>> cq(df)
@@ -505,7 +505,7 @@ class StartWith(ColumnQualifier):
         except AttributeError:
             return False
 
-    class _StartWithFunc(object):
+    class _StartsWithFunc(object):
 
         def __init__(self, prefix):
             self.prefix = prefix
@@ -513,12 +513,12 @@ class StartWith(ColumnQualifier):
         def __call__(self, X):
             return [
                 lbl for lbl in X.columns
-                if StartWith._safe_startwith(lbl, self.prefix)
+                if StartsWith._safe_startwith(lbl, self.prefix)
             ]
 
     def __init__(self, prefix, **kwargs):
         self._prefix = prefix
-        cqfunc = StartWith._StartWithFunc(prefix)
+        cqfunc = StartsWith._StartsWithFunc(prefix)
         cqfunc.__doc__ = f"Columns that start with {self._prefix}"
         self.__doc__ = cqfunc.__doc__
         kwargs['func'] = cqfunc
@@ -543,8 +543,8 @@ class OfDtypes(ColumnQualifier):
         ColumnQualifier. See the documentation of `ColumnQualifier` for
         details.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
     >>> df = pd.DataFrame(
     ...    [[8.2,'a',5],[5.1,'b',7]], [1,2], ['ph', 'grade', 'age'])
@@ -592,8 +592,8 @@ class OfNumericDtypes(OfDtypes):
         ColumnQualifier. See the documentation of `ColumnQualifier` for
         details.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
     >>> df = pd.DataFrame(
     ...    [[8.2,'a',5],[5.1,'b',7]], [1,2], ['ph', 'grade', 'age'])
@@ -622,8 +622,8 @@ class WithAtMostMissingValues(ColumnQualifier):
         ColumnQualifier. See the documentation of `ColumnQualifier` for
         details.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
     >>> df = pd.DataFrame(
     ...    [[None, 1, 2],[None, None, 5]], [1,2], ['ph', 'grade', 'age'])
@@ -666,8 +666,8 @@ class WithoutMissingValues(WithAtMostMissingValues):
         Accepts all keyword arguments of the constructor of ColumnQualifier.
         See the documentation of `ColumnQualifier` for details.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
     >>> df = pd.DataFrame(
     ...    [[None, 1, 2],[None, None, 5]], [1,2], ['ph', 'grade', 'age'])
@@ -684,3 +684,99 @@ class WithoutMissingValues(WithAtMostMissingValues):
 
     def __repr__(self):
         return "<ColumnQualifier: Without missing values>"
+
+
+class WithAtMostMissingValueRate(ColumnQualifier):
+    """Selectes all columns with no more than P% missing values.
+
+    Parameters
+    ----------
+    rate : float, between 0 and 1
+        The maximum rate of missing values with which columns can still
+        qualify.
+    **kwargs
+        Additionaly accepts all keyword arguments of the constructor of
+        ColumnQualifier. See the documentation of `ColumnQualifier` for
+        details.
+
+    Examples
+    --------
+    >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
+    >>> df = pd.DataFrame(
+    ...    [[None, 1, 2],[None, None, 5]], [1,2], ['ph', 'grade', 'age'])
+    >>> cq = pdp.cq.WithAtMostMissingValueRate(0.6)
+    >>> cq
+    <ColumnQualifier: With at most 0.6 missing value rate>
+    >>> cq(df)
+    ['grade', 'age']
+    """
+
+    class _AtMostRateFunc(object):
+
+        def __init__(self, rate):
+            self._rate = rate
+
+        def __call__(self, X):
+            return list(X.columns[(X.isna().sum() / len(X)) <= self._rate])
+
+    def __init__(self, rate, **kwargs):
+        self._rate = rate
+        cqfunc = WithAtMostMissingValueRate._AtMostRateFunc(rate)
+        cqfunc.__doc__ = (
+            f"Columns with at most {self._rate} missing value rate"
+        )
+        self.__doc__ = cqfunc.__doc__
+        kwargs['func'] = cqfunc
+        super().__init__(**kwargs)
+
+    def __repr__(self):
+        return f"<ColumnQualifier: " \
+               f"With at most {self._rate} missing value rate>"
+
+
+class WithAtLeastMissingValueRate(ColumnQualifier):
+    """Selectes all columns with no less than P% missing values.
+
+    Parameters
+    ----------
+    rate : float, between 0 and 1
+        The minimum rate of missing values with which columns can still
+        qualify.
+    **kwargs
+        Additionaly accepts all keyword arguments of the constructor of
+        ColumnQualifier. See the documentation of `ColumnQualifier` for
+        details.
+
+    Examples
+    --------
+    >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
+    >>> df = pd.DataFrame(
+    ...    [[None, 1, 2],[None, None, 5]], [1,2], ['ph', 'grade', 'age'])
+    >>> cq = pdp.cq.WithAtLeastMissingValueRate(0.6)
+    >>> cq
+    <ColumnQualifier: With at least 0.6 missing value rate>
+    >>> cq(df)
+    ['ph']
+    """
+
+    class _AtLeastRateFunc(object):
+
+        def __init__(self, rate):
+            self._rate = rate
+
+        def __call__(self, X):
+            return list(X.columns[(X.isna().sum() / len(X)) >= self._rate])
+
+    def __init__(self, rate, **kwargs):
+        self._rate = rate
+        cqfunc = WithAtLeastMissingValueRate._AtLeastRateFunc(rate)
+        cqfunc.__doc__ = (
+            f"Columns with at least {self._rate} missing value rate"
+        )
+        self.__doc__ = cqfunc.__doc__
+        kwargs['func'] = cqfunc
+        super().__init__(**kwargs)
+
+    def __repr__(self):
+        return f"<ColumnQualifier: " \
+               f"With at least {self._rate} missing value rate>"

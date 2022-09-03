@@ -21,6 +21,7 @@ from sklearn.base import BaseEstimator
 from sklearn.utils.validation import check_is_fitted
 
 from .core import PdPipeline
+from .util import LabelPlaceholderForPredict
 
 
 def _estimator_has(attr):
@@ -117,11 +118,18 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
     ----------
     pipeline : PdPipeline
         The preprocssing pipeline to connect.
-    model : sklearn.base.BaseEstimator
+    estimator : sklearn.base.BaseEstimator
         The model to connect to the pipeline.
 
-    Example
-    -------
+    Attributes
+    ----------
+    pipeline : PdPipeline
+        The preprocssing pipeline composing this pipeline+model object.
+    model : sklearn.base.BaseEstimator
+        The sklearn model composing this pipeline+model object.
+
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> from pdpipe.skintegrate import PdPipelineAndSklearnEstimator;
     >>> from sklearn.linear_model import LogisticRegression;
@@ -168,7 +176,8 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
         if y is None:
             post_X = self.pipeline.transform(X)
             return self.estimator.score(X)
-        y = pd.Series(y)
+        if not isinstance(y, pd.Series):
+            y = pd.Series(y)
         y.index = X.index
         post_X, post_y = self.pipeline.transform(X, y)
         assert len(post_X) == len(post_y)
@@ -203,10 +212,15 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
             Returns self.
         """
         # X, y = check_X_y(X, y, accept_sparse=True)
-        y = pd.Series(y)
-        assert len(X) == len(y)
-        y.index = X.index
-        post_X, post_y = self.pipeline.fit_transform(X=X, y=y)
+        if y is not None:
+            if not isinstance(y, pd.Series):
+                y = pd.Series(y)
+            assert len(X) == len(y)
+            y.index = X.index
+            post_X, post_y = self.pipeline.fit_transform(X=X, y=y)
+        else:
+            post_X = self.pipeline.fit_transform(X)
+            post_y = None
         if post_y is None:
             self.estimator.fit(X=post_X.values, y=None)
         else:
@@ -233,7 +247,8 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
         """
         # X = check_array(X, accept_sparse=True)
         check_is_fitted(self, 'is_fitted_')
-        post_X = self.pipeline.transform(X=X)
+        post_X, post_y = self.pipeline.transform(
+            X=X, y=LabelPlaceholderForPredict(X))
         y_pred = self.estimator.predict(X=post_X.values)
         return y_pred
 
@@ -257,13 +272,14 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
             to that in the fitted attribute :term:`classes_`.
         """
         check_is_fitted(self, 'is_fitted_')
-        post_X = self.pipeline.transform(X=X)
+        post_X, post_y = self.pipeline.transform(
+            X=X, y=LabelPlaceholderForPredict(X))
         y_pred = self.estimator.predict_proba(X=post_X.values)
         return y_pred
 
     @available_if(_estimator_has("predict_log_proba"))
     def predict_log_proba(self, X):
-        """Call predict_log_proba on the estimator with the best found parameters.
+        """Call predict_log_proba on the estimator with best found parameters.
         Only available if the underlying estimator supports
         ``predict_log_proba``.
 
@@ -281,13 +297,14 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
             corresponds to that in the fitted attribute :term:`classes_`.
         """
         check_is_fitted(self, 'is_fitted_')
-        post_X = self.pipeline.transform(X=X)
+        post_X, post_y = self.pipeline.transform(
+            X=X, y=LabelPlaceholderForPredict(X))
         y_pred = self.estimator.predict_log_proba(X=post_X.values)
         return y_pred
 
     @available_if(_estimator_has("decision_function"))
     def decision_function(self, X):
-        """Call decision_function on the estimator with the best found parameters.
+        """Call decision_function on the estimator with best found parameters.
         Only available if the underlying estimator supports
         ``decision_function``.
 
@@ -305,7 +322,8 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
             the best found parameters.
         """
         check_is_fitted(self, 'is_fitted_')
-        post_X = self.pipeline.transform(X=X)
+        post_X, post_y = self.pipeline.transform(
+            X=X, y=LabelPlaceholderForPredict(X))
         y_score = self.estimator.decision_function(X=post_X.values)
         return y_score
 
@@ -329,11 +347,11 @@ class _PdPipeScorer:
         y=None,
         **kwargs,
     ):
-        post_X = estimator.pipeline.transform(X)
+        post_X, post_y = estimator.pipeline.transform(X, y)
         return self._scorer(
             estimator.estimator,
-            post_X,
-            y,
+            post_X.values,
+            post_y.values,
             **kwargs,
         )
 

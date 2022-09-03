@@ -8,7 +8,8 @@ from typing import Union, Tuple, Optional, Dict, Callable
 import numpy as np
 import pandas as pd
 import sortedcontainers as sc
-import tqdm
+# import tqdm
+from tqdm.autonotebook import tqdm
 
 from pdpipe.core import (
     PdpApplicationContext,
@@ -48,8 +49,8 @@ class Bin(PdPipelineStage):
     drop : bool, default True
         If set to True, the source columns are dropped after being binned.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[-3],[4],[5],[9]], [1,2,3,4], ['speed'])
     >>> pdp.Bin({'speed': [5]}, drop=False).apply(df)
@@ -120,7 +121,7 @@ class Bin(PdPipelineStage):
         inter_X = X
         colnames = list(self._bin_map.keys())
         if verbose:
-            colnames = tqdm.tqdm(colnames)
+            colnames = tqdm(colnames)
         for colname in colnames:
             if verbose:
                 colnames.set_description(colname)
@@ -174,8 +175,8 @@ class OneHotEncode(ColumnsBasedPipelineStage):
     drop : bool, default True
         If set to True, the source columns are dropped after being encoded.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([['USA'], ['UK'], ['Greece']], [1,2,3], ['Born'])
     >>> pdp.OneHotEncode().apply(df)
@@ -230,7 +231,7 @@ class OneHotEncode(ColumnsBasedPipelineStage):
         columns_to_encode = self._get_columns(X, fit=True)
         assign_map = {}
         if verbose:
-            columns_to_encode = tqdm.tqdm(columns_to_encode)
+            columns_to_encode = tqdm(columns_to_encode)
         for colname in columns_to_encode:
             if verbose:
                 columns_to_encode.set_description(colname)
@@ -342,7 +343,7 @@ class ColumnTransformer(ColumnsBasedPipelineStage):
     ):
         if suffix is None:  # pragma: no cover
             suffix = "_transformed"
-        self.suffix = suffix
+        self._suffix = suffix
         self._result_columns = result_columns
         if result_columns:
             self._result_columns = _interpret_columns_param(result_columns)
@@ -379,7 +380,7 @@ class ColumnTransformer(ColumnsBasedPipelineStage):
                 result_columns = columns
             else:
                 result_columns = [
-                    f'{col}{self.suffix}' for col in columns
+                    f'{col}{self._suffix}' for col in columns
                 ]
         inter_X = X
         for i, colname in enumerate(columns):
@@ -471,8 +472,8 @@ class MapColVals(ColumnTransformer):
     suffix : str, default '_map'
         The suffix mapped columns gain if no new column labels are given.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> df = pd.DataFrame([[1], [3], [2]], ['UK', 'USSR', 'US'], ['Medal'])
     >>> value_map = {1: 'Gold', 2: 'Silver', 3: 'Bronze'}
@@ -559,8 +560,8 @@ class ApplyToRows(PdPipelineStage):
         returning True is used.
 
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> data = [[3, 2143], [10, 1321], [7, 1255]]
     >>> df = pd.DataFrame(data, [1,2,3], ['years', 'avg_revenue'])
@@ -683,8 +684,8 @@ class ApplyByCols(ColumnTransformer):
         Valid constructor parameters of superclasses are extracted and used
         on intialization.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp; import math;
     >>> data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
     >>> df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
@@ -784,8 +785,8 @@ class ColByFrameFunc(PdPipelineStage):
         by company size'. A default description is used if None is given.
 
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> data = [[3, 3], [2, 4], [1, 5]]
     >>> df = pd.DataFrame(data, [1,2,3], ["A","B"])
@@ -877,8 +878,8 @@ class AggByCols(ColumnTransformer):
         is None and drop is set to False. Of not given, defaults to '_agg'.
 
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
     >>> data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
     >>> df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
@@ -957,8 +958,8 @@ class Log(ColumnsBasedPipelineStage):
         non_neg is True then that transformation is applied first, and only
         then is the column shifted by this constant.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import pandas as pd; import pdpipe as pdp;
     >>> data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
     >>> df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
@@ -1000,7 +1001,7 @@ class Log(ColumnsBasedPipelineStage):
     def _fit_transform(self, X, verbose):
         columns_to_transform = self._get_columns(X, fit=True)
         if verbose:
-            columns_to_transform = tqdm.tqdm(columns_to_transform)
+            columns_to_transform = tqdm(columns_to_transform)
         inter_X = X
         for colname in columns_to_transform:
             source_col = X[colname]
@@ -1032,7 +1033,7 @@ class Log(ColumnsBasedPipelineStage):
         inter_X = X
         columns_to_transform = self._get_columns(X, fit=False)
         if verbose:
-            columns_to_transform = tqdm.tqdm(columns_to_transform)
+            columns_to_transform = tqdm(columns_to_transform)
         for colname in columns_to_transform:
             try:
                 source_col = X[colname]

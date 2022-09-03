@@ -24,7 +24,7 @@ and return either True or False.
 
     `skip` - representing the stage's skip condition - determines whether it
     *should* be applied to an input dataframe. Stage application is skipped if
-    its skip-condition is satisfied
+    its skip-condition is satisfied.
 
 
 ## The `pdpipe.cond` module
