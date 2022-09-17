@@ -8,7 +8,7 @@ from pandas import DataFrame, Series
 
 from ..shared import _list_str
 from ..core import PdPipelineStage
-from ..types import SeriesOperandTypesTuple
+from ..pdp_types import SeriesOperandTypesTuple
 from .func_lists import (
     SERIES_TRANSFORMS_BLACKLIST,
     SERIES_TRANSFORMS_WHITELIST,
