@@ -1,7 +1,11 @@
 """Shared inner functionalities for pdpipe."""
 
 import inspect
+import re
 from typing import List, Iterable
+
+POS_ARG_MISMTCH_PAT = re.compile(
+    r'\d positional argument[s]? but \d (were|was) given')
 
 
 def _interpret_columns_param(columns: object) -> List[object]:

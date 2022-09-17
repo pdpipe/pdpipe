@@ -11,6 +11,9 @@ from typing import Tuple, Union, Iterable, Optional
 
 import numpy
 import pandas
+import pandas as pd
+
+from .run_time_parameters import DynamicParameter
 
 try:
     from pympler.asizeof import asizeof
@@ -22,6 +25,7 @@ from .cfg import (
 )
 from .cq import is_fittable_column_qualifier, AllColumns
 from .shared import (
+    POS_ARG_MISMTCH_PAT,
     _get_args_list,
     _always_true,
 )
@@ -284,6 +288,8 @@ class PdPipelineStage(abc.ABC):
         self.is_fitted = False
         self._is_being_applied = False
         self._is_being_fitted = False
+        self._dynamics = []  # list of parameters to be decided at runtime
+        self._process_dynamics()
 
     def is_being_fitted_by_pipeline(self) -> bool:
         """Returns True if this stage is being fitted."""
@@ -291,6 +297,25 @@ class PdPipelineStage(abc.ABC):
             return not self.fit_context.is_locked()
         except AttributeError:
             return False
+
+    class_attrs = {'_exraise', '_exmsg', '_exmsg_post',
+                   '_desc', '_prec_arg', '_post_arg', '_skip',
+                   '_appmsg', '_name', '_is_an_Xy_transformer',
+                   '_is_an_Xy_fit_transformer', 'fit_context',
+                   'application_context', 'is_fitted', '_dynamics'}
+
+    def _process_dynamics(self):
+        """
+        Creates a list of Dynamic attributes
+        Returns None
+        -------
+        """
+        potential_dynamics_attrs = set(self.__dict__).\
+            difference(self.class_attrs)
+        for attr in potential_dynamics_attrs:
+            attr_obj = self.__getattribute__(attr)
+            if isinstance(attr_obj, DynamicParameter):
+                self._dynamics.append({'name': attr, 'callable': attr_obj})
 
     @classmethod
     def _init_kwargs(cls):
@@ -317,9 +342,6 @@ class PdPipelineStage(abc.ABC):
         other_kwargs = {
             k: v for k, v in kwargs.items() if k not in cls._INIT_KWARGS}
         return init_kwargs, other_kwargs
-
-    _POS_ARG_MISMTCH_PAT = re.compile(
-        r'\d positional argument[s]? but \d (were|was) given')
 
     _MISSING_POS_ARG_PAT = re.compile(
         r'missing \d+ required positional argument')
@@ -364,8 +386,7 @@ class PdPipelineStage(abc.ABC):
             try:
                 return to_call(X, y)
             except TypeError as e:
-                if len(PdPipelineStage._POS_ARG_MISMTCH_PAT.findall(
-                        str(e))) > 0:
+                if len(POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
                     return to_call(X)
                 raise e  # pragma: no cover
 
@@ -383,7 +404,7 @@ class PdPipelineStage(abc.ABC):
         try:
             return self._prec(X, y)
         except TypeError as e:
-            if len(PdPipelineStage._POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
+            if len(POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
                 return self._prec(X)
             raise e  # pragma: no cover
 
@@ -431,8 +452,7 @@ class PdPipelineStage(abc.ABC):
             try:
                 return to_call(X, y)
             except TypeError as e:
-                if len(PdPipelineStage._POS_ARG_MISMTCH_PAT.findall(
-                        str(e))) > 0:
+                if len(POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
                     return to_call(X)
                 raise e  # pragma: no cover
 
@@ -443,7 +463,7 @@ class PdPipelineStage(abc.ABC):
         try:
             return self._post(X, y)
         except TypeError as e:
-            if len(PdPipelineStage._POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
+            if len(POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
                 return self._post(X)
             raise e  # pragma: no cover
 
@@ -589,8 +609,7 @@ class PdPipelineStage(abc.ABC):
             try:
                 return self._skip(X, y)
             except TypeError as e:
-                if len(PdPipelineStage._POS_ARG_MISMTCH_PAT.findall(
-                        str(e))) > 0:
+                if len(POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
                     return self._skip(X)
                 else:
                     raise e  # pragma: no cover
@@ -1058,7 +1077,7 @@ class AdHocStage(PdPipelineStage):
         try:
             return self._adhoc_prec(X, y)
         except TypeError as e:
-            if len(PdPipelineStage._POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
+            if len(POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
                 return self._adhoc_prec(X)
             raise e
 
@@ -1177,15 +1196,38 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         self.application_context = None
         self.fit_context.lock()
 
+    @staticmethod
+    def _use_dynamics(stage: PdPipelineStage,
+                      inter_X: pd.DataFrame,
+                      inter_y: Optional[pd.Series] = None) -> None:
+        """
+        sets the dynamic parameter based on given callable
+        Parameters
+        ----------
+        stage: stage for which to provide the dynamic parameter
+        inter_X: input df
+        inter_y: optional input y labels
+
+        Returns
+        -------
+
+        """
+        for dynamic in stage._dynamics:
+            param = dynamic['callable'](inter_X) if inter_y is None \
+                else dynamic['callable'](inter_X, inter_y)
+            setattr(stage,
+                    dynamic['name'],
+                    param)
+
     def apply(
-        self,
-        X: pandas.DataFrame,
-        y: Optional[pandas.Series] = None,
-        exraise: Optional[bool] = None,
-        verbose: Optional[bool] = False,
-        time: Optional[bool] = False,
-        fit_context: Optional[dict] = {},
-        application_context: Optional[dict] = {},
+            self,
+            X: pandas.DataFrame,
+            y: Optional[pandas.Series] = None,
+            exraise: Optional[bool] = None,
+            verbose: Optional[bool] = False,
+            time: Optional[bool] = False,
+            fit_context: Optional[dict] = {},
+            application_context: Optional[dict] = {},
     ):
         """Applies this pipeline stage to the given dataframe.
 
@@ -1377,6 +1419,8 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                 try:
                     stage.fit_context = self.fit_context
                     stage.application_context = self.application_context
+                    self._use_dynamics(stage, inter_X, inter_y)
+
                     inter_X = stage.fit_transform(
                         X=inter_X,
                         y=None,
@@ -1394,6 +1438,8 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                 try:
                     stage.fit_context = self.fit_context
                     stage.application_context = self.application_context
+                    self._use_dynamics(stage, inter_X, inter_y)
+
                     inter_X, inter_y = stage.fit_transform(
                         X=inter_X,
                         y=inter_y,
@@ -1590,6 +1636,8 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                 try:
                     stage.fit_context = self.fit_context
                     stage.application_context = self.application_context
+                    self._use_dynamics(stage, inter_X, inter_y)
+
                     inter_X = stage.transform(
                         X=inter_X,
                         y=None,
@@ -1607,6 +1655,8 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                 try:
                     stage.fit_context = self.fit_context
                     stage.application_context = self.application_context
+                    self._use_dynamics(stage, inter_X, inter_y)
+
                     inter_X, inter_y = stage.transform(
                         X=inter_X,
                         y=inter_y,
