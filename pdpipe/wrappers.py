@@ -5,7 +5,8 @@ from pdpipe.core import PdPipelineStage
 
 
 class FitOnly(PdPipelineStage):
-    """A wrapper that applies a stage to input data only when fitting.
+    """
+    A wrapper that applies a stage to input data only when fitting.
 
     In other words, the input data is not transformed if the stage has
     already been fitted once.
@@ -14,6 +15,8 @@ class FitOnly(PdPipelineStage):
     ----------
     stage : PdPipelineStage
         The pipeline stage to operate on input data only when fitting.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Examples
     --------

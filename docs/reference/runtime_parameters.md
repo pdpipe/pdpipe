@@ -1,3 +1,3 @@
 # Run time parameters
 
-::: pdp.run_time_parameters
+::: pdpipe.run_time_parameters

@@ -1,0 +1,9 @@
+[MASTER]
+ignore = ["CVS"]
+load-plugins=pylint.extensions.docparams
+[FORMAT]
+good-names=x,y,X,inter_X,inter_y,post_X,post_y
+[DESIGN]
+exclude-too-few-public-methods = [".+"]
+[MESSAGES CONTROL]
+disable=R0911,R0913,R0903

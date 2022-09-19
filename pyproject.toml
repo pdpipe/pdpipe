@@ -20,3 +20,18 @@ reportGeneralTypeIssues = false
 
 pythonVersion = "3.8"
 pythonPlatform = "Linux"
+
+# pylint currently ignores this. See .pylintrc
+[tool.pylint]
+    [tool.pylint."MASTER"]
+    ignore = ["CVS"]
+    ignore-paths = ["build/", "dev/", "dist/", "docs/", "notebooks/", "tests/"]
+    load-plugins = [
+        "pylint.extensions.docparams"
+    ]
+    py-version = [3, 10]
+    recursive = false
+    reports = false
+    score = true
+    suggestion-mode = true
+    unsafe-load-any-extension = false

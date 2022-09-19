@@ -20,7 +20,8 @@ from pdpipe.cq import ColumnQualifier
 
 
 class ColDrop(ColumnsBasedPipelineStage):
-    """A pipeline stage that drops columns by name.
+    """
+    A pipeline stage that drops columns by name.
 
     Parameters
     ----------
@@ -30,6 +31,8 @@ class ColDrop(ColumnsBasedPipelineStage):
         labels from an input pandas.DataFrame (see `pdpipe.cq`).
     errors : {‘ignore’, ‘raise’}, default ‘raise’
         If ‘ignore’, suppress error and existing labels are dropped.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Examples
     --------
@@ -75,7 +78,8 @@ class ColDrop(ColumnsBasedPipelineStage):
 
 
 class ValDrop(ColumnsBasedPipelineStage):
-    """A pipeline stage that drops rows by value.
+    """
+    A pipeline stage that drops rows by value.
 
     Parameters
     ----------
@@ -91,6 +95,8 @@ class ValDrop(ColumnsBasedPipelineStage):
         `columns` parameter. Alternatively, this parameter can be assigned a
         callable returning a labels iterable from an input pandas.DataFrame.
         See `pdpipe.cq`. Optional. By default no columns are excluded.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Examples
     --------
@@ -109,12 +115,14 @@ class ValDrop(ColumnsBasedPipelineStage):
         self,
         values: List[object],
         columns: ColumnsParamType = None,
+        exclude_columns: ColumnsParamType = None,
         **kwargs: object,
     ) -> None:
         self._values = values
         self._values_str = _list_str(self._values)
         super_kwargs = {
             'columns': columns,
+            'exclude_columns': exclude_columns,
             'desc_temp': f'Drop values {self._values_str} in columns {{}}',
         }
         super_kwargs.update(**kwargs)
@@ -135,7 +143,8 @@ class ValDrop(ColumnsBasedPipelineStage):
 
 
 class ValKeep(ColumnsBasedPipelineStage):
-    """A pipeline stage that keeps rows by value.
+    """
+    A pipeline stage that keeps rows by value.
 
     Parameters
     ----------
@@ -151,6 +160,8 @@ class ValKeep(ColumnsBasedPipelineStage):
         `columns` parameter. Alternatively, this parameter can be assigned a
         callable returning a labels iterable from an input pandas.DataFrame.
         See `pdpipe.cq`. Optional. By default no columns are excluded.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Examples
     --------
@@ -165,11 +176,18 @@ class ValKeep(ColumnsBasedPipelineStage):
     2  4  5
     """
 
-    def __init__(self, values, columns=None, **kwargs):
+    def __init__(
+        self,
+        values: List[object],
+        columns: ColumnsParamType = None,
+        exclude_columns: ColumnsParamType = None,
+        **kwargs: object,
+    ):
         self._values = values
         self._values_str = _list_str(self._values)
         super_kwargs = {
             'columns': columns,
+            'exclude_columns': exclude_columns,
             'desc_temp': f'Keep values {self._values_str} in columns {{}}',
         }
         super_kwargs.update(**kwargs)
@@ -188,12 +206,15 @@ class ValKeep(ColumnsBasedPipelineStage):
 
 
 class ColRename(PdPipelineStage):
-    """A pipeline stage that renames a column or columns.
+    """
+    A pipeline stage that renames a column or columns.
 
     Parameters
     ----------
     rename_mapper : dict-like or callable
         Maps old column names to new ones.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Examples
     --------
@@ -256,9 +277,16 @@ class ColRename(PdPipelineStage):
 
 
 class DropNa(PdPipelineStage):
-    """A pipeline stage that drops null values.
+    """
+    A pipeline stage that drops null values.
 
     Supports all parameter supported by pandas.dropna function.
+
+    Parameters
+    ----------
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported, as are all
+        parameters of the pandas.dropna function.
 
     Examples
     --------
@@ -299,10 +327,17 @@ class DropNa(PdPipelineStage):
 
 
 class SetIndex(PdPipelineStage):
-    """A pipeline stage that set existing columns as index.
+    """
+    A pipeline stage that set existing columns as index.
 
     Supports all parameter supported by pandas.set_index function except for
     `inplace`.
+
+    Parameters
+    ----------
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported, as are all
+        parameters of the pandas.set_index function, except for 'inplace'.
 
     Examples
     --------
@@ -343,7 +378,8 @@ class SetIndex(PdPipelineStage):
 
 
 class FreqDrop(PdPipelineStage):
-    """A pipeline stage that drops rows by value frequency.
+    """
+    A pipeline stage that drops rows by value frequency.
 
     Parameters
     ----------
@@ -351,6 +387,8 @@ class FreqDrop(PdPipelineStage):
         The minimum frequency required for a value to be kept.
     column : str
         The name of the colum to check for the given value frequency.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Examples
     --------
@@ -392,7 +430,8 @@ class FreqDrop(PdPipelineStage):
 
 
 class ColReorder(PdPipelineStage):
-    """A pipeline stage that reorders columns.
+    """
+    A pipeline stage that reorders columns.
 
     Parameters
     ----------
@@ -400,6 +439,8 @@ class ColReorder(PdPipelineStage):
         A mapping of column names to their desired positions after reordering.
         Columns not included in the mapping will maintain their relative
         positions over the non-mapped colums.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Examples
     --------
@@ -443,7 +484,8 @@ class ColReorder(PdPipelineStage):
 
 
 class RowDrop(ColumnsBasedPipelineStage):
-    """A pipeline stage that drops rows by callable conditions.
+    """
+    A pipeline stage that drops rows by callable conditions.
 
     Parameters
     ----------
@@ -474,6 +516,8 @@ class RowDrop(ColumnsBasedPipelineStage):
         `columns` parameter. Alternatively, this parameter can be assigned a
         callable returning a labels iterable from an input pandas.DataFrame.
         See `pdpipe.cq`. Optional. By default no columns are excluded.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Examples
     --------
@@ -527,7 +571,14 @@ class RowDrop(ColumnsBasedPipelineStage):
                 conditions=conditions, reducer=reducer)
         return row_cond
 
-    def __init__(self, conditions, reduce=None, columns=None, **kwargs):
+    def __init__(
+        self,
+        conditions: Union[List[object], Dict[object, object]],
+        reduce: str = None,
+        columns: ColumnsParamType = None,
+        exclude_columns: ColumnsParamType = None,
+        **kwargs: object,
+    ):
         self._conditions = conditions
         if reduce is None:
             reduce = 'any'
@@ -551,6 +602,7 @@ class RowDrop(ColumnsBasedPipelineStage):
         self._row_cond = self._row_condition_builder(conditions, reduce)
         super_kwargs = {
             'columns': columns,
+            'exclude_columns': exclude_columns,
             'desc_temp': 'Drop rows in columns {} by conditions',
         }
         super_kwargs.update(**kwargs)
@@ -569,13 +621,16 @@ class RowDrop(ColumnsBasedPipelineStage):
 
 
 class Schematize(PdPipelineStage):
-    """Enforces a column schema on input dataframes.
+    """
+    Enforces a column schema on input dataframes.
 
     Parameters
     ----------
     columns: sequence of label, optional
         The dataframe schema to enforce on input dataframes. If set to None,
         the schema is learned in fit time and applied in subsequent transforms.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Examples
     --------
@@ -639,7 +694,8 @@ class Schematize(PdPipelineStage):
 
 
 class DropDuplicates(ColumnsBasedPipelineStage):
-    """Drop duplicates in the given columns.
+    """
+    Drop duplicates in the given columns.
 
     Parameters
     ----------
@@ -651,6 +707,8 @@ class DropDuplicates(ColumnsBasedPipelineStage):
         `columns` parameter. Alternatively, this parameter can be assigned a
         callable returning a labels iterable from an input pandas.DataFrame.
         See `pdpipe.cq`. Optional. By default no columns are excluded.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Examples
     --------
@@ -662,9 +720,15 @@ class DropDuplicates(ColumnsBasedPipelineStage):
         3  9  2
     """
 
-    def __init__(self, columns=None, **kwargs):
+    def __init__(
+        self,
+        columns: ColumnsParamType = None,
+        exclude_columns: ColumnsParamType = None,
+        **kwargs: object,
+    ) -> None:
         super_kwargs = {
             'columns': columns,
+            'exclude_columns': exclude_columns,
             'desc_temp': 'Drop duplicates in columns {}',
         }
         super_kwargs.update(**kwargs)
@@ -680,7 +744,8 @@ class DropDuplicates(ColumnsBasedPipelineStage):
 
 
 class ColumnDtypeEnforcer(PdPipelineStage):
-    """A pipeline stage enforcing column dtypes.
+    """
+    A pipeline stage enforcing column dtypes.
 
     Parameters
     ----------
@@ -698,6 +763,8 @@ class ColumnDtypeEnforcer(PdPipelineStage):
         Control raising of exceptions on invalid data for provided dtype.
         - raise : allow exceptions to be raised
         - ignore : suppress exceptions. On error return original object.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Examples
     --------
@@ -789,7 +856,8 @@ class ColumnDtypeEnforcer(PdPipelineStage):
 
 
 class ConditionValidator(PdPipelineStage):
-    """A pipeline stage that validates boolean conditions on dataframes.
+    """
+    A pipeline stage that validates boolean conditions on dataframes.
 
     The stage does not change the input dataframe in any way.
 
@@ -817,6 +885,8 @@ class ConditionValidator(PdPipelineStage):
         'ignore', then conditions are checked, the results are printed if the
         application was called with `verbose=True`, and pipeline application
         continues. Any other value is interpreted as 'raise'.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Examples
     --------
@@ -883,7 +953,8 @@ class ConditionValidator(PdPipelineStage):
 
 
 class ApplicationContextEnricher(PdPipelineStage):
-    """A pipeline stage that enriches the pipeline's application context.
+    """
+    A pipeline stage that enriches the pipeline's application context.
 
     Keyword arguments can be either PdPipelineStage constructor arguments, in
     which case they are passed to the stage constructor, or they can be
@@ -920,7 +991,8 @@ class ApplicationContextEnricher(PdPipelineStage):
     Parameters
     ----------
     **kwargs : str to object mapping
-        The mappings to be added to the application context.
+        The mappings to be added to the application context. Also supports
+        all PdPipelineStage constructor parameters.
     """  # noqa: E501
 
     def __init__(

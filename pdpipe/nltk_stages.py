@@ -1,4 +1,5 @@
-"""PdPipeline stages dependent on the nltk Python library.
+"""
+PdPipeline stages dependent on the nltk Python library.
 
 Please note that the nltk Python package must be installed for the stages in
 this module to work.
@@ -30,7 +31,8 @@ from pdpipe.shared import (
 
 
 class TokenizeText(MapColVals):
-    """A pipeline stage that tokenizes a text column into token lists.
+    """
+    A pipeline stage that tokenizes a text column into token lists.
 
     Note: The nltk package must be installed for this pipeline stage to work.
 
@@ -44,6 +46,8 @@ class TokenizeText(MapColVals):
         If set to True, the source columns are dropped after being tokenized,
         and the resulting tokenized columns retain the names of the source
         columns. Otherwise, tokenized columns gain the suffix '_tok'.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Examples
     --------
@@ -95,7 +99,8 @@ class TokenizeText(MapColVals):
 
 
 class UntokenizeText(MapColVals):
-    """A pipeline stage that joins token lists to whitespace-separated strings.
+    """
+    A pipeline stage that joins token lists to whitespace-separated strings.
 
     Target columns must be series of token lists; i.e. every cell in the series
     is an iterable of string tokens.
@@ -112,6 +117,8 @@ class UntokenizeText(MapColVals):
         If set to True, the source columns are dropped after being untokenized,
         and the resulting columns retain the names of the source columns.
         Otherwise, untokenized columns gain the suffix '_untok'.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Examples
     --------
@@ -153,7 +160,8 @@ class UntokenizeText(MapColVals):
 
 
 class RemoveStopwords(MapColVals):
-    """A pipeline stage that removes stopwords from a tokenized list.
+    """
+    A pipeline stage that removes stopwords from a tokenized list.
 
     Target columns must be series of token lists; i.e. every cell in the series
     is an iterable of string tokens.
@@ -175,6 +183,8 @@ class RemoveStopwords(MapColVals):
         If set to True, the source columns are dropped after stopword removal,
         and the resulting columns retain the names of the source columns.
         Otherwise, resulting columns gain the suffix '_nostop'.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Examples
     --------
@@ -245,7 +255,8 @@ class RemoveStopwords(MapColVals):
 
 
 class SnowballStem(MapColVals):
-    """A pipeline stage that stems tokens in a list using the Snowball stemmer.
+    """
+    A pipeline stage that stems tokens in a list using the Snowball stemmer.
 
     Target columns must be series of token lists; i.e. every cell in the series
     is an iterable of string tokens.
@@ -269,6 +280,8 @@ class SnowballStem(MapColVals):
         If provided, tokens shorter than this length are not stemmed.
     max_len : int, optional
         If provided, tokens longer than this length are not stemmed.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Attributes
     ----------
@@ -394,7 +407,8 @@ class SnowballStem(MapColVals):
 
 
 class DropRareTokens(ColumnsBasedPipelineStage):
-    """A pipeline stage that drop rare tokens from token lists.
+    """
+    A pipeline stage that drop rare tokens from token lists.
 
     Target columns must be series of token lists; i.e. every cell in the series
     is an iterable of string tokens.
@@ -414,6 +428,8 @@ class DropRareTokens(ColumnsBasedPipelineStage):
         If set to True, the source columns are dropped after being transformed,
         and the resulting columns retain the names of the source columns.
         Otherwise, the new columns gain the suffix '_norare'.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Examples
     --------

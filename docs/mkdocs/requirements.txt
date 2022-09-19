@@ -9,3 +9,5 @@ scikit-learn
 nltk
 git+https://github.com/pdpipe/pdpipe.git
 pytkdocs[numpy-style]>=0.5.0
+# specifically fixed deps by Shay
+griffe>=0.22.2

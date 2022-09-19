@@ -1,4 +1,5 @@
-"""Classes for sklearn integration.
+"""
+Classes for sklearn integration.
 
 Despite similar names, there is a difference between pdpipe PdPipeline and
 sklearn.pipeline.Pipeline. PdPipeline can only chain transformers while
@@ -25,7 +26,8 @@ from .util import LabelPlaceholderForPredict
 
 
 def _estimator_has(attr):
-    """Check if we can delegate a method to the underlying estimator.
+    """
+    Check if we can delegate a method to the underlying estimator.
 
     Calling a prediction method will only be available if `refit=True`. In
     such case, we check first the fitted best estimator. If it is not
@@ -44,7 +46,8 @@ def _estimator_has(attr):
 
 
 class _AvailableIfDescriptor:  # pragma: no cover
-    """Implements a conditional property using the descriptor protocol.
+    """
+    Implement a conditional property using the descriptor protocol.
 
     Using this class to create a decorator will raise an ``AttributeError``
     if check(self) returns a falsey value. Note that if check raises an error
@@ -93,7 +96,8 @@ class _AvailableIfDescriptor:  # pragma: no cover
 
 
 def available_if(check):
-    """An attribute that is available only if check returns a truthy value.
+    """
+    An attribute that is available only if check returns a truthy value.
 
     Parameters
     ----------
@@ -101,13 +105,19 @@ def available_if(check):
         When passed the object with the decorated method, this should return
         a truthy value if the attribute is available, and either return False
         or raise an AttributeError if not available.
+
+    Returns
+    -------
+    callable
+        A lambda based attribute.
     """
     return lambda fn: _AvailableIfDescriptor(
         fn, check, attribute_name=fn.__name__)
 
 
 class PdPipelineAndSklearnEstimator(BaseEstimator):
-    """A PdPipeline object chained before an sklearn estimator object.
+    """
+    A PdPipeline object chained before an sklearn estimator object.
 
     This kind of object can also be used with sklearn's GridSearchCV.
 
@@ -189,14 +199,17 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
 
     @property
     def classes_(self):
-        """Class labels.
+        """
+        Class labels.
+
         Only available when the estimator is a classifier.
         """
         _estimator_has("classes_")(self)
         return self.estimator.classes_
 
     def fit(self, X, y):
-        """A reference implementation of a fitting function.
+        """
+        A reference implementation of a fitting function.
 
         Parameters
         ----------
@@ -231,7 +244,8 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
 
     @available_if(_estimator_has("predict"))
     def predict(self, X):
-        """ A reference implementation of a predicting function.
+        """
+        A reference implementation of a predicting function.
 
         Parameters
         ----------
@@ -254,7 +268,9 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
 
     @available_if(_estimator_has("predict_proba"))
     def predict_proba(self, X):
-        """Call predict_proba on the estimator with the best found parameters.
+        """
+        Call predict_proba on the estimator with the best found parameters.
+
         Only available if the underlying estimator supports
         ``predict_proba``.
 
@@ -304,7 +320,9 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
 
     @available_if(_estimator_has("decision_function"))
     def decision_function(self, X):
-        """Call decision_function on the estimator with best found parameters.
+        """
+        Call decision_function on the estimator with best found parameters.
+
         Only available if the underlying estimator supports
         ``decision_function``.
 
@@ -329,7 +347,8 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
 
 
 class _PdPipeScorer:
-    """A pdpipe scorer object wrapping a standard sklearn scorer.
+    """
+    A pdpipe scorer object wrapping a standard sklearn scorer.
 
     Parameters
     ----------
@@ -361,7 +380,8 @@ class _PdPipeScorer:
 
 
 def pdpipe_scorer_from_sklearn_scorer(scorer: Callable) -> Callable:
-    """Converts an sklearn scorer to one that will work with pdpipe.
+    """
+    Converts an sklearn scorer to one that will work with pdpipe.
 
     The returned scorer function can then be used with sklearn's
     model-evaluation tools using cross-validation (such as

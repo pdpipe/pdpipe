@@ -1,4 +1,5 @@
-"""PdPipeline stages dependent on the scikit-learn Python library.
+"""
+PdPipeline stages dependent on the scikit-learn Python library.
 
 Please note that the scikit-learn Python package must be installed for the
 stages in this module to work.
@@ -39,7 +40,8 @@ from .lbl import _SkipOnLabelPlaceholderPredict
 
 
 class Encode(ColumnsBasedPipelineStage):
-    """A pipeline stage that encodes categorical columns to integer values.
+    """
+    A pipeline stage that encodes categorical columns to integer values.
 
     The encoder for each column is saved in the attribute 'encoders', which
     is a dict mapping each encoded column name to the
@@ -62,6 +64,8 @@ class Encode(ColumnsBasedPipelineStage):
         If set to True, the source columns are dropped after being encoded,
         and the resulting encoded columns retain the names of the source
         columns. Otherwise, encoded columns gain the suffix '_enc'.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Attributes
     ----------
@@ -147,7 +151,8 @@ class Encode(ColumnsBasedPipelineStage):
 
 
 class Scale(ColumnsBasedPipelineStage):
-    """A pipeline stage that scales data.
+    """
+    A pipeline stage that scales data.
 
     Parameters
     ----------
@@ -174,6 +179,8 @@ class Scale(ColumnsBasedPipelineStage):
         constructor on scaler creation (e.g. 'n_quantiles' for
         QuantileTransformer). PdPipelineStage valid keyword arguments are used
         to override Scale class defaults.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Attributes
     ----------
@@ -286,7 +293,8 @@ class Scale(ColumnsBasedPipelineStage):
 
 
 class TfidfVectorizeTokenLists(PdPipelineStage):
-    """A pipeline stage TFIDF-vectorizing a token-list column to count columns.
+    """
+    A pipeline stage TFIDF-vectorizing a token-list column to count columns.
 
     Every cell in the input columns is assumed to be a list of strings, each
     representing a single token. The resulting TF-IDF vector is exploded into
@@ -314,6 +322,8 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
         TfidfVectorizeTokenLists pipeline stages vectorizing two different
         token-list columns, you should set this to true, so tf-idf features
         originating in different text columns do not overwrite one another.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Examples
     --------
@@ -392,8 +402,8 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
 
 
 class Decompose(ColumnsBasedPipelineStage):
-    """A pipeline stage applying dimensionality reduction through matrix
-    decomposition.
+    """
+    A stage applying dimensionality reduction through matrix decomposition.
 
     Parameters
     ----------
@@ -542,12 +552,18 @@ class Decompose(ColumnsBasedPipelineStage):
 
 
 class EncodeLabel(PdPipelineStage):
-    """A pipeline stage that encodes the input label series to integer values.
+    """
+    A pipeline stage that encodes the input label series to integer values.
 
     The encoder for each column is saved in the attribute 'encoder', which
     is a dict mapping each encoded column name to the
     The used `sklearn.preprocessing.LabelEncoder` object is saved in the
     `encoder_` attribute.
+
+    Parameters
+    ----------
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Attributes
     ----------

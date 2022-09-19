@@ -1,4 +1,6 @@
 """
+Easy pandas piplines.
+
 The `pdpipe` Python package provides a concise interface for building `pandas`
 pipelines that have pre-conditions, are verbose, support the fit-transform
 design of scikit-learn transformers and are highly serializable. `pdpipe`
@@ -120,6 +122,7 @@ except ImportError:
         "stages will not be loaded."
     )
 
+from . import run_time_parameters
 from .run_time_parameters import (
     dynamic
 )
@@ -157,6 +160,14 @@ try:
     del name  # pylint: disable=W0631
 except NameError:
     pass
+
+from .cfg import (
+    LOAD_CORE_AS_MODULE,
+)
+
+if LOAD_CORE_AS_MODULE:
+    from . import core
+del LOAD_CORE_AS_MODULE
 
 # this dictates which modules are skipped on pdoc documentation generation
 __pdoc__ = {

@@ -1,6 +1,11 @@
 name: Test
 
-on: [push, pull_request]
+on:
+  pull_request:
+  push:
+  schedule:
+     # * is a special character in YAML so you have to quote this string
+     - cron: '0 */72 * * *'
 
 jobs:
   build:
@@ -27,9 +32,11 @@ jobs:
           python -m pip install codecov
           python -m pip install --only-binary=all numpy scipy pandas scikit-learn nltk
           python -m pip install -e ".[test]"
+
       - name: Unit tests
         run: |
           python -m pytest
+
       - name: Report coverage
         run: |
           python -m codecov

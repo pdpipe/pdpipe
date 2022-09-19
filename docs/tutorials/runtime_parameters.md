@@ -16,8 +16,7 @@ import numpy as np; import pandas as pd; import pdpipe as pdp;
 
 def scaling_decider(X: pd.DataFrame) -> str:
     """
-    Determines which type of scaling to apply by examining all numerical 
-    columns.
+    Determines what scaler to apply by examining all numerical columns.
     """
     numX = X.select_dtypes(include=np.number)
     for col in numX.columns:
@@ -26,9 +25,9 @@ def scaling_decider(X: pd.DataFrame) -> str:
     return 'MinMaxScaler'
 
 pipeline = pdp.PdPipeline(stages=[
-    pdp.ColDrop(pdp.cq.StartWith('n_')),  # not connected to scale
+    pdp.ColDrop(pdp.cq.StartWith('n_')),  # unrelated to scaling
     pdp.Scale(
-        scaler=pdp.dynamic(scaling_decider, fit=False),  
+        scaler=pdp.dynamic(scaling_decider, fit=False),
         joint=True,
     )
 ])

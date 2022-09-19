@@ -30,7 +30,8 @@ from .exceptions import PipelineApplicationError
 
 
 class Bin(PdPipelineStage):
-    """A pipeline stage that adds a binned version of a column or columns.
+    """
+    A pipeline stage that adds a binned version of a column or columns.
 
     If drop is set to True, the new columns retain the names of the source
     columns; otherwise, the resulting column gain the suffix '_bin'
@@ -48,6 +49,8 @@ class Bin(PdPipelineStage):
         [8, ∞).
     drop : bool, default True
         If set to True, the source columns are dropped after being binned.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Examples
     --------
@@ -144,7 +147,8 @@ class Bin(PdPipelineStage):
 
 
 class OneHotEncode(ColumnsBasedPipelineStage):
-    """A pipeline stage that one-hot-encodes categorical columns.
+    """
+    A pipeline stage that one-hot-encodes categorical columns.
 
     By default only k-1 dummies are created fo k categorical levels, as to
     avoid perfect multicollinearity between the dummy features (also called
@@ -174,6 +178,8 @@ class OneHotEncode(ColumnsBasedPipelineStage):
         category will still be dropped.
     drop : bool, default True
         If set to True, the source columns are dropped after being encoded.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Examples
     --------
@@ -293,7 +299,8 @@ class OneHotEncode(ColumnsBasedPipelineStage):
 
 
 class ColumnTransformer(ColumnsBasedPipelineStage):
-    """A pipeline stage that applies transformation to dataframe columns.
+    """
+    A pipeline stage that applies transformation to dataframe columns.
 
     This is an abstract base class for pipeline stages that apply
     transformations to dataframe columns. Subclasses should implement the
@@ -327,6 +334,8 @@ class ColumnTransformer(ColumnsBasedPipelineStage):
         If set to True, source columns are dropped after being transformed.
     suffix : str, default '_transformed'
         The suffix transformed columns gain if no new column labels are given.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
     """
 
     _INIT_KWARGS = [
@@ -400,7 +409,8 @@ class ColumnTransformer(ColumnsBasedPipelineStage):
 
 
 class _AttrGetter():
-    """A custom callable that gets a specific attribute from input objects.
+    """
+    A custom callable that gets a specific attribute from input objects.
 
     Parameters
     ----------
@@ -416,7 +426,10 @@ class _AttrGetter():
 
 
 class _MethodRetValGetter():
-    """A custom callable that gets the return value of a specified method with
+    """
+    A callable that gets a method's return value given specific kwargs.
+
+    A custom callable that gets the return value of a specified method with
     specified keyword arguments from input objects.
 
     Parameters
@@ -440,7 +453,8 @@ class _MethodRetValGetter():
 
 
 class MapColVals(ColumnTransformer):
-    """A pipeline stage that replaces the values of a column by a map.
+    """
+    A pipeline stage that replaces the values of a column by a map.
 
     Parameters
     ----------
@@ -471,6 +485,8 @@ class MapColVals(ColumnTransformer):
         If set to True, source columns are dropped after being mapped.
     suffix : str, default '_map'
         The suffix mapped columns gain if no new column labels are given.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Examples
     --------
@@ -537,7 +553,8 @@ class MapColVals(ColumnTransformer):
 
 
 class ApplyToRows(PdPipelineStage):
-    """A pipeline stage generating columns by applying a function to each row.
+    """
+    A pipeline stage generating columns by applying a function to each row.
 
     Parameters
     ----------
@@ -558,7 +575,8 @@ class ApplyToRows(PdPipelineStage):
         A function taking a DataFrame, returning True if this stage is
         applicable to the given DataFrame. If None is given, a function always
         returning True is used.
-
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Examples
     --------
@@ -652,7 +670,9 @@ class ApplyToRows(PdPipelineStage):
 
 
 class ApplyByCols(ColumnTransformer):
-    """A pipeline stage applying an element-wise function to columns.
+    """
+    A pipeline stage applying an element-wise function to columns.
+
     For applying series-wise function, see `AggByCols`.
 
     Parameters
@@ -757,7 +777,8 @@ class ApplyByCols(ColumnTransformer):
 
 
 class ColByFrameFunc(PdPipelineStage):
-    """A pipeline stage adding a column by applying a dataframe-wide function.
+    """
+    A pipeline stage adding a column by applying a dataframe-wide function.
 
     Note that assigning `column` with the label of an existing column and
     providing the same label to the `before_column` parameter will result in
@@ -783,7 +804,8 @@ class ColByFrameFunc(PdPipelineStage):
     func_desc : str, default None
         A function description of the given function; e.g. 'normalizing revenue
         by company size'. A default description is used if None is given.
-
+    **kwargs : object
+        all pdpipelinestage constructor parameters are supported.
 
     Examples
     --------
@@ -849,7 +871,9 @@ class ColByFrameFunc(PdPipelineStage):
 
 
 class AggByCols(ColumnTransformer):
-    """A pipeline stage applying a series-wise function to columns.
+    """
+    A pipeline stage applying a series-wise function to columns.
+
     For applying element-wise function, see `ApplyByCols`.
 
     Parameters
@@ -876,7 +900,8 @@ class AggByCols(ColumnTransformer):
     suffix : str, optional
         The suffix to add to resulting columns in case where results_columns
         is None and drop is set to False. Of not given, defaults to '_agg'.
-
+    **kwargs : object
+        all pdpipelinestage constructor parameters are supported.
 
     Examples
     --------
@@ -931,7 +956,8 @@ class AggByCols(ColumnTransformer):
 
 
 class Log(ColumnsBasedPipelineStage):
-    """A pipeline stage that log-transforms numeric data.
+    """
+    A pipeline stage that log-transforms numeric data.
 
     Parameters
     ----------
@@ -957,6 +983,8 @@ class Log(ColumnsBasedPipelineStage):
         If given, each transformed column is first shifted by this constant. If
         non_neg is True then that transformation is applied first, and only
         then is the column shifted by this constant.
+    **kwargs : object
+        all pdpipelinestage constructor parameters are supported.
 
     Examples
     --------

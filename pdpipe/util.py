@@ -1,11 +1,19 @@
 """Utility methods for pdpipe."""
 
+from typing import List, Optional
+
 import numpy as np
 import pandas as pd
 
 
-def out_of_place_col_insert(X, series, loc, column_name=None):
-    """Returns a new dataframe with given column inserted at given location.
+def out_of_place_col_insert(
+    X: pd.DataFrame,
+    series: pd.Series,
+    loc: int,
+    column_name: Optional[str] = None,
+) -> pd.DataFrame:
+    """
+    Return a new dataframe with given column inserted at given location.
 
     Parameters
     ----------
@@ -46,8 +54,9 @@ def out_of_place_col_insert(X, series, loc, column_name=None):
     return inter_X.loc[:, cols]
 
 
-def get_numeric_column_names(X):
-    """Return the names of all columns of numeric type.
+def get_numeric_column_names(X: pd.DataFrame) -> List[str]:
+    """
+    Return the names of all columns of numeric type.
 
     Parameters
     ----------
@@ -74,8 +83,12 @@ def get_numeric_column_names(X):
     return num_cols
 
 
-def per_column_values_sklearn_transform(X: pd.DataFrame, transform: callable):
-    """Applies a 2d-array sklearn transform to 1d values arrays of a dataframe.
+def per_column_values_sklearn_transform(
+    X: pd.DataFrame,
+    transform: callable,
+) -> pd.DataFrame:
+    """
+    Applies a 2d-array sklearn transform to 1d values arrays of a dataframe.
 
     Parameters
     ----------
@@ -103,7 +116,8 @@ _LBL_PHOLDER_PREDICT = "__pdpipe_lbl_pholder_predict__"
 
 
 class LabelPlaceholderForPredict(pd.Series):
-    """A placeholder for y while predicting.
+    """
+    A placeholder for y while predicting.
 
     Parameters
     ----------

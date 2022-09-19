@@ -33,7 +33,8 @@ class _SkipOnLabelPlaceholderPredict:
 
 
 class DropLabelsByValues(PdPipelineStage):
-    """A pipeline stage that drop values from the input label series.
+    """
+    A pipeline stage that drop values from the input label series.
 
     Parameters
     ----------
@@ -45,7 +46,8 @@ class DropLabelsByValues(PdPipelineStage):
         Drop all labels not in the input set of values.
     not_in_ranges : iterable of iterables of scalars, optional
         Drop all labels not in the input ranges of values.
-
+    **kwargs : object
+        All pdpipelinestage constructor parameters are supported.
 
     Examples
     --------

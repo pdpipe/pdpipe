@@ -8,7 +8,8 @@ from pdpipe.pdp_types import ColumnsParamType, ColumnLabelsType
 
 
 class RegexReplace(ApplyByCols):
-    """A pipeline stage replacing regex occurences in a text column.
+    """
+    A pipeline stage replacing regex occurences in a text column.
 
     Parameters
     ----------
@@ -30,6 +31,8 @@ class RegexReplace(ApplyByCols):
         and concatenated with the suffix '_reg'.
     drop : bool, default True
         If set to True, source columns are dropped after being transformed.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Examples
     --------
@@ -79,7 +82,6 @@ class RegexReplace(ApplyByCols):
         flags: Optional[int] = 0,
         result_columns: Optional[ColumnLabelsType] = None,
         drop: Optional[bool] = True,
-        func_desc: Optional[str] = None,
         **kwargs,
     ):
         self._pattern_str = pattern
@@ -101,7 +103,8 @@ class RegexReplace(ApplyByCols):
 
 
 class DropTokensByLength(ApplyByCols):
-    """A pipeline stage removing tokens by length in string-token list columns.
+    """
+    A pipeline stage removing tokens by length in string-token list columns.
 
     Parameters
     ----------
@@ -123,6 +126,8 @@ class DropTokensByLength(ApplyByCols):
         suffix '_filtered'.
     drop : bool, default True
         If set to True, source columns are dropped after being transformed.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Examples
     --------
@@ -183,7 +188,8 @@ class DropTokensByLength(ApplyByCols):
 
 
 class DropTokensByList(ApplyByCols):
-    """A pipeline stage removing specific tokens in string-token list columns.
+    """
+    A pipeline stage removing specific tokens in string-token list columns.
 
     Parameters
     ----------
@@ -201,6 +207,8 @@ class DropTokensByList(ApplyByCols):
         suffix '_filtered'.
     drop : bool, default True
         If set to True, source columns are dropped after being transformed.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Examples
     --------

@@ -1,4 +1,5 @@
-"""On the fly, relative pipeline stage creation.
+"""
+On the fly, relative pipeline stage creation.
 
 Use `drop_rows_where` and `keep_rows_where` as handles to the future dataframe,
 using the `[]` indexing syntax to select a (single) column to apply the logic
@@ -62,7 +63,8 @@ from . import rq
 # === Auxilary pipeline stages ===
 
 class KeepRowsByQualifier(PdPipelineStage):
-    """A pipeline stage that keeps rows by a row qualifier.
+    """
+    A pipeline stage that keeps rows by a row qualifier.
 
     All rows which the qualifier qualifies (i.e. return a boolean series with
     True in the corresponding entries) will be kept, while all other rows will
@@ -73,6 +75,8 @@ class KeepRowsByQualifier(PdPipelineStage):
     qualifier : RowQualifier
         An object that returns a boolean series from input dataframes. See more
         in `pdpipe.rq`.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Examples
     --------
@@ -131,7 +135,8 @@ class KeepRowsByQualifier(PdPipelineStage):
 
 
 class DropRowsByQualifier(PdPipelineStage):
-    """A pipeline stage that drops rows by a row qualifier.
+    """
+    A pipeline stage that drops rows by a row qualifier.
 
     All rows which the qualifier qualifies (i.e. return a boolean series with
     True in the corresponding entries) will be dropped, while all other rows
@@ -142,6 +147,8 @@ class DropRowsByQualifier(PdPipelineStage):
     qualifier : RowQualifier
         An object that returns a boolean series from input dataframes. See more
         in `pdpipe.rq`.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
 
     Examples
     --------

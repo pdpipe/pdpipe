@@ -174,6 +174,11 @@ Doctests can be added in the traditional manner:
 ==========
 Created by `Shay Palachy <http://www.shaypalachy.com/>`_  (shay.palachy@gmail.com).
 
+⭐ Feature Contributors:
+------------------------
+
+* `Amihai Offenbacher @amihaiOff <https://github.com/amihaiOff>`_ - Runtime parameters.
+
 🐞 Bugfixes & Documentation:
 ----------------------------
 

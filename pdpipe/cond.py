@@ -6,13 +6,14 @@ from .shared import _list_str
 
 
 class UnfittedConditionError(Exception):
-    """An exception raised when a (non-fit) transform is attempted with an
-    unfitted condition.
+    """
+    Raised when a transform is attempted with an unfitted condition.
     """
 
 
 class Condition(object):
-    """A fittable condition that returns a boolean value from a dataframe.
+    """
+    A fittable condition that returns a boolean value from a dataframe.
 
     Parameters
     ----------
@@ -43,7 +44,8 @@ class Condition(object):
             self._error_message = error_message
 
     def __call__(self, X):
-        """Returns column labels of qualified columns from an input dataframe.
+        """
+        Return column labels of qualified columns from an input dataframe.
 
         Parameters
         ----------
@@ -61,7 +63,8 @@ class Condition(object):
             return self.fit_transform(X)
 
     def fit_transform(self, X):
-        """Fits this condition and returns the result.
+        """
+        Fit this condition and returns the result.
 
         Parameters
         ----------
@@ -77,7 +80,8 @@ class Condition(object):
         return self._result
 
     def fit(self, X):
-        """Fits this condition on the input dataframe.
+        """
+        Fit this condition on the input dataframe.
 
         Parameters
         ----------
@@ -87,7 +91,8 @@ class Condition(object):
         self.fit_transform(X)
 
     def transform(self, X):
-        """Returns the result of this condition.
+        """
+        Return the result of this condition.
 
         Is this Condition is fittable, it will return the result that was
         determined when fitted, if it's fitted, and throw an exception
@@ -194,7 +199,8 @@ class Condition(object):
 
 
 class PerColumnCondition(Condition):
-    """Checks whether the columns of input dataframes satisfy a condition set.
+    """
+    Check whether the columns of input dataframes satisfy a condition set.
 
     Parameters
     ----------
@@ -323,7 +329,8 @@ conditions: anonymous condition>
 
 
 class HasAllColumns(Condition):
-    """Checks whether input dataframes contain a list of columns.
+    """
+    Check whether input dataframes contain a list of columns.
 
     Parameters
     ----------
@@ -377,7 +384,8 @@ class HasAllColumns(Condition):
 
 
 class ColumnsFromList(PerColumnCondition):
-    """Checks whether input dataframes contain columns from a list.
+    """
+    Check whether input dataframes contain columns from a list.
 
     Parameters
     ----------
@@ -432,7 +440,8 @@ conditions: Series with labels in num>
 
 
 class HasNoColumn(Condition):
-    """Checks whether input dataframes contains no column from a list.
+    """
+    Check whether input dataframes contains no column from a list.
 
     Parameters
     ----------
@@ -493,8 +502,8 @@ class HasNoColumn(Condition):
 
 
 class HasAtMostMissingValues(Condition):
-    """Checks whether input dataframes has no more than X missing values
-    across all columns.
+    """
+    Check if a dataframes has no more than X missing values across all columns.
 
     Parameters
     ----------
@@ -572,7 +581,8 @@ class HasAtMostMissingValues(Condition):
 
 
 class HasNoMissingValues(HasAtMostMissingValues):
-    """Checks whether input dataframes has no missing values.
+    """
+    Check whether input dataframes has no missing values.
 
     Parameters
     ----------
@@ -610,7 +620,14 @@ def _AlwaysTrue(X: pandas.DataFrame) -> bool:
 
 
 class AlwaysTrue(Condition):
-    """A condition letting all dataframes through, always returning True.
+    """
+    A condition letting all dataframes through, always returning True.
+
+    Parameters
+    ----------
+    **kwargs
+        Accepts all keyword arguments of the constructor of Condition. See the
+        documentation of Condition for details.
 
     Examples
     --------
@@ -635,7 +652,8 @@ class AlwaysTrue(Condition):
 
 
 class HasAtMostNQualifyingColumns(Condition):
-    """Checks whether a dataframe has at most N columns statisfying a qualifier.
+    """
+    Check whether a dataframe has at most N columns statisfying a qualifier.
 
     Parameters
     ----------
@@ -700,8 +718,8 @@ class HasAtMostNQualifyingColumns(Condition):
 
 
 class HasAtLeastNQualifyingColumns(Condition):
-    """Checks whether a dataframe has at least N columns statisfying a
-    qualifier.
+    """
+    Check if a dataframe has at least N columns statisfying a qualifier.
 
     Parameters
     ----------
@@ -766,7 +784,8 @@ class HasAtLeastNQualifyingColumns(Condition):
 
 
 class HasNoQualifyingColumns(HasAtMostNQualifyingColumns):
-    """Checks whether a dataframe has no columns statisfying a qualifier.
+    """
+    Check whether a dataframe has no columns statisfying a qualifier.
 
     Parameters
     ----------
