@@ -21,23 +21,46 @@ from pdpipe.skintegrate import (
 
 DF1 = pd.DataFrame(
     data=[
-        [23, 'Jo', 'M', True, 0.07, 'USA', 'Living life to its fullest'],
-        [52, 'Regina', 'F', False, 0.26, 'Germany', 'I hate cats'],
-        [23, 'Dana', 'F', True, 0.3, 'USA', 'the pen is mightier then the sword'],  # noqa : E501
-        [25, 'Bo', 'M', False, 2.3, 'Greece', 'all for one and one for all'],
-        [80, 'Richy', 'M', False, 100.2, 'Finland', 'I gots the dollarz'],
-        [60, 'Paul', 'M', True, 1.87, 'Denmark', 'blah'],
-        [44, 'Derek', 'M', True, 1.1, 'Denmark', 'every life is precious'],
-        [72, 'Regina', 'F', True, 7.1, 'Greece', 'all of you get off my porch'],  # noqa : E501
-        [50, 'Jim', 'M', False, 0.2, 'Germany', 'boy do I love dogs and cats'],
-        [80, 'Wealthus', 'F', False, 123.2, 'Finland', 'me likey them moniez'],
+        [23, "Jo", "M", True, 0.07, "USA", "Living life to its fullest"],
+        [52, "Regina", "F", False, 0.26, "Germany", "I hate cats"],
+        [
+            23,
+            "Dana",
+            "F",
+            True,
+            0.3,
+            "USA",
+            "the pen is mightier then the sword",
+        ],  # noqa : E501
+        [25, "Bo", "M", False, 2.3, "Greece", "all for one and one for all"],
+        [80, "Richy", "M", False, 100.2, "Finland", "I gots the dollarz"],
+        [60, "Paul", "M", True, 1.87, "Denmark", "blah"],
+        [44, "Derek", "M", True, 1.1, "Denmark", "every life is precious"],
+        [
+            72,
+            "Regina",
+            "F",
+            True,
+            7.1,
+            "Greece",
+            "all of you get off my porch",
+        ],  # noqa : E501
+        [50, "Jim", "M", False, 0.2, "Germany", "boy do I love dogs and cats"],
+        [80, "Wealthus", "F", False, 123.2, "Finland", "me likey them moniez"],
     ],
-    columns=['Age', 'Name', 'Gender', 'Smoking', 'Savings', 'Country', 'Quote'],  # noqa : E501
+    columns=[
+        "Age",
+        "Name",
+        "Gender",
+        "Smoking",
+        "Savings",
+        "Country",
+        "Quote",
+    ],  # noqa : E501
 )
 
 
 class MyPipelineAndModel(PdPipelineAndSklearnEstimator):
-
     def __init__(
         self,
         savings_max_val: Optional[int] = 100,
@@ -55,22 +78,22 @@ class MyPipelineAndModel(PdPipelineAndSklearnEstimator):
         self.fit_intercept = fit_intercept
         cols_to_drop = []
         stages = [
-            pdp.ColDrop(['Name', 'Quote'], errors='ignore'),
+            pdp.ColDrop(["Name", "Quote"], errors="ignore"),
         ]
         if savings_bin_val:
-            stages.append(pdp.Bin({'Savings': [savings_bin_val]}, drop=False))
-            stages.append(pdp.Encode('Savings_bin'))
+            stages.append(pdp.Bin({"Savings": [savings_bin_val]}, drop=False))
+            stages.append(pdp.Encode("Savings_bin"))
         if scale_numeric:
-            stages.append(pdp.Scale('MinMaxScaler'))
+            stages.append(pdp.Scale("MinMaxScaler"))
         if drop_gender:
-            cols_to_drop.append('Gender')
+            cols_to_drop.append("Gender")
         else:
-            stages.append(pdp.Encode('Gender'))
+            stages.append(pdp.Encode("Gender"))
         if ohencode_country:
-            stages.append(pdp.OneHotEncode('Country'))
+            stages.append(pdp.OneHotEncode("Country"))
         else:
-            cols_to_drop.append('Country')
-        stages.append(pdp.ColDrop(cols_to_drop, errors='ignore'))
+            cols_to_drop.append("Country")
+        stages.append(pdp.ColDrop(cols_to_drop, errors="ignore"))
         pline = pdp.PdPipeline(stages)
         model = LogisticRegression(fit_intercept=fit_intercept)
         super().__init__(pipeline=pline, estimator=model)
@@ -94,9 +117,9 @@ def test_pdpipeline_and_sklearn_model():
 
     # X-y subsets
     df = DF1.copy()
-    x_lbls = ['Age', 'Gender', 'Savings', 'Country']
+    x_lbls = ["Age", "Gender", "Savings", "Country"]
     all_x = df[x_lbls]
-    all_y = df['Smoking']
+    all_y = df["Smoking"]
 
     # check inheritence of predict, predict_proba, etc.
     mp.fit(all_x, all_y)
@@ -120,8 +143,8 @@ def test_pdpipeline_and_sklearn_model():
     gcv = GridSearchCV(
         estimator=mp,
         param_grid={
-            'savings_max_val': [99, 101],
-            'scale_numeric': [True, False],
+            "savings_max_val": [99, 101],
+            "scale_numeric": [True, False],
         },
         cv=3,
     )
@@ -139,8 +162,8 @@ def test_pdpipeline_and_sklearn_model():
     gcv = GridSearchCV(
         estimator=mp,
         param_grid={
-            'savings_max_val': [99, 101],
-            'scale_numeric': [True, False],
+            "savings_max_val": [99, 101],
+            "scale_numeric": [True, False],
         },
         cv=3,
         scoring=my_scorer,
@@ -154,18 +177,18 @@ def test_pdpipeline_and_sklearn_model():
 
 
 DF2 = pd.DataFrame(
-    data=[['-1', 0], ['-1', 0], ['1', 1], ['1', 1]],
+    data=[["-1", 0], ["-1", 0], ["1", 1], ["1", 1]],
     index=[1, 2, 3, 4],
-    columns=['feature1', 'target']
+    columns=["feature1", "target"],
 )
 
 
 def test_pdpipeline_and_sklearn_model_documentation():
-    all_x = DF2[['feature1']]
-    all_y = DF2['target']
+    all_x = DF2[["feature1"]]
+    all_y = DF2["target"]
     mp = PdPipelineAndSklearnEstimator(
-        pipeline=pdp.ColumnDtypeEnforcer({'feature1': int}),
-        estimator=LogisticRegression()
+        pipeline=pdp.ColumnDtypeEnforcer({"feature1": int}),
+        estimator=LogisticRegression(),
     )
     mp.fit(all_x, all_y)
     res = mp.predict(all_x)
@@ -175,13 +198,13 @@ def test_pdpipeline_and_sklearn_model_documentation():
 
 
 def test_pdpipeline_and_sklearn_model_Kmeans():
-    all_x = DF2[['feature1']]
-    all_y = DF2['target']
+    all_x = DF2[["feature1"]]
+    all_y = DF2["target"]
 
     # first check that y is ignored successfuly everywhere
     mp = PdPipelineAndSklearnEstimator(
-        pipeline=pdp.ColumnDtypeEnforcer({'feature1': int}),
-        estimator=KMeans(n_clusters=2)
+        pipeline=pdp.ColumnDtypeEnforcer({"feature1": int}),
+        estimator=KMeans(n_clusters=2),
     )
     mp.fit(all_x, all_y)
     res = mp.predict(all_x)
@@ -192,8 +215,8 @@ def test_pdpipeline_and_sklearn_model_Kmeans():
 
     # now without sending y
     mp = PdPipelineAndSklearnEstimator(
-        pipeline=pdp.ColumnDtypeEnforcer({'feature1': int}),
-        estimator=KMeans(n_clusters=2)
+        pipeline=pdp.ColumnDtypeEnforcer({"feature1": int}),
+        estimator=KMeans(n_clusters=2),
     )
     mp.fit(all_x, None)
     res = mp.predict(all_x)

@@ -23,6 +23,7 @@ class DynamicParameter:
         Denotes whether the parameter can be fitted, or should perform the
         deciding logic every time.
     """
+
     def __init__(
         self,
         parameter_selector: Callable,
@@ -60,7 +61,7 @@ class DynamicParameter:
             if len(POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
                 self._parameter = self._parameter_selector(X)
             else:
-                raise TypeError('Parameter selector must be callable') from e
+                raise TypeError("Parameter selector must be callable") from e
         return self._parameter
 
     def transform(self) -> object:
@@ -72,8 +73,8 @@ class DynamicParameter:
         object
             The fitted value of this dynamic parameter.
         """
-        if not hasattr(self, '_parameter'):
-            raise AttributeError('Parameter not fitted')  # pragma: no cover
+        if not hasattr(self, "_parameter"):
+            raise AttributeError("Parameter not fitted")  # pragma: no cover
         return self._parameter
 
     def __call__(
@@ -83,7 +84,7 @@ class DynamicParameter:
         *args,
         **kwargs,
     ):
-        if self._fittable and hasattr(self, '_parameter'):
+        if self._fittable and hasattr(self, "_parameter"):
             return self.transform()
         else:
             return self.fit_transform(X, y)

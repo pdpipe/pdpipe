@@ -10,14 +10,14 @@ from pdpipe import cq
 def _one_categ_df(category=False):
     df = pd.DataFrame([["USA"], ["UK"], ["Greece"]], [1, 2, 3], ["Born"])
     if category:
-        df['Born'] = df['Born'].astype('category')
+        df["Born"] = df["Born"].astype("category")
     return df
 
 
 def _one_categ_single_row_df(category=False):
     df = pd.DataFrame([["Greece"]], [1], ["Born"])
     if category:
-        df['Born'] = df['Born'].astype('category')
+        df["Born"] = df["Born"].astype("category")
     return df
 
 

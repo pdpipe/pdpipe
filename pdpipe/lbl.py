@@ -13,7 +13,6 @@ from .util import _LBL_PHOLDER_PREDICT
 
 
 class _SkipOnLabelPlaceholderPredict:
-
     def __init__(self, skip_cond: Optional[callable] = None) -> None:
         self.skip_cond = skip_cond
 
@@ -80,11 +79,11 @@ class DropLabelsByValues(PdPipelineStage):
         self.not_in_set = not_in_set
         self.not_in_ranges = not_in_ranges
         skipi = _SkipOnLabelPlaceholderPredict()
-        if 'skip' in kwargs:
-            skipi.skip_cond = kwargs.pop('skip')
+        if "skip" in kwargs:
+            skipi.skip_cond = kwargs.pop("skip")
         super_kwargs = {
-            'desc': "Drop rows by label values",
-            'skip': skipi,
+            "desc": "Drop rows by label values",
+            "skip": skipi,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -94,12 +93,13 @@ class DropLabelsByValues(PdPipelineStage):
 
     def _transform(self, X, verbose):
         raise UnexpectedPipelineMethodCallError(  # pragma: no cover
-            "DropLabelsByValues._transform() is not expected to be called!")
+            "DropLabelsByValues._transform() is not expected to be called!"
+        )
 
     def _transform_Xy(self, X, y, verbose):
         post_y = y
         if self.in_set is not None:
-            post_y = post_y.loc[~ post_y.isin(self.in_set)]
+            post_y = post_y.loc[~post_y.isin(self.in_set)]
         elif self.in_ranges is not None:
             to_drop = y.copy()
             to_drop.loc[:] = False
@@ -116,5 +116,6 @@ class DropLabelsByValues(PdPipelineStage):
             post_y = post_y.loc[to_keep]
         else:
             raise PipelineInitializationError(  # pragma: no cover
-                "DropLabelsByValues: No drop conditions specified.")
+                "DropLabelsByValues: No drop conditions specified."
+            )
         return X, post_y

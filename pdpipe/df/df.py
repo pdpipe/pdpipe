@@ -16,8 +16,7 @@ from .bound_column_potential import (
 )
 
 
-class _DfHandle():
-
+class _DfHandle:
     def __init__(self) -> None:
         for attr_name in dir(DataFrame):
             attr = getattr(DataFrame, attr_name)

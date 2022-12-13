@@ -7,6 +7,7 @@ import pandas
 from strct.dicts import reverse_dict_partial
 
 from pdpipe.core import PdPipelineStage, ColumnsBasedPipelineStage
+
 # from pdpipe.util import out_of_place_col_insert
 from pdpipe.shared import (
     _interpret_columns_param,
@@ -53,15 +54,15 @@ class ColDrop(ColumnsBasedPipelineStage):
         self._errors = errors
         self._post_cond = cond.HasNoColumn(columns)
         super_kwargs = {
-            'columns': columns,
-            'desc_temp': 'Drop columns {}',
+            "columns": columns,
+            "desc_temp": "Drop columns {}",
         }
         super_kwargs.update(**kwargs)
-        super_kwargs['none_columns'] = 'error'
+        super_kwargs["none_columns"] = "error"
         super().__init__(**super_kwargs)
 
     def _prec(self, X: pandas.DataFrame) -> bool:
-        if self._errors != 'ignore':
+        if self._errors != "ignore":
             return super()._prec(X)
         return True
 
@@ -69,11 +70,14 @@ class ColDrop(ColumnsBasedPipelineStage):
         return self._post_cond(X)
 
     def _transformation(
-        self, X: pandas.DataFrame, verbose: bool, fit: bool,
+        self,
+        X: pandas.DataFrame,
+        verbose: bool,
+        fit: bool,
     ) -> pandas.DataFrame:
         to_drop = self._get_columns(X, fit=fit)
         if verbose:
-            print(f'Dropping columns {_list_str(to_drop)}')
+            print(f"Dropping columns {_list_str(to_drop)}")
         return X.drop(to_drop, axis=1, errors=self._errors)
 
 
@@ -121,16 +125,19 @@ class ValDrop(ColumnsBasedPipelineStage):
         self._values = values
         self._values_str = _list_str(self._values)
         super_kwargs = {
-            'columns': columns,
-            'exclude_columns': exclude_columns,
-            'desc_temp': f'Drop values {self._values_str} in columns {{}}',
+            "columns": columns,
+            "exclude_columns": exclude_columns,
+            "desc_temp": f"Drop values {self._values_str} in columns {{}}",
         }
         super_kwargs.update(**kwargs)
-        super_kwargs['none_columns'] = 'all'
+        super_kwargs["none_columns"] = "all"
         super().__init__(**super_kwargs)
 
     def _transformation(
-        self, X: pandas.DataFrame, verbose: bool, fit: bool,
+        self,
+        X: pandas.DataFrame,
+        verbose: bool,
+        fit: bool,
     ) -> pandas.DataFrame:
         inter_X = X
         before_count = len(inter_X)
@@ -186,12 +193,12 @@ class ValKeep(ColumnsBasedPipelineStage):
         self._values = values
         self._values_str = _list_str(self._values)
         super_kwargs = {
-            'columns': columns,
-            'exclude_columns': exclude_columns,
-            'desc_temp': f'Keep values {self._values_str} in columns {{}}',
+            "columns": columns,
+            "exclude_columns": exclude_columns,
+            "desc_temp": f"Keep values {self._values_str} in columns {{}}",
         }
         super_kwargs.update(**kwargs)
-        super_kwargs['none_columns'] = 'all'
+        super_kwargs["none_columns"] = "all"
         super().__init__(**super_kwargs)
 
     def _transformation(self, X, verbose, fit):
@@ -235,8 +242,10 @@ class ColRename(PdPipelineStage):
     2    5    b
     """
 
-    _DEF_COLDRENAME_EXC_MSG = ("ColRename stage failed because not all columns"
-                               " {} were found in input dataframe.")
+    _DEF_COLDRENAME_EXC_MSG = (
+        "ColRename stage failed because not all columns"
+        " {} were found in input dataframe."
+    )
 
     def __init__(self, rename_mapper: Union[Dict, Callable], **kwargs):
         self._rename_mapper = rename_mapper
@@ -258,13 +267,13 @@ class ColRename(PdPipelineStage):
                 )
             _tprec = cond.AlwaysTrue()
         try:
-            suffix = 's' if len(rename_mapper) > 1 else ''
+            suffix = "s" if len(rename_mapper) > 1 else ""
         except TypeError:
-            suffix = 's'
+            suffix = "s"
         self._tprec = _tprec
         super_kwargs = {
-            'exmsg': ColRename._DEF_COLDRENAME_EXC_MSG.format(columns_str),
-            'desc': f"Rename column{suffix} with {mapper_repr}",
+            "exmsg": ColRename._DEF_COLDRENAME_EXC_MSG.format(columns_str),
+            "desc": f"Rename column{suffix} with {mapper_repr}",
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -299,14 +308,14 @@ class DropNa(PdPipelineStage):
     """
 
     _DEF_DROPNA_EXC_MSG = "DropNa stage failed."
-    _DROPNA_KWARGS = ['axis', 'how', 'thresh', 'subset', 'inplace']
+    _DROPNA_KWARGS = ["axis", "how", "thresh", "subset", "inplace"]
 
     def __init__(self, **kwargs):
         common = set(kwargs.keys()).intersection(DropNa._DROPNA_KWARGS)
         self._dropna_kwargs = {key: kwargs.pop(key) for key in common}
         super_kwargs = {
-            'exmsg': DropNa._DEF_DROPNA_EXC_MSG,
-            'desc': "Drops null values."
+            "exmsg": DropNa._DEF_DROPNA_EXC_MSG,
+            "desc": "Drops null values.",
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -352,21 +361,18 @@ class SetIndex(PdPipelineStage):
 
     _DEF_SETIDX_EXC_MSG = "SetIndex stage failed."
     _DEF_SETIDX_APP_MSG = "Setting indexes..."
-    _SETINDEX_KWARGS = ['drop', 'append', 'verify_integrity']
+    _SETINDEX_KWARGS = ["drop", "append", "verify_integrity"]
 
     def __init__(self, keys, **kwargs):
         common = set(kwargs.keys()).intersection(SetIndex._SETINDEX_KWARGS)
         self._setindex_kwargs = {key: kwargs.pop(key) for key in common}
         self._keys = keys
-        if hasattr(keys, '__iter__') and not isinstance(keys, str):
+        if hasattr(keys, "__iter__") and not isinstance(keys, str):
             _tprec = cond.HasAllColumns(list(keys))
         else:
             _tprec = cond.HasAllColumns([keys])
         self._tprec = _tprec
-        super_kwargs = {
-            'exmsg': SetIndex._DEF_SETIDX_EXC_MSG,
-            'desc': "Set indexes."
-        }
+        super_kwargs = {"exmsg": SetIndex._DEF_SETIDX_EXC_MSG, "desc": "Set indexes."}
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
@@ -400,17 +406,17 @@ class FreqDrop(PdPipelineStage):
     3  1  11
     """
 
-    _DEF_FREQDROP_EXC_MSG = ("FreqDrop stage failed because column {} was not"
-                             " found in input dataframe.")
+    _DEF_FREQDROP_EXC_MSG = (
+        "FreqDrop stage failed because column {} was not" " found in input dataframe."
+    )
     _DEF_FREQDROP_DESC = "Drop values with frequency < {} in column {}."
 
     def __init__(self, threshold: int, column: str, **kwargs):
         self._threshold = threshold
         self._column = column
         super_kwargs = {
-            'exmsg': FreqDrop._DEF_FREQDROP_EXC_MSG.format(self._column),
-            'desc': FreqDrop._DEF_FREQDROP_DESC.format(
-                self._threshold, self._column)
+            "exmsg": FreqDrop._DEF_FREQDROP_EXC_MSG.format(self._column),
+            "desc": FreqDrop._DEF_FREQDROP_DESC.format(self._threshold, self._column),
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -451,15 +457,17 @@ class ColReorder(PdPipelineStage):
     0  4  8  7  3
     """
 
-    _DEF_ORD_EXC_MSG = ("ColReorder stage failed because not all columns in {}"
-                        " were found in input dataframe.")
+    _DEF_ORD_EXC_MSG = (
+        "ColReorder stage failed because not all columns in {}"
+        " were found in input dataframe."
+    )
 
     def __init__(self, positions, **kwargs):
         self._col_to_pos = positions
         self._pos_to_col = reverse_dict_partial(positions)
         super_kwargs = {
-            'exmsg': ColReorder._DEF_ORD_EXC_MSG.format(self._col_to_pos),
-            'desc': f"Reorder columns by {self._col_to_pos}",
+            "exmsg": ColReorder._DEF_ORD_EXC_MSG.format(self._col_to_pos),
+            "desc": f"Reorder columns by {self._col_to_pos}",
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -533,11 +541,7 @@ class RowDrop(ColumnsBasedPipelineStage):
     3  5  11
     """
 
-    _REDUCERS = {
-        'all': all,
-        'any': any,
-        'xor': lambda x: sum(x) == 1
-    }
+    _REDUCERS = {"all": all, "any": any, "xor": lambda x: sum(x) == 1}
 
     class _DictRowCond(object):
         """Filter rows by a dict of conditions."""
@@ -564,11 +568,9 @@ class RowDrop(ColumnsBasedPipelineStage):
     def _row_condition_builder(self, conditions, reduce):
         reducer = RowDrop._REDUCERS[reduce]
         if self._cond_is_dict:
-            row_cond = RowDrop._DictRowCond(
-                conditions=conditions, reducer=reducer)
+            row_cond = RowDrop._DictRowCond(conditions=conditions, reducer=reducer)
         else:
-            row_cond = RowDrop._ListRowCond(
-                conditions=conditions, reducer=reducer)
+            row_cond = RowDrop._ListRowCond(conditions=conditions, reducer=reducer)
         return row_cond
 
     def __init__(
@@ -581,32 +583,35 @@ class RowDrop(ColumnsBasedPipelineStage):
     ):
         self._conditions = conditions
         if reduce is None:
-            reduce = 'any'
+            reduce = "any"
         self._reduce = reduce
         if reduce not in RowDrop._REDUCERS.keys():
-            raise ValueError((
-                "{} is an unsupported argument for the 'reduce' parameter of "
-                "the RowDrop constructor!").format(reduce))
+            raise ValueError(
+                (
+                    "{} is an unsupported argument for the 'reduce' parameter of "
+                    "the RowDrop constructor!"
+                ).format(reduce)
+            )
         self._cond_is_dict = isinstance(conditions, dict)
         if self._cond_is_dict:
             valid = all([callable(cond) for cond in conditions.values()])
             if not valid:
                 raise ValueError(
-                    "Condition dicts given to RowDrop must map to callables!")
+                    "Condition dicts given to RowDrop must map to callables!"
+                )
             columns = list(conditions.keys())
         else:
             valid = all([callable(cond) for cond in conditions])
             if not valid:
-                raise ValueError(
-                    "RowDrop condition lists can contain only callables!")
+                raise ValueError("RowDrop condition lists can contain only callables!")
         self._row_cond = self._row_condition_builder(conditions, reduce)
         super_kwargs = {
-            'columns': columns,
-            'exclude_columns': exclude_columns,
-            'desc_temp': 'Drop rows in columns {} by conditions',
+            "columns": columns,
+            "exclude_columns": exclude_columns,
+            "desc_temp": "Drop rows in columns {} by conditions",
         }
         super_kwargs.update(**kwargs)
-        super_kwargs['none_columns'] = 'all'
+        super_kwargs["none_columns"] = "all"
         super().__init__(**super_kwargs)
 
     def _transformation(self, X, verbose, fit):
@@ -654,7 +659,7 @@ class Schematize(PdPipelineStage):
         if columns is None:
             self._adaptive = True
             self._columns = None
-            self._columns_str = '<Learnable Schema>'
+            self._columns_str = "<Learnable Schema>"
             exmsg = "Learnable schematize failed in precondition unexpectedly!"
         else:
             self._adaptive = False
@@ -669,8 +674,8 @@ class Schematize(PdPipelineStage):
             f"{self._columns_str}"
         )
         super_kwargs = {
-            'exmsg': exmsg,
-            'desc': desc,
+            "exmsg": exmsg,
+            "desc": desc,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -680,12 +685,10 @@ class Schematize(PdPipelineStage):
             return True
         return set(self._columns).issubset(X.columns)
 
-    def _transform(
-            self, X: pandas.DataFrame, verbose=None) -> pandas.DataFrame:
+    def _transform(self, X: pandas.DataFrame, verbose=None) -> pandas.DataFrame:
         return X[self._columns]
 
-    def _fit_transform(
-            self, X: pandas.DataFrame, verbose=None) -> pandas.DataFrame:
+    def _fit_transform(self, X: pandas.DataFrame, verbose=None) -> pandas.DataFrame:
         if self._adaptive:
             self._columns = X.columns
             self.is_fitted = True
@@ -727,12 +730,12 @@ class DropDuplicates(ColumnsBasedPipelineStage):
         **kwargs: object,
     ) -> None:
         super_kwargs = {
-            'columns': columns,
-            'exclude_columns': exclude_columns,
-            'desc_temp': 'Drop duplicates in columns {}',
+            "columns": columns,
+            "exclude_columns": exclude_columns,
+            "desc_temp": "Drop duplicates in columns {}",
         }
         super_kwargs.update(**kwargs)
-        super_kwargs['none_columns'] = 'all'
+        super_kwargs["none_columns"] = "all"
         super().__init__(**super_kwargs)
 
     def _transformation(self, X, verbose, fit):
@@ -783,17 +786,17 @@ class ColumnDtypeEnforcer(PdPipelineStage):
 
     _DEF_COL_DTYPE_ENF_EXC_MSG = (
         "ColumnDtypeEnforcer stage failed because not all columns"
-        " {} were found in input dataframe.")
+        " {} were found in input dataframe."
+    )
 
     def __init__(
         self,
         column_to_dtype: Dict,
-        errors: Optional[str] = 'raise',
+        errors: Optional[str] = "raise",
         **kwargs: object,
     ) -> None:
         # if none of the keys in column_to_dtype is a ColumnQualifier
-        if not any(isinstance(
-                x, ColumnQualifier) for x in column_to_dtype.keys()):
+        if not any(isinstance(x, ColumnQualifier) for x in column_to_dtype.keys()):
             # its a static map; use it as is
             self._column_to_dtype = column_to_dtype
             keys_set = set(column_to_dtype.keys())
@@ -806,11 +809,10 @@ class ColumnDtypeEnforcer(PdPipelineStage):
         self._tprec = _tprec
         self._errors = errors
         columns_str = _list_str(list(column_to_dtype.keys()))
-        suffix = 's' if len(column_to_dtype) > 1 else ''
+        suffix = "s" if len(column_to_dtype) > 1 else ""
         super_kwargs = {
-            'exmsg': ColumnDtypeEnforcer._DEF_COL_DTYPE_ENF_EXC_MSG.format(
-                columns_str),
-            'desc': f"Enforce column{suffix} dtype with {column_to_dtype}",
+            "exmsg": ColumnDtypeEnforcer._DEF_COL_DTYPE_ENF_EXC_MSG.format(columns_str),
+            "desc": f"Enforce column{suffix} dtype with {column_to_dtype}",
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -829,10 +831,7 @@ class ColumnDtypeEnforcer(PdPipelineStage):
                     except AttributeError:
                         # k is not a ColumnQualifier
                         columns = k(X)
-                    column_to_dtype.update({
-                        lbl: dtype
-                        for lbl in columns
-                    })
+                    column_to_dtype.update({lbl: dtype for lbl in columns})
                 except TypeError:  # k is not a callable
                     column_to_dtype[k] = dtype
             return column_to_dtype
@@ -907,21 +906,19 @@ class ConditionValidator(PdPipelineStage):
         self,
         conditions: Union[Callable, List[Callable]],
         reducer: Optional[Callable] = all,
-        errors: Optional[str] = 'raise',
+        errors: Optional[str] = "raise",
         **kwargs: object,
     ):
         if callable(conditions):
             conditions = [conditions]
         self._conditions = conditions
         self._reducer = reducer
-        self._errors = 'raise'
+        self._errors = "raise"
         self._raise = True
-        if errors == 'ignore':
-            self._errors = 'ignore'
+        if errors == "ignore":
+            self._errors = "ignore"
             self._raise = False
-        super_kwargs = {
-            'desc': "Validates conditions"
-        }
+        super_kwargs = {"desc": "Validates conditions"}
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
@@ -948,7 +945,8 @@ class ConditionValidator(PdPipelineStage):
         if self._raise and not reduced_result:
             raise FailedConditionError(
                 "ConditionValidator stage failed; some conditions did not hold"
-                " for the input dataframe!")
+                " for the input dataframe!"
+            )
         return X
 
 
@@ -1001,9 +999,7 @@ class ApplicationContextEnricher(PdPipelineStage):
     ):
         init_kwargs, enrichments = self._split_kwargs(kwargs)
         self._enrichments = enrichments
-        super_kwargs = {
-            'desc': "Enrich application context"
-        }
+        super_kwargs = {"desc": "Enrich application context"}
         super_kwargs.update(**init_kwargs)
         super().__init__(**super_kwargs)
 
@@ -1015,15 +1011,18 @@ class ApplicationContextEnricher(PdPipelineStage):
             if callable(v):
                 try:
                     self.application_context[k] = v(
-                        X, application_context=self.application_context)
+                        X, application_context=self.application_context
+                    )
                 except TypeError:
                     try:
                         self.application_context[k] = v(X)
                     except Exception as e:
-                        raise ValueError((
-                            f"Supplied enrichment function raised a {e} "
-                            "exception when applied to input dataframe!"
-                        )) from e
+                        raise ValueError(
+                            (
+                                f"Supplied enrichment function raised a {e} "
+                                "exception when applied to input dataframe!"
+                            )
+                        ) from e
             else:
                 self.application_context[k] = v
         return X

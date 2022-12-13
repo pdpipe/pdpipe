@@ -90,13 +90,14 @@ class RegexReplace(ApplyByCols):
         desc_temp = "Replacing appearances of {} with '{}' in column {{}}"
         desc_temp = desc_temp.format(pattern, replace)
         super_kwargs = {
-            'columns': columns,
-            'func': RegexReplace._RegexReplacer(
-                self._pattern_str, self._replace, self._flags),
-            'suffix': '_regex',
-            'result_columns': result_columns,
-            'drop': drop,
-            'desc_temp': desc_temp,
+            "columns": columns,
+            "func": RegexReplace._RegexReplacer(
+                self._pattern_str, self._replace, self._flags
+            ),
+            "suffix": "_regex",
+            "result_columns": result_columns,
+            "drop": drop,
+            "desc_temp": desc_temp,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -142,7 +143,6 @@ class DropTokensByLength(ApplyByCols):
     """  # noqa: W605
 
     class _MinLengthTokenFilter(object):
-
         def __init__(self, min_len):
             self.min_len = min_len
 
@@ -150,20 +150,19 @@ class DropTokensByLength(ApplyByCols):
             return [x for x in token_list if len(x) >= self.min_len]
 
     class _MinMaxLengthTokenFilter(object):
-
         def __init__(self, min_len, max_len):
             self.min_len = min_len
             self.max_len = max_len
 
         def __call__(self, token_list):
             return [
-                x for x in token_list
+                x
+                for x in token_list
                 if len(x) >= self.min_len and len(x) <= self.max_len
             ]
 
     def __init__(
-        self, columns, min_len, max_len=None, result_columns=None, drop=True,
-        **kwargs
+        self, columns, min_len, max_len=None, result_columns=None, drop=True, **kwargs
     ):
         self._min_len = min_len
         self._max_len = max_len
@@ -171,17 +170,18 @@ class DropTokensByLength(ApplyByCols):
         cond_str = f" > {min_len}"
         if max_len:
             token_filter = DropTokensByLength._MinMaxLengthTokenFilter(
-                min_len=min_len, max_len=max_len)
+                min_len=min_len, max_len=max_len
+            )
             cond_str += f" < {max_len}"
         desc_temp = "Filtering out tokens of length{} in columns {{}}"
         desc_temp = desc_temp.format(cond_str)
         super_kwargs = {
-            'columns': columns,
-            'func': token_filter,
-            'result_columns': result_columns,
-            'drop': drop,
-            'suffix': "_filtered",
-            'desc_temp': desc_temp,
+            "columns": columns,
+            "func": token_filter,
+            "result_columns": result_columns,
+            "drop": drop,
+            "suffix": "_filtered",
+            "desc_temp": desc_temp,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -223,17 +223,13 @@ class DropTokensByList(ApplyByCols):
     """  # noqa: W605
 
     class _ListTokenFilter(object):
-
         def __init__(self, bad_tokens):
             self.bad_tokens = bad_tokens
 
         def __call__(self, token_list):
             return [x for x in token_list if x not in self.bad_tokens]
 
-    def __init__(
-        self, columns, bad_tokens, result_columns=None, drop=True,
-        **kwargs
-    ):
+    def __init__(self, columns, bad_tokens, result_columns=None, drop=True, **kwargs):
         self._bad_tokens = bad_tokens
         cond_str = ""
         if len(bad_tokens) < 10:
@@ -241,12 +237,12 @@ class DropTokensByList(ApplyByCols):
         base_str = "Filtering out tokens{} in columns {{}}"
         desc_temp = base_str.format(cond_str)
         super_kwargs = {
-            'columns': columns,
-            'func': DropTokensByList._ListTokenFilter(bad_tokens),
-            'result_columns': result_columns,
-            'drop': drop,
-            'suffix': "_filtered",
-            'desc_temp': desc_temp,
+            "columns": columns,
+            "func": DropTokensByList._ListTokenFilter(bad_tokens),
+            "result_columns": result_columns,
+            "drop": drop,
+            "suffix": "_filtered",
+            "desc_temp": desc_temp,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)

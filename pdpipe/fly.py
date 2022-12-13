@@ -62,6 +62,7 @@ from . import rq
 
 # === Auxilary pipeline stages ===
 
+
 class KeepRowsByQualifier(PdPipelineStage):
     """
     A pipeline stage that keeps rows by a row qualifier.
@@ -92,7 +93,7 @@ class KeepRowsByQualifier(PdPipelineStage):
     def __init__(self, qualifier, **kwargs):
         self._keeprowsby_rq = qualifier
         super_kwargs = {
-            'desc': f'Drop rows by qualifier {qualifier}',
+            "desc": f"Drop rows by qualifier {qualifier}",
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -130,7 +131,7 @@ class KeepRowsByQualifier(PdPipelineStage):
             return NotImplemented
 
     def __invert__(self):
-        not_rq = ~ self._keeprowsby_rq
+        not_rq = ~self._keeprowsby_rq
         return type(self)(qualifier=not_rq)
 
 
@@ -164,7 +165,7 @@ class DropRowsByQualifier(PdPipelineStage):
     def __init__(self, qualifier, **kwargs):
         self._droprowsby_rq = qualifier
         super_kwargs = {
-            'desc': f'Drop rows by qualifier {qualifier}',
+            "desc": f"Drop rows by qualifier {qualifier}",
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -174,7 +175,7 @@ class DropRowsByQualifier(PdPipelineStage):
 
     def _transform(self, X, verbose=None):
         before_count = len(X)
-        bool_ix = ~ self._droprowsby_rq(X)
+        bool_ix = ~self._droprowsby_rq(X)
         inter_X = X[bool_ix]
         if verbose:
             print(f"{before_count - len(inter_X)} rows dropped.")
@@ -202,14 +203,14 @@ class DropRowsByQualifier(PdPipelineStage):
             return NotImplemented
 
     def __invert__(self):
-        not_rq = ~ self._droprowsby_rq
+        not_rq = ~self._droprowsby_rq
         return type(self)(qualifier=not_rq)
 
 
 # === Bound potential objects ===
 
-class _DropRowsByColValColumnBoundPotential(object):
 
+class _DropRowsByColValColumnBoundPotential(object):
     def __init__(self, column_label: object) -> None:
         self.column_label = column_label
 
@@ -261,7 +262,6 @@ class _DropRowsByColValColumnBoundPotential(object):
 
 
 class _KeepRowsByColValColumnBoundPotential(object):
-
     def __init__(self, column_label: object) -> None:
         self.column_label = column_label
 
@@ -314,8 +314,8 @@ class _KeepRowsByColValColumnBoundPotential(object):
 
 # === fly handle classes ===
 
-class _DropRowsByColValHandle(object):
 
+class _DropRowsByColValHandle(object):
     def __getitem__(self, index):
         if isinstance(index, slice):
             raise ValueError("pdpipe fly handles are not meant for slicing!")
@@ -323,7 +323,6 @@ class _DropRowsByColValHandle(object):
 
 
 class _KeepRowsByColValHandle(object):
-
     def __getitem__(self, index):
         if isinstance(index, slice):
             raise ValueError("pdpipe fly handles are not meant for slicing!")

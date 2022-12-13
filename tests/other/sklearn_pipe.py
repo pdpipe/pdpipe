@@ -20,7 +20,7 @@ def _train_df():
             [17.9, "Ko", "B"],
             [1.3, "Ko", "C"],
         ],
-        columns=["ph", "type", "lbl"]
+        columns=["ph", "type", "lbl"],
     )
 
 
@@ -32,7 +32,7 @@ def _test_df():
             [1.2, "Ko", "B"],
             [1.4, "Ko", "C"],
         ],
-        columns=["ph", "lbl", "type"]
+        columns=["ph", "lbl", "type"],
     )
 
 

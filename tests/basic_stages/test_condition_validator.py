@@ -8,7 +8,7 @@ from pdpipe.cond import HasNoMissingValues, HasNoColumn
 from pdpipe.exceptions import FailedConditionError
 
 
-DF1 = pd.DataFrame([[1, 4], [4, None], [1, 11]], [1, 2, 3], ['a', 'b'])
+DF1 = pd.DataFrame([[1, 4], [4, None], [1, 11]], [1, 2, 3], ["a", "b"])
 
 
 def test_condition_validator_basic():
@@ -18,7 +18,7 @@ def test_condition_validator_basic():
 
 
 def test_condition_validator_ignore():
-    stage = ConditionValidator(HasNoMissingValues(), errors='ignore')
+    stage = ConditionValidator(HasNoMissingValues(), errors="ignore")
     res_df = stage(DF1)
     assert 1 in res_df.index
     assert 2 in res_df.index
@@ -26,14 +26,14 @@ def test_condition_validator_ignore():
 
 
 def test_condition_validator_multi_default():
-    stage = ConditionValidator([HasNoMissingValues(), HasNoColumn('k')])
+    stage = ConditionValidator([HasNoMissingValues(), HasNoColumn("k")])
     with pytest.raises(FailedConditionError):
         stage(DF1)
 
 
 def test_condition_validator_multi_any():
     stage = ConditionValidator(
-        conditions=[HasNoMissingValues(), HasNoColumn('k')],
+        conditions=[HasNoMissingValues(), HasNoColumn("k")],
         reducer=any,
     )
     res_df = stage(DF1, verbose=True)
@@ -43,14 +43,14 @@ def test_condition_validator_multi_any():
 
 
 def test_condition_validator_bad_input():
-    stage = ConditionValidator([5, HasNoColumn('k')])
+    stage = ConditionValidator([5, HasNoColumn("k")])
     with pytest.raises(ValueError):
         stage(DF1)
 
 
 def test_condition_validator_lambda_pass():
     stage = ConditionValidator(
-        conditions=[lambda df: True, HasNoColumn('k')],
+        conditions=[lambda df: True, HasNoColumn("k")],
     )
     res_df = stage(DF1, verbose=True)
     assert 1 in res_df.index
@@ -59,7 +59,7 @@ def test_condition_validator_lambda_pass():
 
 
 def test_condition_validator_lambda_fail():
-    stage = ConditionValidator([lambda df: False, HasNoColumn('k')])
+    stage = ConditionValidator([lambda df: False, HasNoColumn("k")])
     with pytest.raises(FailedConditionError):
         stage(DF1, verbose=True)
 
@@ -71,7 +71,8 @@ def test_condition_validator_lambda_fail():
 def test_condition_validator_custom_func():
     def _foo(df: pd.DataFrame) -> bool:
         return False
+
     _foo.__doc__ = None
-    stage = ConditionValidator([_foo, HasNoColumn('k')])
+    stage = ConditionValidator([_foo, HasNoColumn("k")])
     with pytest.raises(FailedConditionError):
         stage(DF1, verbose=True)

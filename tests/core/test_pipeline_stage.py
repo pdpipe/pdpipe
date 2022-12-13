@@ -16,17 +16,15 @@ from pdptestutil import random_pickle_path
 
 
 def test_split_kwargs():
-    kwargs = {'a': 1, 'b': 2, 'c': 3, 'exraise': True, 'desc': 'test'}
+    kwargs = {"a": 1, "b": 2, "c": 3, "exraise": True, "desc": "test"}
     init_kwargs, other_kwargs = PdPipelineStage._split_kwargs(kwargs)
-    assert init_kwargs == {'exraise': True, 'desc': 'test'}
-    assert other_kwargs == {'a': 1, 'b': 2, 'c': 3}
+    assert init_kwargs == {"exraise": True, "desc": "test"}
+    assert other_kwargs == {"a": 1, "b": 2, "c": 3}
 
 
 def _test_df():
     return pd.DataFrame(
-        data=[[1, 'a'], [2, 'b']],
-        index=[1, 2],
-        columns=['num', 'char']
+        data=[[1, "a"], [2, "b"]], index=[1, 2], columns=["num", "char"]
     )
 
 
@@ -91,9 +89,9 @@ def test_pickle_basic_pipeline_stage(pdpipe_tests_dir_path):
     assert res_df.equals(df)
     # test stage pickling
     fpath = random_pickle_path(pdpipe_tests_dir_path)
-    with open(fpath, 'wb+') as f:
+    with open(fpath, "wb+") as f:
         pickle.dump(test_stage, f)
-    with open(fpath, 'rb') as f:
+    with open(fpath, "rb") as f:
         loaded_stage = pickle.load(f)
     res_df = loaded_stage.apply(df, verbose=True)
     assert res_df.equals(df)
@@ -118,9 +116,9 @@ def test_pickle_named_prec_basic(pdpipe_tests_dir_path):
         test_stage(df)
     # test stage pickling
     fpath = random_pickle_path(pdpipe_tests_dir_path)
-    with open(fpath, 'wb+') as f:
+    with open(fpath, "wb+") as f:
         pickle.dump(test_stage, f)
-    with open(fpath, 'rb') as f:
+    with open(fpath, "rb") as f:
         loaded_stage = pickle.load(f)
     with pytest.raises(FailedPreconditionError):
         loaded_stage(df)
@@ -167,36 +165,36 @@ class SilentDropStage(PdPipelineStage):
 
 def test_silent_fail_pipeline_stage():
     """Testing the col binner helper class."""
-    silent_fail_stage = SilentDropStage('Tigers')
+    silent_fail_stage = SilentDropStage("Tigers")
     df = _test_df()
     res_df = silent_fail_stage.apply(df, verbose=True)
     assert res_df.equals(df)
 
 
 def test_pipeline_stage_addition_to_int():
-    """Testing that """
-    silent_fail_stage = SilentDropStage('Tigers')
+    """Testing that"""
+    silent_fail_stage = SilentDropStage("Tigers")
     with pytest.raises(TypeError):
         silent_fail_stage + 2
 
 
 def test_skip_arg():
-    silent_fail_stage = SilentDropStage('num')
+    silent_fail_stage = SilentDropStage("num")
     df = _test_df()
-    assert 'num' in df.columns
+    assert "num" in df.columns
     res = silent_fail_stage(df)
-    assert 'num' not in res.columns
+    assert "num" not in res.columns
 
-    silent_fail_stage = SilentDropStage('num', skip=lambda df: True)
+    silent_fail_stage = SilentDropStage("num", skip=lambda df: True)
     res = silent_fail_stage(df)
-    assert 'num' in res.columns
+    assert "num" in res.columns
 
 
 def test_stage_name():
-    stage = SilentDropStage('Tigers', name='Name')
-    assert stage._name == 'Name'
+    stage = SilentDropStage("Tigers", name="Name")
+    assert stage._name == "Name"
     with pytest.raises(ValueError) as e:
-        stage = SilentDropStage('Tigers', name=12345)
+        stage = SilentDropStage("Tigers", name=12345)
     assert str(e.value) == "'name' must be a str, not int."
 
 
@@ -211,73 +209,56 @@ class FittableDropByCharStage(PdPipelineStage):
         return True
 
     def _fit_transform(self, df, verbose):
-        self.columns = [
-            x for x in df.columns
-            if x.startswith(self.char)
-        ]
-        keep_cols = [
-            x for x in df.columns
-            if x not in self.columns
-        ]
+        self.columns = [x for x in df.columns if x.startswith(self.char)]
+        keep_cols = [x for x in df.columns if x not in self.columns]
         self.is_fitted = True
         return df[keep_cols]
 
     def _transform(self, df, verbose):
-        keep_cols = [
-            x for x in df.columns
-            if x not in self.columns
-        ]
+        keep_cols = [x for x in df.columns if x not in self.columns]
         return df[keep_cols]
 
 
 def _test_df2():
-    return pd.DataFrame(
-        data=[[1, 'a'], [2, 'b']],
-        index=[1, 2],
-        columns=['abo', 'coo']
-    )
+    return pd.DataFrame(data=[[1, "a"], [2, "b"]], index=[1, 2], columns=["abo", "coo"])
 
 
 def _test_df3():
-    return pd.DataFrame(
-        data=[[1, 'a'], [2, 'b']],
-        index=[1, 2],
-        columns=['abo', 'aoo']
-    )
+    return pd.DataFrame(data=[[1, "a"], [2, "b"]], index=[1, 2], columns=["abo", "aoo"])
 
 
 def test_fittable_stage():
-    stage = FittableDropByCharStage('a')
+    stage = FittableDropByCharStage("a")
     assert stage._is_fittable()
 
     res1 = stage(_test_df2())
-    assert 'abo' not in res1.columns
-    assert 'coo' in res1.columns
+    assert "abo" not in res1.columns
+    assert "coo" in res1.columns
 
     res2 = stage(_test_df3())
-    assert 'abo' not in res2.columns
-    assert 'aoo' in res2.columns
+    assert "abo" not in res2.columns
+    assert "aoo" in res2.columns
 
-    stage = FittableDropByCharStage('a')
+    stage = FittableDropByCharStage("a")
     res3 = stage(_test_df2())
-    assert 'abo' not in res3.columns
-    assert 'aoo' not in res3.columns
+    assert "abo" not in res3.columns
+    assert "aoo" not in res3.columns
 
 
 def _no_a_in_cols(df):
     for lbl in df.columns:
-        if 'a' in lbl:
+        if "a" in lbl:
             return False
     return True
 
 
 def test_fittable_stage_with_postcond():
-    stage = FittableDropByCharStage('a', post=_no_a_in_cols)
+    stage = FittableDropByCharStage("a", post=_no_a_in_cols)
     assert stage._is_fittable()
 
     res1 = stage(_test_df2())
-    assert 'abo' not in res1.columns
-    assert 'coo' in res1.columns
+    assert "abo" not in res1.columns
+    assert "coo" in res1.columns
 
     with pytest.raises(FailedPostconditionError):
         stage(_test_df3())
@@ -293,8 +274,8 @@ def test_failing_postcond():
         stage(_test_df2())
 
     res = stage(_test_df2(), exraise=False)
-    assert 'abo' in res.columns
-    assert 'coo' in res.columns
+    assert "abo" in res.columns
+    assert "coo" in res.columns
 
     with pytest.raises(FailedPostconditionError):
         stage.fit_transform(_test_df2(), exraise=True)
@@ -313,9 +294,7 @@ def test_prec_condition_error_message():
         stage(_test_df2())
 
     error_message = "No 'a' in columns"
-    stage = SomeStage(
-        prec=Condition(_no_a_in_cols, error_message=error_message)
-    )
+    stage = SomeStage(prec=Condition(_no_a_in_cols, error_message=error_message))
     specific_err = "Precondition failed .* " + error_message
     with pytest.raises(FailedPreconditionError, match=specific_err):
         stage(_test_df2())
@@ -328,9 +307,7 @@ def test_post_condition_error_message():
         stage(_test_df2())
 
     error_message = "No 'a' in columns"
-    stage = SomeStage(
-        post=Condition(_no_a_in_cols, error_message=error_message)
-    )
+    stage = SomeStage(post=Condition(_no_a_in_cols, error_message=error_message))
     specific_err = "Postcondition failed .* " + error_message
     with pytest.raises(FailedPostconditionError, match=specific_err):
         stage(_test_df2())

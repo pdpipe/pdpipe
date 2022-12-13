@@ -4,14 +4,13 @@ import inspect
 import re
 from typing import List, Iterable
 
-POS_ARG_MISMTCH_PAT = re.compile(
-    r'\d positional argument[s]? but \d (were|was) given')
+POS_ARG_MISMTCH_PAT = re.compile(r"\d positional argument[s]? but \d (were|was) given")
 
 
 def _interpret_columns_param(columns: object) -> List[object]:
     if isinstance(columns, str):
         return [columns]
-    if hasattr(columns, '__iter__'):
+    if hasattr(columns, "__iter__"):
         return columns
     return [columns]
 
@@ -20,7 +19,7 @@ def _list_str(listi: Iterable[object]) -> str:
     if listi is None:
         return None
     if isinstance(listi, (list, tuple)):
-        return ', '.join([str(elem) for elem in listi])
+        return ", ".join([str(elem) for elem in listi])
     return listi
 
 

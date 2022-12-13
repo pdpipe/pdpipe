@@ -2,6 +2,7 @@
 
 import pytest
 import pandas as pd
+
 # from numpy.testing import assert_approx_equal
 
 from pdpipe.sklearn_stages import Decompose
@@ -109,7 +110,7 @@ def test_decompose_without_drop():
 
 def test_decompose_fit_transform_exception():
     df1 = _some_df1()
-    decomp_stage = Decompose(PCA(), n_components=2, columns=['ph', 'lbl'])
+    decomp_stage = Decompose(PCA(), n_components=2, columns=["ph", "lbl"])
     with pytest.raises(PipelineApplicationError):
         decomp_stage(df1)
 
@@ -127,7 +128,7 @@ def test_decompose_transform_exception():
 
 def test_decompose_with_lbl_format():
     df = _some_df2()
-    decomp_stage = Decompose(PCA(), lbl_format='pca{}', n_components=2)
+    decomp_stage = Decompose(PCA(), lbl_format="pca{}", n_components=2)
     res_df = decomp_stage(df)
     assert "ph" not in res_df.columns
     assert "gt" not in res_df.columns

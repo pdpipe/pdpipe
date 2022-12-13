@@ -13,18 +13,18 @@ from sklearn.linear_model import LogisticRegression
 
 X1 = pd.DataFrame(
     data=[
-        [23, 'Jo'],
-        [52, 'Regina'],
-        [23, 'Dana'],
-        [25, 'Bo'],
-        [80, 'Richy'],
-        [60, 'Paul'],
-        [44, 'Derek'],
-        [72, 'Regina'],
-        [50, 'Jim'],
-        [80, 'Wealthus'],
+        [23, "Jo"],
+        [52, "Regina"],
+        [23, "Dana"],
+        [25, "Bo"],
+        [80, "Richy"],
+        [60, "Paul"],
+        [44, "Derek"],
+        [72, "Regina"],
+        [50, "Jim"],
+        [80, "Wealthus"],
     ],
-    columns=['Age', 'Name'],
+    columns=["Age", "Name"],
     index=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
 )
 
@@ -36,18 +36,18 @@ Y1 = pd.Series(
 
 X2 = pd.DataFrame(
     data=[
-        [23, 'Jo'],
-        [52, 'Regina'],
-        [23, 'Dana'],
-        [25, 'Bo'],
-        [80, 'Richy'],
-        [60, 'Paul'],
-        [44, 'Derek'],
-        [72, 'Regina'],
-        [50, 'Jim'],
-        [80, 'Wealthus'],
+        [23, "Jo"],
+        [52, "Regina"],
+        [23, "Dana"],
+        [25, "Bo"],
+        [80, "Richy"],
+        [60, "Paul"],
+        [44, "Derek"],
+        [72, "Regina"],
+        [50, "Jim"],
+        [80, "Wealthus"],
     ],
-    columns=['Age', 'Name'],
+    columns=["Age", "Name"],
     index=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
 )
 
@@ -116,17 +116,18 @@ def test_drop_labels_by_values():
 
 
 class MyPipelineAndModel(PdPipelineAndSklearnEstimator):
-
     def __init__(self, in_set, skip=False):
         if skip:
             drop_stage = DropLabelsByValues(in_set=in_set)
         else:
             drop_stage = DropLabelsByValues(in_set=in_set)
-        pipeline = pdp.PdPipeline(stages=[
-            df['hage'] << df['Age'] / 2,
-            drop_stage,
-            pdp.ColDrop('Name'),
-        ])
+        pipeline = pdp.PdPipeline(
+            stages=[
+                df["hage"] << df["Age"] / 2,
+                drop_stage,
+                pdp.ColDrop("Name"),
+            ]
+        )
         model = LogisticRegression()
         super().__init__(pipeline=pipeline, estimator=model)
 
@@ -146,7 +147,7 @@ def test_drop_labels_by_values_with_label_placeholder_predict():
     pred_y2 = pmodel.predict(X2)
     # this makes sure that the DropLabelsByValues stage is not applied to
     # input dataframes on prediciton
-    assert pred_y2.shape == (10, )
+    assert pred_y2.shape == (10,)
 
 
 @pytest.mark.label
@@ -164,4 +165,4 @@ def test_drop_labels_skip_is_ignored():
     pred_y2 = pmodel.predict(X2)
     # this makes sure that the DropLabelsByValues stage is not applied to
     # input dataframes on prediciton
-    assert pred_y2.shape == (10, )
+    assert pred_y2.shape == (10,)

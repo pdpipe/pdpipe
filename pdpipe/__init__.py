@@ -123,9 +123,7 @@ except ImportError:
     )
 
 from . import run_time_parameters
-from .run_time_parameters import (
-    dynamic
-)
+from .run_time_parameters import dynamic
 
 from .df import DF_HANDLE as df
 
@@ -171,8 +169,9 @@ del LOAD_CORE_AS_MODULE
 
 # this dictates which modules are skipped on pdoc documentation generation
 __pdoc__ = {
-    'shared': False,
+    "shared": False,
 }
 
 from . import _version
-__version__ = _version.get_versions()['version']
+
+__version__ = _version.get_versions()["version"]

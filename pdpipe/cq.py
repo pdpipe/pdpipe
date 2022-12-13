@@ -133,9 +133,9 @@ class ColumnQualifier(object):
             raise UnfittedColumnQualifierError
 
     def __repr__(self):
-        fstr = ''
+        fstr = ""
         if self._cqfunc.__doc__:  # pragma: no cover
-            fstr = f' - {self._cqfunc.__doc__}'
+            fstr = f" - {self._cqfunc.__doc__}"
         return f"<ColumnQualifier: Qualify columns by function{fstr}>"
 
     # --- overriding boolean operators ---
@@ -265,12 +265,8 @@ class ColumnQualifier(object):
             )
 
     def __invert__(self):
-        res_func = ColumnQualifier._NotQualifierFunc(
-            cq=self._cqfunc
-        )
-        res_func.__doc__ = (
-            f"NOT {self._cqfunc.__doc__ or 'Anonymous qualifier'}"
-        )
+        res_func = ColumnQualifier._NotQualifierFunc(cq=self._cqfunc)
+        res_func.__doc__ = f"NOT {self._cqfunc.__doc__ or 'Anonymous qualifier'}"
         return ColumnQualifier(func=res_func)
 
 
@@ -328,12 +324,11 @@ class AllColumns(ColumnQualifier):
     """
 
     class _SelectAllColumns(object):
-
         def __call__(self, X):
             return list(X.columns)
 
     def __init__(self, **kwargs):
-        kwargs['func'] = AllColumns._SelectAllColumns()
+        kwargs["func"] = AllColumns._SelectAllColumns()
         super().__init__(**kwargs)
 
     def __repr__(self):
@@ -370,7 +365,6 @@ class ByColumnCondition(ColumnQualifier):
     """
 
     class _SafeCond(object):
-
         def __init__(self, cond):
             self.cond = cond
 
@@ -381,21 +375,17 @@ class ByColumnCondition(ColumnQualifier):
                 return False
 
     class _ColumnConditionChecker(object):
-
         def __init__(self, cond):
             self.cond = cond
 
         def __call__(self, X):
-            return list([
-                lbl for lbl, series in X.iteritems()
-                if self.cond(series)
-            ])
+            return list([lbl for lbl, series in X.iteritems() if self.cond(series)])
 
     def __init__(self, cond, safe=False, **kwargs):
         self._cond = cond
         if safe:
             self._cond = ByColumnCondition._SafeCond(cond)
-        kwargs['func'] = ByColumnCondition._ColumnConditionChecker(self._cond)
+        kwargs["func"] = ByColumnCondition._ColumnConditionChecker(self._cond)
         super().__init__(**kwargs)
 
 
@@ -429,25 +419,21 @@ class ByLabels(ColumnQualifier):
     """
 
     class _LabelsQualifierFunc(object):
-
         def __init__(self, labels):
             self.labels = labels
 
         def __call__(self, X):
-            return [
-                lbl for lbl in X.columns
-                if lbl in self.labels
-            ]
+            return [lbl for lbl in X.columns if lbl in self.labels]
 
     def __init__(self, labels, **kwargs):
-        if isinstance(labels, str) or not hasattr(labels, '__iter__'):
+        if isinstance(labels, str) or not hasattr(labels, "__iter__"):
             labels = [labels]
         self._labels = labels
         self._labels_str = _list_str(self._labels)
         cqfunc = ByLabels._LabelsQualifierFunc(self._labels)
         cqfunc.__doc__ = f"Columns with labels in {self._labels_str}"
         self.__doc__ = cqfunc.__doc__
-        kwargs['func'] = cqfunc
+        kwargs["func"] = cqfunc
         super().__init__(**kwargs)
 
     def __repr__(self):
@@ -520,14 +506,12 @@ class StartsWith(ColumnQualifier):
             return False
 
     class _StartsWithFunc(object):
-
         def __init__(self, prefix):
             self.prefix = prefix
 
         def __call__(self, X):
             return [
-                lbl for lbl in X.columns
-                if StartsWith._safe_startwith(lbl, self.prefix)
+                lbl for lbl in X.columns if StartsWith._safe_startwith(lbl, self.prefix)
             ]
 
     def __init__(self, prefix, **kwargs):
@@ -535,7 +519,7 @@ class StartsWith(ColumnQualifier):
         cqfunc = StartsWith._StartsWithFunc(prefix)
         cqfunc.__doc__ = f"Columns that start with {self._prefix}"
         self.__doc__ = cqfunc.__doc__
-        kwargs['func'] = cqfunc
+        kwargs["func"] = cqfunc
         super().__init__(**kwargs)
 
     def __repr__(self):
@@ -577,7 +561,6 @@ class OfDtypes(ColumnQualifier):
     """
 
     class _OfDtypeFunc(object):
-
         def __init__(self, dtypes):
             self.dtypes = dtypes
 
@@ -590,7 +573,7 @@ class OfDtypes(ColumnQualifier):
         cqfunc = OfDtypes._OfDtypeFunc(dtypes)
         cqfunc.__doc__ = f"Columns of dtypes {self._dtypes_str}"
         self.__doc__ = cqfunc.__doc__
-        kwargs['func'] = cqfunc
+        kwargs["func"] = cqfunc
         super().__init__(**kwargs)
 
     def __repr__(self):
@@ -621,7 +604,7 @@ class OfNumericDtypes(OfDtypes):
     """
 
     def __init__(self, **kwargs):
-        kwargs['dtypes'] = np.number
+        kwargs["dtypes"] = np.number
         super().__init__(**kwargs)
 
 
@@ -652,7 +635,6 @@ class WithAtMostMissingValues(ColumnQualifier):
     """
 
     class _AtMostFunc(object):
-
         def __init__(self, n_missing):
             self._n_missing = n_missing
 
@@ -662,16 +644,13 @@ class WithAtMostMissingValues(ColumnQualifier):
     def __init__(self, n_missing, **kwargs):
         self._n_missing = n_missing
         cqfunc = WithAtMostMissingValues._AtMostFunc(n_missing)
-        cqfunc.__doc__ = (
-            f"Columns with at most {self._n_missing} missing values"
-        )
+        cqfunc.__doc__ = f"Columns with at most {self._n_missing} missing values"
         self.__doc__ = cqfunc.__doc__
-        kwargs['func'] = cqfunc
+        kwargs["func"] = cqfunc
         super().__init__(**kwargs)
 
     def __repr__(self):
-        return f"<ColumnQualifier: " \
-               f"With at most {self._n_missing} missing values>"
+        return f"<ColumnQualifier: " f"With at most {self._n_missing} missing values>"
 
 
 class WithoutMissingValues(WithAtMostMissingValues):
@@ -697,7 +676,7 @@ class WithoutMissingValues(WithAtMostMissingValues):
     """
 
     def __init__(self, **kwargs):
-        kwargs['n_missing'] = 0
+        kwargs["n_missing"] = 0
         super().__init__(**kwargs)
 
     def __repr__(self):
@@ -731,7 +710,6 @@ class WithAtMostMissingValueRate(ColumnQualifier):
     """
 
     class _AtMostRateFunc(object):
-
         def __init__(self, rate):
             self._rate = rate
 
@@ -741,16 +719,13 @@ class WithAtMostMissingValueRate(ColumnQualifier):
     def __init__(self, rate, **kwargs):
         self._rate = rate
         cqfunc = WithAtMostMissingValueRate._AtMostRateFunc(rate)
-        cqfunc.__doc__ = (
-            f"Columns with at most {self._rate} missing value rate"
-        )
+        cqfunc.__doc__ = f"Columns with at most {self._rate} missing value rate"
         self.__doc__ = cqfunc.__doc__
-        kwargs['func'] = cqfunc
+        kwargs["func"] = cqfunc
         super().__init__(**kwargs)
 
     def __repr__(self):
-        return f"<ColumnQualifier: " \
-               f"With at most {self._rate} missing value rate>"
+        return f"<ColumnQualifier: " f"With at most {self._rate} missing value rate>"
 
 
 class WithAtLeastMissingValueRate(ColumnQualifier):
@@ -780,7 +755,6 @@ class WithAtLeastMissingValueRate(ColumnQualifier):
     """
 
     class _AtLeastRateFunc(object):
-
         def __init__(self, rate):
             self._rate = rate
 
@@ -790,13 +764,10 @@ class WithAtLeastMissingValueRate(ColumnQualifier):
     def __init__(self, rate, **kwargs):
         self._rate = rate
         cqfunc = WithAtLeastMissingValueRate._AtLeastRateFunc(rate)
-        cqfunc.__doc__ = (
-            f"Columns with at least {self._rate} missing value rate"
-        )
+        cqfunc.__doc__ = f"Columns with at least {self._rate} missing value rate"
         self.__doc__ = cqfunc.__doc__
-        kwargs['func'] = cqfunc
+        kwargs["func"] = cqfunc
         super().__init__(**kwargs)
 
     def __repr__(self):
-        return f"<ColumnQualifier: " \
-               f"With at least {self._rate} missing value rate>"
+        return f"<ColumnQualifier: " f"With at least {self._rate} missing value rate>"

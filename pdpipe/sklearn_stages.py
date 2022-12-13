@@ -88,18 +88,16 @@ class Encode(ColumnsBasedPipelineStage):
     array(['acd', 'alk', 'alk'], dtype=object)
     """
 
-    def __init__(
-        self, columns=None, exclude_columns=None, drop=True, **kwargs
-    ):
+    def __init__(self, columns=None, exclude_columns=None, drop=True, **kwargs):
         self._drop = drop
         self.encoders = {}
         super_kwargs = {
-            'columns': columns,
-            'exclude_columns': exclude_columns,
-            'desc_temp': "Encode {}",
+            "columns": columns,
+            "exclude_columns": exclude_columns,
+            "desc_temp": "Encode {}",
         }
         super_kwargs.update(**kwargs)
-        super_kwargs['none_columns'] = OfDtypes(['object', 'category'])
+        super_kwargs["none_columns"] = OfDtypes(["object", "category"])
         super().__init__(**super_kwargs)
 
     def _transformation(self, X, verbose, fit):
@@ -201,27 +199,22 @@ class Scale(ColumnsBasedPipelineStage):
     """
 
     def __init__(
-        self,
-        scaler,
-        columns=None,
-        exclude_columns=None,
-        joint=False,
-        **kwargs
+        self, scaler, columns=None, exclude_columns=None, joint=False, **kwargs
     ):
         self.scaler = scaler
         self._joint = joint
         self._kwargs = kwargs.copy()
         super_kwargs = {
-            'columns': columns,
-            'exclude_columns': exclude_columns,
-            'desc_temp': "Scale columns {}",
+            "columns": columns,
+            "exclude_columns": exclude_columns,
+            "desc_temp": "Scale columns {}",
         }
         valid_super_kwargs = super()._init_kwargs()
         for key in kwargs:
             if key in valid_super_kwargs:
                 super_kwargs[key] = kwargs[key]
                 self._kwargs.pop(key)
-        super_kwargs['none_columns'] = OfDtypes([np.number])
+        super_kwargs["none_columns"] = OfDtypes([np.number])
         super().__init__(**super_kwargs)
 
     def _transformation(self, X, verbose, fit):
@@ -229,10 +222,7 @@ class Scale(ColumnsBasedPipelineStage):
 
     def _fit_transform(self, X, verbose):
         self._columns_to_scale = self._get_columns(X, fit=True)
-        unscaled_cols = [
-            x for x in X.columns
-            if x not in self._columns_to_scale
-        ]
+        unscaled_cols = [x for x in X.columns if x not in self._columns_to_scale]
         col_order = list(X.columns)
         inter_X = X[self._columns_to_scale]
         self._scaler = scaler_by_params(self.scaler, **self._kwargs)
@@ -240,8 +230,7 @@ class Scale(ColumnsBasedPipelineStage):
             if self._joint:
                 self._scaler.fit(np.array([inter_X.values.flatten()]).T)
                 inter_X = per_column_values_sklearn_transform(
-                    X=inter_X,
-                    transform=self._scaler.transform
+                    X=inter_X, transform=self._scaler.transform
                 )
             else:
                 inter_X = pd.DataFrame(
@@ -262,17 +251,13 @@ class Scale(ColumnsBasedPipelineStage):
         return inter_X
 
     def _transform(self, X, verbose):
-        unscaled_cols = [
-            x for x in X.columns
-            if x not in self._columns_to_scale
-        ]
+        unscaled_cols = [x for x in X.columns if x not in self._columns_to_scale]
         col_order = list(X.columns)
         inter_X = X[self._columns_to_scale]
         try:
             if self._joint:
                 inter_X = per_column_values_sklearn_transform(
-                    X=inter_X,
-                    transform=self._scaler.transform
+                    X=inter_X, transform=self._scaler.transform
                 )
             else:
                 inter_X = pd.DataFrame(
@@ -339,27 +324,32 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
 
     _DEF_CNTVEC_MSG = "Count-vectorizing column {}."
 
-    def __init__(self, column, drop=True, hierarchical_labels=False,
-                 **kwargs):
+    def __init__(self, column, drop=True, hierarchical_labels=False, **kwargs):
         self._column = column
         self._drop = drop
         self._hierarchical_labels = hierarchical_labels
         msg = TfidfVectorizeTokenLists._DEF_CNTVEC_MSG.format(column)
         super_kwargs = {
-            "exmsg": ("TfidfVectorizeTokenLists precondition not met:"
-                      f"{column} column not found."),
+            "exmsg": (
+                "TfidfVectorizeTokenLists precondition not met:"
+                f"{column} column not found."
+            ),
             "desc": msg,
         }
         valid_vectorizer_args = _get_args_list(TfidfVectorizer.__init__)
         self._vectorizer_args = {
-            k: kwargs[k] for k in kwargs
-            if k in valid_vectorizer_args and k not in [
-                'input', 'analyzer', 'self',
+            k: kwargs[k]
+            for k in kwargs
+            if k in valid_vectorizer_args
+            and k
+            not in [
+                "input",
+                "analyzer",
+                "self",
             ]
         }
         pipeline_stage_args = {
-            k: kwargs[k] for k in kwargs
-            if k in PdPipelineStage._INIT_KWARGS
+            k: kwargs[k] for k in kwargs if k in PdPipelineStage._INIT_KWARGS
         }
         super_kwargs.update(**pipeline_stage_args)
         super().__init__(**super_kwargs)
@@ -369,7 +359,7 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
 
     def _fit_transform(self, X, verbose):
         self._tfidf_vectorizer = TfidfVectorizer(
-            input='content',
+            input="content",
             analyzer=_identity_function,
             **self._vectorizer_args,
         )
@@ -377,14 +367,14 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
         self._n_features = vectorized.shape[1]
         if self._hierarchical_labels:
             self._res_col_names = [
-                f'{self._column}_{f}'
+                f"{self._column}_{f}"
                 for f in self._tfidf_vectorizer.get_feature_names_out()
             ]
         else:
-            self._res_col_names = self._tfidf_vectorizer.get_feature_names_out(
-            )
+            self._res_col_names = self._tfidf_vectorizer.get_feature_names_out()
         vec_X = pd.DataFrame.sparse.from_spmatrix(
-            data=vectorized, index=X.index, columns=self._res_col_names)
+            data=vectorized, index=X.index, columns=self._res_col_names
+        )
         inter_X = pd.concat([X, vec_X], axis=1)
         self.is_fitted = True
         if self._drop:
@@ -394,7 +384,8 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
     def _transform(self, X, verbose):
         vectorized = self._tfidf_vectorizer.transform(X[self._column])
         vec_X = pd.DataFrame.sparse.from_spmatrix(
-            data=vectorized, index=X.index, columns=self._res_col_names)
+            data=vectorized, index=X.index, columns=self._res_col_names
+        )
         inter_X = pd.concat([X, vec_X], axis=1)
         if self._drop:
             return inter_X.drop(self._column, axis=1)
@@ -460,25 +451,25 @@ class Decompose(ColumnsBasedPipelineStage):
         exclude_columns=None,
         drop=True,
         lbl_format=None,
-        **kwargs
+        **kwargs,
     ):
         self.transformer = transformer
         self._drop = drop
         self._lbl_format = lbl_format
         if lbl_format is None:
-            self._lbl_format = 'mdc{}'
+            self._lbl_format = "mdc{}"
         self._kwargs = kwargs.copy()
         super_kwargs = {
-            'columns': columns,
-            'exclude_columns': exclude_columns,
-            'desc_temp': f"Decompose columns {{}} with {transformer}",
+            "columns": columns,
+            "exclude_columns": exclude_columns,
+            "desc_temp": f"Decompose columns {{}} with {transformer}",
         }
         valid_super_kwargs = super()._init_kwargs()
         for key in kwargs:
             if key in valid_super_kwargs:
                 super_kwargs[key] = kwargs[key]
                 self._kwargs.pop(key)
-        super_kwargs['none_columns'] = OfDtypes([np.number])
+        super_kwargs["none_columns"] = OfDtypes([np.number])
         super().__init__(**super_kwargs)
 
     def _transformation(self, X, verbose, fit):
@@ -487,8 +478,7 @@ class Decompose(ColumnsBasedPipelineStage):
     def _fit_transform(self, X, verbose):
         self._columns_to_transform = self._get_columns(X, fit=True)
         untransformed_cols = [
-            x for x in X.columns
-            if x not in self._columns_to_transform
+            x for x in X.columns if x not in self._columns_to_transform
         ]
         sub_X = X[self._columns_to_transform]
         self._transformer = clone(self.transformer)
@@ -496,10 +486,7 @@ class Decompose(ColumnsBasedPipelineStage):
         try:
             inter_X = self._transformer.fit_transform(sub_X.values)
             n_cols = inter_X.shape[1]
-            columns = [
-                self._lbl_format.format(i)
-                for i in range(n_cols)
-            ]
+            columns = [self._lbl_format.format(i) for i in range(n_cols)]
             inter_X = pd.DataFrame(
                 data=inter_X,
                 index=X.index,
@@ -521,17 +508,13 @@ class Decompose(ColumnsBasedPipelineStage):
 
     def _transform(self, X, verbose):
         untransformed_cols = [
-            x for x in X.columns
-            if x not in self._columns_to_transform
+            x for x in X.columns if x not in self._columns_to_transform
         ]
         sub_X = X[self._columns_to_transform]
         try:
             inter_X = self._transformer.transform(sub_X.values)
             n_cols = inter_X.shape[1]
-            columns = [
-                self._lbl_format.format(i)
-                for i in range(n_cols)
-            ]
+            columns = [self._lbl_format.format(i) for i in range(n_cols)]
             inter_X = pd.DataFrame(
                 data=inter_X,
                 index=X.index,
@@ -595,11 +578,11 @@ class EncodeLabel(PdPipelineStage):
 
     def __init__(self, **kwargs: object) -> None:
         skipi = _SkipOnLabelPlaceholderPredict()
-        if 'skip' in kwargs:
-            skipi.skip_cond = kwargs.pop('skip')
+        if "skip" in kwargs:
+            skipi.skip_cond = kwargs.pop("skip")
         super_kwargs = {
-            'desc': "Encode label values",
-            'skip': skipi,
+            "desc": "Encode label values",
+            "skip": skipi,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -609,7 +592,8 @@ class EncodeLabel(PdPipelineStage):
 
     def _transform(self, X, verbose):
         raise UnexpectedPipelineMethodCallError(  # pragma: no cover
-            "EncodeLabel._transform() is not expected to be called!")
+            "EncodeLabel._transform() is not expected to be called!"
+        )
 
     def _fit_transform_Xy(self, X, y, verbose):
         self.encoder_ = sklearn.preprocessing.LabelEncoder()

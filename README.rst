@@ -1,7 +1,7 @@
 pdpipe ˨
 ########
 
-|PyPI-Status| |Downloads| |PyPI-Versions| |Build-Status| |Codecov| |Codefactor| |LICENCE|
+|PyPI-Status| |Downloads| |PyPI-Versions| |Build-Status| |Codecov| |Codefactor| |CodeStyle| |LICENCE|
 
 
 Website: `https://pdpipe.readthedocs.io/en/latest/ <https://pdpipe.readthedocs.io/en/latest/>`_
@@ -229,3 +229,7 @@ Created by `Shay Palachy <http://www.shaypalachy.com/>`_  (shay.palachy@gmail.co
 .. |Codefactor| image:: https://www.codefactor.io/repository/github/pdpipe/pdpipe/badge?style=plastic
      :target: https://www.codefactor.io/repository/github/pdpipe/pdpipe
      :alt: Codefactor code quality
+
+.. |CodeStyle| image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/psf/black
+     :alt: Black code style code
