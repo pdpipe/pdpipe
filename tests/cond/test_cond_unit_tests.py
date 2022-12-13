@@ -1,16 +1,15 @@
 """Unit tests for Condition objects."""
 
 import pytest
+
 # import numpy as np
 import pandas as pd
 import pdpipe as pdp
 
 
-NA_DF = pd.DataFrame(
-    [[None, 1, 2], [None, None, 5]], [1, 2], ['ph', 'grade', 'age'])
+NA_DF = pd.DataFrame([[None, 1, 2], [None, None, 5]], [1, 2], ["ph", "grade", "age"])
 
-NA_DF2 = pd.DataFrame(
-    [[8, 1, 2], [1, 2, 5]], [1, 2], ['ph', 'grade', 'age'])
+NA_DF2 = pd.DataFrame([[8, 1, 2], [1, 2, 5]], [1, 2], ["ph", "grade", "age"])
 
 
 def test_basic_condition_stuff():
@@ -48,13 +47,13 @@ def test_PerColumnCondition():
     ]
     cond = pdp.cond.PerColumnCondition(
         conditions=conditions,
-        conditions_reduce='all',
+        conditions_reduce="all",
     )
     assert not cond(NA_DF)
 
     cond = pdp.cond.PerColumnCondition(
         conditions=conditions,
-        conditions_reduce='any',
+        conditions_reduce="any",
     )
     print(cond)
     assert cond(NA_DF)
@@ -62,16 +61,16 @@ def test_PerColumnCondition():
     with pytest.raises(ValueError):
         cond = pdp.cond.PerColumnCondition(
             conditions=conditions,
-            conditions_reduce='bad_value',
+            conditions_reduce="bad_value",
         )
 
     with pytest.raises(ValueError):
         cond = pdp.cond.PerColumnCondition(
             conditions=conditions,
-            columns_reduce='bad_value',
+            columns_reduce="bad_value",
         )
 
 
 def test_HasAtMostMissingValues():
     with pytest.raises(ValueError):
-        pdp.cond.HasAtMostMissingValues('34')
+        pdp.cond.HasAtMostMissingValues("34")

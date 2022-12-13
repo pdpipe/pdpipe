@@ -66,7 +66,7 @@ class SeriesFromDfAssigner(PdPipelineStage):
         assign_to_column: str,
         series_from_df: _SeriesFromDfOperandType,
         required_columns: Set[object],
-        source_column_potential: Optional['_BoundColumnPotential'] = None,
+        source_column_potential: Optional["_BoundColumnPotential"] = None,
         **kwargs,
     ) -> None:
         self.assign_to_column = assign_to_column
@@ -79,10 +79,11 @@ class SeriesFromDfAssigner(PdPipelineStage):
             f"found in input dataframe!"
         )
         desc = SeriesFromDfAssigner._DOC_TEMPLATE.format(
-            self.assign_to_column, self.series_from_df)
+            self.assign_to_column, self.series_from_df
+        )
         super_kwargs = {
-            'exmsg': exmsg,
-            'desc': desc,
+            "exmsg": exmsg,
+            "desc": desc,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -97,7 +98,7 @@ class SeriesFromDfAssigner(PdPipelineStage):
 
     # --- Boolean Operators ---
 
-    def __and__(self, other: object) -> 'SeriesFromDfAssigner':
+    def __and__(self, other: object) -> "SeriesFromDfAssigner":
         if isinstance(other, _BoundColumnPotential):
             if self.source_column_potential:
                 new_col_potential = self.source_column_potential & other
@@ -112,7 +113,8 @@ class SeriesFromDfAssigner(PdPipelineStage):
             return SeriesFromDfAssigner(
                 assign_to_column=self.assign_to_column,
                 series_from_df=_SeriesFromDfAnd(
-                    other.series_from_df, self.series_from_df),
+                    other.series_from_df, self.series_from_df
+                ),
                 required_columns=self.required_columns,
             )
         if isinstance(other, SeriesOperandTypesTuple):
@@ -123,7 +125,7 @@ class SeriesFromDfAssigner(PdPipelineStage):
             )
         return NotImplemented
 
-    def __or__(self, other: object) -> 'SeriesFromDfAssigner':
+    def __or__(self, other: object) -> "SeriesFromDfAssigner":
         if isinstance(other, _BoundColumnPotential):
             if self.source_column_potential:
                 new_col_potential = self.source_column_potential | other
@@ -138,7 +140,8 @@ class SeriesFromDfAssigner(PdPipelineStage):
             return SeriesFromDfAssigner(
                 assign_to_column=self.assign_to_column,
                 series_from_df=_SeriesFromDfOr(
-                    self.series_from_df, other.series_from_df),
+                    self.series_from_df, other.series_from_df
+                ),
                 required_columns=self.required_columns,
             )
         if isinstance(other, SeriesOperandTypesTuple):
@@ -149,7 +152,7 @@ class SeriesFromDfAssigner(PdPipelineStage):
             )
         return NotImplemented
 
-    def __xor__(self, other: object) -> 'SeriesFromDfAssigner':
+    def __xor__(self, other: object) -> "SeriesFromDfAssigner":
         if isinstance(other, _BoundColumnPotential):
             if self.source_column_potential:
                 new_col_potential = self.source_column_potential ^ other
@@ -164,7 +167,8 @@ class SeriesFromDfAssigner(PdPipelineStage):
             return SeriesFromDfAssigner(
                 assign_to_column=self.assign_to_column,
                 series_from_df=_SeriesFromDfXor(
-                    self.series_from_df, other.series_from_df),
+                    self.series_from_df, other.series_from_df
+                ),
                 required_columns=self.required_columns,
             )
         if isinstance(other, SeriesOperandTypesTuple):
@@ -177,7 +181,7 @@ class SeriesFromDfAssigner(PdPipelineStage):
 
     # --- Rich Comparison Operators ---
 
-    def __lt__(self, other: object) -> 'SeriesFromDfAssigner':
+    def __lt__(self, other: object) -> "SeriesFromDfAssigner":
         if isinstance(other, _BoundColumnPotential):
             if self.source_column_potential:
                 new_col_potential = self.source_column_potential < other
@@ -192,7 +196,8 @@ class SeriesFromDfAssigner(PdPipelineStage):
             return SeriesFromDfAssigner(
                 assign_to_column=self.assign_to_column,
                 series_from_df=_SeriesFromDfGt(
-                    other.series_from_df, self.series_from_df),
+                    other.series_from_df, self.series_from_df
+                ),
                 required_columns=self.required_columns,
             )
         if isinstance(other, SeriesOperandTypesTuple):
@@ -203,7 +208,7 @@ class SeriesFromDfAssigner(PdPipelineStage):
             )
         return NotImplemented
 
-    def __le__(self, other: object) -> 'SeriesFromDfAssigner':
+    def __le__(self, other: object) -> "SeriesFromDfAssigner":
         if isinstance(other, _BoundColumnPotential):
             if self.source_column_potential:
                 new_col_potential = self.source_column_potential <= other
@@ -218,7 +223,8 @@ class SeriesFromDfAssigner(PdPipelineStage):
             return SeriesFromDfAssigner(
                 assign_to_column=self.assign_to_column,
                 series_from_df=_SeriesFromDfGe(
-                    other.series_from_df, self.series_from_df),
+                    other.series_from_df, self.series_from_df
+                ),
                 required_columns=self.required_columns,
             )
         if isinstance(other, SeriesOperandTypesTuple):
@@ -229,7 +235,7 @@ class SeriesFromDfAssigner(PdPipelineStage):
             )
         return NotImplemented
 
-    def __eq__(self, other: object) -> 'SeriesFromDfAssigner':
+    def __eq__(self, other: object) -> "SeriesFromDfAssigner":
         if isinstance(other, _BoundColumnPotential):
             if self.source_column_potential:
                 new_col_potential = self.source_column_potential == other
@@ -244,7 +250,8 @@ class SeriesFromDfAssigner(PdPipelineStage):
             return SeriesFromDfAssigner(
                 assign_to_column=self.assign_to_column,
                 series_from_df=_SeriesFromDfEq(
-                    other.series_from_df, self.series_from_df),
+                    other.series_from_df, self.series_from_df
+                ),
                 required_columns=self.required_columns,
             )
         if isinstance(other, SeriesOperandTypesTuple):
@@ -255,7 +262,7 @@ class SeriesFromDfAssigner(PdPipelineStage):
             )
         return NotImplemented  # pragma: no cover
 
-    def __ne__(self, other: object) -> 'SeriesFromDfAssigner':
+    def __ne__(self, other: object) -> "SeriesFromDfAssigner":
         if isinstance(other, _BoundColumnPotential):
             if self.source_column_potential:
                 new_col_potential = self.source_column_potential != other
@@ -270,7 +277,8 @@ class SeriesFromDfAssigner(PdPipelineStage):
             return SeriesFromDfAssigner(
                 assign_to_column=self.assign_to_column,
                 series_from_df=_SeriesFromDfNe(
-                    other.series_from_df, self.series_from_df),
+                    other.series_from_df, self.series_from_df
+                ),
                 required_columns=self.required_columns,
             )
         if isinstance(other, SeriesOperandTypesTuple):
@@ -281,7 +289,7 @@ class SeriesFromDfAssigner(PdPipelineStage):
             )
         return NotImplemented  # pragma: no cover
 
-    def __ge__(self, other: object) -> 'SeriesFromDfAssigner':
+    def __ge__(self, other: object) -> "SeriesFromDfAssigner":
         if isinstance(other, _BoundColumnPotential):
             if self.source_column_potential:
                 new_col_potential = self.source_column_potential >= other
@@ -296,7 +304,8 @@ class SeriesFromDfAssigner(PdPipelineStage):
             return SeriesFromDfAssigner(
                 assign_to_column=self.assign_to_column,
                 series_from_df=_SeriesFromDfLe(
-                    other.series_from_df, self.series_from_df),
+                    other.series_from_df, self.series_from_df
+                ),
                 required_columns=self.required_columns,
             )
         if isinstance(other, SeriesOperandTypesTuple):
@@ -307,7 +316,7 @@ class SeriesFromDfAssigner(PdPipelineStage):
             )
         return NotImplemented
 
-    def __gt__(self, other: object) -> 'SeriesFromDfAssigner':
+    def __gt__(self, other: object) -> "SeriesFromDfAssigner":
         if isinstance(other, _BoundColumnPotential):
             if self.source_column_potential:
                 new_col_potential = self.source_column_potential > other
@@ -322,7 +331,8 @@ class SeriesFromDfAssigner(PdPipelineStage):
             return SeriesFromDfAssigner(
                 assign_to_column=self.assign_to_column,
                 series_from_df=_SeriesFromDfLt(
-                    other.series_from_df, self.series_from_df),
+                    other.series_from_df, self.series_from_df
+                ),
                 required_columns=self.required_columns,
             )
         if isinstance(other, SeriesOperandTypesTuple):
@@ -335,7 +345,7 @@ class SeriesFromDfAssigner(PdPipelineStage):
 
     # --- Arithmetic Operators ---
 
-    def __add__(self, other: object) -> 'SeriesFromDfAssigner':
+    def __add__(self, other: object) -> "SeriesFromDfAssigner":
         if isinstance(other, _BoundColumnPotential):
             if self.source_column_potential:
                 new_col_potential = self.source_column_potential + other
@@ -350,7 +360,8 @@ class SeriesFromDfAssigner(PdPipelineStage):
             return SeriesFromDfAssigner(
                 assign_to_column=self.assign_to_column,
                 series_from_df=_SeriesFromDfAdd(
-                    other.series_from_df, self.series_from_df),
+                    other.series_from_df, self.series_from_df
+                ),
                 required_columns=self.required_columns,
             )
         if isinstance(other, SeriesOperandTypesTuple):
@@ -361,10 +372,10 @@ class SeriesFromDfAssigner(PdPipelineStage):
             )
         return NotImplemented
 
-    def __radd__(self, other: object) -> 'SeriesFromDfAssigner':
+    def __radd__(self, other: object) -> "SeriesFromDfAssigner":
         return self.__add__(other)  # pragma: no cover
 
-    def __sub__(self, other: object) -> 'SeriesFromDfAssigner':
+    def __sub__(self, other: object) -> "SeriesFromDfAssigner":
         if isinstance(other, _BoundColumnPotential):
             if self.source_column_potential:
                 new_col_potential = self.source_column_potential - other
@@ -379,7 +390,8 @@ class SeriesFromDfAssigner(PdPipelineStage):
             return SeriesFromDfAssigner(
                 assign_to_column=self.assign_to_column,
                 series_from_df=_SeriesFromDfSub(
-                    self.series_from_df, other.series_from_df),
+                    self.series_from_df, other.series_from_df
+                ),
                 required_columns=self.required_columns,
             )
         if isinstance(other, SeriesOperandTypesTuple):
@@ -390,7 +402,7 @@ class SeriesFromDfAssigner(PdPipelineStage):
             )
         return NotImplemented
 
-    def __mul__(self, other: object) -> 'SeriesFromDfAssigner':
+    def __mul__(self, other: object) -> "SeriesFromDfAssigner":
         if isinstance(other, _BoundColumnPotential):
             if self.source_column_potential:
                 new_col_potential = self.source_column_potential * other
@@ -405,7 +417,8 @@ class SeriesFromDfAssigner(PdPipelineStage):
             return SeriesFromDfAssigner(
                 assign_to_column=self.assign_to_column,
                 series_from_df=_SeriesFromDfMul(
-                    self.series_from_df, other.series_from_df),
+                    self.series_from_df, other.series_from_df
+                ),
                 required_columns=self.required_columns,
             )
         if isinstance(other, SeriesOperandTypesTuple):
@@ -416,7 +429,7 @@ class SeriesFromDfAssigner(PdPipelineStage):
             )
         return NotImplemented
 
-    def __truediv__(self, other: object) -> 'SeriesFromDfAssigner':
+    def __truediv__(self, other: object) -> "SeriesFromDfAssigner":
         if isinstance(other, _BoundColumnPotential):
             if self.source_column_potential:
                 new_col_potential = self.source_column_potential / other
@@ -431,19 +444,19 @@ class SeriesFromDfAssigner(PdPipelineStage):
             return SeriesFromDfAssigner(
                 assign_to_column=self.assign_to_column,
                 series_from_df=_SeriesFromDfTrueDiv(
-                    self.series_from_df, other.series_from_df),
+                    self.series_from_df, other.series_from_df
+                ),
                 required_columns=self.required_columns,
             )
         if isinstance(other, SeriesOperandTypesTuple):
             return SeriesFromDfAssigner(
                 assign_to_column=self.assign_to_column,
-                series_from_df=_SeriesFromDfTrueDiv(
-                    self.series_from_df, other),
+                series_from_df=_SeriesFromDfTrueDiv(self.series_from_df, other),
                 required_columns=self.required_columns,
             )
         return NotImplemented
 
-    def __floordiv__(self, other: object) -> 'SeriesFromDfAssigner':
+    def __floordiv__(self, other: object) -> "SeriesFromDfAssigner":
         if isinstance(other, _BoundColumnPotential):
             if self.source_column_potential:
                 new_col_potential = self.source_column_potential // other
@@ -458,19 +471,19 @@ class SeriesFromDfAssigner(PdPipelineStage):
             return SeriesFromDfAssigner(
                 assign_to_column=self.assign_to_column,
                 series_from_df=_SeriesFromDfFloorDiv(
-                    self.series_from_df, other.series_from_df),
+                    self.series_from_df, other.series_from_df
+                ),
                 required_columns=self.required_columns,
             )
         if isinstance(other, SeriesOperandTypesTuple):
             return SeriesFromDfAssigner(
                 assign_to_column=self.assign_to_column,
-                series_from_df=_SeriesFromDfFloorDiv(
-                    self.series_from_df, other),
+                series_from_df=_SeriesFromDfFloorDiv(self.series_from_df, other),
                 required_columns=self.required_columns,
             )
         return NotImplemented
 
-    def __mod__(self, other: object) -> 'SeriesFromDfAssigner':
+    def __mod__(self, other: object) -> "SeriesFromDfAssigner":
         if isinstance(other, _BoundColumnPotential):
             if self.source_column_potential:
                 new_col_potential = self.source_column_potential % other
@@ -485,7 +498,8 @@ class SeriesFromDfAssigner(PdPipelineStage):
             return SeriesFromDfAssigner(
                 assign_to_column=self.assign_to_column,
                 series_from_df=_SeriesFromDfMod(
-                    self.series_from_df, other.series_from_df),
+                    self.series_from_df, other.series_from_df
+                ),
                 required_columns=self.required_columns,
             )
         if isinstance(other, SeriesOperandTypesTuple):
@@ -496,10 +510,10 @@ class SeriesFromDfAssigner(PdPipelineStage):
             )
         return NotImplemented
 
-    def __pow__(self, other: object) -> 'SeriesFromDfAssigner':
+    def __pow__(self, other: object) -> "SeriesFromDfAssigner":
         if isinstance(other, _BoundColumnPotential):
             if self.source_column_potential:
-                new_col_potential = self.source_column_potential ** other
+                new_col_potential = self.source_column_potential**other
                 return SeriesFromDfAssigner(
                     assign_to_column=self.assign_to_column,
                     series_from_df=new_col_potential.series_from_df,
@@ -511,7 +525,8 @@ class SeriesFromDfAssigner(PdPipelineStage):
             return SeriesFromDfAssigner(
                 assign_to_column=self.assign_to_column,
                 series_from_df=_SeriesFromDfPow(
-                    self.series_from_df, other.series_from_df),
+                    self.series_from_df, other.series_from_df
+                ),
                 required_columns=self.required_columns,
             )
         if isinstance(other, SeriesOperandTypesTuple):
@@ -525,7 +540,7 @@ class SeriesFromDfAssigner(PdPipelineStage):
 
 try:
     _BoundColumnPotentialOperandType = Union[
-        '_BoundColumnPotential',
+        "_BoundColumnPotential",
         Series,
         int,
         float,
@@ -562,7 +577,7 @@ try:
     ]
 except AttributeError:  # pragma: no cover
     _BoundColumnPotentialOperandType = Union[
-        '_BoundColumnPotential',
+        "_BoundColumnPotential",
         Series,
         int,
         float,
@@ -596,8 +611,7 @@ except AttributeError:  # pragma: no cover
     ]
 
 
-class _BoundColumnPotential():
-
+class _BoundColumnPotential:
     def __init__(
         self,
         series_from_df: _SeriesFromDf,
@@ -608,22 +622,22 @@ class _BoundColumnPotential():
 
     # === Unary operators ===
 
-    def __neg__(self) -> '_BoundColumnPotential':
+    def __neg__(self) -> "_BoundColumnPotential":
         return _BoundColumnPotential(
             series_from_df=_SeriesFromDfNeg(self.series_from_df),
             required_columns=self.required_columns,
         )
 
-    def __pos__(self) -> '_BoundColumnPotential':
+    def __pos__(self) -> "_BoundColumnPotential":
         return self
 
-    def __abs__(self) -> '_BoundColumnPotential':
+    def __abs__(self) -> "_BoundColumnPotential":
         return _BoundColumnPotential(
             series_from_df=_SeriesFromDfAbs(self.series_from_df),
             required_columns=self.required_columns,
         )
 
-    def __invert__(self) -> '_BoundColumnPotential':
+    def __invert__(self) -> "_BoundColumnPotential":
         return _BoundColumnPotential(
             series_from_df=_SeriesFromDfInvert(self.series_from_df),
             required_columns=self.required_columns,
@@ -636,7 +650,7 @@ class _BoundColumnPotential():
     def __and__(
         self,
         other: _BoundColumnPotentialOperandType,
-    ) -> '_BoundColumnPotential':
+    ) -> "_BoundColumnPotential":
         if isinstance(other, _BoundColumnPotential):
             series_from_df = _SeriesFromDfAnd(
                 first=self.series_from_df,
@@ -661,13 +675,13 @@ class _BoundColumnPotential():
     def __rand__(
         self,
         other: _BoundColumnPotentialOperandType,
-    ) -> '_BoundColumnPotential':
+    ) -> "_BoundColumnPotential":
         return self & other  # pragma: no cover
 
     def __or__(
         self,
         other: _BoundColumnPotentialOperandType,
-    ) -> '_BoundColumnPotential':
+    ) -> "_BoundColumnPotential":
         if isinstance(other, _BoundColumnPotential):
             series_from_df = _SeriesFromDfOr(
                 first=self.series_from_df,
@@ -692,13 +706,13 @@ class _BoundColumnPotential():
     def __ror__(
         self,
         other: _BoundColumnPotentialOperandType,
-    ) -> '_BoundColumnPotential':
+    ) -> "_BoundColumnPotential":
         return self | other  # pragma: no cover
 
     def __xor__(
         self,
         other: _BoundColumnPotentialOperandType,
-    ) -> '_BoundColumnPotential':
+    ) -> "_BoundColumnPotential":
         if isinstance(other, _BoundColumnPotential):
             series_from_df = _SeriesFromDfXor(
                 first=self.series_from_df,
@@ -723,7 +737,7 @@ class _BoundColumnPotential():
     def __rxor__(
         self,
         other: _BoundColumnPotentialOperandType,
-    ) -> '_BoundColumnPotential':
+    ) -> "_BoundColumnPotential":
         return self ^ other  # pragma: no cover
 
     # --- Rich Comparison Operators ---
@@ -731,7 +745,7 @@ class _BoundColumnPotential():
     def __lt__(
         self,
         other: _BoundColumnPotentialOperandType,
-    ) -> '_BoundColumnPotential':
+    ) -> "_BoundColumnPotential":
         if isinstance(other, _BoundColumnPotential):
             series_from_df = _SeriesFromDfLt(
                 first=self.series_from_df,
@@ -756,7 +770,7 @@ class _BoundColumnPotential():
     def __le__(
         self,
         other: _BoundColumnPotentialOperandType,
-    ) -> '_BoundColumnPotential':
+    ) -> "_BoundColumnPotential":
         if isinstance(other, _BoundColumnPotential):
             series_from_df = _SeriesFromDfLe(
                 first=self.series_from_df,
@@ -781,7 +795,7 @@ class _BoundColumnPotential():
     def __eq__(
         self,
         other: _BoundColumnPotentialOperandType,
-    ) -> '_BoundColumnPotential':
+    ) -> "_BoundColumnPotential":
         if isinstance(other, _BoundColumnPotential):
             series_from_df = _SeriesFromDfEq(
                 first=self.series_from_df,
@@ -806,7 +820,7 @@ class _BoundColumnPotential():
     def __ne__(
         self,
         other: _BoundColumnPotentialOperandType,
-    ) -> '_BoundColumnPotential':
+    ) -> "_BoundColumnPotential":
         if isinstance(other, _BoundColumnPotential):
             series_from_df = _SeriesFromDfNe(
                 first=self.series_from_df,
@@ -831,7 +845,7 @@ class _BoundColumnPotential():
     def __ge__(
         self,
         other: _BoundColumnPotentialOperandType,
-    ) -> '_BoundColumnPotential':
+    ) -> "_BoundColumnPotential":
         if isinstance(other, _BoundColumnPotential):
             series_from_df = _SeriesFromDfGe(
                 first=self.series_from_df,
@@ -856,7 +870,7 @@ class _BoundColumnPotential():
     def __gt__(
         self,
         other: _BoundColumnPotentialOperandType,
-    ) -> '_BoundColumnPotential':
+    ) -> "_BoundColumnPotential":
         if isinstance(other, _BoundColumnPotential):
             series_from_df = _SeriesFromDfGt(
                 first=self.series_from_df,
@@ -883,7 +897,7 @@ class _BoundColumnPotential():
     def __add__(
         self,
         other: _BoundColumnPotentialOperandType,
-    ) -> '_BoundColumnPotential':
+    ) -> "_BoundColumnPotential":
         if isinstance(other, _BoundColumnPotential):
             series_from_df = _SeriesFromDfAdd(
                 first=self.series_from_df,
@@ -908,13 +922,13 @@ class _BoundColumnPotential():
     def __radd__(
         self,
         other: _BoundColumnPotentialOperandType,
-    ) -> '_BoundColumnPotential':
+    ) -> "_BoundColumnPotential":
         return self.__add__(other)
 
     def __sub__(
         self,
         other: _BoundColumnPotentialOperandType,
-    ) -> '_BoundColumnPotential':
+    ) -> "_BoundColumnPotential":
         if isinstance(other, _BoundColumnPotential):
             series_from_df = _SeriesFromDfSub(
                 first=self.series_from_df,
@@ -939,13 +953,13 @@ class _BoundColumnPotential():
     def __rsub__(
         self,
         other: _BoundColumnPotentialOperandType,
-    ) -> '_BoundColumnPotential':
+    ) -> "_BoundColumnPotential":
         return self.__sub__(other)
 
     def __mul__(
         self,
         other: _BoundColumnPotentialOperandType,
-    ) -> '_BoundColumnPotential':
+    ) -> "_BoundColumnPotential":
         if isinstance(other, _BoundColumnPotential):
             series_from_df = _SeriesFromDfMul(
                 first=self.series_from_df,
@@ -970,13 +984,13 @@ class _BoundColumnPotential():
     def __rmul__(
         self,
         other: _BoundColumnPotentialOperandType,
-    ) -> '_BoundColumnPotential':
+    ) -> "_BoundColumnPotential":
         return self.__mul__(other)
 
     def __truediv__(
         self,
         other: _BoundColumnPotentialOperandType,
-    ) -> '_BoundColumnPotential':
+    ) -> "_BoundColumnPotential":
         if isinstance(other, _BoundColumnPotential):
             series_from_df = _SeriesFromDfTrueDiv(
                 first=self.series_from_df,
@@ -1001,13 +1015,13 @@ class _BoundColumnPotential():
     def __rtruediv__(
         self,
         other: _BoundColumnPotentialOperandType,
-    ) -> '_BoundColumnPotential':
+    ) -> "_BoundColumnPotential":
         return self.__truediv__(other)
 
     def __floordiv__(
         self,
         other: _BoundColumnPotentialOperandType,
-    ) -> '_BoundColumnPotential':
+    ) -> "_BoundColumnPotential":
         if isinstance(other, _BoundColumnPotential):
             series_from_df = _SeriesFromDfFloorDiv(
                 first=self.series_from_df,
@@ -1032,13 +1046,13 @@ class _BoundColumnPotential():
     def __rfloordiv__(
         self,
         other: _BoundColumnPotentialOperandType,
-    ) -> '_BoundColumnPotential':
+    ) -> "_BoundColumnPotential":
         return self.__floordiv__(other)
 
     def __mod__(
         self,
         other: _BoundColumnPotentialOperandType,
-    ) -> '_BoundColumnPotential':
+    ) -> "_BoundColumnPotential":
         if isinstance(other, _BoundColumnPotential):
             series_from_df = _SeriesFromDfMod(
                 first=self.series_from_df,
@@ -1063,13 +1077,13 @@ class _BoundColumnPotential():
     def __rmod__(
         self,
         other: _BoundColumnPotentialOperandType,
-    ) -> '_BoundColumnPotential':
+    ) -> "_BoundColumnPotential":
         return self.__mod__(other)
 
     def __pow__(
         self,
         other: _BoundColumnPotentialOperandType,
-    ) -> '_BoundColumnPotential':
+    ) -> "_BoundColumnPotential":
         if isinstance(other, _BoundColumnPotential):
             series_from_df = _SeriesFromDfPow(
                 first=self.series_from_df,
@@ -1094,14 +1108,14 @@ class _BoundColumnPotential():
     def __rpow__(
         self,
         other: _BoundColumnPotentialOperandType,
-    ) -> '_BoundColumnPotential':
+    ) -> "_BoundColumnPotential":
         return self.__pow__(other)
 
     # --- Our custom assignment operator ---
 
     def __lshift__(
         self,
-        other: Union['_BoundColumnPotential', Series],
+        other: Union["_BoundColumnPotential", Series],
     ) -> PdPipelineStage:
         if isinstance(self.series_from_df, _SeriesFromDfByLabel):
             me: _SeriesFromDfByLabel = self.series_from_df
@@ -1122,7 +1136,7 @@ class _BoundColumnPotential():
 
     def __rshift__(
         self,
-        other: Union['_BoundColumnPotential', Series],
+        other: Union["_BoundColumnPotential", Series],
     ) -> PdPipelineStage:
         if isinstance(other, _BoundColumnPotential):
             return other.__lshift__(self)
@@ -1146,15 +1160,16 @@ class _BoundColumnPotential():
 
 # --- add series transformer methods to _BoundColumnPotential ---
 
-class _BoundColumnPotentialSeriesMethodTransformerHandle():
 
+class _BoundColumnPotentialSeriesMethodTransformerHandle:
     def __init__(self, method_name: str, doc: str) -> None:
         self._method_name = method_name
         self.__doc__ = doc
 
     @staticmethod
     def _cast_bound_col_potentials_to_series_from_df_objects(
-        args: tuple, kwargs: dict,
+        args: tuple,
+        kwargs: dict,
     ) -> Tuple[Tuple, Dict, Set]:
         """Breaks down the input args tuple and kwargs dict,
         cast any included _BoundColumnPotential objects into _SeriesFromDf
@@ -1218,15 +1233,15 @@ class _BoundColumnPotentialSeriesMethodTransformerHandle():
         return MethodType(self, instance) if instance else self
 
 
-__RETURNS = 'Returns'
-__SERIES = 'Series'
+__RETURNS = "Returns"
+__SERIES = "Series"
 
 
 def _has_series_transform_doc(attr_name: str, attr: object) -> bool:
-    if attr_name.startswith('_') or not callable(attr):
+    if attr_name.startswith("_") or not callable(attr):
         return False
     try:
-        doc_lines = attr.__doc__.split('\n')
+        doc_lines = attr.__doc__.split("\n")
         returns_line_index = None
         for i, line in enumerate(doc_lines):
             if __RETURNS in line:
@@ -1264,6 +1279,7 @@ for attr_name in dir(Series):
 
 
 # ==== factory method ====
+
 
 def get_bound_column_potential_by_label(
     column_label: str,

@@ -43,10 +43,12 @@ _series_operand_types = [
 ]
 
 try:
-    _series_operand_types.extend([
-        numpy.complex128,
-        numpy.float128,
-    ])
+    _series_operand_types.extend(
+        [
+            numpy.complex128,
+            numpy.float128,
+        ]
+    )
 except AttributeError:  # pragma: no cover
     # were on a system with no 128-bit floats
     pass

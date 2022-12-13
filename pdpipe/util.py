@@ -45,8 +45,10 @@ def out_of_place_col_insert(
     """
     if column_name is None:
         if series.name is None:
-            raise ValueError("A column name must be supplied if the given "
-                             "series is missing the name attribute.")
+            raise ValueError(
+                "A column name must be supplied if the given "
+                "series is missing the name attribute."
+            )
         column_name = series.name
     inter_X = X.assign(**{column_name: series})
     cols = list(inter_X.columns)
@@ -103,10 +105,12 @@ def per_column_values_sklearn_transform(
         The transformed dataframe.
     """
     return pd.DataFrame(
-        data=np.array([
-            transform(np.array([series.values]).T)[:, 0]
-            for lbl, series in X.iteritems()
-        ]).T,
+        data=np.array(
+            [
+                transform(np.array([series.values]).T)[:, 0]
+                for lbl, series in X.iteritems()
+            ]
+        ).T,
         index=X.index,
         columns=X.columns,
     )

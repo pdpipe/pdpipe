@@ -8,6 +8,7 @@ from typing import Union, Tuple, Optional, Dict, Callable
 import numpy as np
 import pandas as pd
 import sortedcontainers as sc
+
 # import tqdm
 from tqdm.autonotebook import tqdm
 
@@ -71,8 +72,7 @@ class Bin(PdPipelineStage):
     """
 
     _DEF_BIN_EXC_MSG = (
-        "Bin stage failed because not all columns "
-        "{} were found in input dataframe."
+        "Bin stage failed because not all columns " "{} were found in input dataframe."
     )
 
     def _default_desc(self):
@@ -137,9 +137,7 @@ class Bin(PdPipelineStage):
                 loc -= 1
             inter_X = out_of_place_col_insert(
                 X=inter_X,
-                series=source_col.apply(
-                    self._get_col_binner(self._bin_map[colname])
-                ),
+                series=source_col.apply(self._get_col_binner(self._bin_map[colname])),
                 loc=loc,
                 column_name=new_name,
             )
@@ -200,10 +198,7 @@ class OneHotEncode(ColumnsBasedPipelineStage):
         def __call__(self, value):
             this_dummy = f"{self.col_name}_{value}"
             return pd.Series(
-                data=[
-                    int(this_dummy == dummy_col)
-                    for dummy_col in self.dummy_columns
-                ],
+                data=[int(this_dummy == dummy_col) for dummy_col in self.dummy_columns],
                 index=self.dummy_columns,
             )
 
@@ -214,7 +209,7 @@ class OneHotEncode(ColumnsBasedPipelineStage):
         exclude_columns=None,
         drop_first=True,
         drop=True,
-        **kwargs
+        **kwargs,
     ):
         self._dummy_na = dummy_na
         self._drop_first = drop_first
@@ -222,12 +217,12 @@ class OneHotEncode(ColumnsBasedPipelineStage):
         self._dummy_col_map = {}
         self._encoder_map = {}
         super_kwargs = {
-            'columns': columns,
-            'exclude_columns': exclude_columns,
-            'desc_temp': "One-hot encode {}",
+            "columns": columns,
+            "exclude_columns": exclude_columns,
+            "desc_temp": "One-hot encode {}",
         }
         super_kwargs.update(**kwargs)
-        super_kwargs['none_columns'] = OfDtypes(['object', 'category'])
+        super_kwargs["none_columns"] = OfDtypes(["object", "category"])
         super().__init__(**super_kwargs)
 
     def _transformation(self, X, verbose, fit):
@@ -285,11 +280,13 @@ class OneHotEncode(ColumnsBasedPipelineStage):
             try:
                 encoder = self._encoder_map[colname]
             except KeyError:  # pragma: no cover
-                raise PipelineApplicationError((
-                    "Missing encoder for column {} when applying a fitted "
-                    "OneHotEncode pipeline stage by class {} !")
-                    .format(colname, self.__class__))
-            res_cols = col.astype('object').apply(encoder)
+                raise PipelineApplicationError(
+                    (
+                        "Missing encoder for column {} when applying a fitted "
+                        "OneHotEncode pipeline stage by class {} !"
+                    ).format(colname, self.__class__)
+                )
+            res_cols = col.astype("object").apply(encoder)
             for res_col in res_cols:
                 assign_map[res_col] = res_cols[res_col]
         inter_X = X.assign(**assign_map)
@@ -339,34 +336,28 @@ class ColumnTransformer(ColumnsBasedPipelineStage):
     """
 
     _INIT_KWARGS = [
-        'result_columns', 'drop', 'suffix',
+        "result_columns",
+        "drop",
+        "suffix",
     ] + ColumnsBasedPipelineStage._INIT_KWARGS
 
-    def __init__(
-        self,
-        columns,
-        result_columns=None,
-        drop=True,
-        suffix=None,
-        **kwargs
-    ):
+    def __init__(self, columns, result_columns=None, drop=True, suffix=None, **kwargs):
         if suffix is None:  # pragma: no cover
             suffix = "_transformed"
         self._suffix = suffix
         self._result_columns = result_columns
         if result_columns:
             self._result_columns = _interpret_columns_param(result_columns)
-            if len(self._result_columns) != len(
-                    _interpret_columns_param(columns)):
+            if len(self._result_columns) != len(_interpret_columns_param(columns)):
                 raise ValueError(
                     "columns and result_columns parameters must"
                     " be label lists of the same length!"
                 )
         self._drop = drop
         super_kwargs = {
-            'columns': columns,
-            'desc_temp': "Transform columns {}",
-            'none_columns': 'all',
+            "columns": columns,
+            "desc_temp": "Transform columns {}",
+            "none_columns": "all",
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -388,9 +379,7 @@ class ColumnTransformer(ColumnsBasedPipelineStage):
             if self._drop:
                 result_columns = columns
             else:
-                result_columns = [
-                    f'{col}{self._suffix}' for col in columns
-                ]
+                result_columns = [f"{col}{self._suffix}" for col in columns]
         inter_X = X
         for i, colname in enumerate(columns):
             source_col = X[colname]
@@ -408,7 +397,7 @@ class ColumnTransformer(ColumnsBasedPipelineStage):
         return inter_X
 
 
-class _AttrGetter():
+class _AttrGetter:
     """
     A custom callable that gets a specific attribute from input objects.
 
@@ -425,7 +414,7 @@ class _AttrGetter():
         return getattr(obj, self.attr_name)
 
 
-class _MethodRetValGetter():
+class _MethodRetValGetter:
     """
     A callable that gets a method's return value given specific kwargs.
 
@@ -536,14 +525,13 @@ class MapColVals(ColumnTransformer):
             )
         if suffix is None:
             suffix = "_map"
-        _, colstr = ColumnsBasedPipelineStage._interpret_columns_param(
-            columns)
+        _, colstr = ColumnsBasedPipelineStage._interpret_columns_param(columns)
         super_kwargs = {
-            'columns': columns,
-            'result_columns': result_columns,
-            'drop': drop,
-            'suffix': suffix,
-            'desc': f"Map values of columns {colstr} with {self._value_map}.",
+            "columns": columns,
+            "result_columns": result_columns,
+            "drop": drop,
+            "suffix": suffix,
+            "desc": f"Map values of columns {colstr} with {self._value_map}.",
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -612,7 +600,7 @@ class ApplyToRows(PdPipelineStage):
         follow_column=None,
         func_desc=None,
         prec=None,
-        **kwargs
+        **kwargs,
     ):
         if colname is None:
             colname = ApplyToRows._DEF_COLNAME
@@ -659,9 +647,7 @@ class ApplyToRows(PdPipelineStage):
                     )
                     loc += 1
                 return inter_X
-            assign_map = {
-                colname: new_cols[colname] for colname in new_cols.columns
-            }
+            assign_map = {colname: new_cols[colname] for colname in new_cols.columns}
             return X.assign(**assign_map)
         raise TypeError(  # pragma: no cover
             "Unexpected type generated by applying a function to a DataFrame."
@@ -726,7 +712,7 @@ class ApplyByCols(ColumnTransformer):
         func_desc=None,
         suffix=None,
         args=(),
-        **kwargs
+        **kwargs,
     ):
         self._func = func
         self._inject_label = False
@@ -736,8 +722,7 @@ class ApplyByCols(ColumnTransformer):
             param_names = inspect.signature(func).parameters.keys()
             self._inject_label = "label" in param_names
             self._inject_fit_context = "fit_context" in param_names
-            self._inject_application_context = \
-                "application_context" in param_names
+            self._inject_application_context = "application_context" in param_names
         except Exception:  # pragma: no cover
             warnings.warn(
                 "Function {} does not have signature.".format(func),
@@ -752,11 +737,11 @@ class ApplyByCols(ColumnTransformer):
         init_kwargs, other_kwargs = super()._split_kwargs(kwargs)
         self._apply_kwargs = other_kwargs
         super_kwargs = {
-            'columns': columns,
-            'result_columns': result_columns,
-            'drop': drop,
-            'suffix': suffix,
-            'desc_temp': f'Apply a function {func_desc} to columns {{}}',
+            "columns": columns,
+            "result_columns": result_columns,
+            "drop": drop,
+            "suffix": suffix,
+            "desc_temp": f"Apply a function {func_desc} to columns {{}}",
         }
         super_kwargs.update(**init_kwargs)
         super().__init__(**super_kwargs)
@@ -826,8 +811,13 @@ class ColByFrameFunc(PdPipelineStage):
     _DEF_DESCRIPTION_SUFFIX = "."
 
     def __init__(
-        self, column, func, follow_column=None, before_column=None,
-        func_desc=None, **kwargs
+        self,
+        column,
+        func,
+        follow_column=None,
+        before_column=None,
+        func_desc=None,
+        **kwargs,
     ):
         self._column = column
         self._func = func
@@ -931,7 +921,7 @@ class AggByCols(ColumnTransformer):
         drop=True,
         func_desc=None,
         suffix=None,
-        **kwargs
+        **kwargs,
     ):
         self._func = func
         if suffix is None:
@@ -940,13 +930,11 @@ class AggByCols(ColumnTransformer):
             func_desc = ""
         self._func_desc = func_desc
         super_kwargs = {
-            'columns': columns,
-            'result_columns': result_columns,
-            'drop': drop,
-            'suffix': suffix,
-            'desc_temp': (
-                f'Apply an aggregation function {func_desc} to columns {{}}'
-            ),
+            "columns": columns,
+            "result_columns": result_columns,
+            "drop": drop,
+            "suffix": suffix,
+            "desc_temp": (f"Apply an aggregation function {func_desc} to columns {{}}"),
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -1008,19 +996,19 @@ class Log(ColumnsBasedPipelineStage):
         drop=False,
         non_neg=False,
         const_shift=None,
-        **kwargs
+        **kwargs,
     ):
         self._drop = drop
         self._non_neg = non_neg
         self._const_shift = const_shift
         self._col_to_minval = {}
         super_kwargs = {
-            'columns': columns,
-            'exclude_columns': exclude_columns,
-            'desc_temp': "Log-transform {}",
+            "columns": columns,
+            "exclude_columns": exclude_columns,
+            "desc_temp": "Log-transform {}",
         }
         super_kwargs.update(**kwargs)
-        super_kwargs['none_columns'] = OfDtypes([np.number])
+        super_kwargs["none_columns"] = OfDtypes([np.number])
         super().__init__(**super_kwargs)
 
     def _transformation(self, X, verbose, fit):
@@ -1066,10 +1054,12 @@ class Log(ColumnsBasedPipelineStage):
             try:
                 source_col = X[colname]
             except KeyError:  # pragma: no cover
-                raise PipelineApplicationError((
-                    "Missig column {} when applying a fitted "
-                    "Log pipeline stage by class {} !").format(
-                        colname, self.__class__))
+                raise PipelineApplicationError(
+                    (
+                        "Missig column {} when applying a fitted "
+                        "Log pipeline stage by class {} !"
+                    ).format(colname, self.__class__)
+                )
             loc = X.columns.get_loc(colname) + 1
             new_name = colname + "_log"
             if self._drop:
@@ -1082,10 +1072,12 @@ class Log(ColumnsBasedPipelineStage):
                     absminval = self._col_to_minval[colname]
                     new_col = new_col + absminval
                 else:  # pragma: no cover
-                    raise PipelineApplicationError((
-                        "Missig fitted parameter for column {} when applying a"
-                        " fitted Log pipeline stage by class {}!").format(
-                            colname, self.__class__))
+                    raise PipelineApplicationError(
+                        (
+                            "Missig fitted parameter for column {} when applying a"
+                            " fitted Log pipeline stage by class {}!"
+                        ).format(colname, self.__class__)
+                    )
             # must check not None as neg numbers eval to False
             if self._const_shift is not None:
                 new_col = new_col + self._const_shift

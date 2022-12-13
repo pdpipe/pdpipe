@@ -9,8 +9,8 @@ from ..core import PdPipelineStage
 
 # === DataFrame methods  ===
 
-class _DataFrameMethodTransformer(PdPipelineStage):
 
+class _DataFrameMethodTransformer(PdPipelineStage):
     def __init__(
         self,
         method_name: str,
@@ -21,18 +21,19 @@ class _DataFrameMethodTransformer(PdPipelineStage):
         self._args = args
         self._kwargs = kwargs
         # we must always pop 'inplace', if it's there
-        found = self._kwargs.pop('inplace', None)
+        found = self._kwargs.pop("inplace", None)
         if found is not None:
-            self._kwargs['inplace'] = False
+            self._kwargs["inplace"] = False
         exmsg = (
             "Pipeline stage failed while applying method {} with kwargs {}"
         ).format(method_name, self._kwargs)
         desc = "Apply dataframe method {} with kwargs {}".format(
-            method_name, self._kwargs)
+            method_name, self._kwargs
+        )
         super_kwargs = {
-            'exmsg': exmsg,
-            'desc': desc,
-            'name': method_name,
+            "exmsg": exmsg,
+            "desc": desc,
+            "name": method_name,
         }
         super().__init__(**super_kwargs)
 
@@ -44,8 +45,7 @@ class _DataFrameMethodTransformer(PdPipelineStage):
         return method(*self._args, **self._kwargs)
 
 
-class _DfMethodTransformerHandle():
-
+class _DfMethodTransformerHandle:
     def __init__(self, method_name: str, doc: str) -> None:
         self._method_name = method_name
         self.__doc__ = doc
@@ -58,15 +58,15 @@ class _DfMethodTransformerHandle():
         )
 
 
-__RETURNS = 'Returns'
-__DATAFRAME = 'DataFrame'
+__RETURNS = "Returns"
+__DATAFRAME = "DataFrame"
 
 
 def _is_dataframe_transform(attr_name: str, attr: object) -> bool:
-    if attr_name.startswith('_') or not callable(attr):
+    if attr_name.startswith("_") or not callable(attr):
         return False
     try:
-        doc_lines = attr.__doc__.split('\n')
+        doc_lines = attr.__doc__.split("\n")
         returns_line_index = None
         for i, line in enumerate(doc_lines):
             if __RETURNS in line:

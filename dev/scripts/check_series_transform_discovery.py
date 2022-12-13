@@ -1,10 +1,11 @@
 """Can help expand series transforms whitelist and blacklist occasionally."""
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     from pandas import Series
     from pdpipe.df.series_transformer import _has_series_transform_doc
     from rich.console import Console
+
     console = Console()
     print = console.print
     ser = Series([1, 2, 3])
@@ -38,12 +39,14 @@ if __name__ == '__main__':
                 transforms.append(attr_name)
                 print(
                     f"[blue bold]\t{attr_name}[/blue bold] [green]is a "
-                    "series transform[/green]")
+                    "series transform[/green]"
+                )
             else:
                 not_transforms.append(attr_name)
                 print(
                     f"[blue bold]\t{attr_name}[/blue bold] [red]is not a "
-                    "series transform[/red]")
+                    "series transform[/red]"
+                )
     print("\n[blue bold]Transforms[/blue bold]")
     print(f"{transforms}")
     print("\n[blue bold]Potential Non-Transforms[/blue bold]")

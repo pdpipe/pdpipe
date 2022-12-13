@@ -33,13 +33,14 @@ class FitOnly(PdPipelineStage):
     1    8    a
     2    5    b
     """
+
     _FITONLY_DESC = "Applying, only on fit, the stage: {}"
 
     def __init__(self, stage, **kwargs):
         self._stage = stage
         desc = FitOnly._FITONLY_DESC.format(stage.description())
         super_kwargs = {
-            'desc': desc,
+            "desc": desc,
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)

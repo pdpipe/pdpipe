@@ -116,16 +116,15 @@ class Condition(object):
             raise UnfittedConditionError
 
     def __repr__(self):
-        fstr = ''
+        fstr = ""
         if self._func.__doc__:  # pragma: no cover
-            fstr = f' - {self._func.__doc__}'
+            fstr = f" - {self._func.__doc__}"
         return f"<pdpipe.Condition: By function{fstr}>"
 
     # --- overriding boolean operators ---
 
     # need this because inner-scope functions aren't pickle-able
     class _AndCondition(object):
-
         def __init__(self, first, second):
             self.first = first
             self.second = second
@@ -145,7 +144,6 @@ class Condition(object):
             return NotImplemented
 
     class _XorCondition(object):
-
         def __init__(self, first, second):
             self.first = first
             self.second = second
@@ -165,7 +163,6 @@ class Condition(object):
             return NotImplemented
 
     class _OrCondition(object):
-
         def __init__(self, first, second):
             self.first = first
             self.second = second
@@ -185,7 +182,6 @@ class Condition(object):
             return NotImplemented
 
     class _NotCondition(object):
-
         def __init__(self, first):
             self.first = first
 
@@ -261,56 +257,58 @@ conditions: anonymous condition>
     """
 
     class _ConditionFunction(object):
-
         def __init__(self, conditions, cond_reduce, col_reduce):
             self.conditions = conditions
             self.cond_reduce = cond_reduce
             self.col_reduce = col_reduce
 
         def __call__(self, X):
-            return self.col_reduce([
-                self.cond_reduce([
-                    cond(X[lbl])
-                    for cond in self.conditions
-                ])
-                for lbl in X.columns
-            ])
+            return self.col_reduce(
+                [
+                    self.cond_reduce([cond(X[lbl]) for cond in self.conditions])
+                    for lbl in X.columns
+                ]
+            )
 
-    def __init__(self, conditions, conditions_reduce=None, columns_reduce=None,
-                 **kwargs):
+    def __init__(
+        self, conditions, conditions_reduce=None, columns_reduce=None, **kwargs
+    ):
         # handling default args and input types
-        if not hasattr(conditions, '__iter__'):
+        if not hasattr(conditions, "__iter__"):
             conditions = [conditions]
         if conditions_reduce is None:
-            conditions_reduce = 'all'
+            conditions_reduce = "all"
         if columns_reduce is None:
-            columns_reduce = 'all'
+            columns_reduce = "all"
         # building class attributes
         self._conditions = conditions
         self._cond_reduce_str = conditions_reduce
         self._col_reduce_str = columns_reduce
-        self._conditions_str = ', '.join([
-            c.__doc__ or 'anonymous condition'
-            for c in conditions
-        ])
-        if conditions_reduce == 'all':
+        self._conditions_str = ", ".join(
+            [c.__doc__ or "anonymous condition" for c in conditions]
+        )
+        if conditions_reduce == "all":
             self._cond_reduce = all
-        elif conditions_reduce == 'any':
+        elif conditions_reduce == "any":
             self._cond_reduce = any
         else:
-            raise ValueError((
-                "The only valid arguments to the `conditions_reduce` parameter"
-                " of PerColumnCondition are 'all' and 'any'!"
-            ))
-        if columns_reduce == 'all':
+            raise ValueError(
+                (
+                    "The only valid arguments to the `conditions_reduce` parameter"
+                    " of PerColumnCondition are 'all' and 'any'!"
+                )
+            )
+        if columns_reduce == "all":
             self._col_reduce = all
-        elif columns_reduce == 'any':
+        elif columns_reduce == "any":
             self._col_reduce = any
         else:
-            raise ValueError((
-                "The only valid arguments to the `columns_reduce` parameter"
-                " of PerColumnCondition are 'all' and 'any'!"
-            ))
+            raise ValueError(
+                (
+                    "The only valid arguments to the `columns_reduce` parameter"
+                    " of PerColumnCondition are 'all' and 'any'!"
+                )
+            )
         # building resulting function
         _func = PerColumnCondition._ConditionFunction(
             conditions=self._conditions,
@@ -319,9 +317,10 @@ conditions: anonymous condition>
         )
         doc_str = "Dataframes with {} columns satisfying {} conditions: {}"
         self._func_doc = doc_str.format(
-            self._col_reduce_str, self._cond_reduce_str, self._conditions_str)
+            self._col_reduce_str, self._cond_reduce_str, self._conditions_str
+        )
         _func.__doc__ = self._func_doc
-        kwargs['func'] = _func
+        kwargs["func"] = _func
         super().__init__(**kwargs)
 
     def __repr__(self):
@@ -359,15 +358,14 @@ class HasAllColumns(Condition):
     """
 
     def __init__(self, labels, **kwargs):
-        if isinstance(labels, str) or not hasattr(labels, '__iter__'):
+        if isinstance(labels, str) or not hasattr(labels, "__iter__"):
             labels = [labels]
         self._labels = labels
         self._labels_str = _list_str(self._labels)
+
         def _func(X):  # noqa: E306
-            return all([
-                lbl in X.columns
-                for lbl in self._labels
-            ])
+            return all([lbl in X.columns for lbl in self._labels])
+
         _func.__doc__ = f"Dataframes with columns {self._labels_str}"
         super_kwargs = {
             "error_message": (
@@ -376,7 +374,7 @@ class HasAllColumns(Condition):
             )
         }
         super_kwargs.update(**kwargs)
-        super_kwargs['func'] = _func
+        super_kwargs["func"] = _func
         super().__init__(**super_kwargs)
 
     def __repr__(self):
@@ -420,7 +418,6 @@ conditions: Series with labels in num>
     """
 
     class _SeriesLblCondition(object):
-
         def __init__(self, labels):
             self.labels = labels
 
@@ -428,14 +425,14 @@ conditions: Series with labels in num>
             return series.name in self.labels
 
     def __init__(self, labels, columns_reduce=None, **kwargs):
-        if isinstance(labels, str) or not hasattr(labels, '__iter__'):
+        if isinstance(labels, str) or not hasattr(labels, "__iter__"):
             labels = [labels]
         self._labels = labels
         self._labels_str = _list_str(self._labels)
         _func = ColumnsFromList._SeriesLblCondition(self._labels)
         _func.__doc__ = f"Series with labels in {self._labels_str}"
-        kwargs['conditions'] = [_func]
-        kwargs['columns_reduce'] = columns_reduce
+        kwargs["conditions"] = [_func]
+        kwargs["columns_reduce"] = columns_reduce
         super().__init__(**kwargs)
 
 
@@ -470,18 +467,14 @@ class HasNoColumn(Condition):
     """
 
     class _NoColumnsFunc(object):
-
         def __init__(self, labels):
             self.labels = labels
 
         def __call__(self, X):
-            return all([
-                lbl not in X.columns
-                for lbl in self.labels
-            ])
+            return all([lbl not in X.columns for lbl in self.labels])
 
     def __init__(self, labels, **kwargs):
-        if isinstance(labels, str) or not hasattr(labels, '__iter__'):
+        if isinstance(labels, str) or not hasattr(labels, "__iter__"):
             labels = [labels]
         self._labels = labels
         self._labels_str = _list_str(self._labels)
@@ -494,7 +487,7 @@ class HasNoColumn(Condition):
             )
         }
         super_kwargs.update(**kwargs)
-        super_kwargs['func'] = _func
+        super_kwargs["func"] = _func
         super().__init__(**super_kwargs)
 
     def __repr__(self):
@@ -537,7 +530,6 @@ class HasAtMostMissingValues(Condition):
     """
 
     class _IntMissingValuesFunc(object):
-
         def __init__(self, n_missing):
             self.n_missing = n_missing
 
@@ -546,7 +538,6 @@ class HasAtMostMissingValues(Condition):
             return nmiss <= self.n_missing
 
     class _FloatMissingValuesFunc(object):
-
         def __init__(self, n_missing):
             self.n_missing = n_missing
 
@@ -562,9 +553,7 @@ class HasAtMostMissingValues(Condition):
             _func = HasAtMostMissingValues._FloatMissingValuesFunc(n_missing)
         else:
             raise ValueError("n_missing should be of type int or float!")
-        _func.__doc__ = (
-            f"Dataframes with at most {self._n_missing} missing values"
-        )
+        _func.__doc__ = f"Dataframes with at most {self._n_missing} missing values"
         super_kwargs = {
             "error_message": (
                 "Input dataframe cannot have more than"
@@ -572,12 +561,11 @@ class HasAtMostMissingValues(Condition):
             )
         }
         super_kwargs.update(**kwargs)
-        super_kwargs['func'] = _func
+        super_kwargs["func"] = _func
         super().__init__(**super_kwargs)
 
     def __repr__(self):
-        return f"<pdpipe.Condition: " \
-               f"Has at most {self._n_missing} missing values>"
+        return f"<pdpipe.Condition: " f"Has at most {self._n_missing} missing values>"
 
 
 class HasNoMissingValues(HasAtMostMissingValues):
@@ -607,7 +595,7 @@ class HasNoMissingValues(HasAtMostMissingValues):
             "error_message": "Input dataframe cannot contain missing values."
         }
         super_kwargs.update(**kwargs)
-        super_kwargs['n_missing'] = 0
+        super_kwargs["n_missing"] = 0
         super().__init__(**super_kwargs)
 
     def __repr__(self):
@@ -644,7 +632,7 @@ class AlwaysTrue(Condition):
     def __init__(self, **kwargs):
         super_kwargs = {}
         super_kwargs.update(**kwargs)
-        super_kwargs['func'] = _AlwaysTrue
+        super_kwargs["func"] = _AlwaysTrue
         super().__init__(**super_kwargs)
 
     def __repr__(self):
@@ -683,8 +671,7 @@ class HasAtMostNQualifyingColumns(Condition):
     False
     """  # noqa: E501
 
-    class _AtMostNQualifyingCallable():
-
+    class _AtMostNQualifyingCallable:
         def __init__(self, n, qualifier):
             self._n = n
             self._qualifier = qualifier
@@ -693,24 +680,20 @@ class HasAtMostNQualifyingColumns(Condition):
             return len(self._qualifier(X)) <= self._n
 
     def __init__(self, n: int, qualifier: callable, **kwargs):
-        _func = HasAtMostNQualifyingColumns._AtMostNQualifyingCallable(
-            n, qualifier)
+        _func = HasAtMostNQualifyingColumns._AtMostNQualifyingCallable(n, qualifier)
         _func.__doc__ = (
-            f"Dataframes with at most {n} columns qualifying "
-            f"{qualifier}"
+            f"Dataframes with at most {n} columns qualifying " f"{qualifier}"
         )
         self._rpr = (
-            f"<pdpipe.Condition: Has at most {n} columns qualifying "
-            f"{qualifier}>"
+            f"<pdpipe.Condition: Has at most {n} columns qualifying " f"{qualifier}>"
         )
         super_kwargs = {
             "error_message": (
-                f"More than {n} columns qualify {qualifier} in the input "
-                "dataframe!"
+                f"More than {n} columns qualify {qualifier} in the input " "dataframe!"
             )
         }
         super_kwargs.update(**kwargs)
-        super_kwargs['func'] = _func
+        super_kwargs["func"] = _func
         super().__init__(**super_kwargs)
 
     def __repr__(self):
@@ -749,8 +732,7 @@ class HasAtLeastNQualifyingColumns(Condition):
     False
     """  # noqa: E501
 
-    class _AtLeastNQualifyingCallable():
-
+    class _AtLeastNQualifyingCallable:
         def __init__(self, n, qualifier):
             self._n = n
             self._qualifier = qualifier
@@ -759,24 +741,20 @@ class HasAtLeastNQualifyingColumns(Condition):
             return len(self._qualifier(X)) >= self._n
 
     def __init__(self, n: int, qualifier: callable, **kwargs):
-        _func = HasAtLeastNQualifyingColumns._AtLeastNQualifyingCallable(
-            n, qualifier)
+        _func = HasAtLeastNQualifyingColumns._AtLeastNQualifyingCallable(n, qualifier)
         _func.__doc__ = (
-            f"Dataframes with at least {n} columns qualifying "
-            f"{qualifier}"
+            f"Dataframes with at least {n} columns qualifying " f"{qualifier}"
         )
         self._rpr = (
-            f"<pdpipe.Condition: Has at least {n} columns qualifying "
-            f"{qualifier}>"
+            f"<pdpipe.Condition: Has at least {n} columns qualifying " f"{qualifier}>"
         )
         super_kwargs = {
             "error_message": (
-                f"Less than {n} columns qualify {qualifier} in the input "
-                "dataframe!"
+                f"Less than {n} columns qualify {qualifier} in the input " "dataframe!"
             )
         }
         super_kwargs.update(**kwargs)
-        super_kwargs['func'] = _func
+        super_kwargs["func"] = _func
         super().__init__(**super_kwargs)
 
     def __repr__(self):
@@ -812,9 +790,9 @@ class HasNoQualifyingColumns(HasAtMostNQualifyingColumns):
     def __init__(self, qualifier: callable, **kwargs):
         super_kwargs = {
             "error_message": (
-                f"Found columns qualifing {qualifier} in the input dataframe!")
+                f"Found columns qualifing {qualifier} in the input dataframe!"
+            )
         }
         super_kwargs.update(**kwargs)
         super().__init__(n=0, qualifier=qualifier, **super_kwargs)
-        self._rpr = (
-            f"<pdpipe.Condition: Has no columns qualifying {qualifier}>")
+        self._rpr = f"<pdpipe.Condition: Has no columns qualifying {qualifier}>"

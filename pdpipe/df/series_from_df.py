@@ -9,6 +9,7 @@ from pandas import DataFrame, Series
 
 # === Series from DataFrame objects ======
 
+
 class _SeriesFromDf(abc.ABC):
     """A serializable callable that returns a pandas.Series from input
     pandas.DataFrame objects."""
@@ -92,7 +93,6 @@ except AttributeError:  # pragma: no cover
 
 
 class _SeriesFromDfByLabel(_SeriesFromDf):
-
     def __init__(self, column_label: object) -> None:
         self.column_label = column_label
 
@@ -104,7 +104,6 @@ class _SeriesFromDfByLabel(_SeriesFromDf):
 
 
 class _SeriesFromDfBySeriesMethod(_SeriesFromDf):
-
     def __init__(
         self,
         source: _SeriesFromDf,
@@ -125,14 +124,11 @@ class _SeriesFromDfBySeriesMethod(_SeriesFromDf):
             args_str += pos_args_str
         kwargs_str = ""
         if len(self.kwargs) > 0:
-            kwargs_str = ", ".join(
-                f"{k}={v}" for k, v in self.kwargs.items())
+            kwargs_str = ", ".join(f"{k}={v}" for k, v in self.kwargs.items())
             if len(self.args) > 0:
                 args_str += ", "
             args_str += kwargs_str
-        return (
-            f"{self.source.__repr__()}.{self.method_name}({args_str})"
-        )
+        return f"{self.source.__repr__()}.{self.method_name}({args_str})"
 
     @staticmethod
     def _cast_series_from_df_to_series(
@@ -169,12 +165,12 @@ class _SeriesFromDfBySeriesMethod(_SeriesFromDf):
     def __call__(self, df: DataFrame) -> Series:
         source_res = self.source(df)
         method = getattr(source_res, self.method_name)
-        args, kwargs = self._cast_series_from_df_to_series(
-            self.args, self.kwargs, df)
+        args, kwargs = self._cast_series_from_df_to_series(self.args, self.kwargs, df)
         return method(*args, **kwargs)
 
 
 # === repr help functions ======
+
 
 def _arg_repr(arg: _SeriesFromDfOperandType) -> str:
     if isinstance(arg, Series):
@@ -184,8 +180,8 @@ def _arg_repr(arg: _SeriesFromDfOperandType) -> str:
 
 # === Unary Operators ===
 
-class _SeriesFromDfNeg(_SeriesFromDf):
 
+class _SeriesFromDfNeg(_SeriesFromDf):
     def __init__(
         self,
         first: _SeriesFromDf,
@@ -193,7 +189,7 @@ class _SeriesFromDfNeg(_SeriesFromDf):
         self.first = first
 
     def __call__(self, df: DataFrame) -> Series:
-        return - self.first(df)
+        return -self.first(df)
 
     def __repr__(self) -> str:
         return f"-{_arg_repr(self.first)}"
@@ -212,7 +208,6 @@ class _SeriesFromDfNeg(_SeriesFromDf):
 
 
 class _SeriesFromDfAbs(_SeriesFromDf):
-
     def __init__(
         self,
         first: _SeriesFromDf,
@@ -227,7 +222,6 @@ class _SeriesFromDfAbs(_SeriesFromDf):
 
 
 class _SeriesFromDfInvert(_SeriesFromDf):
-
     def __init__(
         self,
         first: _SeriesFromDf,
@@ -235,7 +229,7 @@ class _SeriesFromDfInvert(_SeriesFromDf):
         self.first = first
 
     def __call__(self, df: DataFrame) -> Series:
-        return ~ self.first(df)
+        return ~self.first(df)
 
     def __repr__(self) -> str:
         return f"~{_arg_repr(self.first)}"
@@ -245,8 +239,8 @@ class _SeriesFromDfInvert(_SeriesFromDf):
 
 # --- Boolean Operators ---
 
-class _SeriesFromDfAnd(_SeriesFromDf):
 
+class _SeriesFromDfAnd(_SeriesFromDf):
     def __init__(
         self,
         first: _SeriesFromDf,
@@ -266,7 +260,6 @@ class _SeriesFromDfAnd(_SeriesFromDf):
 
 
 class _SeriesFromDfOr(_SeriesFromDf):
-
     def __init__(
         self,
         first: _SeriesFromDf,
@@ -289,7 +282,6 @@ class _SeriesFromDfOr(_SeriesFromDf):
 
 
 class _SeriesFromDfXor(_SeriesFromDf):
-
     def __init__(
         self,
         first: _SeriesFromDf,
@@ -313,8 +305,8 @@ class _SeriesFromDfXor(_SeriesFromDf):
 
 # --- Rich Comparison Operators ---
 
-class _SeriesFromDfLt(_SeriesFromDf):
 
+class _SeriesFromDfLt(_SeriesFromDf):
     def __init__(
         self,
         first: _SeriesFromDf,
@@ -334,7 +326,6 @@ class _SeriesFromDfLt(_SeriesFromDf):
 
 
 class _SeriesFromDfLe(_SeriesFromDf):
-
     def __init__(
         self,
         first: _SeriesFromDf,
@@ -354,7 +345,6 @@ class _SeriesFromDfLe(_SeriesFromDf):
 
 
 class _SeriesFromDfEq(_SeriesFromDf):
-
     def __init__(
         self,
         first: _SeriesFromDf,
@@ -374,7 +364,6 @@ class _SeriesFromDfEq(_SeriesFromDf):
 
 
 class _SeriesFromDfNe(_SeriesFromDf):
-
     def __init__(
         self,
         first: _SeriesFromDf,
@@ -394,7 +383,6 @@ class _SeriesFromDfNe(_SeriesFromDf):
 
 
 class _SeriesFromDfGe(_SeriesFromDf):
-
     def __init__(
         self,
         first: _SeriesFromDf,
@@ -414,7 +402,6 @@ class _SeriesFromDfGe(_SeriesFromDf):
 
 
 class _SeriesFromDfGt(_SeriesFromDf):
-
     def __init__(
         self,
         first: _SeriesFromDf,
@@ -435,8 +422,8 @@ class _SeriesFromDfGt(_SeriesFromDf):
 
 # --- Arithmetic Operators ---
 
-class _SeriesFromDfAdd(_SeriesFromDf):
 
+class _SeriesFromDfAdd(_SeriesFromDf):
     def __init__(
         self,
         first: _SeriesFromDf,
@@ -456,7 +443,6 @@ class _SeriesFromDfAdd(_SeriesFromDf):
 
 
 class _SeriesFromDfSub(_SeriesFromDf):
-
     def __init__(
         self,
         first: _SeriesFromDf,
@@ -479,7 +465,6 @@ class _SeriesFromDfSub(_SeriesFromDf):
 
 
 class _SeriesFromDfMul(_SeriesFromDf):
-
     def __init__(
         self,
         first: _SeriesFromDf,
@@ -502,7 +487,6 @@ class _SeriesFromDfMul(_SeriesFromDf):
 
 
 class _SeriesFromDfTrueDiv(_SeriesFromDf):
-
     def __init__(
         self,
         first: _SeriesFromDf,
@@ -525,7 +509,6 @@ class _SeriesFromDfTrueDiv(_SeriesFromDf):
 
 
 class _SeriesFromDfFloorDiv(_SeriesFromDf):
-
     def __init__(
         self,
         first: _SeriesFromDf,
@@ -548,7 +531,6 @@ class _SeriesFromDfFloorDiv(_SeriesFromDf):
 
 
 class _SeriesFromDfMod(_SeriesFromDf):
-
     def __init__(
         self,
         first: _SeriesFromDf,
@@ -571,7 +553,6 @@ class _SeriesFromDfMod(_SeriesFromDf):
 
 
 class _SeriesFromDfPow(_SeriesFromDf):
-
     def __init__(
         self,
         first: _SeriesFromDf,
@@ -587,7 +568,7 @@ class _SeriesFromDfPow(_SeriesFromDf):
             return self.first(df) ** self.second
         if callable(self.second):
             return self.first ** self.second(df)
-        return self.first ** self.second  # pragma: no cover
+        return self.first**self.second  # pragma: no cover
 
     def __repr__(self) -> str:
         return f"{_arg_repr(self.first)} ** {_arg_repr(self.second)}"

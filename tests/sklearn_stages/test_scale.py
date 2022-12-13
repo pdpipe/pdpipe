@@ -2,6 +2,7 @@
 
 import pytest
 import pandas as pd
+
 # from numpy.testing import assert_approx_equal
 
 from pdpipe.sklearn_stages import Scale
@@ -87,7 +88,7 @@ def test_scale_with_exclude_cols():
     res_df2 = scale_stage(df2)
     assert "ph" in res_df2.columns
     assert "gt" in res_df2.columns
-    assert df['ph'][1] < df2['ph'][1]
+    assert df["ph"][1] < df2["ph"][1]
     assert res_df2["ph"][1] < df2["ph"][1]
     assert res_df["ph"][1] < res_df2["ph"][1]
 
@@ -111,7 +112,7 @@ def test_scale_with_std():
 
 def test_scale_fit_transform_exception():
     df1 = _some_df1()
-    scale_stage = Scale("StandardScaler", columns=['ph', 'lbl'])
+    scale_stage = Scale("StandardScaler", columns=["ph", "lbl"])
     with pytest.raises(PipelineApplicationError):
         scale_stage(df1)
 

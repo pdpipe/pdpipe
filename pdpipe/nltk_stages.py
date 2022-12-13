@@ -12,6 +12,7 @@ stages.
 
 import os
 import importlib
+
 try:
     from collections.abc import Iterable
 except ImportError:  # pragma: no cover:
@@ -24,10 +25,7 @@ from tqdm.autonotebook import tqdm
 from pdpipe.core import ColumnsBasedPipelineStage
 from pdpipe.util import out_of_place_col_insert
 from pdpipe.col_generation import MapColVals
-from pdpipe.shared import (
-    _interpret_columns_param,
-    _list_str
-)
+from pdpipe.shared import _interpret_columns_param, _list_str
 
 
 class TokenizeText(MapColVals):
@@ -60,42 +58,45 @@ class TokenizeText(MapColVals):
     1   3.2  [Kick, the, baby, !]
     """
 
-    _DEF_TOKENIZE_EXC_MSG = ("Tokenize stage failed because not all columns "
-                             "{} are present in input dataframe and are of"
-                             " dtype object.")
+    _DEF_TOKENIZE_EXC_MSG = (
+        "Tokenize stage failed because not all columns "
+        "{} are present in input dataframe and are of"
+        " dtype object."
+    )
     _DEF_TOKENIZE_APP_MSG = "Tokenizing {}..."
 
     @staticmethod
     def __check_punkt():
         try:
-            nltk.word_tokenize('a a')
+            nltk.word_tokenize("a a")
         except LookupError:  # pragma: no cover
             # try:
             #     nltk.data.find('corpora/stopwords')
             # except LookupError:  # pragma: no cover
-            dpath = os.path.expanduser('~/nltk_data/tokenizers')
+            dpath = os.path.expanduser("~/nltk_data/tokenizers")
             os.makedirs(dpath, exist_ok=True)
-            nltk.download('punkt')
+            nltk.download("punkt")
 
     def __init__(self, columns, drop=True, **kwargs):
         self.__check_punkt()
         self._columns = _interpret_columns_param(columns)
         col_str = _list_str(self._columns)
         super_kwargs = {
-            'columns': columns,
-            'value_map': nltk.word_tokenize,
-            'drop': drop,
-            'suffix': '_tok',
-            'exmsg': TokenizeText._DEF_TOKENIZE_EXC_MSG.format(col_str),
-            'desc': f"Tokenize {col_str}",
+            "columns": columns,
+            "value_map": nltk.word_tokenize,
+            "drop": drop,
+            "suffix": "_tok",
+            "exmsg": TokenizeText._DEF_TOKENIZE_EXC_MSG.format(col_str),
+            "desc": f"Tokenize {col_str}",
         }
         super_kwargs.update(**kwargs)
-        super_kwargs['none_columns'] = 'error'
+        super_kwargs["none_columns"] = "error"
         super().__init__(**super_kwargs)
 
     def _prec(self, X):
         return super()._prec(X) and all(
-            col_type == object for col_type in X.dtypes[self._columns])
+            col_type == object for col_type in X.dtypes[self._columns]
+        )
 
 
 class UntokenizeText(MapColVals):
@@ -133,30 +134,32 @@ class UntokenizeText(MapColVals):
 
     _DEF_UNTOKENIZE_EXC_MSG = (
         "Untokenize stage failed because not all columns {} are present in "
-        "input dataframe and are of dtype object.")
+        "input dataframe and are of dtype object."
+    )
 
     @staticmethod
     def _untokenize_list(token_list):
-        return ' '.join(token_list)
+        return " ".join(token_list)
 
     def __init__(self, columns, drop=True, **kwargs):
         self._columns = _interpret_columns_param(columns)
         col_str = _list_str(self._columns)
         super_kwargs = {
-            'columns': columns,
-            'value_map': UntokenizeText._untokenize_list,
-            'drop': drop,
-            'suffix': '_untok',
-            'exmsg': UntokenizeText._DEF_UNTOKENIZE_EXC_MSG.format(col_str),
-            'desc': f"Untokenize {col_str}",
+            "columns": columns,
+            "value_map": UntokenizeText._untokenize_list,
+            "drop": drop,
+            "suffix": "_untok",
+            "exmsg": UntokenizeText._DEF_UNTOKENIZE_EXC_MSG.format(col_str),
+            "desc": f"Untokenize {col_str}",
         }
         super_kwargs.update(**kwargs)
-        super_kwargs['none_columns'] = 'error'
+        super_kwargs["none_columns"] = "error"
         super().__init__(**super_kwargs)
 
     def _prec(self, X):
         return super()._prec(X) and all(
-            col_type == object for col_type in X.dtypes[self._columns])
+            col_type == object for col_type in X.dtypes[self._columns]
+        )
 
 
 class RemoveStopwords(MapColVals):
@@ -197,9 +200,11 @@ class RemoveStopwords(MapColVals):
         1   3.2  [kick, baby]
     """
 
-    _DEF_STOPWORDS_EXC_MSG = ("RemoveStopwords stage failed because not all "
-                              "columns {} are present in input dataframe and "
-                              "are of dtype object.")
+    _DEF_STOPWORDS_EXC_MSG = (
+        "RemoveStopwords stage failed because not all "
+        "columns {} are present in input dataframe and "
+        "are of dtype object."
+    )
     _DEF_STOPWORDS_APP_MSG = "Removing stopwords from {}..."
 
     class _StopwordsRemover(object):
@@ -213,45 +218,48 @@ class RemoveStopwords(MapColVals):
     def __stopwords_by_language(language):
         try:
             from nltk.corpus import stopwords
+
             return stopwords.words(language)
         except LookupError:  # pragma: no cover
             # try:
             #     nltk.data.find('corpora/stopwords')
             # except LookupError:  # pragma: no cover
-            dpath = os.path.expanduser('~/nltk_data/corpora/stopwords')
+            dpath = os.path.expanduser("~/nltk_data/corpora/stopwords")
             os.makedirs(dpath, exist_ok=True)
-            nltk.download('stopwords')
+            nltk.download("stopwords")
             from nltk.corpus import stopwords
+
             return stopwords.words(language)
 
     def __init__(self, language, columns, drop=True, **kwargs):
         self._language = language
         if isinstance(language, str):
-            self._stopwords_list = RemoveStopwords.__stopwords_by_language(
-                language)
+            self._stopwords_list = RemoveStopwords.__stopwords_by_language(language)
         elif isinstance(language, Iterable):
             self._stopwords_list = list(language)
         else:
             raise TypeError("language parameter should be string or list!")
         self._stopwords_remover = RemoveStopwords._StopwordsRemover(
-            self._stopwords_list)
+            self._stopwords_list
+        )
         self._columns = _interpret_columns_param(columns)
         col_str = _list_str(self._columns)
         super_kwargs = {
-            'columns': columns,
-            'value_map': self._stopwords_remover,
-            'drop': drop,
-            'suffix': '_nostop',
-            'exmsg': RemoveStopwords._DEF_STOPWORDS_EXC_MSG.format(col_str),
-            'desc': f"Remove stopwords from {col_str}",
+            "columns": columns,
+            "value_map": self._stopwords_remover,
+            "drop": drop,
+            "suffix": "_nostop",
+            "exmsg": RemoveStopwords._DEF_STOPWORDS_EXC_MSG.format(col_str),
+            "desc": f"Remove stopwords from {col_str}",
         }
         super_kwargs.update(**kwargs)
-        super_kwargs['none_columns'] = 'error'
+        super_kwargs["none_columns"] = "error"
         super().__init__(**super_kwargs)
 
     def _prec(self, X):
         return super()._prec(X) and all(
-            col_type == object for col_type in X.dtypes[self._columns])
+            col_type == object for col_type in X.dtypes[self._columns]
+        )
 
 
 class SnowballStem(MapColVals):
@@ -299,13 +307,14 @@ class SnowballStem(MapColVals):
     1   3.2  [kick, boat]
     """
 
-    _DEF_STEM_EXC_MSG = ("SnowballStem stage failed because not all "
-                         "columns {} are present in input dataframe and "
-                         "are of dtype object.")
+    _DEF_STEM_EXC_MSG = (
+        "SnowballStem stage failed because not all "
+        "columns {} are present in input dataframe and "
+        "are of dtype object."
+    )
     _DEF_STEM_DESC = "Stemming tokens{} in {}..."
 
     class _MinLenStemCondition(object):
-
         def __init__(self, min_len):
             self.min_len = min_len
 
@@ -313,7 +322,6 @@ class SnowballStem(MapColVals):
             return len(x) >= self.min_len
 
     class _MaxLenStemCondition(object):
-
         def __init__(self, max_len):
             self.max_len = max_len
 
@@ -321,7 +329,6 @@ class SnowballStem(MapColVals):
             return len(x) <= self.max_len
 
     class _Min_MaxLenStemCondition(object):
-
         def __init__(self, min_len, max_len):
             self.min_len = min_len
             self.max_len = max_len
@@ -336,7 +343,8 @@ class SnowballStem(MapColVals):
             if min_len:
                 if max_len:
                     self.cond = SnowballStem._Min_MaxLenStemCondition(
-                        min_len=min_len, max_len=max_len)
+                        min_len=min_len, max_len=max_len
+                    )
                 else:
                     self.cond = SnowballStem._MinLenStemCondition(min_len)
             elif max_len:
@@ -352,14 +360,11 @@ class SnowballStem(MapColVals):
             return [self.stemmer.stem(w) for w in token_list]
 
         def __cond_stem__(self, token_list):
-            return [
-                self.stemmer.stem(w) if self.cond(w) else w
-                for w in token_list
-            ]
+            return [self.stemmer.stem(w) if self.cond(w) else w for w in token_list]
 
     @staticmethod
     def __stemmer_by_name(stemmer_name):
-        snowball_module = importlib.import_module('nltk.stem.snowball')
+        snowball_module = importlib.import_module("nltk.stem.snowball")
         stemmer_cls = getattr(snowball_module, stemmer_name)
         return stemmer_cls()
 
@@ -368,42 +373,45 @@ class SnowballStem(MapColVals):
         try:
             return SnowballStem.__stemmer_by_name(stemmer_name)
         except LookupError:  # pragma: no cover
-            dpath = os.path.expanduser('~/nltk_data/stemmers')
+            dpath = os.path.expanduser("~/nltk_data/stemmers")
             os.makedirs(dpath, exist_ok=True)
-            nltk.download('snowball_data')
+            nltk.download("snowball_data")
             return SnowballStem.__stemmer_by_name(stemmer_name)
 
-    def __init__(self, stemmer_name, columns, drop=True, min_len=None,
-                 max_len=None, **kwargs):
+    def __init__(
+        self, stemmer_name, columns, drop=True, min_len=None, max_len=None, **kwargs
+    ):
         self._stemmer_name = stemmer_name
         self.stemmer = SnowballStem.__safe_stemmer_by_name(stemmer_name)
         self._list_stemmer = SnowballStem._TokenListStemmer(
-            stemmer=self.stemmer, min_len=min_len, max_len=max_len)
+            stemmer=self.stemmer, min_len=min_len, max_len=max_len
+        )
         self._columns = _interpret_columns_param(columns)
         col_str = _list_str(self._columns)
-        cond_str = ''
+        cond_str = ""
         if min_len:
-            cond_str += f' of length >= {min_len}'
+            cond_str += f" of length >= {min_len}"
         if max_len:
             if not min_len:
-                cond_str += ' of length'
-            cond_str += f' <= {max_len}'
+                cond_str += " of length"
+            cond_str += f" <= {max_len}"
         desc = SnowballStem._DEF_STEM_DESC.format(cond_str, col_str)
         super_kwargs = {
-            'columns': columns,
-            'value_map': self._list_stemmer,
-            'drop': drop,
-            'suffix': '_stem',
-            'exmsg': SnowballStem._DEF_STEM_EXC_MSG.format(col_str),
-            'desc': desc,
+            "columns": columns,
+            "value_map": self._list_stemmer,
+            "drop": drop,
+            "suffix": "_stem",
+            "exmsg": SnowballStem._DEF_STEM_EXC_MSG.format(col_str),
+            "desc": desc,
         }
         super_kwargs.update(**kwargs)
-        super_kwargs['none_columns'] = 'error'
+        super_kwargs["none_columns"] = "error"
         super().__init__(**super_kwargs)
 
     def _prec(self, X):
         return super()._prec(X) and all(
-            col_type == object for col_type in X.dtypes[self._columns])
+            col_type == object for col_type in X.dtypes[self._columns]
+        )
 
 
 class DropRareTokens(ColumnsBasedPipelineStage):
@@ -447,12 +455,9 @@ class DropRareTokens(ColumnsBasedPipelineStage):
         self._threshold = threshold
         self._drop = drop
         self._rare_removers = {}
-        super_kwargs = {
-            'columns': columns,
-            'desc_temp': "Drop rare tokens from {}"
-        }
+        super_kwargs = {"columns": columns, "desc_temp": "Drop rare tokens from {}"}
         super_kwargs.update(**kwargs)
-        super_kwargs['none_columns'] = 'error'
+        super_kwargs["none_columns"] = "error"
         super().__init__(**super_kwargs)
 
     class _RareRemover(object):
@@ -466,7 +471,7 @@ class DropRareTokens(ColumnsBasedPipelineStage):
     def __get_rare_remover(series, threshold):
         token_list = [item for sublist in series for item in sublist]
         freq_dist = nltk.FreqDist(token_list)
-        freq_series = pd.DataFrame.from_dict(freq_dist, orient='index')[0]
+        freq_series = pd.DataFrame.from_dict(freq_dist, orient="index")[0]
         rare_words = freq_series[freq_series <= threshold]
         return DropRareTokens._RareRemover(rare_words)
 
@@ -484,13 +489,15 @@ class DropRareTokens(ColumnsBasedPipelineStage):
                 new_name = colname
                 loc -= 1
             rare_remover = DropRareTokens.__get_rare_remover(
-                source_col, self._threshold)
+                source_col, self._threshold
+            )
             self._rare_removers[colname] = rare_remover
             inter_X = out_of_place_col_insert(
                 X=inter_X,
                 series=source_col.map(rare_remover),
                 loc=loc,
-                column_name=new_name)
+                column_name=new_name,
+            )
         self.is_fitted = True
         return inter_X
 
@@ -515,5 +522,6 @@ class DropRareTokens(ColumnsBasedPipelineStage):
                 X=inter_X,
                 series=source_col.map(rare_remover),
                 loc=loc,
-                column_name=new_name)
+                column_name=new_name,
+            )
         return inter_X
