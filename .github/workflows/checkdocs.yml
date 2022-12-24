@@ -1,4 +1,3 @@
-
 name: Check Docs
 
 on:
@@ -20,10 +19,10 @@ jobs:
         os: [ubuntu-latest]
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2.5.0
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v4.3.0
         with:
           python-version: ${{ matrix.python-version }}
 

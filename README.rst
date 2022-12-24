@@ -179,6 +179,8 @@ Created by `Shay Palachy <http://www.shaypalachy.com/>`_  (shay.palachy@gmail.co
 
 * `Amihai Offenbacher @amihaiOff <https://github.com/amihaiOff>`_ - Runtime parameters.
 
+* `David Katz @DavidKatz-il <https://github.com/DavidKatz-il>`_ - Black formatter GitHub action.
+
 🐞 Bugfixes & Documentation:
 ----------------------------
 
