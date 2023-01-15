@@ -1,5 +1,6 @@
 """Defines pipelines for processing pandas.DataFrame-based datasets."""
-
+import json
+import os
 import re
 import sys
 import abc
@@ -751,6 +752,13 @@ class PdPipelineStage(abc.ABC):
                     raise e  # pragma: no cover
         return False
 
+    def _get_base_serialization_dict(self):
+        return {
+            'class': self.__class__.__name__,
+            'name':  self._name,
+            'desc':  self._desc
+        }
+
     def apply(
         self,
         X: pandas.DataFrame,
@@ -952,6 +960,17 @@ class PdPipelineStage(abc.ABC):
             if y is not None:
                 return X, y
             return X
+
+    def serialize(self):
+        """
+        Serialize this pipeline stage.
+
+        Returns
+        -------
+        dict
+            The serialized pipeline stage.
+        """
+        return self._get_base_serialization_dict()
 
     def __add__(self, other):
         if isinstance(other, PdPipeline):
@@ -1958,6 +1977,49 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             print("Total pipeline size in memory: {:.2f}b".format(size))
         print("Per-stage memory structure:")
         print(self._mem_str(total=size))
+
+    def serialize(self,
+                  pipeline_name: Optional[str] = 'pdp_pipeline',
+                  pipeline_desc: Optional[str] = '',
+                  fname: Optional[str] = '',
+                  path: Optional[str] = './',
+                  format: Optional[str] = 'yaml') -> dict:
+        """
+        Serialize the pipeline to a file.
+
+        Parameters
+        ----------
+        path : str, optional
+            The path to the file to serialize to, by default '.'
+        fname : str, optional
+            The name of the output file. If not provided will default to
+            pipeline_name
+        pipeline_name : str, optional
+            The name of the pipeline, by default 'pdp_pipeline'
+        pipeline_desc: str, optional
+            Description of pipeline
+        format: str, optional
+            Valid values are `json`, `yaml`. Will serialize in the respective
+            format
+        """
+        stages = {
+            'name': pipeline_name,
+            'desc': pipeline_desc,
+            'stages': [stage.serialize() for stage in self._stages]
+        }
+
+        fname = fname if fname else f'{pipeline_name}.json'
+        full_path = os.path.join(path, fname)
+
+        with open(full_path, 'w') as f:
+            if format == 'json':
+                json.dump(stages, f)
+            elif format == 'yaml':
+                yaml.dump(stages, f)
+            else:
+                raise ValueError(f'Serialization format {format} unsupported.')
+
+        return stages
 
     def get_transformer(self) -> "PdPipeline":
         """

@@ -143,6 +143,13 @@ class Bin(PdPipelineStage):
             )
         return inter_X
 
+    def serialize(self):
+        ser_dict = self._get_base_serialization_dict()
+        ser_dict['Drop'] = self._drop
+        ser_dict['BinMap'] = self._bin_map
+
+        return ser_dict
+
 
 class OneHotEncode(ColumnsBasedPipelineStage):
     """
