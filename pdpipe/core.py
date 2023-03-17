@@ -38,6 +38,11 @@ from .exceptions import (
 )
 
 
+class SerializeFormats:
+    """Enum for serialization formats."""
+    JSON = "json"
+    YAML = "yaml"
+
 # === loading stage attributes ===
 
 
@@ -971,6 +976,23 @@ class PdPipelineStage(abc.ABC):
             The serialized pipeline stage.
         """
         return self._get_base_serialization_dict()
+
+    @classmethod
+    def deserialize(cls, serialized):
+        """
+        Deserialize a pipeline stage.
+
+        Parameters
+        ----------
+        serialized : dict
+            The serialized pipeline stage.
+
+        Returns
+        -------
+        PdPipelineStage
+            The deserialized pipeline stage.
+        """
+        return cls(**serialized)
 
     def __add__(self, other):
         if isinstance(other, PdPipeline):
@@ -2008,18 +2030,71 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             'stages': [stage.serialize() for stage in self._stages]
         }
 
-        fname = fname if fname else f'{pipeline_name}.json'
+        fname = fname or f'{pipeline_name}.json'
         full_path = os.path.join(path, fname)
 
         with open(full_path, 'w') as f:
             if format == 'json':
                 json.dump(stages, f)
             elif format == 'yaml':
-                yaml.dump(stages, f)
+                try:
+                    import yaml
+                    yaml.dump(stages, f)
+                except ImportError as e:
+                    raise ImportError('yaml not installed, cannot serialize') from e
             else:
                 raise ValueError(f'Serialization format {format} unsupported.')
 
         return stages
+
+    @classmethod
+    def deserialize_pipeline(cls,
+                             pipeline_dict: Optional[dict] = None,
+                             path: Optional[str] = None,
+                             file_format: Optional[str] = 'json') -> 'PdPipeline':
+        """
+        Deserialize a pipeline from a file.
+        Parameters
+        ----------
+        pipeline_dict : dict, optional
+            dictionary of pipeline to deserialize as returned by serialize.
+            If not provided, must provide path and format
+        path : str, optional
+            path to file of serialized pipeline.
+            If not provided, must provide pipeline dict
+        file_format : str, optional
+            Currently supported formats are 'json' and 'yaml'
+
+        Returns
+        -------
+        PdPipeline object with instantiated stages as defined in the file
+
+        """
+        if pipeline_dict is None and path is None:
+            raise ValueError('Must provide either pipeline_dict or path')
+
+        if pipeline_dict is None:
+            pipeline_dict = cls._load_pipeline_from_file(path, file_format)
+
+        stages = []
+        for stage in pipeline_dict['stages']:
+            if stage['class'] not in STAGES_BY_CLASS:
+                raise ValueError(f'Unknown stage class {stage["class"]}')
+            stages.append(STAGES_BY_CLASS[stage['class']].deserialize(stage))
+
+        return cls(stages)
+
+    @classmethod
+    def _load_pipeline_from_file(cls, path: str, format: str = 'json') -> dict:
+        if format == SerializeFormats.JSON:
+            return json.load(open(path, 'r'))
+        if format == SerializeFormats.YAML:
+            try:
+                import yaml
+                return yaml.safe_load(open(path, 'r'))
+            except ImportError as e:
+                raise ImportError('yaml not installed, cannot deserialize') from e
+
 
     def get_transformer(self) -> "PdPipeline":
         """
