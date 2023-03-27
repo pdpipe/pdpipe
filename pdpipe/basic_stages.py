@@ -80,6 +80,11 @@ class ColDrop(ColumnsBasedPipelineStage):
             print(f"Dropping columns {_list_str(to_drop)}")
         return X.drop(to_drop, axis=1, errors=self._errors)
 
+    def serialize(self):
+        base_dict = super().serialize()
+        base_dict['kwargs']['errors'] = self._errors
+        # todo need to somehow access the columns attr
+
 
 class ValDrop(ColumnsBasedPipelineStage):
     """

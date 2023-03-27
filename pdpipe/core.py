@@ -8,7 +8,7 @@ import time
 import inspect
 import collections
 import textwrap
-from typing import Tuple, Union, Iterable, Optional
+from typing import Dict, List, Tuple, Union, Iterable, Optional
 
 import numpy
 import pandas
@@ -978,7 +978,7 @@ class PdPipelineStage(abc.ABC):
         return self._get_base_serialization_dict()
 
     @classmethod
-    def deserialize(cls, serialized):
+    def deserialize_stage(cls, serialized):
         """
         Deserialize a pipeline stage.
 
@@ -2005,7 +2005,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                   pipeline_desc: Optional[str] = '',
                   fname: Optional[str] = '',
                   path: Optional[str] = './',
-                  format: Optional[str] = 'yaml') -> dict:
+                  format: Optional[str] = 'json') -> dict:
         """
         Serialize the pipeline to a file.
 
@@ -2070,6 +2070,19 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         PdPipeline object with instantiated stages as defined in the file
 
         """
+        def load_module_class(module: str, stages: Dict[str, dict]):
+            module_obj = sys.modules[module]
+            for name, obj in inspect.getmembers(module_obj):
+                if inspect.isclass(obj) and obj.__module__ == module:
+                    class_obj = getattr(module_obj, name)
+                    if issubclass(class_obj, PdPipelineStage) and (
+                        class_obj.__name__ != 'PdPipelineStage'
+                    ):
+                        for stage_name, stage_dict in stages.items():
+                            if stage_dict['class'] == class_obj.__name__:
+                                return class_obj(*stage_dict['args'],
+                                                 **stage_dict['kwargs'])
+
         if pipeline_dict is None and path is None:
             raise ValueError('Must provide either pipeline_dict or path')
 
@@ -2077,10 +2090,9 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             pipeline_dict = cls._load_pipeline_from_file(path, file_format)
 
         stages = []
-        for stage in pipeline_dict['stages']:
-            if stage['class'] not in STAGES_BY_CLASS:
-                raise ValueError(f'Unknown stage class {stage["class"]}')
-            stages.append(STAGES_BY_CLASS[stage['class']].deserialize(stage))
+        modules = ['pdpipe.basic_stages']
+        for module in modules:
+            stages.append(load_module_class(module, pipeline_dict['stages']))
 
         return cls(stages)
 

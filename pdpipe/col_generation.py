@@ -145,8 +145,8 @@ class Bin(PdPipelineStage):
 
     def serialize(self):
         ser_dict = self._get_base_serialization_dict()
-        ser_dict['Drop'] = self._drop
-        ser_dict['BinMap'] = self._bin_map
+        ser_dict['args']['Drop'] = self._drop
+        ser_dict['args']['BinMap'] = self._bin_map
 
         return ser_dict
 
