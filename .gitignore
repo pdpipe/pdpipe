@@ -107,3 +107,5 @@ Pipfile.lock
 
 # Temporary testing file
 notebooks/debug*.py
+
+.mypy_cache/
