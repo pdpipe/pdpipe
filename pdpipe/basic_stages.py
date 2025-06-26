@@ -487,7 +487,7 @@ class ColReorder(PdPipelineStage):
                 else:
                     new_columns.append(non_map_cols.popleft())
             return X[new_columns]
-        except (IndexError):
+        except IndexError:
             raise ValueError(f"Bad positions mapping given: {new_columns}")
 
 

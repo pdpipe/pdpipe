@@ -45,10 +45,12 @@ def _original_code():
                 lambda row: pd.Series(
                     {
                         "standard_amount": row["original_price"] * row["sales"],
-                        "sales_discount": 0
-                        if (row["original_price"] * row["sales"] <= 0)
-                        else row["sales_amount"]
-                        / ((row["original_price"] * row["sales"])),
+                        "sales_discount": (
+                            0
+                            if (row["original_price"] * row["sales"] <= 0)
+                            else row["sales_amount"]
+                            / ((row["original_price"] * row["sales"]))
+                        ),
                         "week": int(row["date"].strftime("%W")),
                         "days_on_counter": (row["date"] - row["shelf_date"])
                         / np.timedelta64(1, "D"),
@@ -57,12 +59,12 @@ def _original_code():
                         "C1": 1 if row["category_group"] == "tops" else 0,
                         "C2": 1 if row["category_group"] == "other" else 0,
                         "sales": 0 if row["sales"] < 0 else row["sales"],
-                        "passenger_flow": 0
-                        if row["passenger_flow"] < 0
-                        else (row["passenger_flow"]),
-                        "plus_purchase": 0
-                        if row["plus_purchase"] < 0
-                        else (row["plus_purchase"]),
+                        "passenger_flow": (
+                            0 if row["passenger_flow"] < 0 else (row["passenger_flow"])
+                        ),
+                        "plus_purchase": (
+                            0 if row["plus_purchase"] < 0 else (row["plus_purchase"])
+                        ),
                     }
                 )
             ),

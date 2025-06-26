@@ -145,9 +145,9 @@ def test_complex_drop():
             ),
             pdp.ApplyByCols(
                 columns=pdp.cq.OfNumericDtypes(),
-                func=lambda x, label, application_context: "DROP"
-                if x < application_context["numeric_means"][label]
-                else x,
+                func=lambda x, label, application_context: (
+                    "DROP" if x < application_context["numeric_means"][label] else x
+                ),
             ),
             pdp.ValDrop(["DROP"]),
         ]
@@ -162,9 +162,9 @@ def test_applybycols_use_fit_context():
         [
             pdp.ApplyByCols(
                 columns=pdp.cq.OfNumericDtypes(),
-                func=lambda x, label, fit_context: "BLAH"
-                if (label in fit_context.keys())
-                else x,
+                func=lambda x, label, fit_context: (
+                    "BLAH" if (label in fit_context.keys()) else x
+                ),
             ),
         ]
     )
