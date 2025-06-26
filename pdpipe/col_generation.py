@@ -516,9 +516,9 @@ class MapColVals(ColumnTransformer):
     ):
         self._value_map = value_map
         self._applied_value_map = value_map
-        if type(value_map) == str:
+        if isinstance(value_map, str):
             self._applied_value_map = _AttrGetter(attr_name=value_map)
-        elif type(value_map) == tuple:
+        elif isinstance(value_map, tuple):
             self._applied_value_map = _MethodRetValGetter(
                 method_name=value_map[0],
                 method_kwargs=value_map[1],
