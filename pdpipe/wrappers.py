@@ -1,6 +1,5 @@
 """Wrapper-kind pdpipe pipeline stages."""
 
-
 from pdpipe.core import PdPipelineStage
 
 

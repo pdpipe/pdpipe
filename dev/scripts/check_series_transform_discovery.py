@@ -1,6 +1,5 @@
 """Can help expand series transforms whitelist and blacklist occasionally."""
 
-
 if __name__ == "__main__":
     from pandas import Series
     from pdpipe.df.series_transformer import _has_series_transform_doc

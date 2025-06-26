@@ -76,7 +76,6 @@ class ColumnQualifier(object):
             return self.fit_transform(X)
 
     def fit_transform(self, X: pandas.DataFrame) -> List[object]:
-
         """
         Fit this qualifier and return the labels of the qualifying columns.
 

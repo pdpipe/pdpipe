@@ -1,6 +1,5 @@
 """Whitelist and blacklist of pandas.Series transforms."""
 
-
 SERIES_TRANSFORMS_WHITELIST = [
     "add",
     "add_prefix",

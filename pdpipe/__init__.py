@@ -10,6 +10,7 @@ mixed-type data.
 
 .. include:: ./documentation.md
 """
+
 # pylint: disable=C0413
 # flake8: noqa
 
