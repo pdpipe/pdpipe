@@ -20,10 +20,10 @@ jobs:
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v2.5.0
+        uses: actions/checkout@v4.2.2
 
       - name: set up python '3.10'
-        uses: actions/setup-python@v4.3.0
+        uses: actions/setup-python@v5.6.0
         with:
           python-version: '3.10'
 
