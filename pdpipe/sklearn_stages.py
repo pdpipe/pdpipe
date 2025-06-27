@@ -439,9 +439,9 @@ class Decompose(ColumnsBasedPipelineStage):
     >>> pca_stage = pdp.Decompose(PCA(), n_components=2)
     >>> pca_stage(df)
            mdc0      mdc1
-    1  3.313301 -0.148453
-    2 -1.432127  1.717269
-    3 -1.881174 -1.568816
+    1 -3.313301 -0.148453
+    2  1.432127  1.717269
+    3  1.881174 -1.568816
     """
 
     def __init__(
