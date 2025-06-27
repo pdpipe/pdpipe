@@ -42,20 +42,12 @@ jobs:
           restore-keys: |
             nltk-data-
 
-      # 2️⃣  Install both resources into a writable dir
-      - name: Download punkt + punkt_tab
-        shell: bash          # 👈 force bash even on Windows
+      - name: Download punkt corpora
         env:
           NLTK_DATA: ${{ github.workspace }}/nltk_data
         run: |
           mkdir -p "$NLTK_DATA"
-          python - <<'PY'
-      import nltk, os, pathlib
-      dl = os.environ["NLTK_DATA"]
-      pathlib.Path(dl).mkdir(parents=True, exist_ok=True)
-      nltk.download("punkt",     download_dir=dl, quiet=True)
-      nltk.download("punkt_tab", download_dir=dl, quiet=True)
-      PY
+          python -m nltk.downloader -q -d "$NLTK_DATA" punkt punkt_tab
 
       - name: Unit tests
         env:
