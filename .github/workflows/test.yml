@@ -33,6 +33,10 @@ jobs:
           python -m pip install --only-binary=all numpy scipy pandas scikit-learn nltk
           python -m pip install -e ".[test]"
 
+      - name: Download NLTK data
+        run: |
+          python -m nltk.downloader -d /usr/local/share/nltk_data punkt
+
       - name: Unit tests
         run: |
           python -m pytest
