@@ -35,9 +35,12 @@ jobs:
 
       - name: Download NLTK data
         run: |
-          python -m nltk.downloader -d /usr/local/share/nltk_data punkt
+          mkdir -p ./nltk_data
+          python -m nltk.downloader -d ./nltk_data punkt
 
       - name: Unit tests
+        env:
+          NLTK_DATA: ${{ github.workspace }}/nltk_data
         run: |
           python -m pytest
 
