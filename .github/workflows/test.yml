@@ -55,6 +55,13 @@ jobs:
         env:
           NLTK_DATA: ${{ github.workspace }}/nltk_data
         run: |
+          python -c "
+          import nltk
+          nltk.data.path.insert(0, '${{ github.workspace }}/nltk_data')
+          from nltk.tokenize.punkt import PunktSentenceTokenizer
+          with open(nltk.data.find('tokenizers/punkt/english.pickle'), 'rb') as f:
+              PunktSentenceTokenizer.load(f)
+          "
           python -c "import nltk; nltk.data.path.append('${{ github.workspace }}/nltk_data'); nltk.tokenize.word_tokenize('warm up')"
 
       - name: Unit tests
