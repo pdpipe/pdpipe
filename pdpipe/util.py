@@ -108,7 +108,7 @@ def per_column_values_sklearn_transform(
         data=np.array(
             [
                 transform(np.array([series.values]).T)[:, 0]
-                for lbl, series in X.iteritems()
+                for lbl, series in X.items()
             ]
         ).T,
         index=X.index,
