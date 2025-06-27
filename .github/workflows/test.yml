@@ -33,6 +33,19 @@ jobs:
           python -m pip install --only-binary=all numpy scipy pandas scikit-learn nltk
           python -m pip install -e ".[test]"
 
+    - name: Set up cache for nltk_data
+      uses: actions/cache@v4
+      with:
+        path: ./nltk_data
+        key: nltk-data-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          nltk-data-
+
+    - name: Download nltk data (if needed)
+      run: |
+        mkdir -p ./nltk_data
+        python -m nltk.downloader -d ./nltk_data punkt
+
       - name: Download NLTK data
         run: |
           mkdir -p ./nltk_data
