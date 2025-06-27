@@ -58,9 +58,9 @@ class Condition(object):
             Either True of False.
         """
         try:
-            return self.transform(X)
+            return bool(self.transform(X))
         except UnfittedConditionError:
-            return self.fit_transform(X)
+            return bool(self.fit_transform(X))
 
     def fit_transform(self, X):
         """
@@ -76,7 +76,7 @@ class Condition(object):
         bool
             Either True or False.
         """
-        self._result = self._func(X)
+        self._result = bool(self._func(X))
         return self._result
 
     def fit(self, X):
@@ -109,9 +109,9 @@ class Condition(object):
             Either True or False.
         """
         if not self._fittable:
-            return self._func(X)
+            return bool(self._func(X))
         try:
-            return self._result
+            return bool(self._result)
         except AttributeError:
             raise UnfittedConditionError
 
@@ -130,7 +130,7 @@ class Condition(object):
             self.second = second
 
         def __call__(self, X):
-            return self.first(X) and self.second(X)
+            return bool(self.first(X)) and bool(self.second(X))
 
     def __and__(self, other):
         try:
@@ -149,7 +149,7 @@ class Condition(object):
             self.second = second
 
         def __call__(self, X):
-            return self.first(X) != self.second(X)
+            return bool(self.first(X)) != bool(self.second(X))
 
     def __xor__(self, other):
         try:
@@ -168,7 +168,7 @@ class Condition(object):
             self.second = second
 
         def __call__(self, X):
-            return self.first(X) or self.second(X)
+            return bool(self.first(X)) or bool(self.second(X))
 
     def __or__(self, other):
         try:
@@ -186,7 +186,7 @@ class Condition(object):
             self.first = first
 
         def __call__(self, X):
-            return not self.first(X)
+            return not bool(self.first(X))
 
     def __invert__(self):
         _func = Condition._NotCondition(self._func)
@@ -263,12 +263,12 @@ conditions: anonymous condition>
             self.col_reduce = col_reduce
 
         def __call__(self, X):
-            return self.col_reduce(
+            return bool(self.col_reduce(
                 [
-                    self.cond_reduce([cond(X[lbl]) for cond in self.conditions])
+                    self.cond_reduce([bool(cond(X[lbl])) for cond in self.conditions])
                     for lbl in X.columns
                 ]
-            )
+            ))
 
     def __init__(
         self, conditions, conditions_reduce=None, columns_reduce=None, **kwargs
@@ -471,7 +471,7 @@ class HasNoColumn(Condition):
             self.labels = labels
 
         def __call__(self, X):
-            return all([lbl not in X.columns for lbl in self.labels])
+            return bool(all([lbl not in X.columns for lbl in self.labels]))
 
     def __init__(self, labels, **kwargs):
         if isinstance(labels, str) or not hasattr(labels, "__iter__"):
@@ -535,7 +535,7 @@ class HasAtMostMissingValues(Condition):
 
         def __call__(self, X):
             nmiss = X.isna().sum().sum()
-            return nmiss <= self.n_missing
+            return bool(nmiss <= self.n_missing)
 
     class _FloatMissingValuesFunc(object):
         def __init__(self, n_missing):
@@ -543,7 +543,7 @@ class HasAtMostMissingValues(Condition):
 
         def __call__(self, X):
             nmiss = X.isna().sum().sum()
-            return (nmiss / X.size) <= self.n_missing
+            return bool((nmiss / X.size) <= self.n_missing)
 
     def __init__(self, n_missing, **kwargs):
         self._n_missing = n_missing
@@ -677,7 +677,7 @@ class HasAtMostNQualifyingColumns(Condition):
             self._qualifier = qualifier
 
         def __call__(self, X):
-            return len(self._qualifier(X)) <= self._n
+            return bool(len(self._qualifier(X)) <= self._n)
 
     def __init__(self, n: int, qualifier: callable, **kwargs):
         _func = HasAtMostNQualifyingColumns._AtMostNQualifyingCallable(n, qualifier)
@@ -738,7 +738,7 @@ class HasAtLeastNQualifyingColumns(Condition):
             self._qualifier = qualifier
 
         def __call__(self, X):
-            return len(self._qualifier(X)) >= self._n
+            return bool(len(self._qualifier(X)) >= self._n)
 
     def __init__(self, n: int, qualifier: callable, **kwargs):
         _func = HasAtLeastNQualifyingColumns._AtLeastNQualifyingCallable(n, qualifier)
