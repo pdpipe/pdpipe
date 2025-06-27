@@ -33,23 +33,29 @@ jobs:
           python -m pip install --only-binary=all numpy scipy pandas scikit-learn nltk
           python -m pip install -e ".[test]"
 
-    - name: Set up cache for nltk_data
-      uses: actions/cache@v4
-      with:
-        path: ./nltk_data
-        key: nltk-data-${{ hashFiles('**/requirements.txt') }}
-        restore-keys: |
-          nltk-data-
+      - name: Set up cache for nltk_data
+        uses: actions/cache@v4
+        with:
+          path: ./nltk_data
+          key: nltk-data-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            nltk-data-
 
-    - name: Download nltk data (if needed)
-      run: |
-        mkdir -p ./nltk_data
-        python -m nltk.downloader -d ./nltk_data punkt
+      - name: Download nltk data (if needed)
+        run: |
+          mkdir -p ./nltk_data
+          python -m nltk.downloader -d ./nltk_data punkt
 
       - name: Download NLTK data
         run: |
           mkdir -p ./nltk_data
           python -m nltk.downloader -d ./nltk_data punkt
+
+      - name: Warm up punkt tokenizer
+        env:
+          NLTK_DATA: ${{ github.workspace }}/nltk_data
+        run: |
+          python -c "import nltk; nltk.data.path.append('${{ github.workspace }}/nltk_data'); nltk.tokenize.word_tokenize('warm up')"
 
       - name: Unit tests
         env:
