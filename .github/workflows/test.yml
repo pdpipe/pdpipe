@@ -43,6 +43,7 @@ jobs:
             nltk-data-
 
       - name: Download punkt corpora
+        shell: bash
         env:
           NLTK_DATA: ${{ github.workspace }}/nltk_data
         run: |
