@@ -263,12 +263,16 @@ conditions: anonymous condition>
             self.col_reduce = col_reduce
 
         def __call__(self, X):
-            return bool(self.col_reduce(
-                [
-                    self.cond_reduce([bool(cond(X[lbl])) for cond in self.conditions])
-                    for lbl in X.columns
-                ]
-            ))
+            return bool(
+                self.col_reduce(
+                    [
+                        self.cond_reduce(
+                            [bool(cond(X[lbl])) for cond in self.conditions]
+                        )
+                        for lbl in X.columns
+                    ]
+                )
+            )
 
     def __init__(
         self, conditions, conditions_reduce=None, columns_reduce=None, **kwargs

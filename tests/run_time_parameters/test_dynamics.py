@@ -66,7 +66,9 @@ def test_scaler_with_y():
     pd.testing.assert_series_equal(res_y, expected_y)
 
     assert scaler.scaler == "MinMaxScaler"
-    pd.testing.assert_frame_equal(res_x, expected_x, check_dtype=False, rtol=1e-9, atol=1e-12)
+    pd.testing.assert_frame_equal(
+        res_x, expected_x, check_dtype=False, rtol=1e-9, atol=1e-12
+    )
     pd.testing.assert_series_equal(res_y, expected_y)
 
 
