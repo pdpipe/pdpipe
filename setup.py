@@ -12,7 +12,7 @@ with open("README.rst", encoding="utf-8") as f:
     README_RST = f.read()
 
 INSTALL_REQUIRES = [
-    "pandas>=0.18.0",  # obviously
+    "pandas>=2.0.0",  # obviously
     "sortedcontainers",  # the Bin stage needs a sorted list
     "tqdm",  # for some pipeline application progress bars
     "strct",  # ColReorder uses strct.dicts.reverse_dict_partial
