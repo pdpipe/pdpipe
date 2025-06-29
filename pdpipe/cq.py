@@ -40,7 +40,7 @@ class ColumnQualifier(object):
     --------
     >>> import numpy as np; import pdpipe as pdp;
     >>> cq = pdp.cq.ColumnQualifier(lambda df: [
-    ...    l for l, s in df.iteritems()
+    ...    l for l, s in df.items()
     ...    if s.dtype == np.int64 and l in ['a', 'b', 5]
     ... ])
     >>> cq
@@ -378,7 +378,7 @@ class ByColumnCondition(ColumnQualifier):
             self.cond = cond
 
         def __call__(self, X):
-            return list([lbl for lbl, series in X.iteritems() if self.cond(series)])
+            return list([lbl for lbl, series in X.items() if self.cond(series)])
 
     def __init__(self, cond, safe=False, **kwargs):
         self._cond = cond

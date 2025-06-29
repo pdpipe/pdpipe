@@ -106,10 +106,7 @@ def per_column_values_sklearn_transform(
     """
     return pd.DataFrame(
         data=np.array(
-            [
-                transform(np.array([series.values]).T)[:, 0]
-                for lbl, series in X.iteritems()
-            ]
+            [transform(np.array([series.values]).T)[:, 0] for lbl, series in X.items()]
         ).T,
         index=X.index,
         columns=X.columns,

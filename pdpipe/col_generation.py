@@ -243,6 +243,7 @@ class OneHotEncode(ColumnsBasedPipelineStage):
                 prefix=colname,
                 prefix_sep="_",
             )
+            dummies = dummies.astype(int)
             nan_col = colname + "_nan"
             if self._drop_first:
                 dfirst_col = colname + "_" + str(self._drop_first)
@@ -287,6 +288,7 @@ class OneHotEncode(ColumnsBasedPipelineStage):
                     ).format(colname, self.__class__)
                 )
             res_cols = col.astype("object").apply(encoder)
+            res_cols = res_cols.astype(int)
             for res_col in res_cols:
                 assign_map[res_col] = res_cols[res_col]
         inter_X = X.assign(**assign_map)

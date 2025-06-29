@@ -318,8 +318,8 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
     >>> tfvectorizer = pdp.TfidfVectorizeTokenLists('tokens')
     >>> tfvectorizer(df)
        Age      eels  hovercraft   urethra
-    1    2  0.579739    0.814802  0.000000
-    2    5  0.579739    0.000000  0.814802
+    1    2  0.579739    0.814802         0
+    2    5  0.579739           0  0.814802
     """
 
     _DEF_CNTVEC_MSG = "Count-vectorizing column {}."
@@ -439,9 +439,9 @@ class Decompose(ColumnsBasedPipelineStage):
     >>> pca_stage = pdp.Decompose(PCA(), n_components=2)
     >>> pca_stage(df)
            mdc0      mdc1
-    1  3.313301 -0.148453
-    2 -1.432127  1.717269
-    3 -1.881174 -1.568816
+    1 -3.313301 -0.148453
+    2  1.432127  1.717269
+    3  1.881174 -1.568816
     """
 
     def __init__(
