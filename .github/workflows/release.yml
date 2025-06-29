@@ -1,0 +1,98 @@
+name: PyPI Release
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  release:
+    types: [published]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}-${{ github.head_ref }}
+  cancel-in-progress: ${{ ! (github.ref != 'refs/heads/master' || startsWith(github.event.ref, 'refs/tags') || github.event_name == 'release') }}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      RELEASING_PROCESS: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Install dependencies
+        run: pip install -U build twine
+      - name: Build package
+        run: python -m build
+      - name: List package
+        run: ls -lh dist/
+      - name: Check package
+        run: twine check dist/*
+
+      - name: Upload to release
+        if: github.event_name == 'release'
+        uses: AButler/upload-release-assets@v3.0
+        with:
+          files: "dist/*"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload dist artifact for the publish job
+        uses: actions/upload-artifact@v4
+        with:
+          name: pdpipe_dist
+          path: dist
+
+  install:
+    needs: build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macOS-latest, windows-latest]
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pdpipe_dist
+          path: dist
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --only-binary=all numpy scipy pandas scikit-learn
+      - name: Install package
+        working-directory: dist
+        run: pip install $(ls *.whl)
+      - name: Try importing the package
+        run: python -c "import pdpipe"
+
+  publish:
+    needs: [build, install]
+    runs-on: ubuntu-latest
+    if: startsWith(github.event.ref, 'refs/tags') || github.event_name == 'release'
+    environment: pypi_publish
+
+    permissions: # 👈 give this job its own token scope
+      contents: read # required by gh-action-pypi-publish
+      id-token: write # enables OIDC
+
+    steps:
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pdpipe_dist
+          path: dist
+
+      - name: Publish distribution 📦 to PyPI
+        uses: pypa/gh-action-pypi-publish@v1.12.4
+        with:
+          user: __token__
+          password: ${{ secrets.pypi_password }}
