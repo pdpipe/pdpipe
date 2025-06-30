@@ -1,4 +1,16 @@
-"""Column generation pdpipe PdPipelineStages."""
+"""Column generation pdpipe PdPipelineStages.
+
+Available stages include:
+- Bin
+- OneHotEncode
+- MapColVals
+- ApplyToRows
+- ApplyByCols (element-wise)
+- TransformByCols (series-wise, using Series.transform)
+- ColByFrameFunc
+- AggByCols (aggregation)
+- Log
+"""
 
 import abc
 import inspect
@@ -673,7 +685,7 @@ class ApplyByCols(ColumnTransformer):
     """
     A pipeline stage applying an element-wise function to columns.
 
-    For applying series-wise function, see `AggByCols`.
+    For applying series-wise function, see `TransformByCols` or `AggByCols`.
 
     Parameters
     ----------
@@ -775,6 +787,82 @@ class ApplyByCols(ColumnTransformer):
         if self._inject_application_context:
             kwargs["application_context"] = self.application_context
         return series.apply(self._func, args=self._args, **kwargs)
+
+
+class TransformByCols(ColumnTransformer):
+    """
+    A pipeline stage applying a series-wise function to columns using Series.transform.
+
+    For applying element-wise function, see `ApplyByCols`. For aggregation, see `AggByCols`.
+
+    Parameters
+    ----------
+    columns : single label, list-like or callable
+        Column labels in the DataFrame to be transformed. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See `pdpipe.cq`.
+    func : function or str
+        The function to be applied to each of the given columns. Must work when
+        given a pandas.Series object and return a Series of the same length.
+        Can also be a string specifying a pandas built-in transformation (e.g. 'sqrt', 'cumsum').
+    result_columns : str or list-like, default None
+        The names of the new columns resulting from the mapping operation. Must
+        be of the same length as columns. If None, behavior depends on the
+        drop parameter: If drop is True, the name of the source column is used;
+        otherwise, the name of the source column is used with a defined suffix.
+    drop : bool, default True
+        If set to True, source columns are dropped after being mapped.
+    func_desc : str, default None
+        A function description of the given function; e.g. 'cumulative sum'.
+        A default description is used if None is given.
+    suffix : str, optional
+        The suffix to add to resulting columns in case where results_columns
+        is None and drop is set to False. Of not given, defaults to '_trf'.
+    **kwargs : object
+        all pdpipelinestage constructor parameters are supported.
+
+    Examples
+    --------
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
+    >>> df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
+    >>> cumsum_ph = pdp.TransformByCols("ph", "cumsum")
+    >>> cumsum_ph(df)
+        ph  lbl
+    1  3.2  acd
+    2 10.4  alk
+    3 22.5  alk
+    """
+    def __init__(
+        self,
+        columns,
+        func,
+        result_columns=None,
+        drop=True,
+        func_desc=None,
+        suffix=None,
+        **kwargs,
+    ):
+        self._func = func
+        if suffix is None:
+            suffix = "_trf"
+        if func_desc is None:
+            func_desc = ""
+        self._func_desc = func_desc
+        super_kwargs = {
+            "columns": columns,
+            "result_columns": result_columns,
+            "drop": drop,
+            "suffix": suffix,
+            "desc_temp": (
+                f"Apply a transformation function {func_desc} to columns {{}}"
+            ),
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _col_transform(self, series, label):
+        return series.transform(self._func)
 
 
 class ColByFrameFunc(PdPipelineStage):
@@ -879,6 +967,11 @@ class ColByFrameFunc(PdPipelineStage):
 class AggByCols(ColumnTransformer):
     """
     A pipeline stage applying a series-wise function to columns.
+
+    This is done in order to either transform columns in-place or generate
+    new ones (unlike the traditional use of `Series.agg`, which usually
+    generates a single value or a Series with a single value per provided
+    function, which is of a different shape from the source series).
 
     For applying element-wise function, see `ApplyByCols`.
 
