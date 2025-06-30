@@ -265,7 +265,9 @@ class ColumnQualifier(object):
 
     def __invert__(self):
         res_func = ColumnQualifier._NotQualifierFunc(cq=self._cqfunc)
-        res_func.__doc__ = f"NOT {self._cqfunc.__doc__ or 'Anonymous qualifier'}"
+        res_func.__doc__ = (
+            f"NOT {self._cqfunc.__doc__ or 'Anonymous qualifier'}"
+        )
         return ColumnQualifier(func=res_func)
 
 
@@ -378,7 +380,9 @@ class ByColumnCondition(ColumnQualifier):
             self.cond = cond
 
         def __call__(self, X):
-            return list([lbl for lbl, series in X.items() if self.cond(series)])
+            return list(
+                [lbl for lbl, series in X.items() if self.cond(series)]
+            )
 
     def __init__(self, cond, safe=False, **kwargs):
         self._cond = cond
@@ -510,7 +514,9 @@ class StartsWith(ColumnQualifier):
 
         def __call__(self, X):
             return [
-                lbl for lbl in X.columns if StartsWith._safe_startwith(lbl, self.prefix)
+                lbl
+                for lbl in X.columns
+                if StartsWith._safe_startwith(lbl, self.prefix)
             ]
 
     def __init__(self, prefix, **kwargs):
@@ -643,13 +649,18 @@ class WithAtMostMissingValues(ColumnQualifier):
     def __init__(self, n_missing, **kwargs):
         self._n_missing = n_missing
         cqfunc = WithAtMostMissingValues._AtMostFunc(n_missing)
-        cqfunc.__doc__ = f"Columns with at most {self._n_missing} missing values"
+        cqfunc.__doc__ = (
+            f"Columns with at most {self._n_missing} missing values"
+        )
         self.__doc__ = cqfunc.__doc__
         kwargs["func"] = cqfunc
         super().__init__(**kwargs)
 
     def __repr__(self):
-        return f"<ColumnQualifier: " f"With at most {self._n_missing} missing values>"
+        return (
+            f"<ColumnQualifier: "
+            f"With at most {self._n_missing} missing values>"
+        )
 
 
 class WithoutMissingValues(WithAtMostMissingValues):
@@ -718,13 +729,18 @@ class WithAtMostMissingValueRate(ColumnQualifier):
     def __init__(self, rate, **kwargs):
         self._rate = rate
         cqfunc = WithAtMostMissingValueRate._AtMostRateFunc(rate)
-        cqfunc.__doc__ = f"Columns with at most {self._rate} missing value rate"
+        cqfunc.__doc__ = (
+            f"Columns with at most {self._rate} missing value rate"
+        )
         self.__doc__ = cqfunc.__doc__
         kwargs["func"] = cqfunc
         super().__init__(**kwargs)
 
     def __repr__(self):
-        return f"<ColumnQualifier: " f"With at most {self._rate} missing value rate>"
+        return (
+            f"<ColumnQualifier: "
+            f"With at most {self._rate} missing value rate>"
+        )
 
 
 class WithAtLeastMissingValueRate(ColumnQualifier):
@@ -763,10 +779,15 @@ class WithAtLeastMissingValueRate(ColumnQualifier):
     def __init__(self, rate, **kwargs):
         self._rate = rate
         cqfunc = WithAtLeastMissingValueRate._AtLeastRateFunc(rate)
-        cqfunc.__doc__ = f"Columns with at least {self._rate} missing value rate"
+        cqfunc.__doc__ = (
+            f"Columns with at least {self._rate} missing value rate"
+        )
         self.__doc__ = cqfunc.__doc__
         kwargs["func"] = cqfunc
         super().__init__(**kwargs)
 
     def __repr__(self):
-        return f"<ColumnQualifier: " f"With at least {self._rate} missing value rate>"
+        return (
+            f"<ColumnQualifier: "
+            f"With at least {self._rate} missing value rate>"
+        )

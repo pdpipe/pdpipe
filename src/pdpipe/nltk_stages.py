@@ -234,7 +234,9 @@ class RemoveStopwords(MapColVals):
     def __init__(self, language, columns, drop=True, **kwargs):
         self._language = language
         if isinstance(language, str):
-            self._stopwords_list = RemoveStopwords.__stopwords_by_language(language)
+            self._stopwords_list = RemoveStopwords.__stopwords_by_language(
+                language
+            )
         elif isinstance(language, Iterable):
             self._stopwords_list = list(language)
         else:
@@ -360,7 +362,9 @@ class SnowballStem(MapColVals):
             return [self.stemmer.stem(w) for w in token_list]
 
         def __cond_stem__(self, token_list):
-            return [self.stemmer.stem(w) if self.cond(w) else w for w in token_list]
+            return [
+                self.stemmer.stem(w) if self.cond(w) else w for w in token_list
+            ]
 
     @staticmethod
     def __stemmer_by_name(stemmer_name):
@@ -379,7 +383,13 @@ class SnowballStem(MapColVals):
             return SnowballStem.__stemmer_by_name(stemmer_name)
 
     def __init__(
-        self, stemmer_name, columns, drop=True, min_len=None, max_len=None, **kwargs
+        self,
+        stemmer_name,
+        columns,
+        drop=True,
+        min_len=None,
+        max_len=None,
+        **kwargs,
     ):
         self._stemmer_name = stemmer_name
         self.stemmer = SnowballStem.__safe_stemmer_by_name(stemmer_name)
@@ -455,7 +465,10 @@ class DropRareTokens(ColumnsBasedPipelineStage):
         self._threshold = threshold
         self._drop = drop
         self._rare_removers = {}
-        super_kwargs = {"columns": columns, "desc_temp": "Drop rare tokens from {}"}
+        super_kwargs = {
+            "columns": columns,
+            "desc_temp": "Drop rare tokens from {}",
+        }
         super_kwargs.update(**kwargs)
         super_kwargs["none_columns"] = "error"
         super().__init__(**super_kwargs)

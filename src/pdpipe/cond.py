@@ -557,7 +557,9 @@ class HasAtMostMissingValues(Condition):
             _func = HasAtMostMissingValues._FloatMissingValuesFunc(n_missing)
         else:
             raise ValueError("n_missing should be of type int or float!")
-        _func.__doc__ = f"Dataframes with at most {self._n_missing} missing values"
+        _func.__doc__ = (
+            f"Dataframes with at most {self._n_missing} missing values"
+        )
         super_kwargs = {
             "error_message": (
                 "Input dataframe cannot have more than"
@@ -569,7 +571,10 @@ class HasAtMostMissingValues(Condition):
         super().__init__(**super_kwargs)
 
     def __repr__(self):
-        return f"<pdpipe.Condition: " f"Has at most {self._n_missing} missing values>"
+        return (
+            f"<pdpipe.Condition: "
+            f"Has at most {self._n_missing} missing values>"
+        )
 
 
 class HasNoMissingValues(HasAtMostMissingValues):
@@ -684,16 +689,20 @@ class HasAtMostNQualifyingColumns(Condition):
             return bool(len(self._qualifier(X)) <= self._n)
 
     def __init__(self, n: int, qualifier: callable, **kwargs):
-        _func = HasAtMostNQualifyingColumns._AtMostNQualifyingCallable(n, qualifier)
+        _func = HasAtMostNQualifyingColumns._AtMostNQualifyingCallable(
+            n, qualifier
+        )
         _func.__doc__ = (
             f"Dataframes with at most {n} columns qualifying " f"{qualifier}"
         )
         self._rpr = (
-            f"<pdpipe.Condition: Has at most {n} columns qualifying " f"{qualifier}>"
+            f"<pdpipe.Condition: Has at most {n} columns qualifying "
+            f"{qualifier}>"
         )
         super_kwargs = {
             "error_message": (
-                f"More than {n} columns qualify {qualifier} in the input " "dataframe!"
+                f"More than {n} columns qualify {qualifier} in the input "
+                "dataframe!"
             )
         }
         super_kwargs.update(**kwargs)
@@ -745,16 +754,20 @@ class HasAtLeastNQualifyingColumns(Condition):
             return bool(len(self._qualifier(X)) >= self._n)
 
     def __init__(self, n: int, qualifier: callable, **kwargs):
-        _func = HasAtLeastNQualifyingColumns._AtLeastNQualifyingCallable(n, qualifier)
+        _func = HasAtLeastNQualifyingColumns._AtLeastNQualifyingCallable(
+            n, qualifier
+        )
         _func.__doc__ = (
             f"Dataframes with at least {n} columns qualifying " f"{qualifier}"
         )
         self._rpr = (
-            f"<pdpipe.Condition: Has at least {n} columns qualifying " f"{qualifier}>"
+            f"<pdpipe.Condition: Has at least {n} columns qualifying "
+            f"{qualifier}>"
         )
         super_kwargs = {
             "error_message": (
-                f"Less than {n} columns qualify {qualifier} in the input " "dataframe!"
+                f"Less than {n} columns qualify {qualifier} in the input "
+                "dataframe!"
             )
         }
         super_kwargs.update(**kwargs)
@@ -799,4 +812,6 @@ class HasNoQualifyingColumns(HasAtMostNQualifyingColumns):
         }
         super_kwargs.update(**kwargs)
         super().__init__(n=0, qualifier=qualifier, **super_kwargs)
-        self._rpr = f"<pdpipe.Condition: Has no columns qualifying {qualifier}>"
+        self._rpr = (
+            f"<pdpipe.Condition: Has no columns qualifying {qualifier}>"
+        )

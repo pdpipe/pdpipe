@@ -52,7 +52,9 @@ def test_mapcolvals_with_res_name_no_drop():
     """Testing MapColVals pipeline stages."""
     df = _test_df()
     value_map = {1: "Gold", 2: "Silver", 3: "Bronze"}
-    map_stage = MapColVals("Medal", value_map, result_columns="Metal", drop=False)
+    map_stage = MapColVals(
+        "Medal", value_map, result_columns="Metal", drop=False
+    )
     res_df = map_stage(df)
     assert res_df["Medal"]["UK"] == 1
     assert res_df["Medal"]["USSR"] == 3

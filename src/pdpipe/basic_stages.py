@@ -372,7 +372,10 @@ class SetIndex(PdPipelineStage):
         else:
             _tprec = cond.HasAllColumns([keys])
         self._tprec = _tprec
-        super_kwargs = {"exmsg": SetIndex._DEF_SETIDX_EXC_MSG, "desc": "Set indexes."}
+        super_kwargs = {
+            "exmsg": SetIndex._DEF_SETIDX_EXC_MSG,
+            "desc": "Set indexes.",
+        }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
@@ -407,7 +410,8 @@ class FreqDrop(PdPipelineStage):
     """
 
     _DEF_FREQDROP_EXC_MSG = (
-        "FreqDrop stage failed because column {} was not" " found in input dataframe."
+        "FreqDrop stage failed because column {} was not"
+        " found in input dataframe."
     )
     _DEF_FREQDROP_DESC = "Drop values with frequency < {} in column {}."
 
@@ -416,7 +420,9 @@ class FreqDrop(PdPipelineStage):
         self._column = column
         super_kwargs = {
             "exmsg": FreqDrop._DEF_FREQDROP_EXC_MSG.format(self._column),
-            "desc": FreqDrop._DEF_FREQDROP_DESC.format(self._threshold, self._column),
+            "desc": FreqDrop._DEF_FREQDROP_DESC.format(
+                self._threshold, self._column
+            ),
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -568,9 +574,13 @@ class RowDrop(ColumnsBasedPipelineStage):
     def _row_condition_builder(self, conditions, reduce):
         reducer = RowDrop._REDUCERS[reduce]
         if self._cond_is_dict:
-            row_cond = RowDrop._DictRowCond(conditions=conditions, reducer=reducer)
+            row_cond = RowDrop._DictRowCond(
+                conditions=conditions, reducer=reducer
+            )
         else:
-            row_cond = RowDrop._ListRowCond(conditions=conditions, reducer=reducer)
+            row_cond = RowDrop._ListRowCond(
+                conditions=conditions, reducer=reducer
+            )
         return row_cond
 
     def __init__(
@@ -603,7 +613,9 @@ class RowDrop(ColumnsBasedPipelineStage):
         else:
             valid = all([callable(cond) for cond in conditions])
             if not valid:
-                raise ValueError("RowDrop condition lists can contain only callables!")
+                raise ValueError(
+                    "RowDrop condition lists can contain only callables!"
+                )
         self._row_cond = self._row_condition_builder(conditions, reduce)
         super_kwargs = {
             "columns": columns,
@@ -685,10 +697,14 @@ class Schematize(PdPipelineStage):
             return True
         return set(self._columns).issubset(X.columns)
 
-    def _transform(self, X: pandas.DataFrame, verbose=None) -> pandas.DataFrame:
+    def _transform(
+        self, X: pandas.DataFrame, verbose=None
+    ) -> pandas.DataFrame:
         return X[self._columns]
 
-    def _fit_transform(self, X: pandas.DataFrame, verbose=None) -> pandas.DataFrame:
+    def _fit_transform(
+        self, X: pandas.DataFrame, verbose=None
+    ) -> pandas.DataFrame:
         if self._adaptive:
             self._columns = X.columns
             self.is_fitted = True
@@ -796,7 +812,9 @@ class ColumnDtypeEnforcer(PdPipelineStage):
         **kwargs: object,
     ) -> None:
         # if none of the keys in column_to_dtype is a ColumnQualifier
-        if not any(isinstance(x, ColumnQualifier) for x in column_to_dtype.keys()):
+        if not any(
+            isinstance(x, ColumnQualifier) for x in column_to_dtype.keys()
+        ):
             # its a static map; use it as is
             self._column_to_dtype = column_to_dtype
             keys_set = set(column_to_dtype.keys())
@@ -811,7 +829,9 @@ class ColumnDtypeEnforcer(PdPipelineStage):
         columns_str = _list_str(list(column_to_dtype.keys()))
         suffix = "s" if len(column_to_dtype) > 1 else ""
         super_kwargs = {
-            "exmsg": ColumnDtypeEnforcer._DEF_COL_DTYPE_ENF_EXC_MSG.format(columns_str),
+            "exmsg": ColumnDtypeEnforcer._DEF_COL_DTYPE_ENF_EXC_MSG.format(
+                columns_str
+            ),
             "desc": f"Enforce column{suffix} dtype with {column_to_dtype}",
         }
         super_kwargs.update(**kwargs)

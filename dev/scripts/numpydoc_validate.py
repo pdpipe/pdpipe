@@ -16,7 +16,8 @@ HIDE_ERROR_CODES_LIST = [
     "EX01",  # No examples section found
 ]
 
-HIDE_ERROR_REGEX = "|".join([":{}:".format(code) for code in HIDE_ERROR_CODES_LIST])
+_COMPS = [":{}:".format(code) for code in HIDE_ERROR_CODES_LIST]
+HIDE_ERROR_REGEX = "|".join(_COMPS)
 
 HIDE_ERROR_PATTERN = re.compile(HIDE_ERROR_REGEX)
 
@@ -27,7 +28,8 @@ SOFT_ERROR_CODES_LIST = HIDE_ERROR_CODES_LIST + [
     # in between)
 ]
 
-SOFT_ERROR_REGEX = "|".join([":{}:".format(code) for code in SOFT_ERROR_CODES_LIST])
+_COMPS = [":{}:".format(code) for code in SOFT_ERROR_CODES_LIST]
+SOFT_ERROR_REGEX = "|".join(_COMPS)
 
 SOFT_ERROR_PATTERN = re.compile(SOFT_ERROR_REGEX)
 

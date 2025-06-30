@@ -9,7 +9,9 @@ from pdpipe.exceptions import FailedPreconditionError
 
 def _test_df():
     return pd.DataFrame(
-        data=[[1, 2, "a"], [2, 4, "b"]], index=[1, 2], columns=["num1", "num2", "char"]
+        data=[[1, 2, "a"], [2, 4, "b"]],
+        index=[1, 2],
+        columns=["num1", "num2", "char"],
     )
 
 

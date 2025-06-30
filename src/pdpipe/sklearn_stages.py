@@ -88,7 +88,9 @@ class Encode(ColumnsBasedPipelineStage):
     array(['acd', 'alk', 'alk'], dtype=object)
     """
 
-    def __init__(self, columns=None, exclude_columns=None, drop=True, **kwargs):
+    def __init__(
+        self, columns=None, exclude_columns=None, drop=True, **kwargs
+    ):
         self._drop = drop
         self.encoders = {}
         super_kwargs = {
@@ -222,7 +224,9 @@ class Scale(ColumnsBasedPipelineStage):
 
     def _fit_transform(self, X, verbose):
         self._columns_to_scale = self._get_columns(X, fit=True)
-        unscaled_cols = [x for x in X.columns if x not in self._columns_to_scale]
+        unscaled_cols = [
+            x for x in X.columns if x not in self._columns_to_scale
+        ]
         col_order = list(X.columns)
         inter_X = X[self._columns_to_scale]
         self._scaler = scaler_by_params(self.scaler, **self._kwargs)
@@ -251,7 +255,9 @@ class Scale(ColumnsBasedPipelineStage):
         return inter_X
 
     def _transform(self, X, verbose):
-        unscaled_cols = [x for x in X.columns if x not in self._columns_to_scale]
+        unscaled_cols = [
+            x for x in X.columns if x not in self._columns_to_scale
+        ]
         col_order = list(X.columns)
         inter_X = X[self._columns_to_scale]
         try:
@@ -371,7 +377,9 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
                 for f in self._tfidf_vectorizer.get_feature_names_out()
             ]
         else:
-            self._res_col_names = self._tfidf_vectorizer.get_feature_names_out()
+            self._res_col_names = (
+                self._tfidf_vectorizer.get_feature_names_out()
+            )
         vec_X = pd.DataFrame.sparse.from_spmatrix(
             data=vectorized, index=X.index, columns=self._res_col_names
         )

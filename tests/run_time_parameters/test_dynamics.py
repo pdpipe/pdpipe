@@ -49,7 +49,9 @@ def test_scaler_with_y():
     df_standard_scaler = _standard_scaler_df()
     df_standard_scaler_x = df_standard_scaler["a"].to_frame()
     df_standard_scaler_y = df_standard_scaler["b"]
-    res_x, res_y = pipeline.fit_transform(df_standard_scaler_x, df_standard_scaler_y)
+    res_x, res_y = pipeline.fit_transform(
+        df_standard_scaler_x, df_standard_scaler_y
+    )
     expected_x = pd.DataFrame([-1, 1], columns=["a"])
     expected_y = pd.Series([3, 6])
 
@@ -60,7 +62,9 @@ def test_scaler_with_y():
     df_minmax_scaler = _minmax_scaler_df()
     df_minmax_scaler_x = df_minmax_scaler["a"].to_frame()
     df_minmax_scaler_y = df_minmax_scaler["b"]
-    res_x, res_y = pipeline.fit_transform(X=df_minmax_scaler_x, y=df_minmax_scaler_y)
+    res_x, res_y = pipeline.fit_transform(
+        X=df_minmax_scaler_x, y=df_minmax_scaler_y
+    )
     expected_x = pd.DataFrame([0, 1], columns=["a"])
     expected_y = pd.Series([3, 7])
     pd.testing.assert_series_equal(res_y, expected_y)

@@ -220,11 +220,15 @@ class FittableDropByCharStage(PdPipelineStage):
 
 
 def _test_df2():
-    return pd.DataFrame(data=[[1, "a"], [2, "b"]], index=[1, 2], columns=["abo", "coo"])
+    return pd.DataFrame(
+        data=[[1, "a"], [2, "b"]], index=[1, 2], columns=["abo", "coo"]
+    )
 
 
 def _test_df3():
-    return pd.DataFrame(data=[[1, "a"], [2, "b"]], index=[1, 2], columns=["abo", "aoo"])
+    return pd.DataFrame(
+        data=[[1, "a"], [2, "b"]], index=[1, 2], columns=["abo", "aoo"]
+    )
 
 
 def test_fittable_stage():
@@ -294,7 +298,9 @@ def test_prec_condition_error_message():
         stage(_test_df2())
 
     error_message = "No 'a' in columns"
-    stage = SomeStage(prec=Condition(_no_a_in_cols, error_message=error_message))
+    stage = SomeStage(
+        prec=Condition(_no_a_in_cols, error_message=error_message)
+    )
     specific_err = "Precondition failed .* " + error_message
     with pytest.raises(FailedPreconditionError, match=specific_err):
         stage(_test_df2())
@@ -307,7 +313,9 @@ def test_post_condition_error_message():
         stage(_test_df2())
 
     error_message = "No 'a' in columns"
-    stage = SomeStage(post=Condition(_no_a_in_cols, error_message=error_message))
+    stage = SomeStage(
+        post=Condition(_no_a_in_cols, error_message=error_message)
+    )
     specific_err = "Postcondition failed .* " + error_message
     with pytest.raises(FailedPostconditionError, match=specific_err):
         stage(_test_df2())

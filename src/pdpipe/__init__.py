@@ -164,14 +164,17 @@ try:
         SnowballStem,
         DropRareTokens,
     )
-    __all__.extend([
-        "nltk_stages",
-        "TokenizeText",
-        "UntokenizeText",
-        "RemoveStopwords",
-        "SnowballStem",
-        "DropRareTokens",
-    ])
+
+    __all__.extend(
+        [
+            "nltk_stages",
+            "TokenizeText",
+            "UntokenizeText",
+            "RemoveStopwords",
+            "SnowballStem",
+            "DropRareTokens",
+        ]
+    )
     core.__load_stage_attributes_from_module__("pdpipe.nltk_stages")
 except ImportError:
     tb = traceback.format_exc()
@@ -190,21 +193,25 @@ from . import cq
 from . import rq
 from . import cond
 
-__all__.extend([
-    "run_time_parameters",
-    "dynamic",
-    "df",
-    "cq",
-    "rq",
-    "cond",
-])
+__all__.extend(
+    [
+        "run_time_parameters",
+        "dynamic",
+        "df",
+        "cq",
+        "rq",
+        "cond",
+    ]
+)
 
 
 from ._version import __version__
 
-__all__.extend([
-    "__version__",
-])
+__all__.extend(
+    [
+        "__version__",
+    ]
+)
 
 for name in [
     "warnings",

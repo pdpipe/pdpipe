@@ -13,7 +13,9 @@ from pdpipe.exceptions import UnfittedPipelineStageError
 
 def _some_X_y():
     X = pd.DataFrame(
-        data=[[3.2, 31], [7.2, 33], [12.1, 28]], index=[1, 2, 3], columns=["ph", "temp"]
+        data=[[3.2, 31], [7.2, 33], [12.1, 28]],
+        index=[1, 2, 3],
+        columns=["ph", "temp"],
     )
     y = pd.Series(["acd", "alk", "alk"])
     return X, y
@@ -21,7 +23,9 @@ def _some_X_y():
 
 def _some_X_y2():
     X = pd.DataFrame(
-        data=[[4.1, 22], [7.7, 23], [2.1, 38]], index=[1, 2, 3], columns=["ph", "temp"]
+        data=[[4.1, 22], [7.7, 23], [2.1, 38]],
+        index=[1, 2, 3],
+        columns=["ph", "temp"],
     )
     y = pd.Series(["alk", "acd", "alk"])
     return X, y
@@ -103,7 +107,9 @@ def test_encode_label_fit():
 
 def _bad_len_X_y():
     X = pd.DataFrame(
-        data=[[3.2, 31], [7.2, 33], [12.1, 28]], index=[1, 2, 3], columns=["ph", "temp"]
+        data=[[3.2, 31], [7.2, 33], [12.1, 28]],
+        index=[1, 2, 3],
+        columns=["ph", "temp"],
     )
     y = pd.Series(["acd", "alk"])
     return X, y
@@ -122,7 +128,9 @@ def test_encode_label_bad_len():
 
 def _np_X_y():
     X = pd.DataFrame(
-        data=[[3.2, 31], [7.2, 33], [12.1, 28]], index=[1, 2, 3], columns=["ph", "temp"]
+        data=[[3.2, 31], [7.2, 33], [12.1, 28]],
+        index=[1, 2, 3],
+        columns=["ph", "temp"],
     )
     y = np.array(["acd", "alk", "alk"])
     return X, y
@@ -130,7 +138,9 @@ def _np_X_y():
 
 def _np_X_y2():
     X = pd.DataFrame(
-        data=[[4.1, 22], [7.7, 23], [2.1, 38]], index=[1, 2, 3], columns=["ph", "temp"]
+        data=[[4.1, 22], [7.7, 23], [2.1, 38]],
+        index=[1, 2, 3],
+        columns=["ph", "temp"],
     )
     y = np.array(["alk", "acd", "alk"])
     return X, y
