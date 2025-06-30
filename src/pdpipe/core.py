@@ -44,7 +44,7 @@ def __get_append_stage_attr_doc(class_obj: object) -> str:
     doc = class_obj.__doc__
     if doc is None:  # pragma: no cover
         return
-    first_line = doc[0 : doc.find(".") + 1]
+    first_line = doc[0: doc.find(".") + 1]
     if "An" in first_line:
         new_first_line = first_line.replace("An", "Create and adds an", 1)
     else:
@@ -1078,8 +1078,8 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
             if none_error:
                 raise ValueError(
                     (
-                        "None is not a valid argument for the columns parameter of"
-                        " this pipeline stage."
+                        "None is not a valid argument for the columns "
+                        "parameter of this pipeline stage."
                     )
                 )
             return ColumnsBasedPipelineStage._interpret_columns_param(
@@ -1200,8 +1200,8 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
     def _transformation(self, X, verbose, fit):
         raise NotImplementedError(
             (
-                "Classes extending ColumnsBasedPipelineStage must implement the "
-                "_transformation method!"
+                "Classes extending ColumnsBasedPipelineStage must implement "
+                "the _transformation method!"
             )
         )
 

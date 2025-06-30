@@ -1092,8 +1092,8 @@ class Log(ColumnsBasedPipelineStage):
                 else:  # pragma: no cover
                     raise PipelineApplicationError(
                         (
-                            "Missig fitted parameter for column {} when applying a"
-                            " fitted Log pipeline stage by class {}!"
+                            "Missig fitted parameter for column {} when "
+                            "applying fitted Log pipeline stage by class {}!"
                         ).format(colname, self.__class__)
                     )
             # must check not None as neg numbers eval to False

@@ -598,8 +598,8 @@ class RowDrop(ColumnsBasedPipelineStage):
         if reduce not in RowDrop._REDUCERS.keys():
             raise ValueError(
                 (
-                    "{} is an unsupported argument for the 'reduce' parameter of "
-                    "the RowDrop constructor!"
+                    "{} is an unsupported argument for the 'reduce' parameter"
+                    " of the RowDrop constructor!"
                 ).format(reduce)
             )
         self._cond_is_dict = isinstance(conditions, dict)

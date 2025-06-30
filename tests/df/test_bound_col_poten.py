@@ -295,12 +295,13 @@ def test_col_bound_potential_numerical_operators_with_series():
             df["cs>=a"] << cs >= df["a"],
             df["cs==a"] << cs == df["a"],
             df["cs!=a"] << cs != df["a"],
-            # these cases are not supported, since operator resolution order means
-            # that the Series object on the left is enquired first for the
-            # support of the __add__, __sub__, etc. methods for a
-            # _BoundColumnPotential object, which they always support, interpreting
-            # it as an object to add/sub/etc. element-wise. As such, the __radd__,
-            # __rsub__, etc. methods of the _BoundColumnPotential object on the
+            # these cases are not supported, since operator resolution order
+            # means that the Series object on the left is enquired first for
+            # the support of the __add__, __sub__, etc. methods for a
+            # _BoundColumnPotential object, which they always support,
+            # interpreting it as an object to add/sub/etc. element-wise.
+            # As such, the __radd__, __rsub__, etc. methods of the
+            # _BoundColumnPotential object on the
             # right are never called, and we can't support the operation.
             # df['cs+a'] << cs + df['a'],
             # df['cs-a'] << cs - df['a'],

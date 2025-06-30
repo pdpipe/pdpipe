@@ -298,8 +298,8 @@ conditions: anonymous condition>
         else:
             raise ValueError(
                 (
-                    "The only valid arguments to the `conditions_reduce` parameter"
-                    " of PerColumnCondition are 'all' and 'any'!"
+                    "The only valid arguments to the `conditions_reduce`"
+                    " parameter of PerColumnCondition are 'all' and 'any'!"
                 )
             )
         if columns_reduce == "all":
@@ -309,8 +309,8 @@ conditions: anonymous condition>
         else:
             raise ValueError(
                 (
-                    "The only valid arguments to the `columns_reduce` parameter"
-                    " of PerColumnCondition are 'all' and 'any'!"
+                    "The only valid arguments to the `columns_reduce`"
+                    " parameter of PerColumnCondition are 'all' and 'any'!"
                 )
             )
         # building resulting function

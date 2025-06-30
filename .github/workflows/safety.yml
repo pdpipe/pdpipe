@@ -22,6 +22,6 @@ jobs:
           pip install uv
           uv pip compile pyproject.toml -o requirements.txt
       - name: Security vulnerabilities scan
-        uses: aufdenpunkt/python-safety-checker@v1.0.6
+        uses: aufdenpunkt/python-safety-check@v1.0.6
         with:
           scan_requirements_file_only: "true"
