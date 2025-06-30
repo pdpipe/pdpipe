@@ -44,7 +44,7 @@ def __get_append_stage_attr_doc(class_obj: object) -> str:
     doc = class_obj.__doc__
     if doc is None:  # pragma: no cover
         return
-    first_line = doc[0: doc.find(".") + 1]
+    first_line = doc[0 : doc.find(".") + 1]  # noqa: E203
     if "An" in first_line:
         new_first_line = first_line.replace("An", "Create and adds an", 1)
     else:
