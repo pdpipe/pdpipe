@@ -42,8 +42,12 @@ classifiers = [
   "Topic :: Software Development :: Libraries :: Python Modules",
   "Topic :: Utilities",
 ]
-dynamic =
-tage needs a sorted list
+dynamic = [
+  "version",
+]
+dependencies = [
+    "pandas>=2.0.0",  # pdpipe is a pandas extension
+    "sortedcontainers",  # the Bin stage needs a sorted list
     "tqdm",  # for some pipeline application progress bars
     "strct",  # ColReorder uses strct.dicts.reverse_dict_partial
     "skutil>=0.0.15",  # Scale uses skutil.preprocessing.scaler_by_param
