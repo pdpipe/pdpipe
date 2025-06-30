@@ -1,0 +1,15 @@
+# testing and coverage
+pytest
+coverage
+pytest-cov
+pytest-ordering
+    # non-testing packages required by tests, not by the package
+scikit-learn
+pdutil
+nltk
+xdg
+
+rich
+    # to be able to run `python setup.py checkdocs`
+collective.checkdocs
+pygments

@@ -1,37 +1,246 @@
+# === Metadata & Build System ===
+
 [build-system]
 requires = [
-    "setuptools >= 49.2.0",
-    "wheel",
-    "versioneer-518",
+  "setuptools",
+  "wheel",
 ]
-build-backend = "setuptools.build_meta"
+
+[project]
+name = "pdpipe"
+description = "Easy pipelines for pandas."
+readme = "README.rst"
+keywords = [
+  "pdpipe",
+  "pandas",
+  "pandas pipeline",
+  "pipeline",
+  "dataframe",
+  "data science",
+  "machine learning",
+  "python",
+  "utilities",
+  "utils",
+]
+license = { file = "LICENSE" }
+authors = [
+  { name = "Shay Palachy Affek", email = 'shay.palachy@gmail.com' },
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Other/Nonlisted Topic",
+  "Topic :: Software Development :: Libraries",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Topic :: Utilities",
+]
+dynamic =
+tage needs a sorted list
+    "tqdm",  # for some pipeline application progress bars
+    "strct",  # ColReorder uses strct.dicts.reverse_dict_partial
+    "skutil>=0.0.15",  # Scale uses skutil.preprocessing.scaler_by_param
+    "birch>=0.0.34",  # for reading config from files / env vars
+]
+urls.Source = "https://pdpipe.readthedocs.io/en/latest/"
+[project.optional-dependencies]
+sklearn = ["scikit-learn"]
+nltk = ["nltk"]
+
+# --- setuptools ---
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+version = { attr = "pdpipe._version.__version__" }
+
+[tool.setuptools.packages.find]
+where = [
+  "src",
+] # list of folders that contain the packages (["."] by default)
+include = [
+  "pdpipe*",
+] # package names should match these glob patterns (["*"] by default)
+namespaces = false # to disable scanning PEP 420 namespaces (true by default)
+
+
+# === Linting & Formatting ===
+
+[tool.black]
+line-length = 79
+
+# --- ruff ---
+[tool.ruff]
+target-version = ['py39', 'py310', 'py311', 'py312', 'py313']
+line-length = 79
+# Exclude a variety of commonly ignored directories.
+exclude = [
+  ".eggs",
+  ".git",
+  ".ruff_cache",
+  "__pypackages__",
+  "_build",
+  "build",
+  "dist",
+]
+# Enable Pyflakes `E` and `F` codes by default.
+lint.select = [
+  "D",      # see: https://pypi.org/project/pydocstyle
+  "E",
+  "F",      # see: https://pypi.org/project/pyflakes
+  "I",      #see: https://pypi.org/project/isort/
+  "RUF100", # alternative to yesqa
+  #"N", # see: https://pypi.org/project/pep8-naming
+  "S",   # see: https://pypi.org/project/flake8-bandit
+  "SIM",
+  "W",   # see: https://pypi.org/project/pycodestyle
+]
+lint.extend-select = [
+  "A",  # see: https://pypi.org/project/flake8-builtins
+  "B",  # see: https://pypi.org/project/flake8-bugbear
+  "C4", # see: https://pypi.org/project/flake8-comprehensions
+  "PT", # see: https://pypi.org/project/flake8-pytest-style
+]
+lint.ignore = [
+  "C901",
+  "E203",
+]
+lint.per-file-ignores."src/**/__init__.py" = [
+  "D104",
+]
+lint.per-file-ignores."tests/**" = [
+  "D100",
+  "D101",
+  "D103",
+  "D104",
+  "D401",
+  "S101",
+  "S105",
+  "S311",
+  "S603",
+]
+lint.unfixable = [
+  "F401",
+]
+lint.mccabe.max-complexity = 10
+#[tool.ruff.pydocstyle]
+## Use Google-style docstrings.
+#convention = "google"
+#[tool.ruff.pycodestyle]
+#ignore-overlong-task-comments = true
+# Unlike Flake8, default to a complexity level of 10.
+
+# --- pylint ---
+[tool.pylint.'MAIN']
+ignore = ["CVS"]
+load-plugins = ["pylint.extensions.docparams"]
+
+[tool.pylint.'FORMAT']
+good-names = ["x", "y", "X", "inter_X", "inter_y", "post_X", "post_y"]
+
+[tool.pylint.'DESIGN']
+exclude-too-few-public-methods = [".+"]
+
+[tool.pylint.'MESSAGES CONTROL']
+disable = ["R0911", "R0913", "R0903"]
+
+# --- flake8 ---
+[tool.flake8]
+ignore = ["C901", "E203", "W503"]
+exclude = [
+  ".git",
+  ".github",
+  ".pytest_cache",
+  ".venv",
+  ".vim",
+  ".eggs",
+  "__pycache__",
+  "docs",
+  "apidoc",
+  "notebooks",
+  "build",
+  "dist",
+  "versioneer.py",
+  "pdpipe/_version.py",
+  "*/_version.py",
+]
+max-complexity = 10
+max-line-length = 100
+
+# --- docformatter ---
+[tool.docformatter]
+recursive = true
+# some docstring start with r"""
+wrap-summaries = 79
+wrap-descriptions = 79
+blank = true
+
+
+# === Testing ===
+
+# --- pytest ---
+[tool.pytest.ini_options]
+testpaths = [
+  "src/pdpipe",
+  "tests",
+]
+norecursedirs = [
+  "dist",
+  "build",
+]
+markers = [
+  "log",
+  "onehotencode",
+  "first",
+  "schematize",
+  "bound_col",
+  "coldrop",
+  "skintegrate",
+  "label",
+]
+addopts = [
+  "--cov=pdpipe",
+  "--doctest-modules",
+  "--color=yes",
+  "--ignore-glob=*bound_column_potential.py",
+  "-rxXs",
+  "-v",
+  "-s",
+  "-W error",
+]
+
+# --- coverage ---
+[tool.coverage.run]
+branch = true
+# dynamic_context = "test_function"
+omit = [
+  "tests/*",
+  "pdpipe/_version.py",
+  "pdpipe/__init__.py",
+  "pdpipe/polyglot_stages.py",
+  "dev/*",
+]
+[tool.coverage.report]
+show_missing = true
+# Regexes for lines to exclude from consideration
+exclude_lines = [
+  "pragma: no cover",          # Have to re-enable the standard pragma
+  "raise NotImplementedError", # Don't complain if tests don't hit defensive assertion code:
+  "if TYPE_CHECKING:",         # Is only true when running mypy, not tests
+]
+
+
+# === Type Checking ===
 
 [tool.pyright]
 include = ["pdpipe"]
 exclude = ["**/node_modules",
     "**/__pycache__",
 ]
-venvPath = "/users/shaypalachy/.pyenv/versions/"
-venv = "py3"
-
-reportMissingImports = true
-reportMissingTypeStubs = false
-reportGeneralTypeIssues = false
-
-pythonVersion = "3.8"
-pythonPlatform = "Linux"
-
-# pylint currently ignores this. See .pylintrc
-[tool.pylint]
-    [tool.pylint."MASTER"]
-    ignore = ["CVS"]
-    ignore-paths = ["build/", "dev/", "dist/", "docs/", "notebooks/", "tests/"]
-    load-plugins = [
-        "pylint.extensions.docparams"
-    ]
-    py-version = [3, 10]
-    recursive = false
-    reports = false
-    score = true
-    suggestion-mode = true
-    unsafe-load-any-extension = false

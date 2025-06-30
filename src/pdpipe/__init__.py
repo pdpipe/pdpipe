@@ -104,6 +104,57 @@ except ImportError:
         "-dependent pipeline stages will not be loaded."
     )
 
+
+__all__ = [
+    "basic_stages",
+    "PdPipelineStage",
+    "AdHocStage",
+    "PdPipeline",
+    "make_pdpipeline",
+    "ColDrop",
+    "ValDrop",
+    "ValKeep",
+    "ColRename",
+    "DropNa",
+    "SetIndex",
+    "FreqDrop",
+    "ColReorder",
+    "RowDrop",
+    "Schematize",
+    "DropDuplicates",
+    "ColumnDtypeEnforcer",
+    "ConditionValidator",
+    "ApplicationContextEnricher",
+    "col_generation",
+    "Bin",
+    "OneHotEncode",
+    "MapColVals",
+    "ApplyToRows",
+    "ApplyByCols",
+    "ColByFrameFunc",
+    "AggByCols",
+    "Log",
+    "text_stages",
+    "RegexReplace",
+    "DropTokensByLength",
+    "DropTokensByList",
+    "lbl",
+    "DropLabelsByValues",
+    "wrappers",
+    "FitOnly",
+    "fly",
+    "drop_rows_where",
+    "keep_rows_where",
+    "skintegrate",
+    "sklearn_stages",
+    "Encode",
+    "Scale",
+    "TfidfVectorizeTokenLists",
+    "Decompose",
+    "EncodeLabel",
+]
+
+
 try:
     from . import nltk_stages
     from .nltk_stages import (
@@ -113,7 +164,14 @@ try:
         SnowballStem,
         DropRareTokens,
     )
-
+    __all__.extend([
+        "nltk_stages",
+        "TokenizeText",
+        "UntokenizeText",
+        "RemoveStopwords",
+        "SnowballStem",
+        "DropRareTokens",
+    ])
     core.__load_stage_attributes_from_module__("pdpipe.nltk_stages")
 except ImportError:
     tb = traceback.format_exc()
@@ -132,10 +190,21 @@ from . import cq
 from . import rq
 from . import cond
 
+__all__.extend([
+    "run_time_parameters",
+    "dynamic",
+    "df",
+    "cq",
+    "rq",
+    "cond",
+])
 
-from ._version import get_versions
 
-__version__ = get_versions()["version"]
+from ._version import __version__
+
+__all__.extend([
+    "__version__",
+])
 
 for name in [
     "warnings",
@@ -172,7 +241,3 @@ del LOAD_CORE_AS_MODULE
 __pdoc__ = {
     "shared": False,
 }
-
-from . import _version
-
-__version__ = _version.get_versions()["version"]
