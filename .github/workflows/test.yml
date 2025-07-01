@@ -59,8 +59,9 @@ jobs:
       - name: Unit tests
         env:
           NLTK_DATA: ${{ github.workspace }}/nltk_data
+          PYTHONWARNINGS: "ignore::DeprecationWarning"
         run: |
-          python -m pytest
+          python -m pytest -W ignore::DeprecationWarning
 
       - name: Upload coverage to Codecov
         continue-on-error: true
