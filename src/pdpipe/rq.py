@@ -115,7 +115,9 @@ class RowQualifier(object):
 
     def __invert__(self):
         res_func = RowQualifier._NotQualifierFunc(rq=self._rqfunc)
-        res_func.__doc__ = f"NOT {self._rqfunc.__doc__ or 'Anonymous qualifier'}"
+        res_func.__doc__ = (
+            f"NOT {self._rqfunc.__doc__ or 'Anonymous qualifier'}"
+        )
         return RowQualifier(func=res_func)
 
 

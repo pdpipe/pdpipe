@@ -35,7 +35,9 @@ def test_application_context_basic():
             ApplicationContextEnricher(
                 bsum=lambda df: df["b"].sum(),
                 bmean=lambda df: df["b"].mean(),
-                bdiff=lambda df, application_context: application_context["bsum"]
+                bdiff=lambda df, application_context: application_context[
+                    "bsum"
+                ]
                 - application_context["bmean"],
                 d=5,
             ),

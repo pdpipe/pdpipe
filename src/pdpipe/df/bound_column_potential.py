@@ -451,7 +451,9 @@ class SeriesFromDfAssigner(PdPipelineStage):
         if isinstance(other, SeriesOperandTypesTuple):
             return SeriesFromDfAssigner(
                 assign_to_column=self.assign_to_column,
-                series_from_df=_SeriesFromDfTrueDiv(self.series_from_df, other),
+                series_from_df=_SeriesFromDfTrueDiv(
+                    self.series_from_df, other
+                ),
                 required_columns=self.required_columns,
             )
         return NotImplemented
@@ -478,7 +480,9 @@ class SeriesFromDfAssigner(PdPipelineStage):
         if isinstance(other, SeriesOperandTypesTuple):
             return SeriesFromDfAssigner(
                 assign_to_column=self.assign_to_column,
-                series_from_df=_SeriesFromDfFloorDiv(self.series_from_df, other),
+                series_from_df=_SeriesFromDfFloorDiv(
+                    self.series_from_df, other
+                ),
                 required_columns=self.required_columns,
             )
         return NotImplemented

@@ -162,7 +162,13 @@ class DropTokensByLength(ApplyByCols):
             ]
 
     def __init__(
-        self, columns, min_len, max_len=None, result_columns=None, drop=True, **kwargs
+        self,
+        columns,
+        min_len,
+        max_len=None,
+        result_columns=None,
+        drop=True,
+        **kwargs,
     ):
         self._min_len = min_len
         self._max_len = max_len
@@ -229,7 +235,9 @@ class DropTokensByList(ApplyByCols):
         def __call__(self, token_list):
             return [x for x in token_list if x not in self.bad_tokens]
 
-    def __init__(self, columns, bad_tokens, result_columns=None, drop=True, **kwargs):
+    def __init__(
+        self, columns, bad_tokens, result_columns=None, drop=True, **kwargs
+    ):
         self._bad_tokens = bad_tokens
         cond_str = ""
         if len(bad_tokens) < 10:

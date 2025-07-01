@@ -101,16 +101,14 @@ class DropLabelsByValues(PdPipelineStage):
         if self.in_set is not None:
             post_y = post_y.loc[~post_y.isin(self.in_set)]
         elif self.in_ranges is not None:
-            to_drop = y.copy()
-            to_drop.loc[:] = False
+            to_drop = pandas.Series(False, index=y.index)
             for in_range in self.in_ranges:
                 to_drop = to_drop | (y.between(*in_range))
             post_y = post_y.loc[~to_drop]
         elif self.not_in_set is not None:
             post_y = post_y.loc[post_y.isin(self.not_in_set)]
         elif self.not_in_ranges is not None:
-            to_keep = y.copy()
-            to_keep.loc[:] = False
+            to_keep = pandas.Series(False, index=y.index)
             for in_range in self.not_in_ranges:
                 to_keep = to_keep | (y.between(*in_range))
             post_y = post_y.loc[to_keep]

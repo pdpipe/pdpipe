@@ -25,7 +25,9 @@ def test_adhoc_stage():
 
 def test_adhoc_stage_no_prec():
     """Testing ad hoc stages."""
-    test_stage = AdHocStage(transform=lambda df: df.drop(["num"], axis=1), prec=None)
+    test_stage = AdHocStage(
+        transform=lambda df: df.drop(["num"], axis=1), prec=None
+    )
     df = _test_df()
     res_df = test_stage.apply(df, verbose=True)
     assert "num" not in res_df.columns

@@ -6,7 +6,9 @@ import pandas as pd
 import pdpipe as pdp
 
 
-NA_DF = pd.DataFrame([[None, 1, 2], [None, None, 5]], [1, 2], ["ph", "grade", "age"])
+NA_DF = pd.DataFrame(
+    [[None, 1, 2], [None, None, 5]], [1, 2], ["ph", "grade", "age"]
+)
 
 NA_DF2 = pd.DataFrame([[8, 1, 2], [1, 2, 5]], [1, 2], ["ph", "grade", "age"])
 
@@ -96,7 +98,9 @@ def test_operator_attribute_errors():
         cq - 32
 
 
-MIXED_LABELS_DF = pd.DataFrame([[8, 1, 2], [1, 2, 5]], [1, 2], ["ph", "grad", 48])
+MIXED_LABELS_DF = pd.DataFrame(
+    [[8, 1, 2], [1, 2, 5]], [1, 2], ["ph", "grad", 48]
+)
 
 
 def test_start_with():

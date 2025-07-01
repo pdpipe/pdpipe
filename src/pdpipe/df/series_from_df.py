@@ -165,7 +165,9 @@ class _SeriesFromDfBySeriesMethod(_SeriesFromDf):
     def __call__(self, df: DataFrame) -> Series:
         source_res = self.source(df)
         method = getattr(source_res, self.method_name)
-        args, kwargs = self._cast_series_from_df_to_series(self.args, self.kwargs, df)
+        args, kwargs = self._cast_series_from_df_to_series(
+            self.args, self.kwargs, df
+        )
         return method(*args, **kwargs)
 
 

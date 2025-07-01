@@ -44,7 +44,7 @@ def __get_append_stage_attr_doc(class_obj: object) -> str:
     doc = class_obj.__doc__
     if doc is None:  # pragma: no cover
         return
-    first_line = doc[0 : doc.find(".") + 1]
+    first_line = doc[0 : doc.find(".") + 1]  # noqa: E203
     if "An" in first_line:
         new_first_line = first_line.replace("An", "Create and adds an", 1)
     else:
@@ -342,7 +342,9 @@ class PdPipelineStage(abc.ABC):
         name: Optional[str] = "",
     ) -> None:
         if not isinstance(name, str):
-            raise ValueError(f"'name' must be a str, not {type(name).__name__}.")
+            raise ValueError(
+                f"'name' must be a str, not {type(name).__name__}."
+            )
         if desc is None:
             desc = PdPipelineStage._DEF_DESCRIPTION
         if exmsg is None:
@@ -351,9 +353,9 @@ class PdPipelineStage(abc.ABC):
         # save input parameters
         self._exraise = exraise
         self._exmsg = exmsg
-        self._exmsg_post = exmsg.replace("precondition", "postcondition").replace(
-            "Precondition", "Postcondition"
-        )
+        self._exmsg_post = exmsg.replace(
+            "precondition", "postcondition"
+        ).replace("Precondition", "Postcondition")
         self._desc = desc
         self._prec_arg = prec
         self._post_arg = post
@@ -416,7 +418,9 @@ class PdPipelineStage(abc.ABC):
         -------
         None
         """
-        potential_dynamics_attrs = set(self.__dict__).difference(self.class_attrs)
+        potential_dynamics_attrs = set(self.__dict__).difference(
+            self.class_attrs
+        )
         for attr in potential_dynamics_attrs:
             attr_obj = self.__getattribute__(attr)
             if isinstance(attr_obj, DynamicParameter):
@@ -443,11 +447,17 @@ class PdPipelineStage(abc.ABC):
         other_kwargs : dict
             The non-init kwargs dict.
         """
-        init_kwargs = {k: v for k, v in kwargs.items() if k in cls._INIT_KWARGS}
-        other_kwargs = {k: v for k, v in kwargs.items() if k not in cls._INIT_KWARGS}
+        init_kwargs = {
+            k: v for k, v in kwargs.items() if k in cls._INIT_KWARGS
+        }
+        other_kwargs = {
+            k: v for k, v in kwargs.items() if k not in cls._INIT_KWARGS
+        }
         return init_kwargs, other_kwargs
 
-    _MISSING_POS_ARG_PAT = re.compile(r"missing \d+ required positional argument")
+    _MISSING_POS_ARG_PAT = re.compile(
+        r"missing \d+ required positional argument"
+    )
 
     @abc.abstractmethod
     def _prec(
@@ -522,7 +532,10 @@ class PdPipelineStage(abc.ABC):
             try:
                 return self._prec(X)
             except TypeError as e:
-                if len(PdPipelineStage._MISSING_POS_ARG_PAT.findall(str(e))) > 0:
+                if (
+                    len(PdPipelineStage._MISSING_POS_ARG_PAT.findall(str(e)))
+                    > 0
+                ):
                     # self._prec is hopefully expecting y
                     return self._prec(X, y)
                 raise e
@@ -830,14 +843,18 @@ class PdPipelineStage(abc.ABC):
                     msg = "- " + "\n  ".join(textwrap.wrap(self._appmsg))
                     print(msg, flush=True)
                 if self._is_an_Xy_fit_transformer:
-                    res_X, res_y = self._fit_transform_Xy(X, y, verbose=verbose)
+                    res_X, res_y = self._fit_transform_Xy(
+                        X, y, verbose=verbose
+                    )
                 elif self._is_an_Xy_transformer:
                     res_X, res_y = self._transform_Xy(X, y, verbose=verbose)
                 else:
                     res_X = self._fit_transform(X, verbose=verbose)
                     res_y = y
                 self.is_fitted = True
-                if exraise and not self._compound_post(X=res_X, y=res_y, fit=True):
+                if exraise and not self._compound_post(
+                    X=res_X, y=res_y, fit=True
+                ):
                     self._raise_postcondition_error()
                 if y is not None:
                     res_X, res_y = self._align_Xy(X=res_X, y=res_y, preX=X)
@@ -921,14 +938,20 @@ class PdPipelineStage(abc.ABC):
                 if self._is_fittable():
                     if self.is_fitted:
                         if self._is_an_Xy_transformer:
-                            res_X, res_y = self._transform_Xy(X, y, verbose=verbose)
+                            res_X, res_y = self._transform_Xy(
+                                X, y, verbose=verbose
+                            )
                         else:
                             res_X = self._transform(X, verbose=verbose)
                             res_y = y
-                        if exraise and not self._compound_post(X=res_X, y=res_y):
+                        if exraise and not self._compound_post(
+                            X=res_X, y=res_y
+                        ):
                             self._raise_postcondition_error()
                         if y is not None:
-                            res_X, res_y = self._align_Xy(X=res_X, y=res_y, preX=X)
+                            res_X, res_y = self._align_Xy(
+                                X=res_X, y=res_y, preX=X
+                            )
                             return res_X, res_y
                         return res_X
                     raise UnfittedPipelineStageError(
@@ -1055,8 +1078,8 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
             if none_error:
                 raise ValueError(
                     (
-                        "None is not a valid argument for the columns parameter of"
-                        " this pipeline stage."
+                        "None is not a valid argument for the columns "
+                        "parameter of this pipeline stage."
                     )
                 )
             return ColumnsBasedPipelineStage._interpret_columns_param(
@@ -1086,9 +1109,10 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
     ):
         self._exclude_columns = exclude_columns
         if exclude_columns:
-            self._exclude_columns, self._exc_col_str = self._interpret_columns_param(
-                exclude_columns
-            )
+            (
+                self._exclude_columns,
+                self._exc_col_str,
+            ) = self._interpret_columns_param(exclude_columns)
         self._none_error = False
         self._none_cols = None
         # handle none_columns
@@ -1120,7 +1144,9 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
             columns, self._none_error, none_columns=self._none_cols
         )
         if exclude_columns:
-            self._final_col_str = f"{self._col_str} (except {self._exc_col_str})"
+            self._final_col_str = (
+                f"{self._col_str} (except {self._exc_col_str})"
+            )
         else:
             self._final_col_str = f"{self._col_str}"
         if (kwargs.get("desc") is None) and desc_temp:
@@ -1156,7 +1182,9 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
             return col_arg
 
     def _get_columns(self, X, fit=False):
-        cols = ColumnsBasedPipelineStage.__get_cols_by_arg(self._col_arg, X, fit=fit)
+        cols = ColumnsBasedPipelineStage.__get_cols_by_arg(
+            self._col_arg, X, fit=fit
+        )
         if self._exclude_columns:
             exc_cols = ColumnsBasedPipelineStage.__get_cols_by_arg(
                 self._exclude_columns, X, fit=fit
@@ -1172,8 +1200,8 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
     def _transformation(self, X, verbose, fit):
         raise NotImplementedError(
             (
-                "Classes extending ColumnsBasedPipelineStage must implement the "
-                "_transformation method!"
+                "Classes extending ColumnsBasedPipelineStage must implement "
+                "the _transformation method!"
             )
         )
 
@@ -1241,7 +1269,9 @@ class AdHocStage(PdPipelineStage):
         self._adhoc_prec = prec
         self._transform_kwargs = _get_args_list(self._adhoc_transform)
         try:
-            self._fit_transform_kwargs = _get_args_list(self._adhoc_fit_transform)
+            self._fit_transform_kwargs = _get_args_list(
+                self._adhoc_fit_transform
+            )
         except TypeError:  # fit_transform is None
             self._fit_transform_kwargs = {}
         super().__init__(**kwargs)
@@ -1264,7 +1294,9 @@ class AdHocStage(PdPipelineStage):
             "fit_context": self.fit_context,
             "application_context": self.application_context,
         }
-        kwargs = {k: v for k, v in kwargs.items() if k in self._fit_transform_kwargs}
+        kwargs = {
+            k: v for k, v in kwargs.items() if k in self._fit_transform_kwargs
+        }
         return self._adhoc_fit_transform(X, **kwargs)
 
     def _transform(self, X, verbose):
@@ -1273,7 +1305,9 @@ class AdHocStage(PdPipelineStage):
             "fit_context": self.fit_context,
             "application_context": self.application_context,
         }
-        kwargs = {k: v for k, v in kwargs.items() if k in self._transform_kwargs}
+        kwargs = {
+            k: v for k, v in kwargs.items() if k in self._transform_kwargs
+        }
         return self._adhoc_transform(X, **kwargs)
 
 
@@ -1531,7 +1565,9 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                     ) from e
         self.is_fitted = True
         print(
-            "\nPipeline total application time: {:.3f}s.\n Details:".format(sum(times))
+            "\nPipeline total application time: {:.3f}s.\n Details:".format(
+                sum(times)
+            )
         )
         print(self.__times_str__(times))
         self._post_transform_lock()
@@ -1760,7 +1796,9 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                     ) from e
         self.is_fitted = True
         print(
-            "\nPipeline total application time: {:.3f}s.\n Details:".format(sum(times))
+            "\nPipeline total application time: {:.3f}s.\n Details:".format(
+                sum(times)
+            )
         )
         print(self.__times_str__(times))
         self._post_transform_lock()
@@ -1922,7 +1960,10 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             if size > 500000:  # pragma: no cover
                 lines.append(
                     "[{:>2}] {:.2f}Mb ({:0>5.2f}%), {}\n".format(
-                        i, size / 1000000, 100 * size / total, stage.description()
+                        i,
+                        size / 1000000,
+                        100 * size / total,
+                        stage.description(),
                     )
                 )
             elif size > 1000:  # pragma: no cover
@@ -1951,9 +1992,15 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         print("=== Pipeline memory report ===")
         size = asizeof(self)
         if size > 500000:  # pragma: no cover
-            print("Total pipeline size in memory: {:.2f}Mb".format(size / 1000000))
+            print(
+                "Total pipeline size in memory: {:.2f}Mb".format(
+                    size / 1000000
+                )
+            )
         elif size > 1000:  # pragma: no cover
-            print("Total pipeline size in memory: {:.2f}Kb".format(size / 1000))
+            print(
+                "Total pipeline size in memory: {:.2f}Kb".format(size / 1000)
+            )
         else:
             print("Total pipeline size in memory: {:.2f}b".format(size))
         print("Per-stage memory structure:")

@@ -31,7 +31,9 @@ def test_colbyframefunc():
 
 def test_colbyframefunc_follow():
     df = _some_df()
-    cbf_stage = ColByFrameFunc("A==B", _are_a_b_equal, follow_column="A", func_desc="R")
+    cbf_stage = ColByFrameFunc(
+        "A==B", _are_a_b_equal, follow_column="A", func_desc="R"
+    )
     res_df = cbf_stage(df)
     assert res_df.columns.get_loc("A==B") == 1
     assert res_df["A==B"][1]
@@ -52,7 +54,9 @@ def test_colbyframefunc_error():
 
 def test_colbyframefunc_before_column():
     df = _some_df()
-    cbf_stage = ColByFrameFunc("A==B", _are_a_b_equal, before_column="B", func_desc="R")
+    cbf_stage = ColByFrameFunc(
+        "A==B", _are_a_b_equal, before_column="B", func_desc="R"
+    )
     res_df = cbf_stage(df)
     assert res_df.columns.get_loc("A==B") == 1
     assert res_df["A==B"][1]
@@ -62,7 +66,9 @@ def test_colbyframefunc_before_column():
 
 def test_colbyframefunc_replace():
     df = _some_df()
-    cbf_stage = ColByFrameFunc("B", _are_a_b_equal, before_column="B", func_desc="R")
+    cbf_stage = ColByFrameFunc(
+        "B", _are_a_b_equal, before_column="B", func_desc="R"
+    )
     res_df = cbf_stage(df)
     assert res_df.columns.get_loc("B") == 1
     assert res_df["B"][1]

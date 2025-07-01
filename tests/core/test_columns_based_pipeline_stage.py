@@ -20,12 +20,16 @@ class Drop(ColumnsBasedPipelineStage):
         super().__init__(**super_kwargs)
 
     def _transformation(self, df, verbose, fit):
-        return df.drop(self._get_columns(df, fit=fit), axis=1, errors=self._errors)
+        return df.drop(
+            self._get_columns(df, fit=fit), axis=1, errors=self._errors
+        )
 
 
 def _df1():
     return pd.DataFrame(
-        data=[[1, "a", 8], [2, "b", 9]], index=[1, 2], columns=["num", "char", 4]
+        data=[[1, "a", 8], [2, "b", 9]],
+        index=[1, 2],
+        columns=["num", "char", 4],
     )
 
 
@@ -61,7 +65,9 @@ def test_columns_based_stage():
         except AttributeError:
             return False
 
-    stage = Drop(lambda df: [lbl for lbl in df.columns if _safe_start_with(lbl)])
+    stage = Drop(
+        lambda df: [lbl for lbl in df.columns if _safe_start_with(lbl)]
+    )
     res = stage(df1)
     assert "num" not in res.columns
     assert "char" in res.columns
@@ -88,7 +94,9 @@ class Drop2(ColumnsBasedPipelineStage):
         super().__init__(**super_kwargs)
 
     def _transformation(self, df, verbose, fit):
-        return df.drop(self._get_columns(df, fit=fit), axis=1, errors=self._errors)
+        return df.drop(
+            self._get_columns(df, fit=fit), axis=1, errors=self._errors
+        )
 
 
 def test_columns_based_stage2():
@@ -121,7 +129,9 @@ class Double(ColumnsBasedPipelineStage):
 
 
 def _df_d():
-    return pd.DataFrame(data=[[1, 2, 3]], index=[1], columns=["num", "char", 4])
+    return pd.DataFrame(
+        data=[[1, 2, 3]], index=[1], columns=["num", "char", 4]
+    )
 
 
 def test_columns_based_stage_none():
@@ -204,7 +214,9 @@ class NumDefaultDrop(ColumnsBasedPipelineStage):
         super().__init__(**super_kwargs)
 
     def _transformation(self, df, verbose, fit):
-        keep_cols = [x for x in df.columns if x not in self._get_columns(df, fit=fit)]
+        keep_cols = [
+            x for x in df.columns if x not in self._get_columns(df, fit=fit)
+        ]
         return df[keep_cols]
 
 
@@ -225,7 +237,9 @@ def test_columns_based_stage_none_columns_is_list():
 
 def _df5():
     return pd.DataFrame(
-        data=[[1, "a", 8], [2, "b", 9]], index=[1, 2], columns=["num", "nim", "koj"]
+        data=[[1, "a", 8], [2, "b", 9]],
+        index=[1, 2],
+        columns=["num", "nim", "koj"],
     )
 
 
