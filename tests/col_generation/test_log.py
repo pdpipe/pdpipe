@@ -162,7 +162,8 @@ def test_log_non_neg_n_const_shift():
     assert_approx_equal(res_df["ph_log"][3], 2.501435, significant=5)
 
     # see only transform (no fit) when already fitted raises a runtime warning
-    # as df2 has a smaller min negative value, and thus the constant shift is not enough
+    # as df2 has a smaller min negative value, and thus the constant
+    # shift is not enough
     df2 = _non_neg_df2()
     with pytest.raises(RuntimeWarning):
         res_df2 = log_stage(df2, verbose=True)
@@ -194,7 +195,6 @@ def test_log_non_neg_n_const_shift():
     assert_approx_equal(res_df2["rank_log"][1], 0.095310, significant=5)
     assert_approx_equal(res_df2["rank_log"][2], 2.406945, significant=5)
     assert_approx_equal(res_df2["rank_log"][3], 1.808289, significant=5)
-
 
 
 # def test_encode_with_args():

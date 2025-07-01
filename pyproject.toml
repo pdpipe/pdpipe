@@ -199,6 +199,9 @@ norecursedirs = [
   "dist",
   "build",
 ]
+filterwarnings = [
+  "ignore:.*The `disp` and `iprint` options of the L-BFGS-B solver are deprecated.*:DeprecationWarning"
+]
 markers = [
   "log",
   "onehotencode",
