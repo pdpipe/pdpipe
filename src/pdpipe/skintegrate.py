@@ -14,15 +14,29 @@ This module resolves such integration issues. Refer to the notebooks folder of
 the pdpipe repository for complete examples.
 """
 
+# standard library imports
+import warnings
 from typing import Callable
 from functools import update_wrapper
 
+# third-party imports
 import pandas as pd
 from sklearn.base import BaseEstimator
 from sklearn.utils.validation import check_is_fitted
 
+# local imports
 from .core import PdPipeline
 from .util import LabelPlaceholderForPredict
+
+
+warnings.filterwarnings(
+    "ignore",
+    message=(
+        ".*The `disp` and `iprint` options of the L-BFGS-B "
+        "solver are deprecated.*"
+    ),
+    category=DeprecationWarning,
+)
 
 
 def _estimator_has(attr):
