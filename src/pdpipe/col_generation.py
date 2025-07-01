@@ -835,10 +835,10 @@ class TransformByCols(ColumnTransformer):
     >>> df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
     >>> cumsum_ph = pdp.TransformByCols("ph", "cumsum")
     >>> cumsum_ph(df)
-        ph  lbl
-    1  3.2  acd
-    2 10.4  alk
-    3 22.5  alk
+         ph  lbl
+    1   3.2  acd
+    2  10.4  alk
+    3  22.5  alk
     """
 
     def __init__(
@@ -1022,7 +1022,7 @@ class AggByCols(ColumnTransformer):
     2  3.2  alk
     3  3.2  alk
 
-    >>> min_ph = pdp.AggByCols("ph", min, drop=False, suffix='_min')
+    >>> min_ph = pdp.AggByCols("ph", "min", drop=False, suffix='_min')
     >>> min_ph(df)
          ph  ph_min  lbl
     1   3.2     3.2  acd
@@ -1210,7 +1210,13 @@ class Log(ColumnsBasedPipelineStage):
             # must check not None as neg numbers eval to False
             if self._const_shift is not None:
                 new_col = new_col + self._const_shift
-            new_col = np.log(new_col)
+
+            if self._supress_warnings:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    new_col = np.log(new_col)
+            else:
+                new_col = np.log(new_col)
             inter_X = out_of_place_col_insert(
                 X=inter_X, series=new_col, loc=loc, column_name=new_name
             )

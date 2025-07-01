@@ -186,7 +186,7 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
     def score(self, X, y=None):
         if y is None:
             post_X = self.pipeline.transform(X)
-            return self.estimator.score(X)
+            return self.estimator.score(post_X.values)
         if not isinstance(y, pd.Series):
             y = pd.Series(y)
         y.index = X.index

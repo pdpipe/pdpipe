@@ -90,6 +90,14 @@ def _non_neg_df2():
 
 @pytest.mark.log
 def test_log_non_neg():
+
+    # see runtime warning is correctly raised by default
+    df = _non_neg_df()
+    log_stage = Log(non_neg=True)
+    with pytest.raises(RuntimeWarning):
+        res_df = log_stage(df)
+
+    # see that the warning is suppressed when supress_warnings=True
     df = _non_neg_df()
     log_stage = Log(non_neg=True, supress_warnings=True)
     res_df = log_stage(df)
@@ -104,12 +112,6 @@ def test_log_non_neg():
     assert_approx_equal(res_df["ph_log"][1], 1.163151, significant=5)
     assert_approx_equal(res_df["ph_log"][2], 1.974081, significant=5)
     assert_approx_equal(res_df["ph_log"][3], 2.493205, significant=5)
-
-    # see runtime error is correctly raised by default
-    df = _non_neg_df()
-    log_stage = Log(non_neg=True)
-    with pytest.raises(RuntimeError):
-        res_df = log_stage(df)
 
     # see only transform (no fit) when already fitted
     df2 = _non_neg_df2()
@@ -159,7 +161,16 @@ def test_log_non_neg_n_const_shift():
     assert_approx_equal(res_df["ph_log"][2], 1.987874, significant=5)
     assert_approx_equal(res_df["ph_log"][3], 2.501435, significant=5)
 
-    # see only transform (no fit) when already fitted
+    # see only transform (no fit) when already fitted raises a runtime warning
+    # as df2 has a smaller min negative value, and thus the constant shift is not enough
+    df2 = _non_neg_df2()
+    with pytest.raises(RuntimeWarning):
+        res_df2 = log_stage(df2, verbose=True)
+
+    # check that supressing warnings works
+    df = _non_neg_df()
+    log_stage = Log(non_neg=True, const_shift=0.1, supress_warnings=True)
+    res_df = log_stage(df)
     df2 = _non_neg_df2()
     res_df2 = log_stage(df2, verbose=True)
     assert "rank" in res_df2.columns
@@ -173,6 +184,17 @@ def test_log_non_neg_n_const_shift():
     assert_approx_equal(res_df2["ph_log"][1], 1.504077, significant=5)
     assert_approx_equal(res_df2["ph_log"][2], 1.824549, significant=5)
     assert_approx_equal(res_df2["ph_log"][3], 0.336472, significant=5)
+
+    # check that fitting on df2 then transforming df works
+    df2 = _non_neg_df2()
+    log_stage.fit(df2)
+    res_df2 = log_stage.transform(df)
+    assert "rank" in res_df2.columns
+    assert "ph" in res_df2.columns
+    assert_approx_equal(res_df2["rank_log"][1], 0.095310, significant=5)
+    assert_approx_equal(res_df2["rank_log"][2], 2.406945, significant=5)
+    assert_approx_equal(res_df2["rank_log"][3], 1.808289, significant=5)
+
 
 
 # def test_encode_with_args():
