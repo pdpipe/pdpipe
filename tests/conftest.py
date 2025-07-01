@@ -6,10 +6,17 @@ from pathlib import Path
 
 import xdg
 import pytest
+import warnings
 
 
 # make
 sys.path.append(os.path.join(os.path.dirname(__file__), "helpers"))
+
+warnings.filterwarnings(
+    "ignore",
+    message=".*The `disp` and `iprint` options of the L-BFGS-B solver are deprecated.*",
+    category=DeprecationWarning,
+)
 
 
 @pytest.fixture(scope="session", autouse=False)
