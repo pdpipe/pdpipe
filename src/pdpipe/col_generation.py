@@ -791,9 +791,15 @@ class ApplyByCols(ColumnTransformer):
 
 class TransformByCols(ColumnTransformer):
     """
-    A pipeline stage applying a series-wise function to columns using Series.transform.
+    A pipeline stage applying a series-wise function to columns w/ transform.
 
-    For applying element-wise function, see `ApplyByCols`. For aggregation, see `AggByCols`.
+    This is a pipeline stage that applies a function to each column in the
+    DataFrame, using the pandas.Series.transform method. The function must
+    accept a pandas.Series object and return a Series of the same length.
+
+    For applying element-wise function, see `ApplyByCols`.
+
+    For aggregation, see `AggByCols`.
 
     Parameters
     ----------
@@ -804,7 +810,8 @@ class TransformByCols(ColumnTransformer):
     func : function or str
         The function to be applied to each of the given columns. Must work when
         given a pandas.Series object and return a Series of the same length.
-        Can also be a string specifying a pandas built-in transformation (e.g. 'sqrt', 'cumsum').
+        Can also be a string specifying a pandas built-in transformation
+        (e.g. 'sqrt', 'cumsum').
     result_columns : str or list-like, default None
         The names of the new columns resulting from the mapping operation. Must
         be of the same length as columns. If None, behavior depends on the
@@ -1008,12 +1015,12 @@ class AggByCols(ColumnTransformer):
     >>> import pandas as pd; import pdpipe as pdp; import numpy as np;
     >>> data = [[3.2, "acd"], [7.2, "alk"], [12.1, "alk"]]
     >>> df = pd.DataFrame(data, [1,2,3], ["ph","lbl"])
-    >>> log_ph = pdp.AggByCols("ph", np.log)
+    >>> log_ph = pdp.AggByCols("ph", "min")
     >>> log_ph(df)
-             ph  lbl
-    1  1.163151  acd
-    2  1.974081  alk
-    3  2.493205  alk
+        ph  lbl
+    1  3.2  acd
+    2  3.2  alk
+    3  3.2  alk
 
     >>> min_ph = pdp.AggByCols("ph", min, drop=False, suffix='_min')
     >>> min_ph(df)
@@ -1083,6 +1090,9 @@ class Log(ColumnsBasedPipelineStage):
         If given, each transformed column is first shifted by this constant. If
         non_neg is True then that transformation is applied first, and only
         then is the column shifted by this constant.
+    supress_warnings : bool, default False
+        If True, warnings about log(0) or log(negative) are suppressed.
+        Otherwise, they are raised as exceptions.
     **kwargs : object
         all pdpipelinestage constructor parameters are supported.
 
@@ -1108,11 +1118,13 @@ class Log(ColumnsBasedPipelineStage):
         drop=False,
         non_neg=False,
         const_shift=None,
+        supress_warnings=False,
         **kwargs,
     ):
         self._drop = drop
         self._non_neg = non_neg
         self._const_shift = const_shift
+        self._supress_warnings = supress_warnings
         self._col_to_minval = {}
         super_kwargs = {
             "columns": columns,
@@ -1150,7 +1162,12 @@ class Log(ColumnsBasedPipelineStage):
             # must check not None as neg numbers eval to False
             if self._const_shift is not None:
                 new_col = new_col + self._const_shift
-            new_col = np.log(new_col)
+            if self._supress_warnings:
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    new_col = np.log(new_col)
+            else:
+                new_col = np.log(new_col)
             inter_X = out_of_place_col_insert(
                 X=inter_X, series=new_col, loc=loc, column_name=new_name
             )

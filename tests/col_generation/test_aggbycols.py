@@ -1,16 +1,8 @@
 """Testing AggByCols pipeline stages."""
 
 import pytest
-import numpy as np
-from numpy.testing import assert_approx_equal
 import pandas as pd
-
 from pdpipe import AggByCols
-
-
-_LOG32 = 1.163151
-_LOG72 = 1.974081
-_LOG121 = 2.493205
 
 
 def ph_df():

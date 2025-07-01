@@ -91,7 +91,7 @@ def _non_neg_df2():
 @pytest.mark.log
 def test_log_non_neg():
     df = _non_neg_df()
-    log_stage = Log(non_neg=True)
+    log_stage = Log(non_neg=True, supress_warnings=True)
     res_df = log_stage(df)
     assert "rank" in res_df.columns
     assert "ph" in res_df.columns
@@ -104,6 +104,12 @@ def test_log_non_neg():
     assert_approx_equal(res_df["ph_log"][1], 1.163151, significant=5)
     assert_approx_equal(res_df["ph_log"][2], 1.974081, significant=5)
     assert_approx_equal(res_df["ph_log"][3], 2.493205, significant=5)
+
+    # see runtime error is correctly raised by default
+    df = _non_neg_df()
+    log_stage = Log(non_neg=True)
+    with pytest.raises(RuntimeError):
+        res_df = log_stage(df)
 
     # see only transform (no fit) when already fitted
     df2 = _non_neg_df2()

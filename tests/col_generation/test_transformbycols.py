@@ -2,7 +2,6 @@
 
 import pytest
 import pandas as pd
-import pdpipe as pdp
 from pdpipe.col_generation import TransformByCols
 
 
