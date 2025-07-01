@@ -833,6 +833,7 @@ class TransformByCols(ColumnTransformer):
     2 10.4  alk
     3 22.5  alk
     """
+
     def __init__(
         self,
         columns,
