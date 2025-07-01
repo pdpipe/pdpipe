@@ -59,6 +59,7 @@ jobs:
       - name: Unit tests
         env:
           NLTK_DATA: ${{ github.workspace }}/nltk_data
+          PYTHONWARNINGS: "ignore:.*The `disp` and `iprint` options of the L-BFGS-B solver are deprecated.*:DeprecationWarning"
         run: |
           python -m pytest
 
