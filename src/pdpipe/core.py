@@ -827,8 +827,8 @@ class PdPipelineStage(abc.ABC):
 
         The input dataframe and label series are assumed to have been indexed
         by the same index before a possible transformation to one of them,
-        which might have dropped some rows/values in onf of them, and/or
-        reorded the rows/values in one of them.
+        which might have dropped some rows/values in one of them, and/or
+        reordered the rows/values in one of them.
 
         Parameters
         ----------
@@ -838,8 +838,6 @@ class PdPipelineStage(abc.ABC):
             The label series.
         preX : pd.DataFrame, optional
             The input dataframe before transformation.
-        prey : pd.Series, optional
-            The label series before transformation.
 
         Returns
         -------
