@@ -766,7 +766,8 @@ class PdPipelineStage(abc.ABC):
 
     def _raise_user_precondition_error(self) -> None:
         # Compose a more informative error message
-        fallback = f"Precondition failed for {self._desc} (user-provided precondition)"
+        fallback = f"Precondition failed for {self._desc} "
+        fallback += "(user-provided precondition)"
         cond_msg = None
         try:
             cond_msg = getattr(self._prec_arg, "_error_message", None)
@@ -784,7 +785,8 @@ class PdPipelineStage(abc.ABC):
         raise FailedPostconditionError(msg)
 
     def _raise_user_postcondition_error(self) -> None:
-        fallback = f"Postcondition failed for {self._desc} (user-provided postcondition)"
+        fallback = f"Postcondition failed for {self._desc}"
+        fallback += " (user-provided postcondition)"
         cond_msg = None
         try:
             cond_msg = getattr(self._post_arg, "_error_message", None)

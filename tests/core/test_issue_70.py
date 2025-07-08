@@ -77,7 +77,7 @@ def test_successful_pipeline_execution():
 
 
 def test_user_vs_stage_precondition_distinction():
-    """Test that we can distinguish between user and stage precondition failures.
+    """Test that user and stage precondition failures are distinguishable.
 
     This is the core test for issue #70 - ensuring that error messages
     properly indicate whether a user-provided condition failed vs a stage's
