@@ -769,7 +769,7 @@ class PdPipelineStage(abc.ABC):
         fallback = f"Precondition failed for {self._desc} (user-provided precondition)"
         cond_msg = None
         try:
-            cond_msg = getattr(self._prec_arg, '_error_message', None)
+            cond_msg = getattr(self._prec_arg, "_error_message", None)
         except Exception:
             pass
         if cond_msg and cond_msg not in fallback:
@@ -787,7 +787,7 @@ class PdPipelineStage(abc.ABC):
         fallback = f"Postcondition failed for {self._desc} (user-provided postcondition)"
         cond_msg = None
         try:
-            cond_msg = getattr(self._post_arg, '_error_message', None)
+            cond_msg = getattr(self._post_arg, "_error_message", None)
         except Exception:
             pass
         if cond_msg and cond_msg not in fallback:
