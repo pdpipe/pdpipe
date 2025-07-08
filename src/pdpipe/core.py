@@ -1,4 +1,4 @@
-"""Defines pipelines for processing pandas.DataFrame-based datasets."""
+"""Defines pipelines for processing pd.DataFrame-based datasets."""
 
 import re
 import sys
@@ -10,6 +10,7 @@ import textwrap
 from typing import Tuple, Union, Iterable, Optional
 
 import numpy
+import pandas
 import pandas as pd
 
 from .run_time_parameters import DynamicParameter
@@ -462,16 +463,16 @@ class PdPipelineStage(abc.ABC):
     @abc.abstractmethod
     def _prec(
         self,
-        X: pandas.DataFrame,
-        y: Optional[pandas.Series] = None,
+        X: pd.DataFrame,
+        y: Optional[pd.Series] = None,
     ) -> bool:  # pylint: disable=W0613
         """Return True if this stage can be applied to the given dataframe.
 
         Parameters
         ----------
-        X : pandas.DataFrame
+        X : pd.DataFrame
             The input dataframe.
-        y : pandas.Series, optional
+        y : pd.Series, optional
             A possible label column for processing of supervised learning
             datasets. Might also be inspected, if provided.
 
@@ -486,17 +487,17 @@ class PdPipelineStage(abc.ABC):
 
     def _compound_prec(
         self,
-        X: pandas.DataFrame,
-        y: Optional[pandas.Series] = None,
+        X: pd.DataFrame,
+        y: Optional[pd.Series] = None,
         fit: Optional[bool] = False,
     ) -> bool:
         """Return True if the input dataframe conforms to stage pre-condition.
 
         Parameters
         ----------
-        X : pandas.DataFrame
+        X : pd.DataFrame
             The dataframe to transform.
-        y : pandas.Series, optional
+        y : pd.Series, optional
             A possible label column for processing of supervised learning
             datasets. Might also be inspected, if provided.
         fit : bool
@@ -521,16 +522,16 @@ class PdPipelineStage(abc.ABC):
 
     def _post(
         self,
-        X: pandas.DataFrame,
-        y: Optional[pandas.Series] = None,
+        X: pd.DataFrame,
+        y: Optional[pd.Series] = None,
     ) -> bool:  # pylint: disable=R0201,W0613
         """Return True if this stage resulted in an expected output frame.
 
         Parameters
         ----------
-        X : pandas.DataFrame
+        X : pd.DataFrame
             The transformed dataframe.
-        y : pandas.Series, optional
+        y : pd.Series, optional
             A possible label column for processing of supervised learning
             datasets. Might also be inspected, if provided.
 
@@ -545,8 +546,8 @@ class PdPipelineStage(abc.ABC):
 
     def _check_user_postcondition(
         self,
-        X: pandas.DataFrame,
-        y: Optional[pandas.Series] = None,
+        X: pd.DataFrame,
+        y: Optional[pd.Series] = None,
         fit: Optional[bool] = False,
     ) -> bool:
         """
@@ -554,9 +555,9 @@ class PdPipelineStage(abc.ABC):
 
         Parameters
         ----------
-        X : pandas.DataFrame
+        X : pd.DataFrame
             The transformed dataframe.
-        y : pandas.Series, optional
+        y : pd.Series, optional
             A possible label column for processing of supervised learning
             datasets. Might also be inspected, if provided.
         fit : bool
@@ -588,17 +589,17 @@ class PdPipelineStage(abc.ABC):
 
     def _check_stage_postcondition(
         self,
-        X: pandas.DataFrame,
-        y: Optional[pandas.Series] = None,
+        X: pd.DataFrame,
+        y: Optional[pd.Series] = None,
     ) -> bool:
         """
         Check stage-specific postcondition.
 
         Parameters
         ----------
-        X : pandas.DataFrame
+        X : pd.DataFrame
             The transformed dataframe.
-        y : pandas.Series, optional
+        y : pd.Series, optional
             A possible label column for processing of supervised learning
             datasets. Might also be inspected, if provided.
 
@@ -618,8 +619,8 @@ class PdPipelineStage(abc.ABC):
 
     def _compound_post(
         self,
-        X: pandas.DataFrame,
-        y: Optional[pandas.Series] = None,
+        X: pd.DataFrame,
+        y: Optional[pd.Series] = None,
         fit: Optional[bool] = False,
     ) -> bool:
         """An inner implementation of the post-condition functionality.
@@ -637,21 +638,21 @@ class PdPipelineStage(abc.ABC):
 
     def _fit_transform(
         self,
-        X: pandas.DataFrame,
+        X: pd.DataFrame,
         verbose: bool = False,
     ) -> pandas.DataFrame:
         """Fit this stage and transforms the input dataframe.
 
         Parameters
         ----------
-        X : pandas.DataFrame
+        X : pd.DataFrame
             The input dataframe.
         verbose : bool, default False
             If True, might print informative messages.
 
         Returns
         -------
-        pandas.DataFrame
+        pd.DataFrame
             The transformed dataframe.
 
         """
@@ -664,8 +665,8 @@ class PdPipelineStage(abc.ABC):
 
     def _check_user_precondition(
         self,
-        X: pandas.DataFrame,
-        y: Optional[pandas.Series] = None,
+        X: pd.DataFrame,
+        y: Optional[pd.Series] = None,
         fit: Optional[bool] = False,
     ) -> bool:
         """
@@ -673,9 +674,9 @@ class PdPipelineStage(abc.ABC):
 
         Parameters
         ----------
-        X : pandas.DataFrame
+        X : pd.DataFrame
             The dataframe to transform.
-        y : pandas.Series, optional
+        y : pd.Series, optional
             A possible label column for processing of supervised learning
             datasets. Might also be inspected, if provided.
         fit : bool
@@ -707,17 +708,17 @@ class PdPipelineStage(abc.ABC):
 
     def _check_stage_precondition(
         self,
-        X: pandas.DataFrame,
-        y: Optional[pandas.Series] = None,
+        X: pd.DataFrame,
+        y: Optional[pd.Series] = None,
     ) -> bool:
         """
         Check stage-specific precondition.
 
         Parameters
         ----------
-        X : pandas.DataFrame
+        X : pd.DataFrame
             The dataframe to transform.
-        y : pandas.Series, optional
+        y : pd.Series, optional
             A possible label column for processing of supervised learning
             datasets. Might also be inspected, if provided.
 
@@ -769,21 +770,21 @@ class PdPipelineStage(abc.ABC):
     @abc.abstractmethod
     def _transform(
         self,
-        X: pandas.DataFrame,
+        X: pd.DataFrame,
         verbose: bool = False,
     ) -> pandas.DataFrame:
         """Transform an input dataframe without fitting this stage.
 
         Parameters
         ----------
-        X : pandas.DataFrame
+        X : pd.DataFrame
             The input dataframe.
         verbose : bool, optional
             If True, prints the progress of the transformation.
 
         Returns
         -------
-        pandas.DataFrame
+        pd.DataFrame
             The transformed dataframe.
 
         """
@@ -798,23 +799,22 @@ class PdPipelineStage(abc.ABC):
 
         Parameters
         ----------
-        X : pandas.DataFrame
+        X : pd.DataFrame
             The input dataframe.
-        y : pandas.Series, or numpy.ndarray, or Iterable[object]
+        y : pd.Series, or numpy.ndarray, or Iterable[object]
             The label series/array.
 
         Returns
         -------
         pandas.Series
             The label array as a pandas.Series object.
-
         """
         if len(X) != len(y):
             raise ValueError("X and y must have the same length!")
-        if isinstance(y, pandas.Series):
-            post_y = pandas.Series(data=y.values, index=X.index)
+        if isinstance(y, pd.Series):
+            post_y = pd.Series(data=y.values, index=X.index)
         else:
-            post_y = pandas.Series(data=y, index=X.index)
+            post_y = pd.Series(data=y, index=X.index)
         return post_y
 
     @staticmethod
@@ -832,20 +832,20 @@ class PdPipelineStage(abc.ABC):
 
         Parameters
         ----------
-        X : pandas.DataFrame
+        X : pd.DataFrame
             The input dataframe.
-        y : pandas.Series
+        y : pd.Series
             The label series.
-        preX : pandas.DataFrame, optional
+        preX : pd.DataFrame, optional
             The input dataframe before transformation.
-        prey : pandas.Series, optional
+        prey : pd.Series, optional
             The label series before transformation.
 
         Returns
         -------
-        pandas.DataFrame
+        pd.DataFrame
             The aligned dataframe.
-        pandas.Series
+        pd.Series
             The aligned label series.
 
         """
@@ -881,8 +881,8 @@ class PdPipelineStage(abc.ABC):
 
     def apply(
         self,
-        X: pandas.DataFrame,
-        y: Optional[pandas.Series] = None,
+        X: pd.DataFrame,
+        y: Optional[pd.Series] = None,
         exraise: Optional[bool] = None,
         verbose: Optional[bool] = False,
     ) -> Union[pandas.DataFrame, Tuple[pandas.DataFrame, pandas.Series]]:
@@ -893,9 +893,9 @@ class PdPipelineStage(abc.ABC):
 
         Parameters
         ----------
-        X : pandas.DataFrame
+        X : pd.DataFrame
             The dataframe to which this pipeline stage will be applied.
-        y : pandas.Series, optional
+        y : pd.Series, optional
             A possible label column for processing of supervised learning
             datasets. Might also be transformed, if provided.
         exraise : bool, default None
@@ -909,7 +909,7 @@ class PdPipelineStage(abc.ABC):
 
         Returns
         -------
-        pandas.DataFrame or Tuple[pandas.DataFrame, pandas.Series]
+        pd.DataFrame or Tuple[pd.DataFrame, pd.Series]
             The returned dataframe. If `y` was also provided, the transformed
             `X` and `y` are returned as a tuple instead.
 
@@ -925,7 +925,7 @@ class PdPipelineStage(abc.ABC):
 
         Parameters
         ----------
-        X : pandas.DataFrame
+        X : pd.DataFrame
             The dataframe to transform and fit this pipeline stage by.
         y : array-like, optional
             Targets for supervised learning.
@@ -940,7 +940,7 @@ class PdPipelineStage(abc.ABC):
 
         Returns
         -------
-        pandas.DataFrame
+        pd.DataFrame
             The resulting dataframe.
 
         """
@@ -999,7 +999,7 @@ class PdPipelineStage(abc.ABC):
 
         Parameters
         ----------
-        X : pandas.DataFrame
+        X : pd.DataFrame
             The dataframe to be transformed.
         y : array-like, optional
             Targets for supervised learning.
@@ -1014,7 +1014,7 @@ class PdPipelineStage(abc.ABC):
 
         Returns
         -------
-        pandas.DataFrame
+        pd.DataFrame
             The resulting dataframe.
 
         """
@@ -1031,7 +1031,7 @@ class PdPipelineStage(abc.ABC):
 
         Parameters
         ----------
-        X : pandas.DataFrame
+        X : pd.DataFrame
             The dataframe to be transformed.
         y : array-like, optional
             Targets for supervised learning.
@@ -1046,7 +1046,7 @@ class PdPipelineStage(abc.ABC):
 
         Returns
         -------
-        pandas.DataFrame
+        pd.DataFrame
             The resulting dataframe.
 
         """
@@ -1184,11 +1184,11 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
     columns : single label, iterable or callable
         The label, or an iterable of labels, of columns to use. Alternatively,
         this parameter can be assigned a callable returning an iterable of
-        labels from an input pandas.DataFrame. See `pdpipe.cq`.
+        labels from an input pd.DataFrame. See `pdpipe.cq`.
     exclude_columns : single label, iterable or callable, optional
         The label, or an iterable of labels, of columns to exclude, given the
         `columns` parameter. Alternatively, this parameter can be assigned a
-        callable returning a labels iterable from an input pandas.DataFrame.
+        callable returning a labels iterable from an input pd.DataFrame.
         See `pdpipe.cq`. Optional. By default no columns are excluded.
     desc_temp : str, optional
         If given, assumed to be a format string, and every appearance of {} in
@@ -1563,9 +1563,9 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         ----------
         stage : pdpipe.PdPipelineStage
             The stage for which to provide the dynamic parameter.
-        inter_X : pandas.DataFrame
+        inter_X : pd.DataFrame
             The input dataframe.
-        inter_y : pandas.Series
+        inter_y : pd.Series
             The input y labels. Optional
 
         Returns
@@ -1583,8 +1583,8 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
 
     def apply(
         self,
-        X: pandas.DataFrame,
-        y: Optional[pandas.Series] = None,
+        X: pd.DataFrame,
+        y: Optional[pd.Series] = None,
         exraise: Optional[bool] = None,
         verbose: Optional[bool] = False,
         time: Optional[bool] = False,
@@ -1598,9 +1598,9 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
 
         Parameters
         ----------
-        X : pandas.DataFrame
+        X : pd.DataFrame
             The dataframe to which this pipeline stage will be applied.
-        y : pandas.Series, optional
+        y : pd.Series, optional
             A possible label column for processing of supervised learning
             datasets. Might also be transformed, if provided.
         exraise : bool, default None
@@ -1628,7 +1628,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
 
         Returns
         -------
-        pandas.DataFrame
+        pd.DataFrame
             The resulting dataframe.
 
         """
@@ -1655,7 +1655,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
 
     def __timed_fit_transform(
         self,
-        X: pandas.DataFrame,
+        X: pd.DataFrame,
         y: Optional[Iterable] = None,
         exraise: Optional[bool] = None,
         verbose: Optional[bool] = False,
@@ -1724,7 +1724,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
 
     def fit_transform(
         self,
-        X: pandas.DataFrame,
+        X: pd.DataFrame,
         y: Optional[Iterable] = None,
         exraise: Optional[bool] = None,
         verbose: Optional[bool] = False,
@@ -1736,7 +1736,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
 
         Parameters
         ----------
-        X : pandas.DataFrame
+        X : pd.DataFrame
             The dataframe to transform and fit this pipeline by.
         y : array-like, optional
             Targets for supervised learning.
@@ -1765,7 +1765,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
 
         Returns
         -------
-        pandas.DataFrame
+        pd.DataFrame
             The resulting dataframe.
 
         """
@@ -1830,7 +1830,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
 
     def fit(
         self,
-        X: pandas.DataFrame,
+        X: pd.DataFrame,
         y: Optional[Iterable] = None,
         exraise: Optional[bool] = None,
         verbose: Optional[bool] = False,
@@ -1842,7 +1842,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
 
         Parameters
         ----------
-        X : pandas.DataFrame
+        X : pd.DataFrame
             The dataframe to fit this pipeline by.
         y : array-like, optional
             Targets for supervised learning.
@@ -1870,7 +1870,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
 
         Returns
         -------
-        pandas.DataFrame
+        pd.DataFrame
             The input dataframe, unchanged.
 
         """
@@ -1889,12 +1889,12 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
 
     def __timed_transform(
         self,
-        X: pandas.DataFrame,
+        X: pd.DataFrame,
         y: Optional[Iterable[float]] = None,
         exraise: Optional[bool] = None,
         verbose: Optional[bool] = None,
         application_context: Optional[dict] = {},
-    ) -> pandas.DataFrame:
+    ) -> pd.DataFrame:
         inter_X = X
         inter_y = y
         times = []
@@ -1955,7 +1955,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
 
     def transform(
         self,
-        X: pandas.DataFrame,
+        X: pd.DataFrame,
         y: Optional[Iterable[float]] = None,
         exraise: Optional[bool] = None,
         verbose: Optional[bool] = None,
@@ -1969,7 +1969,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
 
         Parameters
         ----------
-        X : pandas.DataFrame
+        X : pd.DataFrame
             The dataframe to transform.
         y : array-like, optional
             Targets for supervised learning.
@@ -1994,7 +1994,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
 
         Returns
         -------
-        pandas.DataFrame
+        pd.DataFrame
             The resulting dataframe.
 
         """
