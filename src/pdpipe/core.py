@@ -545,6 +545,18 @@ class PdPipelineStage(abc.ABC):
         """
         return True
 
+    def _get_condition_error_message(
+        self, condition_obj, fallback_message
+    ) -> str:
+        """Helper to extract error message from a Condition, or fallback."""
+        try:
+            msg = condition_obj._error_message
+            if msg is not None:
+                return str(msg)
+        except AttributeError:
+            pass
+        return str(fallback_message)
+
     def _check_user_postcondition(
         self,
         X: pd.DataFrame,
@@ -750,23 +762,23 @@ class PdPipelineStage(abc.ABC):
         raise FailedPreconditionError(self._exmsg)
 
     def _raise_user_precondition_error(self) -> None:
-        try:
-            raise FailedPreconditionError(self._prec_arg._error_message)
-        except AttributeError:
-            raise FailedPreconditionError(
-                f"User-provided precondition failed for {self._desc}"
+        raise FailedPreconditionError(
+            self._get_condition_error_message(
+                self._prec_arg,
+                f"User-provided precondition failed for {self._desc}",
             )
+        )
 
     def _raise_postcondition_error(self) -> None:
         raise FailedPostconditionError(self._exmsg_post)
 
     def _raise_user_postcondition_error(self) -> None:
-        try:
-            raise FailedPostconditionError(self._post_arg._error_message)
-        except AttributeError:
-            raise FailedPostconditionError(
-                f"User-provided postcondition failed for {self._desc}"
+        raise FailedPostconditionError(
+            self._get_condition_error_message(
+                self._post_arg,
+                f"User-provided postcondition failed for {self._desc}",
             )
+        )
 
     @abc.abstractmethod
     def _transform(
@@ -1747,8 +1759,8 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             parameter.
         verbose : bool, default False
             If True an explanation message is printed after the precondition
-            of each stage is checked but before its application. Otherwise, no
-            messages are printed.
+            is checked but before the application of the pipeline stage.
+            Defaults to False.
         time : bool, default False
             If True, per-stage application time is measured and reported when
             pipeline application is done.
@@ -1884,72 +1896,6 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         if y is None:
             return X
         return X, y
-
-    def __timed_transform(
-        self,
-        X: pd.DataFrame,
-        y: Optional[Iterable[float]] = None,
-        exraise: Optional[bool] = None,
-        verbose: Optional[bool] = None,
-        application_context: Optional[dict] = {},
-    ) -> pd.DataFrame:
-        inter_X = X
-        inter_y = y
-        times = []
-        prev = time.time()
-        self.application_context = PdpApplicationContext()
-        self.application_context.update(application_context)
-        if y is None:
-            for i, stage in enumerate(self._stages):
-                try:
-                    stage.fit_context = self.fit_context
-                    stage.application_context = self.application_context
-                    inter_X = stage.transform(
-                        X=inter_X,
-                        y=None,
-                        exraise=exraise,
-                        verbose=verbose,
-                    )
-                    now = time.time()
-                    times.append(now - prev)
-                    prev = now
-                    stage.application_context = None
-                except Exception as e:
-                    stage.application_context = None
-                    raise PipelineApplicationError(
-                        f"Exception raised in stage [ {i}] {stage}"
-                    ) from e
-        else:
-            for i, stage in enumerate(self._stages):
-                try:
-                    stage.fit_context = self.fit_context
-                    stage.application_context = self.application_context
-                    inter_X, inter_y = stage.transform(
-                        X=inter_X,
-                        y=inter_y,
-                        exraise=exraise,
-                        verbose=verbose,
-                    )
-                    stage.application_context = None
-                    now = time.time()
-                    times.append(now - prev)
-                    prev = now
-                except Exception as e:
-                    stage.application_context = None
-                    raise PipelineApplicationError(
-                        f"Exception raised in stage [ {i}] {stage}"
-                    ) from e
-        self.is_fitted = True
-        print(
-            "\nPipeline total application time: {:.3f}s.\n Details:".format(
-                sum(times)
-            )
-        )
-        print(self.__times_str__(times))
-        self._post_transform_lock()
-        if y is None:
-            return inter_X
-        return inter_X, inter_y
 
     def transform(
         self,

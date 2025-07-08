@@ -42,7 +42,8 @@ def test_stage_precondition_error_message():
     # Create test data without column 'a' to trigger stage precondition failure
     df = _test_df_with_columns(["x", "y"])
 
-    # Create pipeline without user precondition - should trigger stage precondition
+    # Create pipeline without user precondition -
+    # should trigger stage precondition
     pline = pdp.PdPipeline([pdp.FreqDrop(2, "a")])  # column 'a' missing
 
     # Should raise FailedPreconditionError
@@ -92,7 +93,8 @@ def test_user_vs_stage_precondition_distinction():
     with pytest.raises(Exception) as user_exc:
         pline_user_fail.apply(df)
 
-    # Test 2: Stage precondition failure (column 'z' doesn't exist for FreqDrop)
+    # Test 2: Stage precondition failure
+    # (column 'z' doesn't exist for FreqDrop)
     df_no_z = _test_df_with_columns(["a", "b"])
     pline_stage_fail = pdp.PdPipeline([pdp.FreqDrop(2, "z")])
 
@@ -109,6 +111,8 @@ def test_user_vs_stage_precondition_distinction():
     ), f"User error should mention column 'x', got: {user_exc.value}"
 
     # Stage error should mention the stage operation
-    assert (
-        "column z" in stage_msg and "freqdrop" in stage_msg
-    ), f"Stage error should mention FreqDrop and column 'z', got: {stage_exc.value}"
+    asrt_msg = (
+        "Stage error should mention column 'z' and FreqDrop, "
+        f"got: {stage_exc.value}"
+    )
+    assert "column z" in stage_msg and "freqdrop" in stage_msg, asrt_msg

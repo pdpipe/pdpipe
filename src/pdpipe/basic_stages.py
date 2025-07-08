@@ -697,14 +697,10 @@ class Schematize(PdPipelineStage):
             return True
         return set(self._columns).issubset(X.columns)
 
-    def _transform(
-        self, X: pd.DataFrame, verbose=None
-    ) -> pd.DataFrame:
+    def _transform(self, X: pd.DataFrame, verbose=None) -> pd.DataFrame:
         return X[self._columns]
 
-    def _fit_transform(
-        self, X: pd.DataFrame, verbose=None
-    ) -> pd.DataFrame:
+    def _fit_transform(self, X: pd.DataFrame, verbose=None) -> pd.DataFrame:
         if self._adaptive:
             self._columns = X.columns
             self.is_fitted = True
