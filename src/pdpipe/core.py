@@ -962,7 +962,7 @@ class PdPipelineStage(abc.ABC):
                 if y is not None:
                     return X, y
                 return X
-            
+
             # Check stage precondition
             if not self._check_stage_precondition(X, y):
                 if exraise:
@@ -970,15 +970,13 @@ class PdPipelineStage(abc.ABC):
                 if y is not None:
                     return X, y
                 return X
-            
+
             # Both preconditions pass, proceed with transformation
             if verbose:
                 msg = "- " + "\n  ".join(textwrap.wrap(self._appmsg))
                 print(msg, flush=True)
             if self._is_an_Xy_fit_transformer:
-                res_X, res_y = self._fit_transform_Xy(
-                    X, y, verbose=verbose
-                )
+                res_X, res_y = self._fit_transform_Xy(X, y, verbose=verbose)
             elif self._is_an_Xy_transformer:
                 res_X, res_y = self._transform_Xy(X, y, verbose=verbose)
             else:
@@ -1070,7 +1068,7 @@ class PdPipelineStage(abc.ABC):
                 if y is not None:
                     return X, y
                 return X
-            
+
             # Check stage precondition
             if not self._check_stage_precondition(X, y):
                 if exraise:
@@ -1078,7 +1076,7 @@ class PdPipelineStage(abc.ABC):
                 if y is not None:
                     return X, y
                 return X
-            
+
             # Both preconditions pass, proceed with transformation
             if verbose:
                 msg = "- " + "\n  ".join(textwrap.wrap(self._appmsg))
@@ -1103,9 +1101,7 @@ class PdPipelineStage(abc.ABC):
                         if not self._check_stage_postcondition(res_X, res_y):
                             self._raise_postcondition_error()
                     if y is not None:
-                        res_X, res_y = self._align_Xy(
-                            X=res_X, y=res_y, preX=X
-                        )
+                        res_X, res_y = self._align_Xy(X=res_X, y=res_y, preX=X)
                         return res_X, res_y
                     return res_X
                 raise UnfittedPipelineStageError(
@@ -1118,9 +1114,7 @@ class PdPipelineStage(abc.ABC):
                 res_y = y
             if exraise:
                 # Check user-provided postcondition first
-                if not self._check_user_postcondition(
-                    res_X, res_y, fit=False
-                ):
+                if not self._check_user_postcondition(res_X, res_y, fit=False):
                     self._raise_user_postcondition_error()
 
                 # Check stage postcondition
