@@ -573,7 +573,6 @@ class PdPipelineStage(abc.ABC):
         """
         if not self._post_arg:
             return True
-
         to_call = self._post_arg
         if fit:
             try:
@@ -693,7 +692,6 @@ class PdPipelineStage(abc.ABC):
         """
         if not self._prec_arg:
             return True
-
         to_call = self._prec_arg
         if fit:
             try:
