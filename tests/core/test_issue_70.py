@@ -2,6 +2,7 @@
 
 This module tests that user-provided preconditions/postconditions are properly
 distinguished from stage preconditions/postconditions in error messages.
+
 """
 
 import pandas as pd
@@ -82,6 +83,7 @@ def test_user_vs_stage_precondition_distinction():
     This is the core test for issue #70 - ensuring that error messages
     properly indicate whether a user-provided condition failed vs a stage's
     built-in condition.
+
     """
     df = _test_df_with_columns(["a", "b"])
 

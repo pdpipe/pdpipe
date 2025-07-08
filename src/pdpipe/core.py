@@ -563,8 +563,7 @@ class PdPipelineStage(abc.ABC):
         y: Optional[pd.Series] = None,
         fit: Optional[bool] = False,
     ) -> bool:
-        """
-        Check user-provided postcondition.
+        """Check user-provided postcondition.
 
         Parameters
         ----------
@@ -584,6 +583,7 @@ class PdPipelineStage(abc.ABC):
         bool
             True if the user-provided postcondition is satisfied or no user
             postcondition is set; False otherwise.
+
         """
         if not self._post_arg:
             return True
@@ -605,8 +605,7 @@ class PdPipelineStage(abc.ABC):
         X: pd.DataFrame,
         y: Optional[pd.Series] = None,
     ) -> bool:
-        """
-        Check stage-specific postcondition.
+        """Check stage-specific postcondition.
 
         Parameters
         ----------
@@ -620,6 +619,7 @@ class PdPipelineStage(abc.ABC):
         -------
         bool
             True if the stage postcondition is satisfied; False otherwise.
+
         """
         if y is None:
             return self._post(X)
@@ -682,8 +682,7 @@ class PdPipelineStage(abc.ABC):
         y: Optional[pd.Series] = None,
         fit: Optional[bool] = False,
     ) -> bool:
-        """
-        Check user-provided precondition.
+        """Check user-provided precondition.
 
         Parameters
         ----------
@@ -703,6 +702,7 @@ class PdPipelineStage(abc.ABC):
         bool
             True if the user-provided precondition is satisfied or no user
             precondition is set; False otherwise.
+
         """
         if not self._prec_arg:
             return True
@@ -724,8 +724,7 @@ class PdPipelineStage(abc.ABC):
         X: pd.DataFrame,
         y: Optional[pd.Series] = None,
     ) -> bool:
-        """
-        Check stage-specific precondition.
+        """Check stage-specific precondition.
 
         Parameters
         ----------
@@ -739,6 +738,7 @@ class PdPipelineStage(abc.ABC):
         -------
         bool
             True if the stage precondition is satisfied; False otherwise.
+
         """
         if y is None:
             try:
