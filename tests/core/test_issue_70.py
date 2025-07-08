@@ -8,7 +8,6 @@ import pandas as pd
 import pytest
 
 import pdpipe as pdp
-from pdpipe.core import FailedPreconditionError
 
 
 def _test_df_with_columns(columns):
