@@ -19,7 +19,9 @@ def test_user_precondition_error():
     print("Testing user precondition error...")
 
     # Create test data - note that column 'x' does not exist
-    df = pd.DataFrame([[1, 4], [4, 5], [1, 11]], [1, 2, 3], ["a", "b"])
+    df = pd.DataFrame(
+        [[1, 4], [4, 5], [1, 11]], [1, 2, 3], ["a", "b"]
+    )
     print("DataFrame columns:", df.columns.tolist())
     
     # Create pipeline with user precondition that will fail
@@ -57,11 +59,13 @@ def test_stage_precondition_error():
     print("\nTesting stage precondition error...")
 
     # Create test data without column 'a' to trigger stage precondition failure
-    df = pd.DataFrame([[1, 4], [4, 5], [1, 11]], [1, 2, 3], ["x", "y"])
+    df = pd.DataFrame(
+        [[1, 4], [4, 5], [1, 11]], [1, 2, 3], ["x", "y"]
+    )
     print("DataFrame columns:", df.columns.tolist())
 
     # Create pipeline without user precondition - should trigger stage precondition
-    pline = pdp.PdPipeline([pdp.FreqDrop(2, "a")])  # column 'a' doesn't exist
+    pline = pdp.PdPipeline([pdp.FreqDrop(2, "a")])  # column 'a' missing
     
     try:
         pline.apply(df)
@@ -84,7 +88,9 @@ def test_successful_case():
     print("\nTesting successful case...")
 
     # Create test data where everything should work
-    df = pd.DataFrame([[1, 4], [4, 5], [1, 11]], [1, 2, 3], ["a", "b"])
+    df = pd.DataFrame(
+        [[1, 4], [4, 5], [1, 11]], [1, 2, 3], ["a", "b"]
+    )
     print("DataFrame columns:", df.columns.tolist())
 
     # Create pipeline with user precondition that should pass
@@ -103,7 +109,9 @@ def test_successful_case():
 
 if __name__ == "__main__":
     print("=" * 60)
-    print("Testing fix for issue #70: Incorrect precondition error messages")
+    print(
+        "Testing fix for issue #70: Incorrect precondition error messages"
+    )
     print("=" * 60)
 
     test1 = test_user_precondition_error()

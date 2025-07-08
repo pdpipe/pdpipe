@@ -1095,7 +1095,9 @@ class PdPipelineStage(abc.ABC):
                         res_y = y
                     if exraise:
                         # Check user-provided postcondition first
-                        if not self._check_user_postcondition(res_X, res_y, fit=False):
+                        if not self._check_user_postcondition(
+                            res_X, res_y, fit=False
+                        ):
                             self._raise_user_postcondition_error()
                         
                         # Check stage postcondition
@@ -1117,7 +1119,9 @@ class PdPipelineStage(abc.ABC):
                 res_y = y
             if exraise:
                 # Check user-provided postcondition first
-                if not self._check_user_postcondition(res_X, res_y, fit=False):
+                if not self._check_user_postcondition(
+                    res_X, res_y, fit=False
+                ):
                     self._raise_user_postcondition_error()
                 
                 # Check stage postcondition
