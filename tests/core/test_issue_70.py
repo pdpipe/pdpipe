@@ -111,8 +111,6 @@ def test_user_vs_stage_precondition_distinction():
     ), f"User error should mention column 'x', got: {user_exc.value}"
 
     # Stage error should mention the stage operation
-    asrt_msg = (
-        "Stage error should mention column 'z' and FreqDrop, "
-        f"got: {stage_exc.value}"
-    )
+    asrt_msg = "Stage error should mention column 'z' and FreqDrop, "
+    asrt_msg += f"got: {stage_exc.value}"
     assert "column z" in stage_msg and "freqdrop" in stage_msg, asrt_msg
