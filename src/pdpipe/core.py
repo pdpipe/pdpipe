@@ -10,7 +10,6 @@ import textwrap
 from typing import Tuple, Union, Iterable, Optional
 
 import numpy
-import pandas
 import pandas as pd
 
 from .run_time_parameters import DynamicParameter
@@ -990,7 +989,7 @@ class PdPipelineStage(abc.ABC):
                 # Check user-provided postcondition first
                 if not self._check_user_postcondition(res_X, res_y, fit=True):
                     self._raise_user_postcondition_error()
-                
+
                 # Check stage postcondition
                 if not self._check_stage_postcondition(res_X, res_y):
                     self._raise_postcondition_error()
@@ -1099,7 +1098,7 @@ class PdPipelineStage(abc.ABC):
                             res_X, res_y, fit=False
                         ):
                             self._raise_user_postcondition_error()
-                        
+
                         # Check stage postcondition
                         if not self._check_stage_postcondition(res_X, res_y):
                             self._raise_postcondition_error()
@@ -1123,7 +1122,7 @@ class PdPipelineStage(abc.ABC):
                     res_X, res_y, fit=False
                 ):
                     self._raise_user_postcondition_error()
-                
+
                 # Check stage postcondition
                 if not self._check_stage_postcondition(res_X, res_y):
                     self._raise_postcondition_error()
