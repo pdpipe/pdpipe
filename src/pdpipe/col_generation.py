@@ -1167,6 +1167,11 @@ class Log(ColumnsBasedPipelineStage):
                     warnings.simplefilter("ignore")
                     new_col = np.log(new_col)
             else:
+                if (new_col <= 0).any():
+                    warnings.warn(
+                        f"Log transformation input for column '{colname}' contains non-positive values.",
+                        RuntimeWarning
+                    )
                 new_col = np.log(new_col)
             inter_X = out_of_place_col_insert(
                 X=inter_X, series=new_col, loc=loc, column_name=new_name
@@ -1216,6 +1221,11 @@ class Log(ColumnsBasedPipelineStage):
                     warnings.simplefilter("ignore")
                     new_col = np.log(new_col)
             else:
+                if (new_col <= 0).any():
+                    warnings.warn(
+                        f"Log transformation input for column '{colname}' contains non-positive values.",
+                        RuntimeWarning
+                    )
                 new_col = np.log(new_col)
             inter_X = out_of_place_col_insert(
                 X=inter_X, series=new_col, loc=loc, column_name=new_name

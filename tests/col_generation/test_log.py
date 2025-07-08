@@ -4,6 +4,7 @@ import pytest
 import numpy as np
 import pandas as pd
 from numpy.testing import assert_approx_equal
+import warnings
 
 from pdpipe import Log
 
@@ -90,7 +91,7 @@ def _non_neg_df2():
 
 @pytest.mark.log
 def test_log_non_neg():
-
+    warnings.filterwarnings('error', category=RuntimeWarning)
     # see runtime warning is correctly raised by default
     df = _non_neg_df()
     log_stage = Log(non_neg=True)
@@ -146,6 +147,7 @@ def test_log_non_neg():
 
 @pytest.mark.log
 def test_log_non_neg_n_const_shift():
+    warnings.filterwarnings('error', category=RuntimeWarning)
     df = _non_neg_df()
     log_stage = Log(non_neg=True, const_shift=0.1)
     res_df = log_stage(df)
