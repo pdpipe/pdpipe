@@ -11,6 +11,7 @@ from typing import Tuple, Union, Iterable, Optional
 
 import numpy
 import pandas
+import numpy as np
 import pandas as pd
 
 from .run_time_parameters import DynamicParameter
@@ -801,7 +802,7 @@ class PdPipelineStage(abc.ABC):
         ----------
         X : pd.DataFrame
             The input dataframe.
-        y : pd.Series, or numpy.ndarray, or Iterable[object]
+        y : pd.Series, or np.ndarray, or Iterable[object]
             The label series/array.
 
         Returns
