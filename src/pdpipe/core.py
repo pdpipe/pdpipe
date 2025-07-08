@@ -759,26 +759,42 @@ class PdPipelineStage(abc.ABC):
             raise  # pragma: no cover
 
     def _raise_precondition_error(self) -> None:
-        raise FailedPreconditionError(self._exmsg)
+        # Compose a more informative error message for stage precondition
+        stage_name = self.__class__.__name__
+        msg = f"Stage precondition failed in {stage_name}: {self._exmsg}"
+        raise FailedPreconditionError(msg)
 
     def _raise_user_precondition_error(self) -> None:
-        raise FailedPreconditionError(
-            self._get_condition_error_message(
-                self._prec_arg,
-                f"User-provided precondition failed for {self._desc}",
-            )
-        )
+        # Compose a more informative error message
+        fallback = f"Precondition failed for {self._desc} (user-provided precondition)"
+        cond_msg = None
+        try:
+            cond_msg = getattr(self._prec_arg, '_error_message', None)
+        except Exception:
+            pass
+        if cond_msg and cond_msg not in fallback:
+            msg = f"{fallback} | Details: {cond_msg}"
+        else:
+            msg = fallback
+        raise FailedPreconditionError(msg)
 
     def _raise_postcondition_error(self) -> None:
-        raise FailedPostconditionError(self._exmsg_post)
+        stage_name = self.__class__.__name__
+        msg = f"Stage postcondition failed in {stage_name}: {self._exmsg_post}"
+        raise FailedPostconditionError(msg)
 
     def _raise_user_postcondition_error(self) -> None:
-        raise FailedPostconditionError(
-            self._get_condition_error_message(
-                self._post_arg,
-                f"User-provided postcondition failed for {self._desc}",
-            )
-        )
+        fallback = f"Postcondition failed for {self._desc} (user-provided postcondition)"
+        cond_msg = None
+        try:
+            cond_msg = getattr(self._post_arg, '_error_message', None)
+        except Exception:
+            pass
+        if cond_msg and cond_msg not in fallback:
+            msg = f"{fallback} | Details: {cond_msg}"
+        else:
+            msg = fallback
+        raise FailedPostconditionError(msg)
 
     @abc.abstractmethod
     def _transform(
@@ -1698,7 +1714,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                 except Exception as e:
                     stage.application_context = None
                     raise PipelineApplicationError(
-                        f"Exception raised in stage [ {i}] {stage}"
+                        f"Exception raised in stage [ {i}] {stage}: {e}"
                     ) from e
         else:
             for i, stage in enumerate(self._stages):
@@ -1718,7 +1734,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                 except Exception as e:
                     stage.application_context = None
                     raise PipelineApplicationError(
-                        f"Exception raised in stage [ {i}] {stage}"
+                        f"Exception raised in stage [ {i}] {stage}: {e}"
                     ) from e
         self.is_fitted = True
         print(
@@ -1811,7 +1827,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                 except Exception as e:
                     stage.application_context = None
                     raise PipelineApplicationError(
-                        f"Exception raised in stage [ {i}] {stage}"
+                        f"Exception raised in stage [ {i}] {stage}: {e}"
                     ) from e
         else:
             for i, stage in enumerate(self._stages):
@@ -1830,7 +1846,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                 except Exception as e:
                     stage.application_context = None
                     raise PipelineApplicationError(
-                        f"Exception raised in stage [ {i}] {stage}"
+                        f"Exception raised in stage [ {i}] {stage}: {e}"
                     ) from e
         self._post_transform_lock()
         self.is_fitted = True
@@ -1971,7 +1987,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                 except Exception as e:
                     stage.application_context = None
                     raise PipelineApplicationError(
-                        f"Exception raised in stage [ {i}] {stage}"
+                        f"Exception raised in stage [ {i}] {stage}: {e}"
                     ) from e
         else:
             for i, stage in enumerate(self._stages):
@@ -1990,7 +2006,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
                 except Exception as e:
                     stage.application_context = None
                     raise PipelineApplicationError(
-                        f"Exception raised in stage [ {i}] {stage}"
+                        f"Exception raised in stage [ {i}] {stage}: {e}"
                     ) from e
         self._post_transform_lock()
         if y is None:
@@ -2119,11 +2135,70 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         except TypeError:  # pragma: no cover
             return self
 
-    # def drop(self, index):
-    #     """Return this pipeline with the stage of the given index removed.
-    #     Arguments
-    #     ---------
-    #     index
+    def __timed_transform(
+        self,
+        X: pd.DataFrame,
+        y: Optional[Iterable] = None,
+        exraise: Optional[bool] = None,
+        verbose: Optional[bool] = False,
+        application_context: Optional[dict] = {},
+    ):
+        self.application_context = PdpApplicationContext()
+        self.application_context.update(application_context)
+        inter_X = X
+        inter_y = y
+        times = []
+        prev = time.time()
+        if y is None:
+            for i, stage in enumerate(self._stages):
+                try:
+                    stage.fit_context = self.fit_context
+                    stage.application_context = self.application_context
+                    inter_X = stage.transform(
+                        X=inter_X,
+                        y=None,
+                        exraise=exraise,
+                        verbose=verbose,
+                    )
+                    stage.application_context = None
+                    now = time.time()
+                    times.append(now - prev)
+                    prev = now
+                except Exception as e:
+                    stage.application_context = None
+                    raise PipelineApplicationError(
+                        f"Exception raised in stage [ {i}] {stage}: {e}"
+                    ) from e
+        else:
+            for i, stage in enumerate(self._stages):
+                try:
+                    stage.fit_context = self.fit_context
+                    stage.application_context = self.application_context
+                    inter_X, inter_y = stage.transform(
+                        X=inter_X,
+                        y=inter_y,
+                        exraise=exraise,
+                        verbose=verbose,
+                    )
+                    stage.application_context = None
+                    now = time.time()
+                    times.append(now - prev)
+                    prev = now
+                except Exception as e:
+                    stage.application_context = None
+                    raise PipelineApplicationError(
+                        f"Exception raised in stage [ {i}] {stage}: {e}"
+                    ) from e
+        print(
+            "\nPipeline total transform time: {:.3f}s.\n Details:".format(
+                sum(times)
+            )
+        )
+        print(self.__times_str__(times))
+        self._post_transform_lock()
+        if y is None:
+            return inter_X
+        return inter_X, inter_y
 
 
 def make_pdpipeline(*stages: PdPipelineStage) -> PdPipeline:
