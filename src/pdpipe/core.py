@@ -142,12 +142,12 @@ class PdpApplicationContext:
 
     def items(self) -> object:
         """
-        Return a new view of the context’s items ((key, value) pairs).
+        Return a new view of the context's items ((key, value) pairs).
 
         Returns
         -------
         object
-            A new view of the context’s items ((key, value) pairs).
+            A new view of the context's items ((key, value) pairs).
         """
         return self._dict.items()
 
@@ -546,6 +546,29 @@ class PdPipelineStage(abc.ABC):
                 return self._prec(X)
             raise e  # pragma: no cover
 
+    def _get_condition_error_message(self, cond_obj, fallback):
+        try:
+            custom_msg = cond_obj._error_message
+            if custom_msg:
+                return f"{fallback} {custom_msg}"
+            return fallback
+        except AttributeError:
+            return fallback
+
+    def _raise_precondition_error(self) -> None:
+        msg = self._get_condition_error_message(
+            self._prec_arg,
+            f"Precondition failed in stage {self._desc}!"
+        )
+        raise FailedPreconditionError(msg)
+
+    def _raise_postcondition_error(self) -> None:
+        msg = self._get_condition_error_message(
+            self._post_arg,
+            f"Postcondition failed in stage {self._desc}!"
+        )
+        raise FailedPostconditionError(msg)
+
     def _post(
         self,
         X: pandas.DataFrame,
@@ -633,22 +656,6 @@ class PdPipelineStage(abc.ABC):
         if self.__class__._fit_transform == PdPipelineStage._fit_transform:
             return False
         return True
-
-    def _raise_precondition_error(self) -> None:
-        try:
-            raise FailedPreconditionError(
-                f"{self._exmsg} [Reason] {self._prec_arg._error_message}"
-            )
-        except AttributeError:
-            raise FailedPreconditionError(self._exmsg)
-
-    def _raise_postcondition_error(self) -> None:
-        try:
-            raise FailedPostconditionError(
-                f"{self._exmsg_post} [Reason] {self._post_arg._error_message}"
-            )
-        except AttributeError:
-            raise FailedPostconditionError(self._exmsg_post)
 
     @abc.abstractmethod
     def _transform(
@@ -1603,8 +1610,8 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             parameter.
         verbose : bool, default False
             If True an explanation message is printed after the precondition
-            of each stage is checked but before its application. Otherwise, no
-            messages are printed.
+            is checked but before the application of the pipeline stage.
+            Defaults to False.
         time : bool, default False
             If True, per-stage application time is measured and reported when
             pipeline application is done.
