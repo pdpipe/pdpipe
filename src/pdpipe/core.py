@@ -586,7 +586,7 @@ class PdPipelineStage(abc.ABC):
         except TypeError as e:
             if len(POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
                 return to_call(X)
-            raise e  # pragma: no cover
+            raise  # pragma: no cover
 
     def _check_stage_postcondition(
         self,
@@ -616,7 +616,7 @@ class PdPipelineStage(abc.ABC):
         except TypeError as e:
             if len(POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
                 return self._post(X)
-            raise e  # pragma: no cover
+            raise  # pragma: no cover
 
     def _compound_post(
         self,
@@ -705,7 +705,7 @@ class PdPipelineStage(abc.ABC):
         except TypeError as e:
             if len(POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
                 return to_call(X)
-            raise e  # pragma: no cover
+            raise  # pragma: no cover
 
     def _check_stage_precondition(
         self,
@@ -744,7 +744,7 @@ class PdPipelineStage(abc.ABC):
         except TypeError as e:
             if len(POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
                 return self._prec(X)
-            raise e  # pragma: no cover
+            raise  # pragma: no cover
 
     def _raise_precondition_error(self) -> None:
         raise FailedPreconditionError(self._exmsg)
@@ -874,8 +874,7 @@ class PdPipelineStage(abc.ABC):
             except TypeError as e:
                 if len(POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
                     return self._skip(X)
-                else:
-                    raise e  # pragma: no cover
+                raise  # pragma: no cover
         return False
 
     def apply(
@@ -2098,8 +2097,9 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             )
         return res
 
-    def _mem_str(self, total):
-        total = asizeof(self)
+    def _mem_str(self, total=None):
+        if total is None:
+            total = asizeof(self)
         lines = []
         for i, stage in enumerate(self._stages):
             size = asizeof(stage)
