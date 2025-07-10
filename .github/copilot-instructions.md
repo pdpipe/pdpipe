@@ -13,4 +13,112 @@
 - Default behaviors should help users avoid common data science pitfalls (e.g., one-hot encoding drops one column by default to avoid the dummy variable trap).
 - pdpipe supports Python 3.9 and up. Ensure compatibility with all supported versions.
 - For configuration, support both config files and environment variables as described in the README.
-- For help, reference the official documentation at https://pdpipe.readthedocs.io/en/latest/ and the Gitter community. 
+- For help, reference the official documentation at https://pdpipe.readthedocs.io/en/latest/ and the Gitter community.
+
+
+## Overview
+
+`pdpipe` is a Python package for building robust, readable, and highly configurable pipelines for processing pandas DataFrames. It emphasizes:
+- **Preconditions and postconditions** for pipeline stages.
+- **Verbose, informative errors and prints**.
+- **Fit/transform API compatibility** with scikit-learn.
+- **Pipeline arithmetics** (addition, chaining, slicing).
+- **High serializability and productization-readiness**.
+- **Support for mixed-type data and supervised learning (X/y)**.
+
+## Key Design Patterns and Decisions
+
+### 1. **Pipeline and Stage Architecture**
+- **Base Classes:**
+  - `PdPipelineStage` (abstract): All stages inherit from this. Defines precondition (`_prec`), postcondition (`_post`), and transformation logic.
+  - `ColumnsBasedPipelineStage`: For stages operating on columns, handles `columns`, `exclude_columns`, and dynamic column selection.
+  - `PdPipeline`: A sequence of `PdPipelineStage` objects, itself a stage, supporting slicing, addition, and chaining.
+- **Stage Construction:**
+  - Stages are constructed with clear, explicit parameters (e.g., `columns`, `drop`, `errors`).
+  - Stages should be highly configurable, with sensible defaults.
+  - Stages support preconditions (`prec`), postconditions (`post`), and skip conditions (`skip`), all of which can be callables or condition objects from `pdpipe.cond`.
+
+### 2. **Usage Patterns**
+- **Pipeline Construction:**
+  - Pipelines can be built by passing a list of stages to `PdPipeline`, or using `make_pdpipeline(*stages)`.
+  - Stages and pipelines can be added together (`+`), or chained via method calls for one-liners.
+  - Slicing and indexing pipelines returns sub-pipelines or stages.
+- **Application:**
+  - Pipelines and stages are callable (`pipeline(df)`), or can use `.apply()`, `.fit()`, `.transform()`, `.fit_transform()`.
+  - Verbose and exception-raising behavior is controlled via `verbose` and `exraise` parameters, both at construction and per-call.
+  - Pipelines and stages support both X-only and X/y (supervised) transformations, maintaining index alignment.
+
+### 3. **Extensibility**
+- **Custom Stages:**
+  - New stages should inherit from `PdPipelineStage` or `ColumnsBasedPipelineStage`.
+  - Implement `_transform()` and `_prec()` for simple stateless stages.
+  - For fit-dependent stages, implement `_fit_transform()` and `_transform()`.
+  - For stages that affect both X and y, implement `_transform_Xy()` and/or `_fit_transform_Xy()`.
+  - Use `pdpipe.cond` for reusable, composable condition logic.
+- **Column Qualifiers:**
+  - Stages with a `columns` parameter accept single labels, lists, or callables (column qualifiers).
+  - Use `pdpipe.cq` for advanced column selection logic (by dtype, name, missingness, etc.), supporting fit-time determination.
+
+### 4. **Integration**
+- **scikit-learn:**
+  - `PdPipelineAndSklearnEstimator` allows chaining a `PdPipeline` with a scikit-learn estimator for use in `GridSearchCV`, etc.
+  - Use `.values` when passing DataFrames to scikit-learn estimators.
+  - Use `pdpipe_scorer_from_sklearn_scorer` to adapt sklearn scorers for use with `PdPipelineAndSklearnEstimator`.
+
+### 5. **Special Features**
+- **Fly Handles:**
+  - The `df` handle allows creation of stages from DataFrame methods and column assignments using operator overloading.
+  - `drop_rows_where` and `keep_rows_where` provide intuitive row filtering.
+- **Dynamic Parameters:**
+  - Use `pdp.dynamic` to set parameters at runtime based on input data.
+- **Stage Wrappers:**
+  - `FitOnly` applies a stage only during fitting, not during transform.
+
+### 6. **Testing and Documentation**
+- **Tests:**
+  - All new features and bug fixes must be accompanied by tests.
+  - Use `tests/requirements.txt` for test dependencies.
+- **Docs:**
+  - All public classes, methods, and parameters must be documented with clear docstrings and usage examples.
+  - Update Markdown docs in `docs/` for new features or changes.
+
+### 7. **Code Style and Quality**
+- **Formatting:** Use Black for code formatting.
+- **Linting:** Fix all Flake8 errors and warnings.
+- **Warnings:** Suppress known deprecation warnings as per project conventions.
+- **Readability:** Favor explicit, readable code and descriptive variable names.
+
+## Key Modules and Classes
+
+- `src/pdpipe/core.py`: Core pipeline and stage classes.
+- `src/pdpipe/basic_stages.py`: Basic built-in stages (e.g., `ColDrop`, `ValDrop`, `RowDrop`, `Schematize`).
+- `src/pdpipe/col_generation.py`: Column generation stages (e.g., `Bin`, `OneHotEncode`, `MapColVals`, `ApplyToRows`, `TransformByCols`).
+- `src/pdpipe/sklearn_stages.py`: Stages for sklearn integration (e.g., `Encode`, `Scale`, `Decompose`).
+- `src/pdpipe/skintegrate.py`: Integration with scikit-learn estimators.
+- `src/pdpipe/cond.py`, `src/pdpipe/cq.py`: Condition and column qualifier utilities.
+- `src/pdpipe/wrappers.py`: Stage wrappers (e.g., `FitOnly`).
+- `src/pdpipe/df/`: Fly handle and DataFrame method wrappers.
+
+## Contribution and Review Checklist
+
+**For Contributors:**
+- [ ] Follow the fit/transform API and ensure all new stages are serializable.
+- [ ] Use and document preconditions, postconditions, and skip conditions.
+- [ ] Prefer extending `ColumnsBasedPipelineStage` for column-based logic.
+- [ ] Support column qualifiers and dynamic parameters where appropriate.
+- [ ] Add tests and documentation for all new features.
+- [ ] Ensure code is Black-formatted and Flake8-clean.
+
+**For Reviewers:**
+- [ ] Check for adherence to API and design patterns.
+- [ ] Ensure new code is well-documented and tested.
+- [ ] Verify that new stages and pipelines are serializable and composable.
+- [ ] Confirm that all warnings and errors are handled as per conventions.
+- [ ] Review for code readability, maintainability, and extensibility.
+
+---
+
+**References:**
+- [pdpipe documentation](https://pdpipe.readthedocs.io/)
+- [pdpipe GitHub Discussions](https://github.com/pdpipe/pdpipe/discussions)
+- [Recent PRs and code style changes](https://github.com/pdpipe/pdpipe/pulls)

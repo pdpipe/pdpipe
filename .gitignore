@@ -109,3 +109,6 @@ Pipfile.lock
 notebooks/debug*.py
 
 .mypy_cache/
+
+.cursor
+uv.lock
