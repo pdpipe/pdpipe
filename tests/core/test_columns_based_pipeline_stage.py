@@ -8,7 +8,7 @@ from pdpipe.core import ColumnsBasedPipelineStage, FailedPreconditionError
 
 
 class Drop(ColumnsBasedPipelineStage):
-    """A pipeline stage for testing"""
+    """A pipeline stage for testing."""
 
     def __init__(self, columns, errors=None, **kwargs):
         self._errors = errors
@@ -82,7 +82,7 @@ def test_columns_based_stage():
 
 
 class Drop2(ColumnsBasedPipelineStage):
-    """A pipeline stage for testing"""
+    """A pipeline stage for testing."""
 
     def __init__(self, columns, errors=None, **kwargs):
         self._errors = errors
@@ -109,7 +109,7 @@ def test_columns_based_stage2():
 
 
 class Double(ColumnsBasedPipelineStage):
-    """A pipeline stage for testing"""
+    """A pipeline stage for testing."""
 
     def __init__(self, columns, errors=None, **kwargs):
         self._errors = errors
@@ -151,7 +151,7 @@ def test_columns_based_stage_none():
 
 
 class BadNoneColumnsStrArg(ColumnsBasedPipelineStage):
-    """A pipeline stage for testing"""
+    """A pipeline stage for testing."""
 
     def __init__(self, columns, errors=None, **kwargs):
         self._errors = errors
@@ -176,7 +176,7 @@ def test_bad_none_columns_str_arg():
 
 
 class BadNoneColumnsArg(ColumnsBasedPipelineStage):
-    """A pipeline stage for testing"""
+    """A pipeline stage for testing."""
 
     def __init__(self, columns, errors=None, **kwargs):
         self._errors = errors
@@ -201,7 +201,7 @@ def test_bad_none_columns_arg():
 
 
 class NumDefaultDrop(ColumnsBasedPipelineStage):
-    """A pipeline stage for testing"""
+    """A pipeline stage for testing."""
 
     def __init__(self, columns, errors=None, **kwargs):
         self._errors = errors

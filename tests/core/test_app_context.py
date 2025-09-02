@@ -23,7 +23,7 @@ def _test_df():
 
 
 class PutContextStage(PdPipelineStage):
-    """A pipeline stage for testing"""
+    """A pipeline stage for testing."""
 
     def __init__(self, colname, **kwargs):
         self.colname = colname
@@ -39,7 +39,7 @@ class PutContextStage(PdPipelineStage):
 
 
 class UseContextStage(PdPipelineStage):
-    """A pipeline stage for testing"""
+    """A pipeline stage for testing."""
 
     def __init__(self, colname, **kwargs):
         self.colname = colname

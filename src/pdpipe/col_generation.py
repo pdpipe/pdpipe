@@ -10,6 +10,7 @@ Available stages include:
 - ColByFrameFunc
 - AggByCols (aggregation)
 - Log
+
 """
 
 import abc
@@ -43,8 +44,7 @@ from .exceptions import PipelineApplicationError
 
 
 class Bin(PdPipelineStage):
-    """
-    A pipeline stage that adds a binned version of a column or columns.
+    """A pipeline stage that adds a binned version of a column or columns.
 
     If drop is set to True, the new columns retain the names of the source
     columns; otherwise, the resulting column gain the suffix '_bin'
@@ -81,6 +81,7 @@ class Bin(PdPipelineStage):
     2      4       0-5
     3      5       5-8
     4      9        8≤
+
     """
 
     _DEF_BIN_EXC_MSG = (
@@ -160,8 +161,7 @@ class Bin(PdPipelineStage):
 
 
 class OneHotEncode(ColumnsBasedPipelineStage):
-    """
-    A pipeline stage that one-hot-encodes categorical columns.
+    """A pipeline stage that one-hot-encodes categorical columns.
 
     By default only k-1 dummies are created fo k categorical levels, as to
     avoid perfect multicollinearity between the dummy features (also called
@@ -203,6 +203,7 @@ class OneHotEncode(ColumnsBasedPipelineStage):
     1        0         1
     2        1         0
     3        0         0
+
     """
 
     class _FitterEncoder(object):
@@ -316,8 +317,7 @@ class OneHotEncode(ColumnsBasedPipelineStage):
 
 
 class ColumnTransformer(ColumnsBasedPipelineStage):
-    """
-    A pipeline stage that applies transformation to dataframe columns.
+    """A pipeline stage that applies transformation to dataframe columns.
 
     This is an abstract base class for pipeline stages that apply
     transformations to dataframe columns. Subclasses should implement the
@@ -353,6 +353,7 @@ class ColumnTransformer(ColumnsBasedPipelineStage):
         The suffix transformed columns gain if no new column labels are given.
     **kwargs : object
         All PdPipelineStage constructor parameters are supported.
+
     """
 
     _INIT_KWARGS = [
@@ -422,13 +423,13 @@ class ColumnTransformer(ColumnsBasedPipelineStage):
 
 
 class _AttrGetter:
-    """
-    A custom callable that gets a specific attribute from input objects.
+    """A custom callable that gets a specific attribute from input objects.
 
     Parameters
     ----------
     attr_name : str
         The name of the attribute to get from input objects.
+
     """
 
     def __init__(self, attr_name: str) -> None:
@@ -439,8 +440,7 @@ class _AttrGetter:
 
 
 class _MethodRetValGetter:
-    """
-    A callable that gets a method's return value given specific kwargs.
+    """A callable that gets a method's return value given specific kwargs.
 
     A custom callable that gets the return value of a specified method with
     specified keyword arguments from input objects.
@@ -451,6 +451,7 @@ class _MethodRetValGetter:
         The name of the method to call for input objects.
     method_kwargs : dict of str to object
         The keyword arguments to supply to the specified method on each call.
+
     """
 
     def __init__(
@@ -466,8 +467,7 @@ class _MethodRetValGetter:
 
 
 class MapColVals(ColumnTransformer):
-    """
-    A pipeline stage that replaces the values of a column by a map.
+    """A pipeline stage that replaces the values of a column by a map.
 
     Parameters
     ----------
@@ -527,6 +527,7 @@ class MapColVals(ColumnTransformer):
     proposal  1209600.0
     midterm   2419200.0
     finals    6048000.0
+
     """
 
     def __init__(
@@ -565,8 +566,7 @@ class MapColVals(ColumnTransformer):
 
 
 class ApplyToRows(PdPipelineStage):
-    """
-    A pipeline stage generating columns by applying a function to each row.
+    """A pipeline stage generating columns by applying a function to each row.
 
     Parameters
     ----------
@@ -612,6 +612,7 @@ class ApplyToRows(PdPipelineStage):
     1      3  1071.5     1.5         2143
     2     10   660.5     5.0         1321
     3      7   627.5     3.5         1255
+
     """
 
     _DEF_APPLYTOROWS_EXC_MSG = "Applying a function {} failed."
@@ -682,8 +683,7 @@ class ApplyToRows(PdPipelineStage):
 
 
 class ApplyByCols(ColumnTransformer):
-    """
-    A pipeline stage applying an element-wise function to columns.
+    """A pipeline stage applying an element-wise function to columns.
 
     For applying series-wise function, see `TransformByCols` or `AggByCols`.
 
@@ -727,6 +727,7 @@ class ApplyByCols(ColumnTransformer):
     1   4  acd
     2   8  alk
     3  13  alk
+
     """
 
     def __init__(
@@ -790,8 +791,8 @@ class ApplyByCols(ColumnTransformer):
 
 
 class TransformByCols(ColumnTransformer):
-    """
-    A pipeline stage applying a series-wise function to columns w/ transform.
+    """A pipeline stage applying a series-wise function to columns w/
+    transform.
 
     This is a pipeline stage that applies a function to each column in the
     DataFrame, using the pandas.Series.transform method. The function must
@@ -839,6 +840,7 @@ class TransformByCols(ColumnTransformer):
     1   3.2  acd
     2  10.4  alk
     3  22.5  alk
+
     """
 
     def __init__(
@@ -874,8 +876,7 @@ class TransformByCols(ColumnTransformer):
 
 
 class ColByFrameFunc(PdPipelineStage):
-    """
-    A pipeline stage adding a column by applying a dataframe-wide function.
+    """A pipeline stage adding a column by applying a dataframe-wide function.
 
     Note that assigning `column` with the label of an existing column and
     providing the same label to the `before_column` parameter will result in
@@ -916,6 +917,7 @@ class ColByFrameFunc(PdPipelineStage):
     1  3  3   True
     2  2  4  False
     3  1  5  False
+
     """
 
     _BASE_STR = "Applying a function{} to generate column {}"
@@ -973,8 +975,7 @@ class ColByFrameFunc(PdPipelineStage):
 
 
 class AggByCols(ColumnTransformer):
-    """
-    A pipeline stage applying a series-wise function to columns.
+    """A pipeline stage applying a series-wise function to columns.
 
     This is done in order to either transform columns in-place or generate
     new ones (unlike the traditional use of `Series.agg`, which usually
@@ -1028,6 +1029,7 @@ class AggByCols(ColumnTransformer):
     1   3.2     3.2  acd
     2   7.2     3.2  alk
     3  12.1     3.2  alk
+
     """
 
     def __init__(
@@ -1063,8 +1065,7 @@ class AggByCols(ColumnTransformer):
 
 
 class Log(ColumnsBasedPipelineStage):
-    """
-    A pipeline stage that log-transforms numeric data.
+    """A pipeline stage that log-transforms numeric data.
 
     Parameters
     ----------
@@ -1107,6 +1108,7 @@ class Log(ColumnsBasedPipelineStage):
     1  1.163151  acd
     2  1.974081  alk
     3  2.493205  alk
+
     """
 
     _DEF_LOG_APP_MSG = "Log-transforming {}..."

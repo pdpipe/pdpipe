@@ -1,6 +1,7 @@
 """Testing performance issue #29.
 
 See: https://github.com/pdpipe/pdpipe/issues/29
+
 """
 
 import time

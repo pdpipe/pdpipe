@@ -14,10 +14,8 @@ def _minmax_scaler_df():
 
 
 def _scaling_decider_no_y(X: pd.DataFrame) -> str:
-    """
-    Determines with type of scaling to apply by examining all numerical
-    columns.
-    """
+    """Determines with type of scaling to apply by examining all numerical
+    columns."""
     for col in X.columns:
         print(X[col].sum())
         if X[col].sum() % 3 == 0:
@@ -26,10 +24,8 @@ def _scaling_decider_no_y(X: pd.DataFrame) -> str:
 
 
 def _scaling_decider_with_y(X: pd.DataFrame, y) -> str:
-    """
-    Determines with type of scaling to apply by examining all
-    numerical columns.
-    """
+    """Determines with type of scaling to apply by examining all numerical
+    columns."""
     if y.sum() % 2 == 0:
         return "MinMaxScaler"
     return "StandardScaler"
@@ -103,7 +99,7 @@ def test_non_callable():
 
 
 def test_fittable():
-    """scaler should not change second time since the stage was fitted"""
+    """Scaler should not change second time since the stage was fitted."""
     scaler = _get_scaler(_scaling_decider_no_y, fittable=True)
     pipeline = pdp.PdPipeline(stages=[scaler])
     pipeline.apply(_minmax_scaler_df())

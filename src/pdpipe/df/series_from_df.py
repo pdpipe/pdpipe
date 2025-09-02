@@ -136,8 +136,8 @@ class _SeriesFromDfBySeriesMethod(_SeriesFromDf):
         kwargs: dict,
         df: DataFrame,
     ) -> Tuple[tuple, dict]:
-        """Breaks down the input args tuple and kwargs dict,
-        applies any _SeriesFromDf objects found to the input dataframe to
+        """Breaks down the input args tuple and kwargs dict, applies any
+        _SeriesFromDf objects found to the input dataframe to.
 
         Returns
         -------
@@ -147,6 +147,7 @@ class _SeriesFromDfBySeriesMethod(_SeriesFromDf):
         kwargs : Dict
             The kwargs dict with any _SeriesFromDf objects replaced by the
             concrete Series objects.
+
         """
         args_ = []
         for arg in args:

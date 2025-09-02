@@ -57,6 +57,7 @@ class SeriesFromDfAssigner(PdPipelineStage):
         calculate the series to assign to the destination column.
     source_column_potential : _BoundColumnPotential, optional
         The _BoundColumnPotential that `series_from_df` came from. Optional.
+
     """
 
     _DOC_TEMPLATE = "Assign column {} with {}"
@@ -1175,10 +1176,10 @@ class _BoundColumnPotentialSeriesMethodTransformerHandle:
         args: tuple,
         kwargs: dict,
     ) -> Tuple[Tuple, Dict, Set]:
-        """Breaks down the input args tuple and kwargs dict,
-        cast any included _BoundColumnPotential objects into _SeriesFromDf
-        objects, and rebuilds the args tuple and kwargs dict, also constructing
-        the the required column set, and returning all threeself.
+        """Breaks down the input args tuple and kwargs dict, cast any included
+        _BoundColumnPotential objects into _SeriesFromDf objects, and rebuilds
+        the args tuple and kwargs dict, also constructing the the required
+        column set, and returning all threeself.
 
         Returns
         -------
@@ -1190,6 +1191,7 @@ class _BoundColumnPotentialSeriesMethodTransformerHandle:
             _SeriesFromDf objects.
         required_columns : set
             The set of all column labels required by the function.
+
         """
         required_columns = set()
         args_ = []
@@ -1299,6 +1301,7 @@ def get_bound_column_potential_by_label(
     -------
     _BoundColumnPotential
             A bound column potential for the column with the given label.
+
     """
     return _BoundColumnPotential(
         series_from_df=_SeriesFromDfByLabel(column_label=column_label),
