@@ -1,5 +1,4 @@
-"""
-PdPipeline stages dependent on the nltk Python library.
+"""PdPipeline stages dependent on the nltk Python library.
 
 Please note that the nltk Python package must be installed for the stages in
 this module to work.
@@ -8,6 +7,7 @@ When attempting to load stages from this module, pdpipe will first attempt to
 import nltk. If it fails, it will issue a warning, will not import any of the
 pipeline stages that make up this module, and continue to load other pipeline
 stages.
+
 """
 
 import os
@@ -29,8 +29,7 @@ from pdpipe.shared import _interpret_columns_param, _list_str
 
 
 class TokenizeText(MapColVals):
-    """
-    A pipeline stage that tokenizes a text column into token lists.
+    """A pipeline stage that tokenizes a text column into token lists.
 
     Note: The nltk package must be installed for this pipeline stage to work.
 
@@ -56,6 +55,7 @@ class TokenizeText(MapColVals):
     >>> tokenize_stage(df)
        freq               content
     1   3.2  [Kick, the, baby, !]
+
     """
 
     _DEF_TOKENIZE_EXC_MSG = (
@@ -100,8 +100,7 @@ class TokenizeText(MapColVals):
 
 
 class UntokenizeText(MapColVals):
-    """
-    A pipeline stage that joins token lists to whitespace-separated strings.
+    """A pipeline stage that joins token lists to whitespace-separated strings.
 
     Target columns must be series of token lists; i.e. every cell in the series
     is an iterable of string tokens.
@@ -130,6 +129,7 @@ class UntokenizeText(MapColVals):
     >>> untokenize_stage(df)
        freq          content
     1   3.2  Shake and bake!
+
     """
 
     _DEF_UNTOKENIZE_EXC_MSG = (
@@ -163,8 +163,7 @@ class UntokenizeText(MapColVals):
 
 
 class RemoveStopwords(MapColVals):
-    """
-    A pipeline stage that removes stopwords from a tokenized list.
+    """A pipeline stage that removes stopwords from a tokenized list.
 
     Target columns must be series of token lists; i.e. every cell in the series
     is an iterable of string tokens.
@@ -198,6 +197,7 @@ class RemoveStopwords(MapColVals):
         >> remove_stopwords(df)
            freq       content
         1   3.2  [kick, baby]
+
     """
 
     _DEF_STOPWORDS_EXC_MSG = (
@@ -265,8 +265,7 @@ class RemoveStopwords(MapColVals):
 
 
 class SnowballStem(MapColVals):
-    """
-    A pipeline stage that stems tokens in a list using the Snowball stemmer.
+    """A pipeline stage that stems tokens in a list using the Snowball stemmer.
 
     Target columns must be series of token lists; i.e. every cell in the series
     is an iterable of string tokens.
@@ -307,6 +306,7 @@ class SnowballStem(MapColVals):
     >>> remove_stopwords(df)
        freq       content
     1   3.2  [kick, boat]
+
     """
 
     _DEF_STEM_EXC_MSG = (
@@ -425,8 +425,7 @@ class SnowballStem(MapColVals):
 
 
 class DropRareTokens(ColumnsBasedPipelineStage):
-    """
-    A pipeline stage that drop rare tokens from token lists.
+    """A pipeline stage that drop rare tokens from token lists.
 
     Target columns must be series of token lists; i.e. every cell in the series
     is an iterable of string tokens.
@@ -459,6 +458,7 @@ class DropRareTokens(ColumnsBasedPipelineStage):
        num      chars
     0    7  [a, a, b]
     1    3        [b]
+
     """
 
     def __init__(self, columns, threshold, drop=True, **kwargs):

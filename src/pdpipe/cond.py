@@ -6,14 +6,11 @@ from .shared import _list_str
 
 
 class UnfittedConditionError(Exception):
-    """
-    Raised when a transform is attempted with an unfitted condition.
-    """
+    """Raised when a transform is attempted with an unfitted condition."""
 
 
 class Condition(object):
-    """
-    A fittable condition that returns a boolean value from a dataframe.
+    """A fittable condition that returns a boolean value from a dataframe.
 
     Parameters
     ----------
@@ -35,6 +32,7 @@ class Condition(object):
     >>> cond
     <pdpipe.Condition: By function>
     >>> col_drop = pdp.ColDrop(['lbl'], prec=cond)
+
     """
 
     def __init__(self, func, fittable=None, error_message=None):
@@ -44,8 +42,7 @@ class Condition(object):
             self._error_message = error_message
 
     def __call__(self, X):
-        """
-        Return column labels of qualified columns from an input dataframe.
+        """Return column labels of qualified columns from an input dataframe.
 
         Parameters
         ----------
@@ -56,6 +53,7 @@ class Condition(object):
         -------
         bool
             Either True of False.
+
         """
         try:
             return bool(self.transform(X))
@@ -63,8 +61,7 @@ class Condition(object):
             return bool(self.fit_transform(X))
 
     def fit_transform(self, X):
-        """
-        Fit this condition and returns the result.
+        """Fit this condition and returns the result.
 
         Parameters
         ----------
@@ -75,24 +72,24 @@ class Condition(object):
         -------
         bool
             Either True or False.
+
         """
         self._result = bool(self._func(X))
         return self._result
 
     def fit(self, X):
-        """
-        Fit this condition on the input dataframe.
+        """Fit this condition on the input dataframe.
 
         Parameters
         ----------
         X : pandas.DataFrame
             The input dataframe on which the condition is checked.
+
         """
         self.fit_transform(X)
 
     def transform(self, X):
-        """
-        Return the result of this condition.
+        """Return the result of this condition.
 
         Is this Condition is fittable, it will return the result that was
         determined when fitted, if it's fitted, and throw an exception
@@ -107,6 +104,7 @@ class Condition(object):
         -------
         bool
             Either True or False.
+
         """
         if not self._fittable:
             return bool(self._func(X))
@@ -195,8 +193,7 @@ class Condition(object):
 
 
 class PerColumnCondition(Condition):
-    """
-    Check whether the columns of input dataframes satisfy a condition set.
+    """Check whether the columns of input dataframes satisfy a condition set.
 
     Parameters
     ----------
@@ -254,6 +251,7 @@ conditions: anonymous condition>
     ... )
     >>> cond(X)
     True
+
     """
 
     class _ConditionFunction(object):
@@ -332,8 +330,7 @@ conditions: anonymous condition>
 
 
 class HasAllColumns(Condition):
-    """
-    Check whether input dataframes contain a list of columns.
+    """Check whether input dataframes contain a list of columns.
 
     Parameters
     ----------
@@ -359,6 +356,7 @@ class HasAllColumns(Condition):
     >>> cond = pdp.cond.HasAllColumns(['num', 'gar'])
     >>> cond(X)
     False
+
     """
 
     def __init__(self, labels, **kwargs):
@@ -386,8 +384,7 @@ class HasAllColumns(Condition):
 
 
 class ColumnsFromList(PerColumnCondition):
-    """
-    Check whether input dataframes contain columns from a list.
+    """Check whether input dataframes contain columns from a list.
 
     Parameters
     ----------
@@ -419,6 +416,7 @@ conditions: Series with labels in num>
     ...     ['num', 'gar'], columns_reduce='any')
     >>> cond(X)
     True
+
     """
 
     class _SeriesLblCondition(object):
@@ -441,8 +439,7 @@ conditions: Series with labels in num>
 
 
 class HasNoColumn(Condition):
-    """
-    Check whether input dataframes contains no column from a list.
+    """Check whether input dataframes contains no column from a list.
 
     Parameters
     ----------
@@ -468,6 +465,7 @@ class HasNoColumn(Condition):
     >>> cond = pdp.cond.HasNoColumn(['ph', 'gar'])
     >>> cond(X)
     True
+
     """
 
     class _NoColumnsFunc(object):
@@ -499,8 +497,8 @@ class HasNoColumn(Condition):
 
 
 class HasAtMostMissingValues(Condition):
-    """
-    Check if a dataframes has no more than X missing values across all columns.
+    """Check if a dataframes has no more than X missing values across all
+    columns.
 
     Parameters
     ----------
@@ -531,6 +529,7 @@ class HasAtMostMissingValues(Condition):
     >>> cond = pdp.cond.HasAtMostMissingValues(0.2)
     >>> cond(X)
     False
+
     """
 
     class _IntMissingValuesFunc(object):
@@ -578,8 +577,7 @@ class HasAtMostMissingValues(Condition):
 
 
 class HasNoMissingValues(HasAtMostMissingValues):
-    """
-    Check whether input dataframes has no missing values.
+    """Check whether input dataframes has no missing values.
 
     Parameters
     ----------
@@ -597,6 +595,7 @@ class HasNoMissingValues(HasAtMostMissingValues):
     <pdpipe.Condition: Has no missing values>
     >>> cond(X)
     False
+
     """
 
     def __init__(self, **kwargs):
@@ -617,8 +616,7 @@ def _AlwaysTrue(X: pandas.DataFrame) -> bool:
 
 
 class AlwaysTrue(Condition):
-    """
-    A condition letting all dataframes through, always returning True.
+    """A condition letting all dataframes through, always returning True.
 
     Parameters
     ----------
@@ -636,6 +634,7 @@ class AlwaysTrue(Condition):
     <pdpipe.Condition: AlwaysTrue>
     >>> cond(X)
     True
+
     """
 
     def __init__(self, **kwargs):
@@ -649,8 +648,7 @@ class AlwaysTrue(Condition):
 
 
 class HasAtMostNQualifyingColumns(Condition):
-    """
-    Check whether a dataframe has at most N columns statisfying a qualifier.
+    """Check whether a dataframe has at most N columns statisfying a qualifier.
 
     Parameters
     ----------
@@ -678,6 +676,7 @@ class HasAtMostNQualifyingColumns(Condition):
     ...     n=1, qualifier=pdp.cq.StartsWith('n'))
     >>> cond(X)
     False
+
     """  # noqa: E501
 
     class _AtMostNQualifyingCallable:
@@ -714,8 +713,7 @@ class HasAtMostNQualifyingColumns(Condition):
 
 
 class HasAtLeastNQualifyingColumns(Condition):
-    """
-    Check if a dataframe has at least N columns statisfying a qualifier.
+    """Check if a dataframe has at least N columns statisfying a qualifier.
 
     Parameters
     ----------
@@ -743,6 +741,7 @@ class HasAtLeastNQualifyingColumns(Condition):
     ...     n=3, qualifier=pdp.cq.StartsWith('n'))
     >>> cond(X)
     False
+
     """  # noqa: E501
 
     class _AtLeastNQualifyingCallable:
@@ -779,8 +778,7 @@ class HasAtLeastNQualifyingColumns(Condition):
 
 
 class HasNoQualifyingColumns(HasAtMostNQualifyingColumns):
-    """
-    Check whether a dataframe has no columns statisfying a qualifier.
+    """Check whether a dataframe has no columns statisfying a qualifier.
 
     Parameters
     ----------
@@ -802,6 +800,7 @@ class HasNoQualifyingColumns(HasAtMostNQualifyingColumns):
     <pdpipe.Condition: Has no columns qualifying <ColumnQualifier: Columns starting with n>>
     >>> cond(X)
     False
+
     """  # noqa: E501
 
     def __init__(self, qualifier: callable, **kwargs):

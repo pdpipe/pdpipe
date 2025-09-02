@@ -1,20 +1,19 @@
-# pdpipe ❤️  sklearn
+# pdpipe ❤️ sklearn
 
 `pdpipe` has strong existing tools to enable integration with scikit-learn models. Besides [stages integrating important scikit-learn transformations], it boasts a custom class that allows the integration of `pdpipe` pipelines and `sklearn` estimator into a single parameterized pipeline-and-model object, the parameters of which can be optimized jointly.
 
 .. [stages integrating important scikit-learn transformations] https://pdpipe.readthedocs.io/en/latest/reference/sklearn/
 
-
 ## The PdPipelineAndSklearnEstimator class
 
-To create such custom joint object, you can extend the `PdPipelineAndSklearnEstimator`. Here's an example: 
+To create such custom joint object, you can extend the `PdPipelineAndSklearnEstimator`. Here's an example:
 
 ```python
-
 from typing import Optional
 import pdpipe as pdp
 from pdpipe.skintegrate import PdPipelineAndSklearnEstimator
 from sklearn.linear_model import LogisticRegression
+
 
 class MyPipelineAndModel(PdPipelineAndSklearnEstimator):
 
@@ -35,23 +34,23 @@ class MyPipelineAndModel(PdPipelineAndSklearnEstimator):
         self.fit_intercept = fit_intercept
         cols_to_drop = []
         stages = [
-            pdp.ColDrop(['Name', 'Quote'], errors='ignore'),
-            pdp.RowDrop({'Savings': lambda x: x > savings_max_val}),
+            pdp.ColDrop(["Name", "Quote"], errors="ignore"),
+            pdp.RowDrop({"Savings": lambda x: x > savings_max_val}),
         ]
         if savings_bin_val:
-            stages.append(pdp.Bin({'Savings': [savings_bin_val]}, drop=False))
-            stages.append(pdp.Encode('Savings_bin'))
+            stages.append(pdp.Bin({"Savings": [savings_bin_val]}, drop=False))
+            stages.append(pdp.Encode("Savings_bin"))
         if scale_numeric:
-            stages.append(pdp.Scale('MinMaxScaler'))
+            stages.append(pdp.Scale("MinMaxScaler"))
         if drop_gender:
-            cols_to_drop.append('Gender')
+            cols_to_drop.append("Gender")
         else:
-            stages.append(pdp.Encode('Gender'))
+            stages.append(pdp.Encode("Gender"))
         if ohencode_country:
-            stages.append(pdp.OneHotEncode('Country'))
+            stages.append(pdp.OneHotEncode("Country"))
         else:
-            cols_to_drop.append('Country')
-        stages.append(pdp.ColDrop(cols_to_drop, errors='ignore'))
+            cols_to_drop.append("Country")
+        stages.append(pdp.ColDrop(cols_to_drop, errors="ignore"))
         pline = pdp.PdPipeline(stages)
         model = LogisticRegression(fit_intercept=fit_intercept)
         super().__init__(pipeline=pline, estimator=model)
@@ -79,7 +78,6 @@ The initialized object is now a pipeline followed by a `LogisticRegression` mode
 
 The inner pipeline object can be accessed using the `mp.pipeline` attribute, while the model can be accessed using the `mp.estimator` attribute.
 
-
 ## Using pipeline-estimator joint objects
 
 Let's look at an example dataframe:
@@ -89,18 +87,18 @@ import pandas as pd
 
 df = pd.DataFrame(
     data=[
-        [23, 'Jo', 'M', True, 0.07, 'USA', 'Living life to its fullest'],
-        [52, 'Regina', 'F', False, 0.26, 'Germany', 'I hate cats'],
-        [23, 'Dana', 'F', True, 0.3, 'USA', 'the pen is mightier then the sword'],
-        [25, 'Bo', 'M', False, 2.3, 'Greece', 'all for one and one for all'],
-        [80, 'Richy', 'M', False, 100.2, 'Finland', 'I gots the dollarz'],
-        [60, 'Paul', 'M', True, 1.87, 'Denmark', 'blah'],
-        [44, 'Derek', 'M', True, 1.1, 'Denmark', 'every life is precious'],
-        [72, 'Regina', 'F', True, 7.1, 'Greece', 'all of you get off my porch'],
-        [50, 'Jim', 'M', False, 0.2, 'Germany', 'boy do I love dogs and cats'],
-        [80, 'Wealthus', 'F', False, 123.2, 'Finland', 'me likey them moniez'],
+        [23, "Jo", "M", True, 0.07, "USA", "Living life to its fullest"],
+        [52, "Regina", "F", False, 0.26, "Germany", "I hate cats"],
+        [23, "Dana", "F", True, 0.3, "USA", "the pen is mightier then the sword"],
+        [25, "Bo", "M", False, 2.3, "Greece", "all for one and one for all"],
+        [80, "Richy", "M", False, 100.2, "Finland", "I gots the dollarz"],
+        [60, "Paul", "M", True, 1.87, "Denmark", "blah"],
+        [44, "Derek", "M", True, 1.1, "Denmark", "every life is precious"],
+        [72, "Regina", "F", True, 7.1, "Greece", "all of you get off my porch"],
+        [50, "Jim", "M", False, 0.2, "Germany", "boy do I love dogs and cats"],
+        [80, "Wealthus", "F", False, 123.2, "Finland", "me likey them moniez"],
     ],
-    columns=['Age', 'Name', 'Gender', 'Smoking', 'Savings', 'Country', 'Quote'],
+    columns=["Age", "Name", "Gender", "Smoking", "Savings", "Country", "Quote"],
 )
 ```
 
@@ -108,19 +106,18 @@ This is how it looks:
 
 ![The raw dataframe](https://pdpipe.readthedocs.io/en/latest/images/skintegrate_df1.png)
 
-
 Let's divide it to the `X` and `y` of our supervised learning problem - learning to predict smokers:
 
 ```python
-X_lbls = ['Age', 'Gender', 'Savings', 'Country']
+X_lbls = ["Age", "Gender", "Savings", "Country"]
 all_X = df[X_lbls]
-all_y = df['Smoking']
+all_y = df["Smoking"]
 train_df = df.iloc[0:6]
 train_X = train_df[X_lbls]
-train_y = train_df['Smoking']
+train_y = train_df["Smoking"]
 test_df = df.iloc[6:]
 test_X = test_df[X_lbls]
-test_y = test_df['Smoking']
+test_y = test_df["Smoking"]
 ```
 
 Now, to get an idea what will happen inside the joint object when we fit on `train_X, train_y` and predict on `test_X, test_y`, let's play with the internals. Insie, on `fit` time, the pipeline will be called with `pipeline.fit_transform(train_X, train_y`. Let's call it:
@@ -143,7 +140,6 @@ mp.pipeline.transform(test_X, tes_y)
 
 When using the object itself, will call its sklearn-compliant methods: First, calling `mp.fit(train_X, train_y)` and then `mp.predict(test_X)`. Recall, this class extends `sklearn.BaseEstimator` abstract base class, and thus plays nice with scikit-learn code.
 
-
 ## Grid search cross validation with pipeline-object models
 
 We can also joinly optimize the parameters of both the pipeline and model using sklearn's `GridSearchCV`:
@@ -154,10 +150,10 @@ from sklearn.model_selection import GridSearchCV
 gcv = GridSearchCV(
     estimator=mp,
     param_grid={
-        'savings_max_val': [99, 101],
-        'scale_numeric': [True, False],
-        'drop_gender': [True, False],
-        'ohencode_country': [True, False],
+        "savings_max_val": [99, 101],
+        "scale_numeric": [True, False],
+        "drop_gender": [True, False],
+        "ohencode_country": [True, False],
     },
     cv=3,
 )
@@ -259,7 +255,6 @@ The best estimator is itself, of course, a pipeline-estimator object, and we got
  'scale_numeric': True}
 ```
 
-
 ## Working with custom scorers
 
 The `PdPipelineAndSklearnEstimator` class implements the `score` method in a way that makes everything jive with `sklearn`. To work with custom scores when performing grid search cross validation with `sklearn`, you must wrap `sklearn` scorers and scoring functions into `PdPipeScorer` objects for them to work with the joint pipeline-estimator objects:
@@ -279,10 +274,10 @@ You can now use this wrapped scorer with `GridSearchCV`:
 gcv = GridSearchCV(
     estimator=mp,
     param_grid={
-        'savings_max_val': [99, 101],
-        'scale_numeric': [True, False],
-        'drop_gender': [True, False],
-        'ohencode_country': [True, False],
+        "savings_max_val": [99, 101],
+        "scale_numeric": [True, False],
+        "drop_gender": [True, False],
+        "ohencode_country": [True, False],
     },
     cv=3,
     scoring=my_scorer,
@@ -293,4 +288,6 @@ That's it!
 
 !!! help "Getting help"
 
-    Remember you can get help on <a href="https://gitter.im/pdpipe/community" target="_blank">our :material-wechat: Gitter chat</a> or on <a href="https://github.com/pdpipe/pdpipe/discussions" target="_blank">our :material-message-question: GitHub Discussions forum</a>.
+```
+Remember you can get help on <a href="https://gitter.im/pdpipe/community" target="_blank">our :material-wechat: Gitter chat</a> or on <a href="https://github.com/pdpipe/pdpipe/discussions" target="_blank">our :material-message-question: GitHub Discussions forum</a>.
+```

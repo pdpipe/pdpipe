@@ -84,8 +84,7 @@ def __load_stage_attributes_from_module__(module_name: object) -> None:
 
 
 class PdpApplicationContext:
-    """
-    An object encapsulating the application context of a pipeline.
+    """An object encapsulating the application context of a pipeline.
 
     It is meant to communicate data, information and variables between
     different stages of a pipeline during its application.
@@ -96,6 +95,7 @@ class PdpApplicationContext:
         Another application context object, representing the application
         context of a previous fit of the pipelline this application context
         is initialized for. Optional.
+
     """
 
     def __init__(
@@ -118,8 +118,7 @@ class PdpApplicationContext:
             self._dict.__delitem__(key)
 
     def get(self, key: object, default: object = None) -> object:
-        """
-        Return the value for key if key is in the dictionary, else default.
+        """Return the value for key if key is in the dictionary, else default.
 
         If default is not given, it defaults to None, so that this method never
         raises a KeyError.
@@ -137,34 +136,34 @@ class PdpApplicationContext:
             The value mapped to the given key in this dictionary. If it is not
             mapped, then default is returned. If default was not provided,
             None is returned.
+
         """
         return self._dict.get(key, default)
 
     def items(self) -> object:
-        """
-        Return a new view of the context’s items ((key, value) pairs).
+        """Return a new view of the context’s items ((key, value) pairs).
 
         Returns
         -------
         object
             A new view of the context’s items ((key, value) pairs).
+
         """
         return self._dict.items()
 
     def keys(self):
-        """
-        Return a new view of the context's keys.
+        """Return a new view of the context's keys.
 
         Returns
         -------
         object
             A new view of the context's keys.
+
         """
         return self._dict.keys()
 
     def pop(self, key: object, default: object) -> object:
-        """
-        Remove the given key from this dict and return its mapped value.
+        """Remove the given key from this dict and return its mapped value.
 
         If key is in the dictionary, remove it and return its value, else
         return default. If default is not given and key is not in the
@@ -183,6 +182,7 @@ class PdpApplicationContext:
             The value mapped to the given key in this dictionary. If it is not
             mapped, then default is returned. If default was not provided,
             a KeyError is raised.
+
         """
         if not self._locked:
             return self._dict.pop(key, default)
@@ -198,8 +198,7 @@ class PdpApplicationContext:
         raise NotImplementedError
 
     def update(self, other: dict) -> None:
-        """
-        Update self with key-value pairs from another dict.
+        """Update self with key-value pairs from another dict.
 
         This overwrite any existing mappings with keys that are also
         mapped in other.
@@ -213,6 +212,7 @@ class PdpApplicationContext:
         ----------
         other : dict
             The dict to get new key-value pairs from.
+
         """
         if not self._locked:
             self._dict.update(other)
@@ -222,31 +222,31 @@ class PdpApplicationContext:
         self._locked = True
 
     def fit_context(self) -> "PdpApplicationContext":
-        """
-        Return a locked PdpApplicationContext object of a previous fit.
+        """Return a locked PdpApplicationContext object of a previous fit.
 
         Returns
         -------
         PdpApplicationContext
             A locked PdpApplicationContext object of a previous fit.
+
         """
         return self._fit_context
 
     def is_locked(self) -> bool:
-        """
-        Return True if this application context is locked; False otherwise.
+        """Return True if this application context is locked; False otherwise.
 
         Returns
         -------
         bool
             True if this application context is locked; False otherwise.
+
         """
         return self._locked
 
 
 class AppContextMgr:
-    """
-    Manages application context objects over a specific pipeline application.
+    """Manages application context objects over a specific pipeline
+    application.
 
     Parameters
     ----------
@@ -256,6 +256,7 @@ class AppContextMgr:
         If set to True, then this AppContextMgr is being used during a
         fit-transform of a pipeline; otherwise, it is being used during a
         transform. Optional, defaults to False.
+
     """
 
     def __init__(self, stage: "PdPipelineStage", fit: Optional[bool] = False):
@@ -274,8 +275,7 @@ class AppContextMgr:
 
 
 class PdPipelineStage(abc.ABC):
-    """
-    A stage of a pandas DataFrame-processing pipeline.
+    """A stage of a pandas DataFrame-processing pipeline.
 
     Parameters
     ----------
@@ -325,6 +325,7 @@ class PdPipelineStage(abc.ABC):
         pipeline application (so, also during transform operations of fitted
         pipelines), and is locked after pipeline application.It is injected
         into the PipelineStage by the encapsulating pipeline object.
+
     """
 
     _DEF_EXC_MSG = "Precondition failed in stage {}!"
@@ -379,13 +380,13 @@ class PdPipelineStage(abc.ABC):
         self._process_dynamics()
 
     def is_being_fitted_by_pipeline(self) -> bool:
-        """
-        Return True if this stage is being fitted, False otherwise.
+        """Return True if this stage is being fitted, False otherwise.
 
         Returns
         -------
         bool
             True is this stage is being fitted; False otherwise.
+
         """
         try:
             return not self.fit_context.is_locked()
@@ -411,12 +412,12 @@ class PdPipelineStage(abc.ABC):
     }
 
     def _process_dynamics(self) -> None:
-        """
-        Create a list of Dynamic attributes of this stage.
+        """Create a list of Dynamic attributes of this stage.
 
         Returns
         -------
         None
+
         """
         potential_dynamics_attrs = set(self.__dict__).difference(
             self.class_attrs
@@ -432,8 +433,7 @@ class PdPipelineStage(abc.ABC):
 
     @classmethod
     def _split_kwargs(cls, kwargs: dict) -> Tuple[dict, dict]:
-        """
-        Split the given kwargs dict into init and non-init kwargs.
+        """Split the given kwargs dict into init and non-init kwargs.
 
         Parameters
         ----------
@@ -446,6 +446,7 @@ class PdPipelineStage(abc.ABC):
             The init kwargs dict.
         other_kwargs : dict
             The non-init kwargs dict.
+
         """
         init_kwargs = {
             k: v for k, v in kwargs.items() if k in cls._INIT_KWARGS
@@ -465,8 +466,7 @@ class PdPipelineStage(abc.ABC):
         X: pandas.DataFrame,
         y: Optional[pandas.Series] = None,
     ) -> bool:  # pylint: disable=W0613
-        """
-        Return True if this stage can be applied to the given dataframe.
+        """Return True if this stage can be applied to the given dataframe.
 
         Parameters
         ----------
@@ -481,6 +481,7 @@ class PdPipelineStage(abc.ABC):
         bool
             True if this stage this stage can be applied to the given
             dataframe; False otherwise.
+
         """
         raise NotImplementedError
 
@@ -490,8 +491,7 @@ class PdPipelineStage(abc.ABC):
         y: Optional[pandas.Series] = None,
         fit: Optional[bool] = False,
     ) -> bool:
-        """
-        Return True if the input dataframe conforms to stage pre-condition.
+        """Return True if the input dataframe conforms to stage pre-condition.
 
         Parameters
         ----------
@@ -511,6 +511,7 @@ class PdPipelineStage(abc.ABC):
         bool
             True if the input dataframe conforms to stage pre-condition; False
             otherwise.
+
         """
         if self._prec_arg:
             to_call = self._prec_arg
@@ -551,8 +552,7 @@ class PdPipelineStage(abc.ABC):
         X: pandas.DataFrame,
         y: Optional[pandas.Series] = None,
     ) -> bool:  # pylint: disable=R0201,W0613
-        """
-        Return True if this stage resulted in an expected output frame.
+        """Return True if this stage resulted in an expected output frame.
 
         Parameters
         ----------
@@ -567,6 +567,7 @@ class PdPipelineStage(abc.ABC):
         bool
             True if this stage resulted in an expected output dataframe; False
             otherwise.
+
         """
         return True
 
@@ -576,11 +577,11 @@ class PdPipelineStage(abc.ABC):
         y: Optional[pandas.Series] = None,
         fit: Optional[bool] = False,
     ) -> bool:
-        """
-        An inner implementation of the post-condition functionality.
+        """An inner implementation of the post-condition functionality.
 
         Uses the constructor provided post-condition, if one was provided.
         Otherwise, uses the build-it function.
+
         """
         if self._post_arg:
             to_call = self._post_arg
@@ -612,8 +613,7 @@ class PdPipelineStage(abc.ABC):
         X: pandas.DataFrame,
         verbose: bool = False,
     ) -> pandas.DataFrame:
-        """
-        Fit this stage and transforms the input dataframe.
+        """Fit this stage and transforms the input dataframe.
 
         Parameters
         ----------
@@ -626,6 +626,7 @@ class PdPipelineStage(abc.ABC):
         -------
         pandas.DataFrame
             The transformed dataframe.
+
         """
         return self._transform(X, verbose=verbose)
 
@@ -656,8 +657,7 @@ class PdPipelineStage(abc.ABC):
         X: pandas.DataFrame,
         verbose: bool = False,
     ) -> pandas.DataFrame:
-        """
-        Transform an input dataframe without fitting this stage.
+        """Transform an input dataframe without fitting this stage.
 
         Parameters
         ----------
@@ -670,6 +670,7 @@ class PdPipelineStage(abc.ABC):
         -------
         pandas.DataFrame
             The transformed dataframe.
+
         """
         raise NotImplementedError("_transform method not implemented!")
 
@@ -678,9 +679,7 @@ class PdPipelineStage(abc.ABC):
         X: pandas.DataFrame,
         y: Union[pandas.Series, numpy.array, Iterable[object]],
     ) -> pandas.Series:
-        """
-        Cast the y labels input to a correclty-indexed pandas.Series.
-
+        """Cast the y labels input to a correclty-indexed pandas.Series.
 
         Parameters
         ----------
@@ -693,6 +692,7 @@ class PdPipelineStage(abc.ABC):
         -------
         pandas.Series
             The label array as a pandas.Series object.
+
         """
         if len(X) != len(y):
             raise ValueError("X and y must have the same length!")
@@ -708,8 +708,7 @@ class PdPipelineStage(abc.ABC):
         y: pandas.Series,
         preX: pandas.DataFrame,
     ) -> Tuple[pandas.DataFrame, pandas.Series]:
-        """
-        Align the input dataframe and label series.
+        """Align the input dataframe and label series.
 
         The input dataframe and label series are assumed to have been indexed
         by the same index before a possible transformation to one of them,
@@ -733,6 +732,7 @@ class PdPipelineStage(abc.ABC):
             The aligned dataframe.
         pandas.Series
             The aligned label series.
+
         """
         # if values were dropped from y, reindex X according to y
         if len(y) < len(X):
@@ -771,8 +771,7 @@ class PdPipelineStage(abc.ABC):
         exraise: Optional[bool] = None,
         verbose: Optional[bool] = False,
     ) -> Union[pandas.DataFrame, Tuple[pandas.DataFrame, pandas.Series]]:
-        """
-        Apply this pipeline stage to the given dataframe.
+        """Apply this pipeline stage to the given dataframe.
 
         If the stage is not fitted fit_transform is called. Otherwise,
         transform is called.
@@ -798,6 +797,7 @@ class PdPipelineStage(abc.ABC):
         pandas.DataFrame or Tuple[pandas.DataFrame, pandas.Series]
             The returned dataframe. If `y` was also provided, the transformed
             `X` and `y` are returned as a tuple instead.
+
         """
         if self.is_fitted:
             return self.transform(X, y=y, exraise=exraise, verbose=verbose)
@@ -806,8 +806,7 @@ class PdPipelineStage(abc.ABC):
     __call__ = apply
 
     def fit_transform(self, X, y=None, exraise=None, verbose=False):
-        """
-        Fit this stage and transforms the given dataframe.
+        """Fit this stage and transforms the given dataframe.
 
         Parameters
         ----------
@@ -828,6 +827,7 @@ class PdPipelineStage(abc.ABC):
         -------
         pandas.DataFrame
             The resulting dataframe.
+
         """
         with AppContextMgr(self, fit=True):
             if exraise is None:
@@ -867,8 +867,7 @@ class PdPipelineStage(abc.ABC):
             return X
 
     def fit(self, X, y=None, exraise=None, verbose=False):
-        """
-        Fit this stage without transforming the given dataframe.
+        """Fit this stage without transforming the given dataframe.
 
         Parameters
         ----------
@@ -889,6 +888,7 @@ class PdPipelineStage(abc.ABC):
         -------
         pandas.DataFrame
             The resulting dataframe.
+
         """
         self.fit_transform(X, y=y, exraise=exraise, verbose=verbose)
         if y is not None:
@@ -896,8 +896,7 @@ class PdPipelineStage(abc.ABC):
         return X
 
     def transform(self, X, y=None, exraise=None, verbose=False):
-        """
-        Transform the given dataframe without fitting this stage.
+        """Transform the given dataframe without fitting this stage.
 
         If this stage is fittable but is not fitter, an
         UnfittedPipelineStageError is raised.
@@ -921,6 +920,7 @@ class PdPipelineStage(abc.ABC):
         -------
         pandas.DataFrame
             The resulting dataframe.
+
         """
         with AppContextMgr(self):
             if exraise is None:
@@ -990,13 +990,13 @@ class PdPipelineStage(abc.ABC):
         return self.__str__()
 
     def description(self) -> str:
-        """
-        Return the description of this pipeline stage.
+        """Return the description of this pipeline stage.
 
         Returns
         -------
         str
             The description of this pipeline stage.
+
         """
         return self._desc
 
@@ -1030,8 +1030,7 @@ class PdPipelineStage(abc.ABC):
 
 
 class ColumnsBasedPipelineStage(PdPipelineStage):
-    """
-    A pipeline stage that operates on a subset of dataframe columns.
+    """A pipeline stage that operates on a subset of dataframe columns.
 
     Parameters
     ----------
@@ -1060,6 +1059,7 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
         `columns=None`.
     **kwargs
         Additionally supports all constructor parameters of PdPipelineStage.
+
     """
 
     _INIT_KWARGS = [
@@ -1214,8 +1214,7 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
 
 
 class AdHocStage(PdPipelineStage):
-    """
-    An ad-hoc stage of a pandas DataFrame-processing pipeline.
+    """An ad-hoc stage of a pandas DataFrame-processing pipeline.
 
     The signature for both the `transform` and the optional `fit_transform`
     callables is adaptive: The first argument is used positionally (so no
@@ -1259,6 +1258,7 @@ class AdHocStage(PdPipelineStage):
       char
     1    a
     2    b
+
     """
 
     def __init__(self, transform, fit_transform=None, prec=None, **kwargs):
@@ -1312,8 +1312,7 @@ class AdHocStage(PdPipelineStage):
 
 
 class PdPipeline(PdPipelineStage, collections.abc.Sequence):
-    """
-    A pipeline for processing pandas DataFrame objects.
+    """A pipeline for processing pandas DataFrame objects.
 
     `transformer_getter` is useful to avoid applying pipeline stages that are
     aimed to filter out items in a big dataset to create a training set for a
@@ -1345,6 +1344,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         into the PipelineStage by the encapsulating pipeline object.
     is_fitted : bool
         Whether this pipeline has been fitted.
+
     """
 
     _DEF_EXC_MSG = "Pipeline precondition failed!"
@@ -1410,8 +1410,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         inter_X: pd.DataFrame,
         inter_y: Optional[pd.Series] = None,
     ) -> None:
-        """
-        Sets the dynamic parameter based on given callable
+        """Sets the dynamic parameter based on given callable.
 
         Parameters
         ----------
@@ -1425,6 +1424,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         Returns
         -------
         None
+
         """
         for dynamic in stage._dynamics:
             param = (
@@ -1444,8 +1444,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         fit_context: Optional[dict] = {},
         application_context: Optional[dict] = {},
     ):
-        """
-        Apply this pipeline stage to the given dataframe.
+        """Apply this pipeline stage to the given dataframe.
 
         If the stage is not fitted fit_transform is called. Otherwise,
         transform is called.
@@ -1484,6 +1483,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         -------
         pandas.DataFrame
             The resulting dataframe.
+
         """
         if self.is_fitted:
             res = self.transform(
@@ -1585,8 +1585,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         fit_context: Optional[dict] = {},
         application_context: Optional[dict] = {},
     ):
-        """
-        Fit this pipeline and transforms the input dataframe.
+        """Fit this pipeline and transforms the input dataframe.
 
         Parameters
         ----------
@@ -1621,6 +1620,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         -------
         pandas.DataFrame
             The resulting dataframe.
+
         """
         if time:
             return self.__timed_fit_transform(
@@ -1691,8 +1691,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         fit_context: Optional[dict] = {},
         application_context: Optional[dict] = {},
     ):
-        """
-        Fit this pipeline without transforming the input dataframe.
+        """Fit this pipeline without transforming the input dataframe.
 
         Parameters
         ----------
@@ -1726,6 +1725,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         -------
         pandas.DataFrame
             The input dataframe, unchanged.
+
         """
         self.fit_transform(
             X,
@@ -1815,8 +1815,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         time: Optional[bool] = False,
         application_context: Optional[dict] = {},
     ) -> pandas.DataFrame:
-        """
-        Transform the given dataframe without fitting this pipeline.
+        """Transform the given dataframe without fitting this pipeline.
 
         If any stage in this pipeline is fittable but is not fitted, an
         UnfittedPipelineStageError is raised before transformation starts.
@@ -1850,6 +1849,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         -------
         pandas.DataFrame
             The resulting dataframe.
+
         """
         if time:
             return self.__timed_transform(
@@ -1982,12 +1982,12 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         return "".join(lines)
 
     def memory_report(self):
-        """
-        Print a detailed memory report of the pipeline object to screen.
+        """Print a detailed memory report of the pipeline object to screen.
 
         To get better memory estimates make sure the pympler Python package is
         installed. Without it, sys.getsizeof is used, which can be extremely
         underestimate memory size of Python objects.
+
         """
         print("=== Pipeline memory report ===")
         size = asizeof(self)
@@ -2007,8 +2007,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         print(self._mem_str(total=size))
 
     def get_transformer(self) -> "PdPipeline":
-        """
-        Return the transformer induced by this fitted pipeline.
+        """Return the transformer induced by this fitted pipeline.
 
         This transformer is a `pdpipe` pipeline that transforms input data
         in a way corresponding to this pipline after it has been fitted. By
@@ -2021,6 +2020,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         -------
         pdpipe.PdPipeline
             The corresponding transformer pipeline induced by this pipeline.
+
         """
         try:
             return self._trans_getter(self)
@@ -2035,8 +2035,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
 
 
 def make_pdpipeline(*stages: PdPipelineStage) -> PdPipeline:
-    """
-    Construct a PdPipeline from the given pipeline stages.
+    """Construct a PdPipeline from the given pipeline stages.
 
     This is a convenience method that wraps the PdPipeline constructor,
     essentially performing:
@@ -2056,5 +2055,6 @@ def make_pdpipeline(*stages: PdPipelineStage) -> PdPipeline:
     --------
     >>> import pdpipe as pdp
     >>> p = make_pdpipeline(pdp.ColDrop('count'), pdp.DropDuplicates())
+
     """
     return PdPipeline(stages=stages)

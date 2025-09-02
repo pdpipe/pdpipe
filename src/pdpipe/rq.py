@@ -7,8 +7,7 @@ import pandas
 
 
 class RowQualifier(object):
-    """
-    An object that returns a boolean series from input dataframes.
+    """An object that returns a boolean series from input dataframes.
 
     The boolean series will be of the length of the input dataframe, and so can
     be used as a boolean index to get a subset of the input dataframe's rows.
@@ -17,6 +16,7 @@ class RowQualifier(object):
     ----------
     func : callable
         The function to apply to input dataframes.
+
     """
 
     def __init__(self, func: callable) -> None:
@@ -122,8 +122,7 @@ class RowQualifier(object):
 
 
 class ColValGt(RowQualifier):
-    """
-    A row qualifier that qualifies rows with a value greater than a value.
+    """A row qualifier that qualifies rows with a value greater than a value.
 
     Parameters
     ----------
@@ -131,6 +130,7 @@ class ColValGt(RowQualifier):
         The label of the column the qualifier checks.
     value : Number
         The value to check against.
+
     """
 
     class _GtRowFunc(object):
@@ -151,8 +151,7 @@ class ColValGt(RowQualifier):
 
 
 class ColValGe(RowQualifier):
-    """
-    Qualify rows with a value greater than or equal to a value.
+    """Qualify rows with a value greater than or equal to a value.
 
     Parameters
     ----------
@@ -160,6 +159,7 @@ class ColValGe(RowQualifier):
         The label of the column the qualifier checks.
     value : Number
         The value to check against.
+
     """
 
     class _GeRowFunc(object):
@@ -180,8 +180,7 @@ class ColValGe(RowQualifier):
 
 
 class ColValLt(RowQualifier):
-    """
-    A row qualifier that qualifies rows with a value lesser than a value.
+    """A row qualifier that qualifies rows with a value lesser than a value.
 
     Parameters
     ----------
@@ -189,6 +188,7 @@ class ColValLt(RowQualifier):
         The label of the column the qualifier checks.
     value : Number
         The value to check against.
+
     """
 
     class _LtRowFunc(object):
@@ -209,8 +209,8 @@ class ColValLt(RowQualifier):
 
 
 class ColValLe(RowQualifier):
-    """
-    A qualifier qualifying rows with a value lesser than or equal to a value.
+    """A qualifier qualifying rows with a value lesser than or equal to a
+    value.
 
     Parameters
     ----------
@@ -218,6 +218,7 @@ class ColValLe(RowQualifier):
         The label of the column the qualifier checks.
     value : Number
         The value to check against.
+
     """
 
     class _LeRowFunc(object):
@@ -238,8 +239,7 @@ class ColValLe(RowQualifier):
 
 
 class ColValEq(RowQualifier):
-    """
-    A row qualifier that qualifies rows with a value equal to a value.
+    """A row qualifier that qualifies rows with a value equal to a value.
 
     Parameters
     ----------
@@ -247,6 +247,7 @@ class ColValEq(RowQualifier):
         The label of the column the qualifier checks.
     value : Number
         The value to check against.
+
     """
 
     class _EqRowFunc(object):
@@ -267,8 +268,7 @@ class ColValEq(RowQualifier):
 
 
 class ColValNe(RowQualifier):
-    """
-    A row qualifier that qualifies rows with a value not equal to a value.
+    """A row qualifier that qualifies rows with a value not equal to a value.
 
     Parameters
     ----------
@@ -276,6 +276,7 @@ class ColValNe(RowQualifier):
         The label of the column the qualifier checks.
     value : Number
         The value to check against.
+
     """
 
     class _NeRowFunc(object):
@@ -296,8 +297,7 @@ class ColValNe(RowQualifier):
 
 
 class ColValIsIn(RowQualifier):
-    """
-    A row qualifier that qualifies rows with a value not equal to a value.
+    """A row qualifier that qualifies rows with a value not equal to a value.
 
     Parameters
     ----------
@@ -305,6 +305,7 @@ class ColValIsIn(RowQualifier):
         The label of the column the qualifier checks.
     value_list : list of object
         The list of values to check against.
+
     """
 
     class _IsInRowFunc(object):
@@ -333,13 +334,13 @@ class ColValIsIn(RowQualifier):
 
 
 class ColValIsNa(RowQualifier):
-    """
-    A row qualifier that qualifies rows with a null value in a column.
+    """A row qualifier that qualifies rows with a null value in a column.
 
     Parameters
     ----------
     label : object
         The label of the column the qualifier checks.
+
     """
 
     class _IsNaRowFunc(object):
@@ -363,13 +364,13 @@ class ColValIsNa(RowQualifier):
 
 
 class ColValNotNa(RowQualifier):
-    """
-    A row qualifier that qualifies rows with a non-NA value in a column.
+    """A row qualifier that qualifies rows with a non-NA value in a column.
 
     Parameters
     ----------
     label : object
         The label of the column the qualifier checks.
+
     """
 
     class _NotNaRowFunc(object):

@@ -1,4 +1,4 @@
-"""Testing rq"""
+"""Testing rq."""
 
 import pytest
 import pandas as pd

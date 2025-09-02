@@ -47,6 +47,7 @@ def get_npdoc_val_report(object_name) -> bool:
     bool
         True if any hard errors were found (errors not defined as soft errors
         in the SOFT_ERROR_CODES_LIST).
+
     """
     any_hard_errors = False
     try:
@@ -142,8 +143,7 @@ module_blacklist = ["_version", "cfg"]
 
 
 def validate_module(module_name: str) -> bool:
-    """
-    Validate numpy docstrings in an entire module.
+    """Validate numpy docstrings in an entire module.
 
     Parameters
     ----------
@@ -154,6 +154,7 @@ def validate_module(module_name: str) -> bool:
     -------
     bool
         True if any hard errors were found; False otherwise.
+
     """
     print(f"Validating numpy docstrings in the {module_name} module!")
     obj_w_hard_errors = []

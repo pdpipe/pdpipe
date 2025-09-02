@@ -1,5 +1,4 @@
-"""
-Classes for sklearn integration.
+"""Classes for sklearn integration.
 
 Despite similar names, there is a difference between pdpipe PdPipeline and
 sklearn.pipeline.Pipeline. PdPipeline can only chain transformers while
@@ -12,6 +11,7 @@ compared to sklearn.pipeline.Pipeline.
 
 This module resolves such integration issues. Refer to the notebooks folder of
 the pdpipe repository for complete examples.
+
 """
 
 # standard library imports
@@ -40,8 +40,7 @@ warnings.filterwarnings(
 
 
 def _estimator_has(attr):
-    """
-    Check if we can delegate a method to the underlying estimator.
+    """Check if we can delegate a method to the underlying estimator.
 
     Calling a prediction method will only be available if `refit=True`. In
     such case, we check first the fitted best estimator. If it is not
@@ -49,6 +48,7 @@ def _estimator_has(attr):
 
     Checking the unfitted estimator allows to use `hasattr` on the `SearchCV`
     instance even before calling `fit`.
+
     """
 
     def check(self):
@@ -60,8 +60,7 @@ def _estimator_has(attr):
 
 
 class _AvailableIfDescriptor:  # pragma: no cover
-    """
-    Implement a conditional property using the descriptor protocol.
+    """Implement a conditional property using the descriptor protocol.
 
     Using this class to create a decorator will raise an ``AttributeError``
     if check(self) returns a falsey value. Note that if check raises an error
@@ -69,6 +68,7 @@ class _AvailableIfDescriptor:  # pragma: no cover
 
     See https://docs.python.org/3/howto/descriptor.html for an explanation of
     descriptors.
+
     """
 
     def __init__(self, fn, check, attribute_name):
@@ -110,8 +110,7 @@ class _AvailableIfDescriptor:  # pragma: no cover
 
 
 def available_if(check):
-    """
-    An attribute that is available only if check returns a truthy value.
+    """An attribute that is available only if check returns a truthy value.
 
     Parameters
     ----------
@@ -124,6 +123,7 @@ def available_if(check):
     -------
     callable
         A lambda based attribute.
+
     """
     return lambda fn: _AvailableIfDescriptor(
         fn, check, attribute_name=fn.__name__
@@ -131,8 +131,7 @@ def available_if(check):
 
 
 class PdPipelineAndSklearnEstimator(BaseEstimator):
-    """
-    A PdPipeline object chained before an sklearn estimator object.
+    """A PdPipeline object chained before an sklearn estimator object.
 
     This kind of object can also be used with sklearn's GridSearchCV.
 
@@ -172,6 +171,7 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
     >>> mp.fit(all_x, all_y)
     <PdPipeline -> LogisticRegression>
     >>> res = mp.predict(all_x)
+
     """
 
     def __init__(
@@ -214,17 +214,16 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
 
     @property
     def classes_(self):
-        """
-        Class labels.
+        """Class labels.
 
         Only available when the estimator is a classifier.
+
         """
         _estimator_has("classes_")(self)
         return self.estimator.classes_
 
     def fit(self, X, y):
-        """
-        A reference implementation of a fitting function.
+        """A reference implementation of a fitting function.
 
         Parameters
         ----------
@@ -238,6 +237,7 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
         -------
         self : object
             Returns self.
+
         """
         # X, y = check_X_y(X, y, accept_sparse=True)
         if y is not None:
@@ -259,8 +259,7 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
 
     @available_if(_estimator_has("predict"))
     def predict(self, X):
-        """
-        A reference implementation of a predicting function.
+        """A reference implementation of a predicting function.
 
         Parameters
         ----------
@@ -273,6 +272,7 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
             Returns an array of ones.
             The predicted labels or values for `X` based on the estimator with
             the best found parameters.
+
         """
         # X = check_array(X, accept_sparse=True)
         check_is_fitted(self, "is_fitted_")
@@ -284,8 +284,7 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
 
     @available_if(_estimator_has("predict_proba"))
     def predict_proba(self, X):
-        """
-        Call predict_proba on the estimator with the best found parameters.
+        """Call predict_proba on the estimator with the best found parameters.
 
         Only available if the underlying estimator supports
         ``predict_proba``.
@@ -302,6 +301,7 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
             Predicted class probabilities for `X` based on the estimator with
             the best found parameters. The order of the classes corresponds
             to that in the fitted attribute :term:`classes_`.
+
         """
         check_is_fitted(self, "is_fitted_")
         post_X, post_y = self.pipeline.transform(
@@ -328,6 +328,7 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
             Predicted class log-probabilities for `X` based on the estimator
             with the best found parameters. The order of the classes
             corresponds to that in the fitted attribute :term:`classes_`.
+
         """
         check_is_fitted(self, "is_fitted_")
         post_X, post_y = self.pipeline.transform(
@@ -338,8 +339,7 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
 
     @available_if(_estimator_has("decision_function"))
     def decision_function(self, X):
-        """
-        Call decision_function on the estimator with best found parameters.
+        """Call decision_function on the estimator with best found parameters.
 
         Only available if the underlying estimator supports
         ``decision_function``.
@@ -356,6 +356,7 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
                 or (n_samples, n_classes * (n_classes-1) / 2)
             Result of the decision function for `X` based on the estimator with
             the best found parameters.
+
         """
         check_is_fitted(self, "is_fitted_")
         post_X, post_y = self.pipeline.transform(
@@ -366,13 +367,13 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
 
 
 class _PdPipeScorer:
-    """
-    A pdpipe scorer object wrapping a standard sklearn scorer.
+    """A pdpipe scorer object wrapping a standard sklearn scorer.
 
     Parameters
     ----------
     scorer : Callable
         The wrapped sklearn scorer.
+
     """
 
     def __init__(self, scorer: Callable) -> None:
@@ -399,8 +400,7 @@ class _PdPipeScorer:
 
 
 def pdpipe_scorer_from_sklearn_scorer(scorer: Callable) -> Callable:
-    """
-    Converts an sklearn scorer to one that will work with pdpipe.
+    """Converts an sklearn scorer to one that will work with pdpipe.
 
     The returned scorer function can then be used with sklearn's
     model-evaluation tools using cross-validation (such as
@@ -425,5 +425,6 @@ def pdpipe_scorer_from_sklearn_scorer(scorer: Callable) -> Callable:
         A scorer that is aware of the fact that PdPipelineAndSklearnEstimator
         has an inner pipeline object that should be used to transform input
         X (which is a dataframe when using pdpipe, and not a numpy.ndarray).
+
     """
     return _PdPipeScorer(scorer)

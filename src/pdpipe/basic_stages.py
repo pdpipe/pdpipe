@@ -21,8 +21,7 @@ from pdpipe.cq import ColumnQualifier
 
 
 class ColDrop(ColumnsBasedPipelineStage):
-    """
-    A pipeline stage that drops columns by name.
+    """A pipeline stage that drops columns by name.
 
     Parameters
     ----------
@@ -43,6 +42,7 @@ class ColDrop(ColumnsBasedPipelineStage):
       char
     1    a
     2    b
+
     """
 
     def __init__(
@@ -82,8 +82,7 @@ class ColDrop(ColumnsBasedPipelineStage):
 
 
 class ValDrop(ColumnsBasedPipelineStage):
-    """
-    A pipeline stage that drops rows by value.
+    """A pipeline stage that drops rows by value.
 
     Parameters
     ----------
@@ -113,6 +112,7 @@ class ValDrop(ColumnsBasedPipelineStage):
     >>> pdp.ValDrop([4]).apply(df)
         a   b
     3  18  11
+
     """
 
     def __init__(
@@ -150,8 +150,7 @@ class ValDrop(ColumnsBasedPipelineStage):
 
 
 class ValKeep(ColumnsBasedPipelineStage):
-    """
-    A pipeline stage that keeps rows by value.
+    """A pipeline stage that keeps rows by value.
 
     Parameters
     ----------
@@ -181,6 +180,7 @@ class ValKeep(ColumnsBasedPipelineStage):
     >>> pdp.ValKeep([4, 5]).apply(df)
        a  b
     2  4  5
+
     """
 
     def __init__(
@@ -213,8 +213,7 @@ class ValKeep(ColumnsBasedPipelineStage):
 
 
 class ColRename(PdPipelineStage):
-    """
-    A pipeline stage that renames a column or columns.
+    """A pipeline stage that renames a column or columns.
 
     Parameters
     ----------
@@ -240,6 +239,7 @@ class ColRename(PdPipelineStage):
        foo char
     1    8    a
     2    5    b
+
     """
 
     _DEF_COLDRENAME_EXC_MSG = (
@@ -286,8 +286,7 @@ class ColRename(PdPipelineStage):
 
 
 class DropNa(PdPipelineStage):
-    """
-    A pipeline stage that drops null values.
+    """A pipeline stage that drops null values.
 
     Supports all parameter supported by pandas.dropna function.
 
@@ -305,6 +304,7 @@ class DropNa(PdPipelineStage):
        a     b
     1  1   4.0
     3  1  11.0
+
     """
 
     _DEF_DROPNA_EXC_MSG = "DropNa stage failed."
@@ -336,8 +336,7 @@ class DropNa(PdPipelineStage):
 
 
 class SetIndex(PdPipelineStage):
-    """
-    A pipeline stage that set existing columns as index.
+    """A pipeline stage that set existing columns as index.
 
     Supports all parameter supported by pandas.set_index function except for
     `inplace`.
@@ -357,6 +356,7 @@ class SetIndex(PdPipelineStage):
     a
     1   4
     3  11
+
     """
 
     _DEF_SETIDX_EXC_MSG = "SetIndex stage failed."
@@ -387,8 +387,7 @@ class SetIndex(PdPipelineStage):
 
 
 class FreqDrop(PdPipelineStage):
-    """
-    A pipeline stage that drops rows by value frequency.
+    """A pipeline stage that drops rows by value frequency.
 
     Parameters
     ----------
@@ -407,6 +406,7 @@ class FreqDrop(PdPipelineStage):
        a   b
     1  1   4
     3  1  11
+
     """
 
     _DEF_FREQDROP_EXC_MSG = (
@@ -442,8 +442,7 @@ class FreqDrop(PdPipelineStage):
 
 
 class ColReorder(PdPipelineStage):
-    """
-    A pipeline stage that reorders columns.
+    """A pipeline stage that reorders columns.
 
     Parameters
     ----------
@@ -461,6 +460,7 @@ class ColReorder(PdPipelineStage):
     >>> pdp.ColReorder({'b': 0, 'c': 3}).apply(df)
        b  a  d  c
     0  4  8  7  3
+
     """
 
     _DEF_ORD_EXC_MSG = (
@@ -498,8 +498,7 @@ class ColReorder(PdPipelineStage):
 
 
 class RowDrop(ColumnsBasedPipelineStage):
-    """
-    A pipeline stage that drops rows by callable conditions.
+    """A pipeline stage that drops rows by callable conditions.
 
     Parameters
     ----------
@@ -545,6 +544,7 @@ class RowDrop(ColumnsBasedPipelineStage):
        a   b
     1  1   4
     3  5  11
+
     """
 
     _REDUCERS = {"all": all, "any": any, "xor": lambda x: sum(x) == 1}
@@ -638,8 +638,7 @@ class RowDrop(ColumnsBasedPipelineStage):
 
 
 class Schematize(PdPipelineStage):
-    """
-    Enforces a column schema on input dataframes.
+    """Enforces a column schema on input dataframes.
 
     Parameters
     ----------
@@ -661,6 +660,7 @@ class Schematize(PdPipelineStage):
        c  b
     1  8  4
     2  9  6
+
     """
 
     def __init__(
@@ -713,8 +713,7 @@ class Schematize(PdPipelineStage):
 
 
 class DropDuplicates(ColumnsBasedPipelineStage):
-    """
-    Drop duplicates in the given columns.
+    """Drop duplicates in the given columns.
 
     Parameters
     ----------
@@ -737,6 +736,7 @@ class DropDuplicates(ColumnsBasedPipelineStage):
            a  b
         1  8  1
         3  9  2
+
     """
 
     def __init__(
@@ -763,8 +763,7 @@ class DropDuplicates(ColumnsBasedPipelineStage):
 
 
 class ColumnDtypeEnforcer(PdPipelineStage):
-    """
-    A pipeline stage enforcing column dtypes.
+    """A pipeline stage enforcing column dtypes.
 
     Parameters
     ----------
@@ -798,6 +797,7 @@ class ColumnDtypeEnforcer(PdPipelineStage):
        num initial
     1  8.0       a
     2  5.0       b
+
     """
 
     _DEF_COL_DTYPE_ENF_EXC_MSG = (
@@ -875,8 +875,7 @@ class ColumnDtypeEnforcer(PdPipelineStage):
 
 
 class ConditionValidator(PdPipelineStage):
-    """
-    A pipeline stage that validates boolean conditions on dataframes.
+    """A pipeline stage that validates boolean conditions on dataframes.
 
     The stage does not change the input dataframe in any way.
 
@@ -920,6 +919,7 @@ class ConditionValidator(PdPipelineStage):
     Traceback (most recent call last):
        ...
     pdpipe.exceptions.FailedConditionError: ConditionValidator stage failed; some conditions did not hold for the input dataframe!
+
     """  # noqa: E501
 
     def __init__(
@@ -971,8 +971,7 @@ class ConditionValidator(PdPipelineStage):
 
 
 class ApplicationContextEnricher(PdPipelineStage):
-    """
-    A pipeline stage that enriches the pipeline's application context.
+    """A pipeline stage that enriches the pipeline's application context.
 
     Keyword arguments can be either PdPipelineStage constructor arguments, in
     which case they are passed to the stage constructor, or they can be
@@ -1011,6 +1010,7 @@ class ApplicationContextEnricher(PdPipelineStage):
     **kwargs : str to object mapping
         The mappings to be added to the application context. Also supports
         all PdPipelineStage constructor parameters.
+
     """  # noqa: E501
 
     def __init__(

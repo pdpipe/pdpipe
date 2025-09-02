@@ -1,4 +1,4 @@
-# Standartizing Dataframes 
+# Standartizing Dataframes
 
 One of the most important roles of processing pipelines is to standartize their
 output, and to make sure the assumptions made about their output by the models
@@ -7,7 +7,6 @@ consuming it are kept
 `pdpipe` provide several pipeline stages that relate to this role: The
 `Schematize` stage, the `ColumnDtypeEnforcer` stage and the `ConditionValidator`
 stage. Let's take a look.
-
 
 ## Schematization
 
@@ -63,7 +62,6 @@ applies it to any future dataframe passed through it in `transform` calls.
    called internally, and the input dataframe is coerced into the schema the
    stage has learned.
 
-
 ## Enforcing data types
 
 The `ColumnDtypeEnforcer` stage allows us to coerce dataframe columns into a
@@ -89,7 +87,7 @@ this mapping will remain untouched:
 However, the more interesting way in which `ColumnDtypeEnforcer` can be used is
 by using column qualifier objects to describe critera for groups of columns to
 cast to a certian dtype. This synergizes with `pdpipe`'s capability for building
-pipelines that are reslient to shifts in data schema, and can be written in a 
+pipelines that are reslient to shifts in data schema, and can be written in a
 generalizable way.
 
 For example, here we build a dtype enforcer that will coerce into `float` any
@@ -106,11 +104,12 @@ column with a label starting with `'n'`:
 
 !!! tip More column qualifiers
 
-    Remember, column qualifiers are powerful objects, and `pdpipe` boasts
-    built-in qualifiers that can help us choose columns by their data types or
-    by the rate of missing values they have. See more in 
-    [the section introducing column qualifiers](https://pdpipe.readthedocs.io/en/latest/starting/cq/).
-
+```
+Remember, column qualifiers are powerful objects, and `pdpipe` boasts
+built-in qualifiers that can help us choose columns by their data types or
+by the rate of missing values they have. See more in
+[the section introducing column qualifiers](https://pdpipe.readthedocs.io/en/latest/starting/cq/).
+```
 
 ## Validating conditions
 
@@ -153,7 +152,7 @@ Traceback (most recent call last):
 pdpipe.exceptions.FailedConditionError: ConditionValidator stage failed; some conditions did not hold for the input dataframe!
 ```
 
-The `cond` module includes other useful conditions, such as 
+The `cond` module includes other useful conditions, such as
 `HasAtMostMissingValues`, `HasAllColumns` and per-column conditions.
 Additionally, condition objects support all boolean operators, so both
 `~ cond.HasAllColumns(['a', 'b'])` and
@@ -164,9 +163,10 @@ You can read more about condition objects in our Getting Started section:
 
 [An Introduction to Conditions :fontawesome-brands-leanpub:](https://pdpipe.readthedocs.io/en/latest/starting/cond/){ .md-button .md-button--primary}
 
-
 That's it!
 
 !!! help "Getting help"
 
-    Remember you can get help on <a href="https://gitter.im/pdpipe/community" target="_blank">our :material-wechat: Gitter chat</a> or on <a href="https://github.com/pdpipe/pdpipe/discussions" target="_blank">our :material-message-question: GitHub Discussions forum</a>.
+```
+Remember you can get help on <a href="https://gitter.im/pdpipe/community" target="_blank">our :material-wechat: Gitter chat</a> or on <a href="https://github.com/pdpipe/pdpipe/discussions" target="_blank">our :material-message-question: GitHub Discussions forum</a>.
+```
