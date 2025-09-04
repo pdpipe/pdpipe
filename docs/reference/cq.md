@@ -1,4 +1,4 @@
-# Column Qualifiers 
+# Column Qualifiers
 
 You can find [an introduction to Column Qualifiers](https://pdpipe.readthedocs.io/en/latest/starting/cq/) in our Getting Started section.
 

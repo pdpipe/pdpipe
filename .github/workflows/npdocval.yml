@@ -5,7 +5,7 @@ on:
   push:
   schedule:
     # * is a special character in YAML so you have to quote this string
-    - cron: '0 */72 * * *'
+    - cron: "0 */72 * * *"
 
 jobs:
   build:
@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.10']
+        python-version: ["3.10"]
         os: [ubuntu-latest]
 
     steps:
@@ -25,7 +25,7 @@ jobs:
       - name: set up python '3.10'
         uses: actions/setup-python@v5.6.0
         with:
-          python-version: '3.10'
+          python-version: "3.10"
 
       - name: Install dependencies
         run: |

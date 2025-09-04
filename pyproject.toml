@@ -11,13 +11,13 @@ name = "pdpipe"
 description = "Easy pipelines for pandas."
 readme = "README.rst"
 keywords = [
-  "pdpipe",
+  "data science",
+  "dataframe",
+  "machine learning",
   "pandas",
   "pandas pipeline",
+  "pdpipe",
   "pipeline",
-  "dataframe",
-  "data science",
-  "machine learning",
   "python",
   "utilities",
   "utils",
@@ -46,19 +46,18 @@ dynamic = [
   "version",
 ]
 dependencies = [
-    "pandas>=2.0.0",  # pdpipe is a pandas extension
-    "sortedcontainers",  # the Bin stage needs a sorted list
-    "tqdm",  # for some pipeline application progress bars
-    "strct",  # ColReorder uses strct.dicts.reverse_dict_partial
-    "skutil>=0.0.15",  # Scale uses skutil.preprocessing.scaler_by_param
-    "birch>=0.0.34",  # for reading config from files / env vars
+  "birch>=0.0.34",    # for reading config from files / env vars
+  "pandas>=2",        # pdpipe is a pandas extension
+  "skutil>=0.0.15",   # Scale uses skutil.preprocessing.scaler_by_param
+  "sortedcontainers", # the Bin stage needs a sorted list
+  "strct",            # ColReorder uses strct.dicts.reverse_dict_partial
+  "tqdm",             # for some pipeline application progress bars
 ]
-urls.Source = "https://pdpipe.readthedocs.io/en/latest/"
-[project.optional-dependencies]
-sklearn = ["scikit-learn"]
-nltk = ["nltk"]
-
 # --- setuptools ---
+optional-dependencies.sklearn = [ "scikit-learn" ]
+urls.Source = "https://pdpipe.readthedocs.io/en/latest/"
+optional-dependencies.nltk = [ "nltk" ]
+
 [tool.setuptools]
 include-package-data = true
 
@@ -74,15 +73,15 @@ include = [
 ] # package names should match these glob patterns (["*"] by default)
 namespaces = false # to disable scanning PEP 420 namespaces (true by default)
 
-
 # === Linting & Formatting ===
 
 [tool.black]
 line-length = 79
 
 # --- ruff ---
+
 [tool.ruff]
-target-version = ['py39', 'py310', 'py311', 'py312', 'py313']
+target-version = [ 'py39', 'py310', 'py311', 'py312', 'py313' ]
 line-length = 79
 # Exclude a variety of commonly ignored directories.
 exclude = [
@@ -133,7 +132,6 @@ lint.per-file-ignores."tests/**" = [
 lint.unfixable = [
   "F401",
 ]
-lint.mccabe.max-complexity = 10
 #[tool.ruff.pydocstyle]
 ## Use Google-style docstrings.
 #convention = "google"
@@ -142,22 +140,10 @@ lint.mccabe.max-complexity = 10
 # Unlike Flake8, default to a complexity level of 10.
 
 # --- pylint ---
-[tool.pylint.'MAIN']
-ignore = ["CVS"]
-load-plugins = ["pylint.extensions.docparams"]
+lint.mccabe.max-complexity = 10
 
-[tool.pylint.'FORMAT']
-good-names = ["x", "y", "X", "inter_X", "inter_y", "post_X", "post_y"]
-
-[tool.pylint.'DESIGN']
-exclude-too-few-public-methods = [".+"]
-
-[tool.pylint.'MESSAGES CONTROL']
-disable = ["R0911", "R0913", "R0903"]
-
-# --- flake8 ---
 [tool.flake8]
-ignore = ["C901", "E203", "W503"]
+ignore = [ "C901", "E203", "W503" ]
 exclude = [
   ".git",
   ".github",
@@ -179,6 +165,22 @@ max-complexity = 10
 max-line-length = 100
 
 # --- docformatter ---
+
+[tool.pylint.'MAIN']
+ignore = [ "CVS" ]
+load-plugins = [ "pylint.extensions.docparams" ]
+
+[tool.pylint.'FORMAT']
+good-names = [ "x", "y", "X", "inter_X", "inter_y", "post_X", "post_y" ]
+
+[tool.pylint.'DESIGN']
+exclude-too-few-public-methods = [ ".+" ]
+
+[tool.pylint.'MESSAGES CONTROL']
+disable = [ "R0911", "R0913", "R0903" ]
+
+# --- flake8 ---
+
 [tool.docformatter]
 recursive = true
 # some docstring start with r"""
@@ -186,10 +188,10 @@ wrap-summaries = 79
 wrap-descriptions = 79
 blank = true
 
-
 # === Testing ===
 
 # --- pytest ---
+
 [tool.pytest.ini_options]
 testpaths = [
   "src/pdpipe",
@@ -200,7 +202,7 @@ norecursedirs = [
   "build",
 ]
 filterwarnings = [
-  "ignore:.*The `disp` and `iprint` options of the L-BFGS-B solver are deprecated.*:DeprecationWarning"
+  "ignore:.*The `disp` and `iprint` options of the L-BFGS-B solver are deprecated.*:DeprecationWarning",
 ]
 markers = [
   "log",
@@ -224,6 +226,7 @@ addopts = [
 ]
 
 # --- coverage ---
+
 [tool.coverage.run]
 branch = true
 # dynamic_context = "test_function"
@@ -243,11 +246,11 @@ exclude_lines = [
   "if TYPE_CHECKING:",         # Is only true when running mypy, not tests
 ]
 
-
 # === Type Checking ===
 
 [tool.pyright]
-include = ["pdpipe"]
-exclude = ["**/node_modules",
-    "**/__pycache__",
+include = [ "pdpipe" ]
+exclude = [
+  "**/node_modules",
+  "**/__pycache__",
 ]

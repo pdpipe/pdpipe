@@ -1,5 +1,4 @@
-"""
-On the fly, relative pipeline stage creation.
+"""On the fly, relative pipeline stage creation.
 
 Use `drop_rows_where` and `keep_rows_where` as handles to the future dataframe,
 using the `[]` indexing syntax to select a (single) column to apply the logic
@@ -50,6 +49,7 @@ For example:
 3  5  11
 
 ```
+
 """
 
 from typing import List, Set, Union
@@ -64,8 +64,7 @@ from . import rq
 
 
 class KeepRowsByQualifier(PdPipelineStage):
-    """
-    A pipeline stage that keeps rows by a row qualifier.
+    """A pipeline stage that keeps rows by a row qualifier.
 
     All rows which the qualifier qualifies (i.e. return a boolean series with
     True in the corresponding entries) will be kept, while all other rows will
@@ -88,6 +87,7 @@ class KeepRowsByQualifier(PdPipelineStage):
        a   b
     2  4   5
     3  5  11
+
     """
 
     def __init__(self, qualifier, **kwargs):
@@ -136,8 +136,7 @@ class KeepRowsByQualifier(PdPipelineStage):
 
 
 class DropRowsByQualifier(PdPipelineStage):
-    """
-    A pipeline stage that drops rows by a row qualifier.
+    """A pipeline stage that drops rows by a row qualifier.
 
     All rows which the qualifier qualifies (i.e. return a boolean series with
     True in the corresponding entries) will be dropped, while all other rows
@@ -160,6 +159,7 @@ class DropRowsByQualifier(PdPipelineStage):
        a   b
     2  4   5
     3  5  11
+
     """
 
     def __init__(self, qualifier, **kwargs):

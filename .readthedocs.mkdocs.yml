@@ -61,7 +61,7 @@ theme:
     text: Roboto
     code: Roboto Mono
   favicon: images/logo.png
-  logo: 'images/white_logo.png'
+  logo: "images/white_logo.png"
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
@@ -98,7 +98,6 @@ plugins:
 # for how to adjust the filters selecting which functions get collected, see:
 # https://mkdocstrings.github.io/pytkdocs/#configuration
 
-
 # for code blocks syntax highlighting
 markdown_extensions:
   - admonition
@@ -116,10 +115,9 @@ markdown_extensions:
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg
+        # use icon paths the match the folder structure in the fontawesome repo:
+        # https://github.com/FortAwesome/Font-Awesome/tree/master/svgs
 
-
-# use icon paths the match the folder structure in the fontawesome repo:
-# https://github.com/FortAwesome/Font-Awesome/tree/master/svgs
 extra:
   social:
     - icon: fontawesome/brands/github

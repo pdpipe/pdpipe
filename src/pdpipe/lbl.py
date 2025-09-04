@@ -32,8 +32,7 @@ class _SkipOnLabelPlaceholderPredict:
 
 
 class DropLabelsByValues(PdPipelineStage):
-    """
-    A pipeline stage that drop values from the input label series.
+    """A pipeline stage that drop values from the input label series.
 
     Parameters
     ----------
@@ -64,6 +63,7 @@ class DropLabelsByValues(PdPipelineStage):
          ph  temp
     2   7.2    33
     3  12.1    28
+
     """
 
     def __init__(

@@ -6,7 +6,6 @@ The module `pdpipe.cq` provides a powerful class - `ColumnQualifier` - implement
 
 It also provides ready implementations for qualifiers qualifying columns by label, dtype and the number of missing values. This enable powerful behaviours like dropping columns by missing value frequency, scaling only integer columns or performing PCA on the subset of columns starting with the string `'tfidf_token_'`.
 
-
 ## The `columnns` parameter of column-based stages
 
 Most pipeline stages in pdpipe can accept three types of variables as arguments
@@ -19,8 +18,7 @@ entire input dataframe, and is expected to return a list of column labels. This
 is true for every application of the pipeline stage, both in fit time and in
 any future transform.
 
-A naive callable, such as `lambda df: [lbl for lbl in df.columns if lbl[0] ==
-'a']`, meant to cause the pipeline stage to operate on any column with a label
+A naive callable, such as `lambda df: [lbl for lbl in df.columns if lbl[0] == 'a']`, meant to cause the pipeline stage to operate on any column with a label
 starting with the letter 'a', might result in unexpected errors: if after the
 pipeline was fitted it gets ― in transform time ― a dataframe with new columns
 starting with 'a', it is will transform them as well, which will in turn might
@@ -43,7 +41,6 @@ explicitly fails if either once of the two columns, 'alec' and 'alex', is
 missing. This kind of behaviour is the only way to ensure preservation of both
 form and semantics of input vectors to our models down the pipeline.
 
-
 ## ColumnQualifier objects
 
 To enable this more sophisticated behaviour, the `pdpipe.cq` module exposes a
@@ -63,7 +60,6 @@ even if it is already fit. Naturally, if the callable has no `fit_transform`
 method the code gracefully backs-off to just applying it, which allows the use
 of unfittable functions and lambdas as column qualifiers as well.
 
-
 ## Wrapping callables as ColumnQualifiers
 
 Note that any callable can be wrapped in a ColumnQualifier object to achieve
@@ -71,10 +67,11 @@ this fittable behaviour. For example, to get a pipeline stage that drops all
 columns of data type `numpy.int64`, but also "remembers" that list after fit:
 
 ```python
-pipeline += pdp.ColDrop(columns=pdp.cq.ColumnQualifier(lambda df: [
-  l for l, s in df.iteritems()
-  if s.dtype == np.int64
-]))
+pipeline += pdp.ColDrop(
+    columns=pdp.cq.ColumnQualifier(
+        lambda df: [l for l, s in df.iteritems() if s.dtype == np.int64]
+    )
+)
 ```
 
 ## Column qualifier operators
@@ -87,7 +84,6 @@ between two qualifiers (the difference operator on the resulting sets).
 
 So for example, to get a qualifier that qualifies all columns that have AT
 LEAST two missing values, one can use:
-
 
 ```python
 >>> import pandas as pd; import pdpipe as pdp;

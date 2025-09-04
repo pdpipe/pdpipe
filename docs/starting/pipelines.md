@@ -5,6 +5,7 @@
 Pipelines can be created by supplying a list of pipeline stages:
 
 <!--phmdoctest-setup-->
+
 ```python
 import pdpipe as pdp
 pipeline = pdp.PdPipeline([pdp.ColDrop("Name"), pdp.OneHotEncode("Label")]
@@ -16,12 +17,12 @@ Additionally, the `make_pdpipeline` method can be used to give stages as positio
 pipeline = pdp.make_pdpipeline(pdp.ColDrop("Name"), pdp.OneHotEncode("Label"))
 ```
 
-
 ## Printing Pipelines
 
 A pipeline structure can be clearly displayed by printing the object:
 
-<!--phmdoctest-skip--> 
+<!--phmdoctest-skip-->
+
 ```python
 >>> drop_name = pdp.ColDrop("Name")
 >>> binar_label = pdp.OneHotEncode("Label")
@@ -46,7 +47,7 @@ Or even by adding pipelines together or pipelines to pipeline stages:
 
 ```python
 pipeline = pdp.ColDrop("Name") + pdp.OneHotEncode("Label")
-pipeline += pdp.MapColVals("Job", {"Part": True, "Full":True, "No": False})
+pipeline += pdp.MapColVals("Job", {"Part": True, "Full": True, "No": False})
 pipeline += pdp.PdPipeline([pdp.ColRename({"Job": "Employed"})])
 ```
 
@@ -62,7 +63,8 @@ pipeline = pdp.ColDrop("Name").OneHotEncode("Label").ValDrop([-1], "Children")
 
 Pipelines are Python Sequence objects, and as such can be sliced using Python's slicing notation, just like lists:
 
-<!--phmdoctest-skip--> 
+<!--phmdoctest-skip-->
+
 ```python
 >>> pipeline = pdp.ColDrop("Name").OneHotEncode("Label").ValDrop([-1], "Children").ApplyByCols("height", math.ceil)
 >>> pipeline[0]
@@ -93,14 +95,14 @@ pipeline = pdp.ColDrop("Name") + pdp.OneHotEncode("Label")
 res_df = pipeline(df)
 ```
 
-Assigning the  parameter to a pipeline apply call with a bool sets or unsets exception raising on failed preconditions for all contained stages:
+Assigning the parameter to a pipeline apply call with a bool sets or unsets exception raising on failed preconditions for all contained stages:
 
 ```python
 pipeline = pdp.ColDrop("Name") + pdp.OneHotEncode("Label")
 res_df = pipeline.apply(df, exraise=False)
 ```
 
-Additionally, passing ``verbose=True`` to a pipeline apply call will apply all pipeline stages verbosely:
+Additionally, passing `verbose=True` to a pipeline apply call will apply all pipeline stages verbosely:
 
 ```python
 res_df = pipeline.apply(df, verbose=True)

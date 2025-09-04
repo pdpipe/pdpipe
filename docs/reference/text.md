@@ -1,4 +1,4 @@
-# Text Processing Stages 
+# Text Processing Stages
 
 Also look at NLTK-based stages.
 

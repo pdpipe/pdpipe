@@ -1,7 +1,6 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-
 ---
 
 Summary.
@@ -18,11 +17,9 @@ What happened instead.
 
 ```python
 import pdpipe
-
 ```
 
 ## System Information
-
 
 ```
 <paste here>

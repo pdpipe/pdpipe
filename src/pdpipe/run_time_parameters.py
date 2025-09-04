@@ -7,8 +7,7 @@ from .shared import POS_ARG_MISMTCH_PAT
 
 
 class DynamicParameter:
-    """
-    A dynamicly determined parameter, determined at runtime.
+    """A dynamicly determined parameter, determined at runtime.
 
     This class represents a dynamic parameter that is decided at fit time when
     there is access to the given dataframe. This allows the parameter to be
@@ -22,6 +21,7 @@ class DynamicParameter:
     fittable : bool
         Denotes whether the parameter can be fitted, or should perform the
         deciding logic every time.
+
     """
 
     def __init__(
@@ -38,8 +38,7 @@ class DynamicParameter:
         X: pd.DataFrame,
         y: Optional[pd.Series] = None,
     ):
-        """
-        Compute and return the value of this dynamic parameter.
+        """Compute and return the value of this dynamic parameter.
 
         Parameters
         ----------
@@ -54,6 +53,7 @@ class DynamicParameter:
         -------
         object
             The dynamically determined value of this parameter.
+
         """
         try:
             self._parameter = self._parameter_selector(X, y)
@@ -65,13 +65,13 @@ class DynamicParameter:
         return self._parameter
 
     def transform(self) -> object:
-        """
-        Return the fitted value of this dynamic parameter.
+        """Return the fitted value of this dynamic parameter.
 
         Returns
         -------
         object
             The fitted value of this dynamic parameter.
+
         """
         if not hasattr(self, "_parameter"):
             raise AttributeError("Parameter not fitted")  # pragma: no cover
@@ -94,8 +94,7 @@ def dynamic(
     parameter_selector: Callable,
     fittable: Optional[bool] = True,
 ) -> DynamicParameter:
-    """
-    Return a dynamic parameter.
+    """Return a dynamic parameter.
 
     Parameters
     ----------
@@ -112,5 +111,6 @@ def dynamic(
     -------
     DynamicParameter
         An object with the parameter selecting logic.
+
     """
     return DynamicParameter(parameter_selector, fittable)

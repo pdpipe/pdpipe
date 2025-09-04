@@ -1,7 +1,7 @@
 # Contributing Guide
 
 Contributions are welcome, and greatly appreciated!
-This guide is meant to help you with your first contribution with pdpipe. 
+This guide is meant to help you with your first contribution with pdpipe.
 
 Follow the tag of [good first issue](https://github.com/keras-team/autokeras/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
 for the issues for beginner.
@@ -16,16 +16,18 @@ for the issues for beginner.
 
 4. For the case of bug fixes, add new test cases which would fail before your bug fix.
 
-
 ## Setup Environment
+
 We introduce 3 different options: **GitHub Codespaces**, **VS Code & Remote-Containers**, **the general setup**.
 You can choose base on your preference.
 
 ### Option 1: GitHub Codespaces
+
 You can simply open the repository in GitHub Codespaces.
 The environment is already setup there.
 
 ### Option 2: VS Code & Remote-Containers
+
 Open VS Code.
 Install the `Remote-Containers` extension.
 Press `F1` key. Enter `Remote-Containers: Open Folder in Container` to open the repository root folder.
@@ -35,24 +37,28 @@ The environment is already setup there.
 
 Install [Virtualenvwrapper](https://virtualenvwrapper.readthedocs.io/en/latest/).
 Create a new virtualenv named `ak` based on python3.
+
 ```
-mkvirtualenv -p python3 ak 
+mkvirtualenv -p python3 ak
 ```
+
 Please use this virtualenv for development.
 
 Clone the repo. Go to the repo directory.
 Run the following commands.
+
 ```
 workon ak
 
 pip install -e ".[tests]"
 pip uninstall autokeras
 add2virtualenv .
-``` 
+```
 
 ## Run Tests
 
 ### GitHub Codespaces or VS Code & Remote-Containers
+
 If you are using "GitHub Codespaces" or "VS Code & Remote-Containers",
 you can simply open any `*_test.py` file under the `tests` directory,
 and wait a few seconds, you will see the test tab on the left of the window.
@@ -66,25 +72,31 @@ Go to the repo directory
 Run the following lines to run the tests.
 
 Run all the tests.
+
 ```
 pytest tests
 ```
 
 Run all the unit tests.
+
 ```
 pytest tests/autokeras
 ```
 
 Run all the integration tests.
+
 ```
 pytest tests/integration_tests
 ```
 
 ## Code Style
+
 You can run the following manually every time you want to format your code.
+
 1. Run `shell/format.sh` to format your code.
 2. Run `shell/lint.sh` to check.
 
 ## Docstrings
+
 Docstrings should follow our style.
 Just check the style of other docstrings in AutoKeras.

@@ -11,23 +11,25 @@ from pdpipe import df
 The first is the ability to create stages that applies any `pandas.DataFrame` method that outputs a dataframe to input dataframes, such as `set_index`, `fill_na`, `rename`, etc., for example:
 
 ```python
-pline = pdp.PdPipeline([
-    df.set_index('id'),
-    df.fillna(value=3, method='ffill'),
-])
+pline = pdp.PdPipeline(
+    [
+        df.set_index("id"),
+        df.fillna(value=3, method="ffill"),
+    ]
+)
 ```
-
 
 The second ability is the creation of column assignment stages in an intuitive manner - using the `<<` operator to denote assignment - allowing the user of operators between columns, Series objects and scalars, and the use of `pandas.Series` methods:
 
 ```python
-pline = pdp.PdPipeline([
-    df['n'] << df['a'] & ~df['b'],
-    df['g'] << df['c'] + (3 * df['d']) + 5,
-    df['j'] << df['s'].map({1: 2, 2: 8}) + pd.Series([1, 2, 3, 4]),
-])
+pline = pdp.PdPipeline(
+    [
+        df["n"] << df["a"] & ~df["b"],
+        df["g"] << df["c"] + (3 * df["d"]) + 5,
+        df["j"] << df["s"].map({1: 2, 2: 8}) + pd.Series([1, 2, 3, 4]),
+    ]
+)
 ```
-
 
 ## Addtional fly handles
 

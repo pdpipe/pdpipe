@@ -1,5 +1,4 @@
-"""
-PdPipeline stages dependent on the scikit-learn Python library.
+"""PdPipeline stages dependent on the scikit-learn Python library.
 
 Please note that the scikit-learn Python package must be installed for the
 stages in this module to work.
@@ -8,6 +7,7 @@ When attempting to load stages from this module, pdpipe will first attempt to
 import sklearn. If it fails, it will issue a warning, will not import any of
 the pipeline stages that make up this module, and continue to load other
 pipeline stages.
+
 """
 
 import numpy as np
@@ -40,8 +40,7 @@ from .lbl import _SkipOnLabelPlaceholderPredict
 
 
 class Encode(ColumnsBasedPipelineStage):
-    """
-    A pipeline stage that encodes categorical columns to integer values.
+    """A pipeline stage that encodes categorical columns to integer values.
 
     The encoder for each column is saved in the attribute 'encoders', which
     is a dict mapping each encoded column name to the
@@ -86,6 +85,7 @@ class Encode(ColumnsBasedPipelineStage):
     3  12.1    1
     >>> encode_stage.encoders["lbl"].inverse_transform([0,1,1])
     array(['acd', 'alk', 'alk'], dtype=object)
+
     """
 
     def __init__(
@@ -151,8 +151,7 @@ class Encode(ColumnsBasedPipelineStage):
 
 
 class Scale(ColumnsBasedPipelineStage):
-    """
-    A pipeline stage that scales data.
+    """A pipeline stage that scales data.
 
     Parameters
     ----------
@@ -198,6 +197,7 @@ class Scale(ColumnsBasedPipelineStage):
     1 -1.181449 -0.508001
     2 -0.082427  1.397001
     3  1.263876 -0.889001
+
     """
 
     def __init__(
@@ -284,8 +284,7 @@ class Scale(ColumnsBasedPipelineStage):
 
 
 class TfidfVectorizeTokenLists(PdPipelineStage):
-    """
-    A pipeline stage TFIDF-vectorizing a token-list column to count columns.
+    """A pipeline stage TFIDF-vectorizing a token-list column to count columns.
 
     Every cell in the input columns is assumed to be a list of strings, each
     representing a single token. The resulting TF-IDF vector is exploded into
@@ -326,6 +325,7 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
        Age      eels  hovercraft   urethra
     1    2  0.579739    0.814802         0
     2    5  0.579739           0  0.814802
+
     """
 
     _DEF_CNTVEC_MSG = "Count-vectorizing column {}."
@@ -401,8 +401,7 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
 
 
 class Decompose(ColumnsBasedPipelineStage):
-    """
-    A stage applying dimensionality reduction through matrix decomposition.
+    """A stage applying dimensionality reduction through matrix decomposition.
 
     Parameters
     ----------
@@ -450,6 +449,7 @@ class Decompose(ColumnsBasedPipelineStage):
     1 -3.313301 -0.148453
     2  1.432127  1.717269
     3  1.881174 -1.568816
+
     """
 
     def __init__(
@@ -543,8 +543,7 @@ class Decompose(ColumnsBasedPipelineStage):
 
 
 class EncodeLabel(PdPipelineStage):
-    """
-    A pipeline stage that encodes the input label series to integer values.
+    """A pipeline stage that encodes the input label series to integer values.
 
     The encoder for each column is saved in the attribute 'encoder', which
     is a dict mapping each encoded column name to the
@@ -582,6 +581,7 @@ class EncodeLabel(PdPipelineStage):
     dtype: int...
     >>> encode_stage.encoder_.inverse_transform([0,1,1])
     array(['acd', 'alk', 'alk'], dtype=object)
+
     """
 
     def __init__(self, **kwargs: object) -> None:
