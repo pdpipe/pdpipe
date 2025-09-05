@@ -3,7 +3,7 @@
 from typing import Optional, List, Dict, Union, Callable
 from collections import deque
 
-import pandas
+import pandas as pd
 from strct.dicts import reverse_dict_partial
 
 from pdpipe.core import PdPipelineStage, ColumnsBasedPipelineStage
@@ -28,7 +28,7 @@ class ColDrop(ColumnsBasedPipelineStage):
     columns : single label, list-like or callable
         The label, or an iterable of labels, of columns to drop. Alternatively,
         this parameter can be assigned a callable returning an iterable of
-        labels from an input pandas.DataFrame (see `pdpipe.cq`).
+        labels from an input pd.DataFrame (see `pdpipe.cq`).
     errors : {‘ignore’, ‘raise’}, default ‘raise’
         If ‘ignore’, suppress error and existing labels are dropped.
     **kwargs : object
@@ -61,20 +61,20 @@ class ColDrop(ColumnsBasedPipelineStage):
         super_kwargs["none_columns"] = "error"
         super().__init__(**super_kwargs)
 
-    def _prec(self, X: pandas.DataFrame) -> bool:
+    def _prec(self, X: pd.DataFrame) -> bool:
         if self._errors != "ignore":
             return super()._prec(X)
         return True
 
-    def _post(self, X: pandas.DataFrame) -> bool:
+    def _post(self, X: pd.DataFrame) -> bool:
         return self._post_cond(X)
 
     def _transformation(
         self,
-        X: pandas.DataFrame,
+        X: pd.DataFrame,
         verbose: bool,
         fit: bool,
-    ) -> pandas.DataFrame:
+    ) -> pd.DataFrame:
         to_drop = self._get_columns(X, fit=fit)
         if verbose:
             print(f"Dropping columns {_list_str(to_drop)}")
@@ -91,12 +91,12 @@ class ValDrop(ColumnsBasedPipelineStage):
     columns : single label, list-like or callable, default None
         The label, or an iterable of labels, of columns to check for the given
         values. Alternatively, this parameter can be assigned a callable
-        returning an iterable of labels from an input pandas.DataFrame. See
+        returning an iterable of labels from an input pd.DataFrame. See
         `pdpipe.cq`. If set to None, all columns are checked.
     exclude_columns : label, iterable or callable, optional
         The label, or an iterable of labels, of columns to exclude, given the
         `columns` parameter. Alternatively, this parameter can be assigned a
-        callable returning a labels iterable from an input pandas.DataFrame.
+        callable returning a labels iterable from an input pd.DataFrame.
         See `pdpipe.cq`. Optional. By default no columns are excluded.
     **kwargs : object
         All PdPipelineStage constructor parameters are supported.
@@ -135,10 +135,10 @@ class ValDrop(ColumnsBasedPipelineStage):
 
     def _transformation(
         self,
-        X: pandas.DataFrame,
+        X: pd.DataFrame,
         verbose: bool,
         fit: bool,
-    ) -> pandas.DataFrame:
+    ) -> pd.DataFrame:
         inter_X = X
         before_count = len(inter_X)
         columns_to_check = self._get_columns(X, fit=fit)
@@ -159,12 +159,12 @@ class ValKeep(ColumnsBasedPipelineStage):
     columns : single label, list-like or callable, default None
         The label, or an iterable of labels, of columns to check for the given
         values. Alternatively, this parameter can be assigned a callable
-        returning an iterable of labels from an input pandas.DataFrame. See
+        returning an iterable of labels from an input pd.DataFrame. See
         `pdpipe.cq`. If set to None, all columns are checked.
     exclude_columns : single label, iterable or callable, optional
         The label, or an iterable of labels, of columns to exclude, given the
         `columns` parameter. Alternatively, this parameter can be assigned a
-        callable returning a labels iterable from an input pandas.DataFrame.
+        callable returning a labels iterable from an input pd.DataFrame.
         See `pdpipe.cq`. Optional. By default no columns are excluded.
     **kwargs : object
         All PdPipelineStage constructor parameters are supported.
@@ -518,7 +518,7 @@ class RowDrop(ColumnsBasedPipelineStage):
     columns : single label, iterable or callable, optional
         The label, or an iterable of labels, of columns. Alternatively,
         this parameter can be assigned a callable returning an iterable of
-        labels from an input pandas.DataFrame. See `pdpipe.cq`. If given,
+        labels from an input pd.DataFrame. See `pdpipe.cq`. If given,
         input conditions will be applied to the sub-dataframe made up of
         these columns to determine which rows to drop. Ignored if `conditions`
         is provided with a dict object. If `conditions` is a list and this
@@ -527,7 +527,7 @@ class RowDrop(ColumnsBasedPipelineStage):
     exclude_columns : single label, iterable or callable, optional
         The label, or an iterable of labels, of columns to exclude, given the
         `columns` parameter. Alternatively, this parameter can be assigned a
-        callable returning a labels iterable from an input pandas.DataFrame.
+        callable returning a labels iterable from an input pd.DataFrame.
         See `pdpipe.cq`. Optional. By default no columns are excluded.
     **kwargs : object
         All PdPipelineStage constructor parameters are supported.
@@ -692,19 +692,15 @@ class Schematize(PdPipelineStage):
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
-    def _prec(self, X: pandas.DataFrame) -> bool:
+    def _prec(self, X: pd.DataFrame) -> bool:
         if self._adaptive and self._is_being_fitted:
             return True
         return set(self._columns).issubset(X.columns)
 
-    def _transform(
-        self, X: pandas.DataFrame, verbose=None
-    ) -> pandas.DataFrame:
+    def _transform(self, X: pd.DataFrame, verbose=None) -> pd.DataFrame:
         return X[self._columns]
 
-    def _fit_transform(
-        self, X: pandas.DataFrame, verbose=None
-    ) -> pandas.DataFrame:
+    def _fit_transform(self, X: pd.DataFrame, verbose=None) -> pd.DataFrame:
         if self._adaptive:
             self._columns = X.columns
             self.is_fitted = True
@@ -723,7 +719,7 @@ class DropDuplicates(ColumnsBasedPipelineStage):
     exclude_columns : object, iterable or callable, optional
         The label, or an iterable of labels, of columns to exclude, given the
         `columns` parameter. Alternatively, this parameter can be assigned a
-        callable returning a labels iterable from an input pandas.DataFrame.
+        callable returning a labels iterable from an input pd.DataFrame.
         See `pdpipe.cq`. Optional. By default no columns are excluded.
     **kwargs : object
         All PdPipelineStage constructor parameters are supported.
@@ -837,7 +833,7 @@ class ColumnDtypeEnforcer(PdPipelineStage):
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
 
-    def _col_to_dtype_from_X(self, X: pandas.DataFrame) -> Dict:
+    def _col_to_dtype_from_X(self, X: pd.DataFrame) -> Dict:
         try:
             return self._column_to_dtype
         except AttributeError:
@@ -856,16 +852,16 @@ class ColumnDtypeEnforcer(PdPipelineStage):
                     column_to_dtype[k] = dtype
             return column_to_dtype
 
-    def _prec(self, X: pandas.DataFrame) -> bool:
+    def _prec(self, X: pd.DataFrame) -> bool:
         if self._is_being_fitted:
             return self._tprec.fit_transform(X)
         return self._tprec(X)
 
     def _transform(
         self,
-        X: pandas.DataFrame,
+        X: pd.DataFrame,
         verbose: bool,
-    ) -> pandas.DataFrame:
+    ) -> pd.DataFrame:
         lbl_to_dtype = self._col_to_dtype_from_X(X)
         return X.astype(
             dtype=lbl_to_dtype,

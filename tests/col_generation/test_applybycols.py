@@ -172,5 +172,5 @@ def test_applybycols_use_fit_context():
     )
     res = pline(DF1)
     assert res.index.tolist() == [0, 1, 2, 3]
-    assert "BLAH" not in res["a"].values
-    assert "BLAH" not in res["b"].values
+    assert not (res["a"] == "BLAH").any()
+    assert not (res["b"] == "BLAH").any()
