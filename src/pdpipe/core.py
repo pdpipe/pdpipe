@@ -839,6 +839,7 @@ class PdPipelineStage(abc.ABC):
         -------
         pandas.Series
             The label array as a pandas.Series object.
+
         """
         if len(X) != len(y):
             raise ValueError("X and y must have the same length!")
