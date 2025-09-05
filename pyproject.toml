@@ -53,10 +53,11 @@ dependencies = [
   "strct",            # ColReorder uses strct.dicts.reverse_dict_partial
   "tqdm",             # for some pipeline application progress bars
 ]
+optional-dependencies.nltk = [ "nltk" ]
+
 # --- setuptools ---
 optional-dependencies.sklearn = [ "scikit-learn" ]
 urls.Source = "https://pdpipe.readthedocs.io/en/latest/"
-optional-dependencies.nltk = [ "nltk" ]
 
 [tool.setuptools]
 include-package-data = true
