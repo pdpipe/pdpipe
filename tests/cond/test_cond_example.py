@@ -1,4 +1,4 @@
-"""pytest file built from tests/cond/cond_example.md"""
+"""Pytest file built from tests/cond/cond_example.md."""
 
 
 def session_00001_line_2():

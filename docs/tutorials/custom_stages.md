@@ -38,10 +38,11 @@ class ColRename(pdp.PdPipelineStage):
 
 ??? help "What happens to y?"
 
-    pdpipe has built-in support for X-y transformations for supervised learning, and both pipelines and pipeline stages are adaptive: If only `X`, and input dataframe, was provided, than the transformed dataframe is returned. If both `X` and `y` were returned, the appropriately transformed versions of both of them are returned, as an `(X, y)` tuple.
-    However, since most pipeline stages only transform `X`, the common way to define custom pipeline stages only requires you to implement your transformation of the input dataframe. As long as you only drop and/or rearrange rows, we will make sure `y` will go through the respective transformation, as `pdpipe` makes sure `X` and `y` has an identical index.
-    If you want to write pipeline stages that either add rows or change the index, you must explicitly define your transformation for both `X` and `y`. In that case, take a look at the last section, detailing how to do that.
-
+```
+pdpipe has built-in support for X-y transformations for supervised learning, and both pipelines and pipeline stages are adaptive: If only `X`, and input dataframe, was provided, than the transformed dataframe is returned. If both `X` and `y` were returned, the appropriately transformed versions of both of them are returned, as an `(X, y)` tuple.
+However, since most pipeline stages only transform `X`, the common way to define custom pipeline stages only requires you to implement your transformation of the input dataframe. As long as you only drop and/or rearrange rows, we will make sure `y` will go through the respective transformation, as `pdpipe` makes sure `X` and `y` has an identical index.
+If you want to write pipeline stages that either add rows or change the index, you must explicitly define your transformation for both `X` and `y`. In that case, take a look at the last section, detailing how to do that.
+```
 
 ## Column-based pipeline stages
 
@@ -52,31 +53,32 @@ In this case, instead of implementing the `_transform()` method, you need to imp
 ```python
 import pdpipe as pdp
 
+
 class DropDuplicates(pdp.ColumnsBasedPipelineStage):
 
-  def __init__(self, **kwargs):
-    super_kwargs = {
-      'desc_temp': 'Drop duplicates in columns {}',  # (1)
-    }
-    super_kwargs.update(**kwargs)
-    super_kwargs['none_columns'] = 'all'
-    super().__init__(**super_kwargs)
+    def __init__(self, **kwargs):
+        super_kwargs = {
+            "desc_temp": "Drop duplicates in columns {}",  # (1)
+        }
+        super_kwargs.update(**kwargs)
+        super_kwargs["none_columns"] = "all"
+        super().__init__(**super_kwargs)
 
-  def _transformation(self, X, verbose, fit):
-    columns = self._get_columns(X, fit=fit)
-    inter_X = X.drop_duplicates(subset=columns)
-    if verbose:
-      print(f"{len(X) - len(inter_X)} rows dropped.")
-    return inter_X
+    def _transformation(self, X, verbose, fit):
+        columns = self._get_columns(X, fit=fit)
+        inter_X = X.drop_duplicates(subset=columns)
+        if verbose:
+            print(f"{len(X) - len(inter_X)} rows dropped.")
+        return inter_X
 ```
 
 1. `desc_temp` is another unique constructor parameter of `ColumnsBasedPipelineStage`. You can put in a format string with `{}` as a template for the stage description, and the super-class will fill it with an appropriate string representation of the set of columns the user chose to operate on (e.g. "all", "X except for y and z", and so on).
 
-
 !!! help "Getting columns when using ColumnsBasedPipelineStage"
 
-    If you're extending `ColumnsBasedPipelineStage`, let its constructor handle all column-related parameters (see the documentation of ColumnsBasedPipelineStage) . Then, inside your implementation of the `_transformation()` method, call the `_get_columns()` method, providing it with both the input dataframe `X`, and the boolean fit context parameter `fit`. You'll get back the set of columns to operate on and ca take it from there.
-
+```
+If you're extending `ColumnsBasedPipelineStage`, let its constructor handle all column-related parameters (see the documentation of ColumnsBasedPipelineStage) . Then, inside your implementation of the `_transformation()` method, call the `_get_columns()` method, providing it with both the input dataframe `X`, and the boolean fit context parameter `fit`. You'll get back the set of columns to operate on and ca take it from there.
+```
 
 ## Transformers with fit status
 
@@ -85,60 +87,60 @@ If, alternatively, you want to build a pipeline stage that fits on the input dat
 ```python
 import pdpipe as pdp
 
+
 class Schematize(pdp.PdPipelineStage):
-  """Enforces a column schema on input dataframes."""
+    """Enforces a column schema on input dataframes."""
 
-  def __init__(
-    self,
-    columns: Optional[List[object]],
-    **kwargs: object,
-  ) -> None:
-    if columns is None:
-      self._adaptive = True
-      self._columns = None
-      self._columns_str = '<Learnable Schema>'
-      exmsg = "Learnable schematize failed in precondition unexpectedly!"
-    else:
-      self._adaptive = False
-      self._columns = _interpret_columns_param(columns)
-      self._columns_str = _list_str(self._columns)
-      exmsg = (
-        f"Not all required columns {self._columns_str} "
-        f"found in input dataframe!"
-      )
-    desc = (
-      f"Transform input dataframes to the following schema: "
-      f"{self._columns_str}"
-    )
-    super_kwargs = {
-      'exmsg': exmsg,
-      'desc': desc,
-    }
-    super_kwargs.update(**kwargs)
-    super().__init__(**super_kwargs)
+    def __init__(
+        self,
+        columns: Optional[List[object]],
+        **kwargs: object,
+    ) -> None:
+        if columns is None:
+            self._adaptive = True
+            self._columns = None
+            self._columns_str = "<Learnable Schema>"
+            exmsg = "Learnable schematize failed in precondition unexpectedly!"
+        else:
+            self._adaptive = False
+            self._columns = _interpret_columns_param(columns)
+            self._columns_str = _list_str(self._columns)
+            exmsg = (
+                f"Not all required columns {self._columns_str} "
+                f"found in input dataframe!"
+            )
+        desc = (
+            f"Transform input dataframes to the following schema: "
+            f"{self._columns_str}"
+        )
+        super_kwargs = {
+            "exmsg": exmsg,
+            "desc": desc,
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
 
-  def _prec(self, X: pandas.DataFrame) -> bool:
-    if self._adaptive and not self.is_fitted:
-      return True
-    return set(self._columns).issubset(X.columns)
+    def _prec(self, X: pandas.DataFrame) -> bool:
+        if self._adaptive and not self.is_fitted:
+            return True
+        return set(self._columns).issubset(X.columns)
 
-  def _transform(
-      self, X: pandas.DataFrame, verbose=None) -> pandas.DataFrame:
-    return X[self._columns]
+    def _transform(self, X: pandas.DataFrame, verbose=None) -> pandas.DataFrame:
+        return X[self._columns]
 
-  def _fit_transform(
-      self, X: pandas.DataFrame, verbose=None) -> pandas.DataFrame:
-    if self._adaptive:
-      self._columns = X.columns
-      self.is_fitted = True
-      return X
-    return X[self._columns]
+    def _fit_transform(self, X: pandas.DataFrame, verbose=None) -> pandas.DataFrame:
+        if self._adaptive:
+            self._columns = X.columns
+            self.is_fitted = True
+            return X
+        return X[self._columns]
 ```
 
 !!! tip "The `is_fitted` attribute"
 
-    Don't forget to set `self.is_fitted = True` when youre done fit-transforming your data! That's how the pipeline will know to direct future applications of the stage to the `_transform` method, where you can assume to have any fit-dependent attributes set.
-
+```
+Don't forget to set `self.is_fitted = True` when youre done fit-transforming your data! That's how the pipeline will know to direct future applications of the stage to the `_transform` method, where you can assume to have any fit-dependent attributes set.
+```
 
 ## Transforming both X and y
 
@@ -150,7 +152,6 @@ If you want to write pipeline stages that either add rows or change the index, y
 
 Take, for example, a very simplified version of the `DropLabelsByValues` stage (the actual version supports several ways to detail the by-value dropping logic), as an example for a transform-only X-y tranformer:
 
-
 ```python
 class DropLabelsByValues(PdPipelineStage):
 
@@ -161,7 +162,7 @@ class DropLabelsByValues(PdPipelineStage):
     ) -> None:
         self.in_set = in_set
         super_kwargs = {
-            'desc': "Drop labels by values",
+            "desc": "Drop labels by values",
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -171,12 +172,13 @@ class DropLabelsByValues(PdPipelineStage):
 
     def _transform(self, X, verbose):  # (2)
         raise UnexpectedPipelineMethodCallError(  # (3)
-            "DropLabelsByValues._transform() is not expected to be called!")
+            "DropLabelsByValues._transform() is not expected to be called!"
+        )
 
     def _transform_Xy(self, X, y, verbose):  # (4)
         post_y = y
         if self.in_set is not None:
-            post_y = post_y.loc[~ post_y.isin(self.in_set)]
+            post_y = post_y.loc[~post_y.isin(self.in_set)]
         elif self.in_ranges is not None:
             to_drop = y.copy()
             to_drop.loc[:] = False
@@ -193,9 +195,9 @@ class DropLabelsByValues(PdPipelineStage):
             post_y = post_y.loc[to_keep]
         else:
             raise PipelineInitializationError(
-                "DropLabelsByValues: No drop conditions specified.")
+                "DropLabelsByValues: No drop conditions specified."
+            )
         return X, post_y  # (5)
-
 ```
 
 1. We implement a standard precondition for pipeline stages that wish to transform `y`, or both `X` and `y`; checking that the input `y` parameter isn't `None`.
@@ -204,14 +206,14 @@ class DropLabelsByValues(PdPipelineStage):
 4. Unlike `_transform()`, the `_transform_Xy()` recieves both `X` and `y` as parameters, and return both of them.
 5. A nice thing that `PdPipelineStage` does for us is automatically re-align and re-index `X` according to the transformed `y` (and the other way around), so the method just needs to detail the transformation for `y`. You may, of course, transform both, or manually re-align them using `return X.loc[post_y.index], post_y`.
 
-Similarly, the `EncodeLabel` pipeline stage provides a simple example for an X-y tranformer with a fit-state, so one implementing both the `_transform_Xy()` and the `_fit_transform_Xy()` methods: 
+Similarly, the `EncodeLabel` pipeline stage provides a simple example for an X-y tranformer with a fit-state, so one implementing both the `_transform_Xy()` and the `_fit_transform_Xy()` methods:
 
 ```python
 class EncodeLabel(PdPipelineStage):
 
     def __init__(self, **kwargs: object) -> None:
         super_kwargs = {
-            'desc': "Encode label values",
+            "desc": "Encode label values",
         }
         super_kwargs.update(**kwargs)
         super().__init__(**super_kwargs)
@@ -221,7 +223,8 @@ class EncodeLabel(PdPipelineStage):
 
     def _transform(self, X, verbose):
         raise UnexpectedPipelineMethodCallError(
-            "EncodeLabel._transform() is not expected to be called!")
+            "EncodeLabel._transform() is not expected to be called!"
+        )
 
     def _fit_transform_Xy(self, X, y, verbose):
         self.encoder_ = sklearn.preprocessing.LabelEncoder()
@@ -239,7 +242,6 @@ class EncodeLabel(PdPipelineStage):
             raise UnfittedPipelineStageError("EncodeLabel is not fitted!")
 ```
 
-
 ## Continue to the in-depth guide
 
 A more in-depth guide to subclassing `pdpipe.PdPipelineStage`, and related classes, can be found in our Develop section:
@@ -250,4 +252,6 @@ That's it!
 
 !!! help "Getting help"
 
-    Remember you can get help on <a href="https://gitter.im/pdpipe/community" target="_blank">our :material-wechat: Gitter chat</a> or on <a href="https://github.com/pdpipe/pdpipe/discussions" target="_blank">our :material-message-question: GitHub Discussions forum</a>.
+```
+Remember you can get help on <a href="https://gitter.im/pdpipe/community" target="_blank">our :material-wechat: Gitter chat</a> or on <a href="https://github.com/pdpipe/pdpipe/discussions" target="_blank">our :material-message-question: GitHub Discussions forum</a>.
+```

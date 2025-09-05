@@ -1,7 +1,7 @@
 # Halving Columns: A Demonstration of Column Transformations in `pdpipe`
 
 Let's say you have a dataframe with numerical columns, and you want to generate
-new columns that hold the halved values of some of the original columns. How 
+new columns that hold the halved values of some of the original columns. How
 would you go about it?
 
 That depends on *when* do you know which columns you want to half. Let's go
@@ -16,26 +16,24 @@ hyperparameters of our pipeline. They should be hardcoded, for example, in the
 following way:
 
 ```python
-_COLUMNS_TO_HALVE = ['year', 'revenue']
+_COLUMNS_TO_HALVE = ["year", "revenue"]
+
 
 def halfer(row):
-  new = {
-    f'{lbl}/2': row[lbl] / 2
-    for lbl in _COLUMNS_TO_HALVE
-  }
-  return pd.Series(new)
+    new = {f"{lbl}/2": row[lbl] / 2 for lbl in _COLUMNS_TO_HALVE}
+    return pd.Series(new)
 
-COL_HALVER = pdp.ApplyToRows(halfer, follow_column='years')
+
+COL_HALVER = pdp.ApplyToRows(halfer, follow_column="years")
 ```
 
 So here we've used a dict comprehension to create a new half-column for each column in a list of pre-determined columns we know. This will always operate on the same set of columns, regardless of the input dataframe (and it will fail if not all of them are contained in it).
 
 I've also put everything in the global scope of the imaginary Python script file we're writing. If this is in a notebook, it probably looks the same, possibly minus the all-caps to signify global variables.
 
-
 ## 2. Columns are known on pipeline creation time
 
-If this is not set in stone, but is indeed always known on pipeline creation time (but may change between different uses of the same pipeline, or perhaps pipeline "template), then you need a constructor function to construct the pipeline stage on pipeline creation, which means you just probably want a pipeline constructor function. Then, `year` and `revenue` are parameters of the constructor, and not of the pipeline stage or the function themselves. 
+If this is not set in stone, but is indeed always known on pipeline creation time (but may change between different uses of the same pipeline, or perhaps pipeline "template), then you need a constructor function to construct the pipeline stage on pipeline creation, which means you just probably want a pipeline constructor function. Then, `year` and `revenue` are parameters of the constructor, and not of the pipeline stage or the function themselves.
 
 ```python
 from typing import List
@@ -43,55 +41,54 @@ from typing import List
 import pandas as pd
 import pdpipe as pdp
 
+
 class Halfer:  # (1)
 
-  def __init__(self, columns_to_halve: List[object]) -> None:
-    self.columns_to_halve = columns_to_halve
+    def __init__(self, columns_to_halve: List[object]) -> None:
+        self.columns_to_halve = columns_to_halve
 
-  def __call__(self, row: pd.Series) -> pd.Series:
-    new = {
-      f'{lbl}/2': row[lbl] / 2
-      for lbl in self.columns_to_halve
-    }
-    return pd.Series(new)
+    def __call__(self, row: pd.Series) -> pd.Series:
+        new = {f"{lbl}/2": row[lbl] / 2 for lbl in self.columns_to_halve}
+        return pd.Series(new)
 
 
 def pipeline_constructor(
-  columns_to_drop: List[object],
-  columns_to_half: List[object],
+    columns_to_drop: List[object],
+    columns_to_half: List[object],
 ) -> pdp.PdPipeline:
-  """Constructs my pandas dataframe-processing pipeline, according to some input arguments.
+    """Constructs my pandas dataframe-processing pipeline, according to some input arguments.
 
-  Parameters
-  ----------
-  columns_to_drop : list of objects
-     A list of the labels of the columns to drop.
-     Any Python object that can be used as pandas label can be included in the list.
-  columns_to_half : list of objects
-     A list of the labels of the columns to half.
-     For each such a column, an additional new column, containing its halved values, is generated.
-     Each new column has the label "x/2", where "x" is the label of the corresponding original column.
-     Any Python object that can be used as pandas label can be included in the list.
+    Parameters
+    ----------
+    columns_to_drop : list of objects
+       A list of the labels of the columns to drop.
+       Any Python object that can be used as pandas label can be included in the list.
+    columns_to_half : list of objects
+       A list of the labels of the columns to half.
+       For each such a column, an additional new column, containing its halved values, is generated.
+       Each new column has the label "x/2", where "x" is the label of the corresponding original column.
+       Any Python object that can be used as pandas label can be included in the list.
 
-  Returns
-  -------
-  pipeline : pdpipe.PdPipeline
-    The resulting pipeline constructed by this constructor.
-  """
-  return pdp.PdPipeline([
-    pdp.ColDrop(columns_to_drop),
-    pdp.ApplyToRows(
-      func=Halfer(columns_to_half),
-      follow_column='years',
-    ),
-  ])
+    Returns
+    -------
+    pipeline : pdpipe.PdPipeline
+      The resulting pipeline constructed by this constructor.
+    """
+    return pdp.PdPipeline(
+        [
+            pdp.ColDrop(columns_to_drop),
+            pdp.ApplyToRows(
+                func=Halfer(columns_to_half),
+                follow_column="years",
+            ),
+        ]
+    )
 ```
 
 1. Defining this as a callable object and not a lambda makes the resulting
    pipeline stage, and thus the whole pipeline, pickle-able/serializable.
    Note that a named function defined in some inner scope will not solve this
    as well.
-
 
 ## 3. Columns are determined on pipeline fit
 
@@ -108,10 +105,10 @@ import numpy as np
 import pdpipe as pdp
 
 float_col_halver = pdp.MapColVals(
-  columns=pdp.cq.OfDtypes(np.float),
-  value_map=lambda x: x/2,
-  drop=False,
-  suffix='_half',
+    columns=pdp.cq.OfDtypes(np.float),
+    value_map=lambda x: x / 2,
+    drop=False,
+    suffix="_half",
 )
 ```
 
@@ -121,19 +118,24 @@ The cool thing is, that if applied once on a dataframe — let's say, your train
 
 !!! tip "Tip: Advanced column qualifiers"
 
-    Now, if you instead want to halve all columns with string labels starting with "revenue", you could use `pdp.cq.StartsWith("revenue")` instead. If you want all number columns (int or float or others), you could use `pdp.cq.OfNumericDtypes()`. And the coolest thing? You can easily combine such criteria:
+````
+Now, if you instead want to halve all columns with string labels starting with "revenue", you could use `pdp.cq.StartsWith("revenue")` instead. If you want all number columns (int or float or others), you could use `pdp.cq.OfNumericDtypes()`. And the coolest thing? You can easily combine such criteria:
 
-    ```#!python pdp.cq.WithAtMostMissingValues(1) & pdp.cq.StartsWith('revenue')``` will make sure the stage is applied only to columns with at most one missing value and a label. ```#!python pdp.cq.WithoutMissingValues() - pdp.cq.StartsWith('b')``` is a qualifier that qualifies all columns with no missing values except those that start with 'b'. And ```#!python pdp.cq.StartsWith('revenue') | pdp.cq.StartsWith('expenses')``` will yield all columns that start with either "expenses" or "revenue". You can also create custom conditions with ```#!python pdp.cq.ByColumnCondition(some_function)```.
+```#!python pdp.cq.WithAtMostMissingValues(1) & pdp.cq.StartsWith('revenue')``` will make sure the stage is applied only to columns with at most one missing value and a label. ```#!python pdp.cq.WithoutMissingValues() - pdp.cq.StartsWith('b')``` is a qualifier that qualifies all columns with no missing values except those that start with 'b'. And ```#!python pdp.cq.StartsWith('revenue') | pdp.cq.StartsWith('expenses')``` will yield all columns that start with either "expenses" or "revenue". You can also create custom conditions with ```#!python pdp.cq.ByColumnCondition(some_function)```.
+````
 
 ??? help "How to keep things pickle-able?"
 
-    If you want the whole thing to be pickle-able, the callable you provide the `value_map` parameters needs to be a named function rather than a `lambda`.
+```
+If you want the whole thing to be pickle-able, the callable you provide the `value_map` parameters needs to be a named function rather than a `lambda`.
+```
 
 ??? help "How to drop the source columns?"
 
-    If you want to drop the original columns, just provide the constructor
-    with `drop=True`.
-
+```
+If you want to drop the original columns, just provide the constructor
+with `drop=True`.
+```
 
 ## 4. Columns are determined on each application
 
@@ -146,10 +148,10 @@ import numpy as np
 import pdpipe as pdp
 
 float_col_halver = pdp.MapColVals(
-  columns=pdp.cq.OfDtypes(np.float, fittable=False),
-  value_map=lambda x: x/2,
-  drop=False,
-  suffix='_half',
+    columns=pdp.cq.OfDtypes(np.float, fittable=False),
+    value_map=lambda x: x / 2,
+    drop=False,
+    suffix="_half",
 )
 ```
 
@@ -157,4 +159,6 @@ That's it!
 
 !!! help "Getting help"
 
-    Remember you can get help on <a href="https://gitter.im/pdpipe/community" target="_blank">our :material-wechat: Gitter chat</a> or on <a href="https://github.com/pdpipe/pdpipe/discussions" target="_blank">our :material-message-question: GitHub Discussions forum</a>.
+```
+Remember you can get help on <a href="https://gitter.im/pdpipe/community" target="_blank">our :material-wechat: Gitter chat</a> or on <a href="https://github.com/pdpipe/pdpipe/discussions" target="_blank">our :material-message-question: GitHub Discussions forum</a>.
+```

@@ -1,4 +1,4 @@
-# Condition Objects 
+# Condition Objects
 
 You can find [an introduction to Conditions](https://pdpipe.readthedocs.io/en/latest/starting/cond/) in our Getting Started section.
 

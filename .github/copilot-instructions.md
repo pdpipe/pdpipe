@@ -13,4 +13,4 @@
 - Default behaviors should help users avoid common data science pitfalls (e.g., one-hot encoding drops one column by default to avoid the dummy variable trap).
 - pdpipe supports Python 3.9 and up. Ensure compatibility with all supported versions.
 - For configuration, support both config files and environment variables as described in the README.
-- For help, reference the official documentation at https://pdpipe.readthedocs.io/en/latest/ and the Gitter community. 
+- For help, reference the official documentation at https://pdpipe.readthedocs.io/en/latest/ and the Gitter community.

@@ -12,8 +12,7 @@ def out_of_place_col_insert(
     loc: int,
     column_name: Optional[str] = None,
 ) -> pd.DataFrame:
-    """
-    Return a new dataframe with given column inserted at given location.
+    """Return a new dataframe with given column inserted at given location.
 
     Parameters
     ----------
@@ -42,6 +41,7 @@ def out_of_place_col_insert(
            a  n  g
         0  1  7  a
         1  4  5  b
+
     """
     if column_name is None:
         if series.name is None:
@@ -57,8 +57,7 @@ def out_of_place_col_insert(
 
 
 def get_numeric_column_names(X: pd.DataFrame) -> List[str]:
-    """
-    Return the names of all columns of numeric type.
+    """Return the names of all columns of numeric type.
 
     Parameters
     ----------
@@ -77,6 +76,7 @@ def get_numeric_column_names(X: pd.DataFrame) -> List[str]:
         >>> df = pd.DataFrame(data, [1,2,3], ["rank", "ph","lbl"])
         >>> sorted(get_numeric_column_names(df))
         ['ph', 'rank']
+
     """
     num_cols = []
     for colbl, dtype in X.dtypes.to_dict().items():
@@ -89,8 +89,7 @@ def per_column_values_sklearn_transform(
     X: pd.DataFrame,
     transform: callable,
 ) -> pd.DataFrame:
-    """
-    Applies a 2d-array sklearn transform to 1d values arrays of a dataframe.
+    """Applies a 2d-array sklearn transform to 1d values arrays of a dataframe.
 
     Parameters
     ----------
@@ -103,6 +102,7 @@ def per_column_values_sklearn_transform(
     -------
     res_X : pandas.DataFrame
         The transformed dataframe.
+
     """
     return pd.DataFrame(
         data=np.array(
@@ -120,13 +120,13 @@ _LBL_PHOLDER_PREDICT = "__pdpipe_lbl_pholder_predict__"
 
 
 class LabelPlaceholderForPredict(pd.Series):
-    """
-    A placeholder for y while predicting.
+    """A placeholder for y while predicting.
 
     Parameters
     ----------
     df : pandas.DataFrame
         The dataframe to use as the index for the placeholder.
+
     """
 
     def __init__(self, df: pd.DataFrame) -> None:

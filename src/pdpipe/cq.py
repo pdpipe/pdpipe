@@ -9,14 +9,12 @@ from .shared import _list_str
 
 
 class UnfittedColumnQualifierError(Exception):
-    """
-    Raised when a transform is attempted with an unfitted column qualifier.
-    """
+    """Raised when a transform is attempted with an unfitted column
+    qualifier."""
 
 
 class ColumnQualifier(object):
-    """
-    A fittable qualifier that returns column labels from an input dataframe.
+    """A fittable qualifier that returns column labels from an input dataframe.
 
     Parameters
     ----------
@@ -46,6 +44,7 @@ class ColumnQualifier(object):
     >>> cq
     <ColumnQualifier: Qualify columns by function>
     >>> col_drop = pdp.ColDrop(columns=cq)
+
     """
 
     def __init__(self, func, fittable=None, subset=None):
@@ -57,8 +56,7 @@ class ColumnQualifier(object):
         self._subset = subset
 
     def __call__(self, X: pandas.DataFrame) -> List[object]:
-        """
-        Return column labels of qualified columns from an input dataframe.
+        """Return column labels of qualified columns from an input dataframe.
 
         Parameters
         ----------
@@ -69,6 +67,7 @@ class ColumnQualifier(object):
         -------
         list of objects
             A list of labels of the qualified columns for the input dataframe.
+
         """
         try:
             return self.transform(X)
@@ -76,8 +75,7 @@ class ColumnQualifier(object):
             return self.fit_transform(X)
 
     def fit_transform(self, X: pandas.DataFrame) -> List[object]:
-        """
-        Fit this qualifier and return the labels of the qualifying columns.
+        """Fit this qualifier and return the labels of the qualifying columns.
 
         Parameters
         ----------
@@ -88,24 +86,24 @@ class ColumnQualifier(object):
         -------
         list of objects
             A list of labels of the qualified columns for the input dataframe.
+
         """
         self._columns = self._cqfunc(X)
         return self._columns
 
     def fit(self, X: pandas.DataFrame) -> None:
-        """
-        Fit this qualifier on the input dataframe.
+        """Fit this qualifier on the input dataframe.
 
         Parameters
         ----------
         X : pandas.DataFrame
             The input dataframe, from which columns are selected.
+
         """
         self.fit_transform(X)
 
     def transform(self, X: pandas.DataFrame) -> List[object]:
-        """
-        Apply and returns the labels of the qualifying columns.
+        """Apply and returns the labels of the qualifying columns.
 
         If this ColumnQualifier is fittable, it will return the list of column
         labels that was determined when fitted (or the subset of it that can
@@ -121,6 +119,7 @@ class ColumnQualifier(object):
         -------
         list of objects
             A list of labels of the qualified columns for the input dataframe.
+
         """
         if not self._fittable:
             return self._cqfunc(X)
@@ -272,8 +271,7 @@ class ColumnQualifier(object):
 
 
 def is_fittable_column_qualifier(obj: object) -> bool:
-    """
-    Return True for objects that are fittable ColumnQualifier objects.
+    """Return True for objects that are fittable ColumnQualifier objects.
 
     Parameters
     ----------
@@ -285,13 +283,13 @@ def is_fittable_column_qualifier(obj: object) -> bool:
     bool
         True if the given object is an instance of ColumnQualifier and
         fittable, False otherwise.
+
     """
     return isinstance(obj, ColumnQualifier) and obj._fittable
 
 
 class AllColumns(ColumnQualifier):
-    """
-    Select all columns in input dataframes.
+    """Select all columns in input dataframes.
 
     Parameters
     ----------
@@ -322,6 +320,7 @@ class AllColumns(ColumnQualifier):
     ['a', 'b']
     >>> cq(df2)
     ['b']
+
     """
 
     class _SelectAllColumns(object):
@@ -337,8 +336,7 @@ class AllColumns(ColumnQualifier):
 
 
 class ByColumnCondition(ColumnQualifier):
-    """
-    A fittable column qualifier based on a per-column condition.
+    """A fittable column qualifier based on a per-column condition.
 
     Parameters
     ----------
@@ -363,6 +361,7 @@ class ByColumnCondition(ColumnQualifier):
     >>> cq = pdp.cq.ByColumnCondition(lambda s: s.sum() > 3, safe=True)
     >>> cq(df)
     ['age']
+
     """
 
     class _SafeCond(object):
@@ -393,8 +392,7 @@ class ByColumnCondition(ColumnQualifier):
 
 
 class ByLabels(ColumnQualifier):
-    """
-    Select all columns with the given label or labels.
+    """Select all columns with the given label or labels.
 
     Parameters
     ----------
@@ -419,6 +417,7 @@ class ByLabels(ColumnQualifier):
     >>> cq = pdp.cq.ByLabels(['num', 'foo'])
     >>> cq(df)
     ['num']
+
     """
 
     class _LabelsQualifierFunc(object):
@@ -444,8 +443,7 @@ class ByLabels(ColumnQualifier):
 
 
 def columns_to_qualifier(columns) -> ColumnQualifier:
-    """
-    Convert the given columns parameter to an equivalent column qualifier.
+    """Convert the given columns parameter to an equivalent column qualifier.
 
     Parameters
     ----------
@@ -468,6 +466,7 @@ def columns_to_qualifier(columns) -> ColumnQualifier:
     <ColumnQualifier: By labels in nu, bu>
     >>> pdp.cq.columns_to_qualifier(lambda df: [l for l in df.columns])
     <ColumnQualifier: Qualify columns by function>
+
     """
     if callable(columns):
         if isinstance(columns, ColumnQualifier):
@@ -477,8 +476,7 @@ def columns_to_qualifier(columns) -> ColumnQualifier:
 
 
 class StartsWith(ColumnQualifier):
-    """
-    Select all columns that start with the given string.
+    """Select all columns that start with the given string.
 
     Parameters
     ----------
@@ -499,6 +497,7 @@ class StartsWith(ColumnQualifier):
     <ColumnQualifier: Columns starting with nu>
     >>> cq(df)
     ['num', 'nur']
+
     """
 
     @staticmethod
@@ -532,8 +531,7 @@ class StartsWith(ColumnQualifier):
 
 
 class OfDtypes(ColumnQualifier):
-    """
-    Select all columns that are of a given dtypes.
+    """Select all columns that are of a given dtypes.
 
     Use `dtypes=np.number` to qualify all numeric columns.
 
@@ -563,6 +561,7 @@ class OfDtypes(ColumnQualifier):
     <ColumnQualifier: With dtypes in <class 'numpy.int64'>>
     >>> cq(df)
     ['age']
+
     """
 
     class _OfDtypeFunc(object):
@@ -586,8 +585,7 @@ class OfDtypes(ColumnQualifier):
 
 
 class OfNumericDtypes(OfDtypes):
-    """
-    Select all columns that are of a numeric dtypes.
+    """Select all columns that are of a numeric dtypes.
 
     Parameters
     ----------
@@ -606,6 +604,7 @@ class OfNumericDtypes(OfDtypes):
     <ColumnQualifier: With dtypes in <class 'numpy.number'>>
     >>> cq(df)
     ['ph', 'age']
+
     """
 
     def __init__(self, **kwargs):
@@ -614,8 +613,7 @@ class OfNumericDtypes(OfDtypes):
 
 
 class WithAtMostMissingValues(ColumnQualifier):
-    """
-    Select all columns with no more than X missing values.
+    """Select all columns with no more than X missing values.
 
     Parameters
     ----------
@@ -637,6 +635,7 @@ class WithAtMostMissingValues(ColumnQualifier):
     <ColumnQualifier: With at most 1 missing values>
 
     ['grade', 'age']
+
     """
 
     class _AtMostFunc(object):
@@ -664,8 +663,7 @@ class WithAtMostMissingValues(ColumnQualifier):
 
 
 class WithoutMissingValues(WithAtMostMissingValues):
-    """
-    Select all columns with no missing values.
+    """Select all columns with no missing values.
 
     Parameters
     ----------
@@ -683,6 +681,7 @@ class WithoutMissingValues(WithAtMostMissingValues):
     <ColumnQualifier: Without missing values>
     >>> cq(df)
     ['age']
+
     """
 
     def __init__(self, **kwargs):
@@ -694,8 +693,7 @@ class WithoutMissingValues(WithAtMostMissingValues):
 
 
 class WithAtMostMissingValueRate(ColumnQualifier):
-    """
-    Select all columns with no more than P% missing values.
+    """Select all columns with no more than P% missing values.
 
     Parameters
     ----------
@@ -717,6 +715,7 @@ class WithAtMostMissingValueRate(ColumnQualifier):
     <ColumnQualifier: With at most 0.6 missing value rate>
     >>> cq(df)
     ['grade', 'age']
+
     """
 
     class _AtMostRateFunc(object):
@@ -744,8 +743,7 @@ class WithAtMostMissingValueRate(ColumnQualifier):
 
 
 class WithAtLeastMissingValueRate(ColumnQualifier):
-    """
-    Select all columns with no less than P% missing values.
+    """Select all columns with no less than P% missing values.
 
     Parameters
     ----------
@@ -767,6 +765,7 @@ class WithAtLeastMissingValueRate(ColumnQualifier):
     <ColumnQualifier: With at least 0.6 missing value rate>
     >>> cq(df)
     ['ph']
+
     """
 
     class _AtLeastRateFunc(object):

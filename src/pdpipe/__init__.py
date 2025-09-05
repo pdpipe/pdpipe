@@ -1,5 +1,4 @@
-"""
-Easy pandas piplines.
+"""Easy pandas piplines.
 
 The `pdpipe` Python package provides a concise interface for building `pandas`
 pipelines that have pre-conditions, are verbose, support the fit-transform
@@ -9,6 +8,7 @@ application, support pipeline arithmetics and enable easier handling of
 mixed-type data.
 
 .. include:: ./documentation.md
+
 """
 
 # pylint: disable=C0413

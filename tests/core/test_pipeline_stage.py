@@ -29,7 +29,7 @@ def _test_df():
 
 
 class SomeStage(PdPipelineStage):
-    """A pipeline stage for testing"""
+    """A pipeline stage for testing."""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -125,7 +125,7 @@ def test_pickle_named_prec_basic(pdpipe_tests_dir_path):
 
 
 class FailStage(PdPipelineStage):
-    """A pipeline stage for testing"""
+    """A pipeline stage for testing."""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -150,7 +150,7 @@ def test_fail_pipeline_stage():
 
 
 class SilentDropStage(PdPipelineStage):
-    """A pipeline stage for testing"""
+    """A pipeline stage for testing."""
 
     def __init__(self, colname, **kwargs):
         self.colname = colname
@@ -172,7 +172,7 @@ def test_silent_fail_pipeline_stage():
 
 
 def test_pipeline_stage_addition_to_int():
-    """Testing that"""
+    """Testing that."""
     silent_fail_stage = SilentDropStage("Tigers")
     with pytest.raises(TypeError):
         silent_fail_stage + 2
@@ -199,7 +199,7 @@ def test_stage_name():
 
 
 class FittableDropByCharStage(PdPipelineStage):
-    """A pipeline stage for testing"""
+    """A pipeline stage for testing."""
 
     def __init__(self, char, **kwargs):
         self.char = char

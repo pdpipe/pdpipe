@@ -7,21 +7,20 @@ on:
     branches: [master]
   schedule:
     # * is a special character in YAML so you have to quote this string
-    - cron: '0 */72 * * *'
+    - cron: "0 */72 * * *"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.head_ref }}
   cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
 
 jobs:
-
   pytester:
     runs-on: ${{ matrix.os }}
     environment: test
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
         os: ["ubuntu-latest", "macOS-latest", "windows-latest"]
 
     steps:

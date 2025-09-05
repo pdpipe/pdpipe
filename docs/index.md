@@ -1,11 +1,12 @@
 ---
 title: Easy pandas pipelines!
 ---
-#
+
+# 
+
 <p align="center">
     <img src="https://pdpipe.readthedocs.io/en/latest/images/pdpipe_row.png" alt="logowithtext" width="400px" style="display: block; margin-left: auto; margin-right: auto"/>
 </p>
-
 
 [![](https://img.shields.io/pypi/v/pdpipe.svg)](https://pypi.org/project/pdpipe)
 [![](https://pepy.tech/badge/pdpipe)](https://pepy.tech/project/pdpipe)
@@ -13,8 +14,8 @@ title: Easy pandas pipelines!
 [![](https://codecov.io/github/pdpipe/pdpipe/coverage.svg?branch=master)](https://codecov.io/github/pdpipe/pdpipe?branch=master)
 [![](https://www.codefactor.io/repository/github/pdpipe/pdpipe/badge?style=plastic)](https://www.codefactor.io/repository/github/pdpipe/pdpipe)
 [![](https://img.shields.io/badge/License-MIT-ff69b4.svg)](https://pypi.python.org/pypi/pdpipe)
-<!-- [![](https://img.shields.io/pypi/pyversions/pdpipe.svg)](https://pypi.org/project/pdpipe) -->
 
+<!-- [![](https://img.shields.io/pypi/pyversions/pdpipe.svg)](https://pypi.org/project/pdpipe) -->
 
 The `pdpipe` Python package provides a concise interface for building `pandas`
 pipelines that have pre-conditions, are verbose, support the fit-transform
@@ -40,9 +41,11 @@ mixed-type data.
 
 !!! pied-piper "Why pdpipe?"
 
-    Ever written a preprocessing pipeline for pandas dataframes and had trouble serializing it for later deployment on a different machine? Ever needed fit-able preprocessing transformations, with tunable parameters that are inferred from training data, to be used later to transform input data? Ever struggled with preprocessing different types of data in the same pandas dataframe?
+```
+Ever written a preprocessing pipeline for pandas dataframes and had trouble serializing it for later deployment on a different machine? Ever needed fit-able preprocessing transformations, with tunable parameters that are inferred from training data, to be used later to transform input data? Ever struggled with preprocessing different types of data in the same pandas dataframe?
 
-    Enter **pdpipe**, a simple framework for **serializable, chainable and verbose** pandas pipelines. Its intuitive API enables you to generate, using only a few lines, complex pandas processing pipelines that can easily be broken down or composed together, examined and debugged, and that **adhere to scikit-learn's Transformer API**. Stop writing the same preprocessing boilerplate code again and again!
+Enter **pdpipe**, a simple framework for **serializable, chainable and verbose** pandas pipelines. Its intuitive API enables you to generate, using only a few lines, complex pandas processing pipelines that can easily be broken down or composed together, examined and debugged, and that **adhere to scikit-learn's Transformer API**. Stop writing the same preprocessing boilerplate code again and again!
+```
 
 ## Installation
 
@@ -50,9 +53,9 @@ Install `pdpipe` using `pip`: `:::bash pip install pdpipe`
 
 ## Getting Help
 
-* :material-wechat: **Chat** — Join [our Gitter community](https://gitter.im/pdpipe/community) to chat for help!
-* :material-message-question: **Questions & Discussions** can be found on our [GitHub Discussions](https://github.com/pdpipe/pdpipe/discussions) forum.
-* :material-bug: **Bugs and missing feature** tickets can be opened on [our GitHub repository](https://github.com/pdpipe/pdpipe/issues).
+- :material-wechat: **Chat** — Join [our Gitter community](https://gitter.im/pdpipe/community) to chat for help!
+- :material-message-question: **Questions & Discussions** can be found on our [GitHub Discussions](https://github.com/pdpipe/pdpipe/discussions) forum.
+- :material-bug: **Bugs and missing feature** tickets can be opened on [our GitHub repository](https://github.com/pdpipe/pdpipe/issues).
 
 ## Getting Started
 

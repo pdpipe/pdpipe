@@ -8,8 +8,7 @@ from pdpipe.pdp_types import ColumnsParamType, ColumnLabelsType
 
 
 class RegexReplace(ApplyByCols):
-    """
-    A pipeline stage replacing regex occurences in a text column.
+    """A pipeline stage replacing regex occurences in a text column.
 
     Parameters
     ----------
@@ -55,6 +54,7 @@ class RegexReplace(ApplyByCols):
       name  age
     1    x   18
     2    x   25
+
     """  # noqa: W605
 
     class _RegexReplacer(object):
@@ -104,8 +104,7 @@ class RegexReplace(ApplyByCols):
 
 
 class DropTokensByLength(ApplyByCols):
-    """
-    A pipeline stage removing tokens by length in string-token list columns.
+    """A pipeline stage removing tokens by length in string-token list columns.
 
     Parameters
     ----------
@@ -140,6 +139,7 @@ class DropTokensByLength(ApplyByCols):
        age         text
     1    4  [bad, nice]
     2    5       [good]
+
     """  # noqa: W605
 
     class _MinLengthTokenFilter(object):
@@ -194,8 +194,7 @@ class DropTokensByLength(ApplyByCols):
 
 
 class DropTokensByList(ApplyByCols):
-    """
-    A pipeline stage removing specific tokens in string-token list columns.
+    """A pipeline stage removing specific tokens in string-token list columns.
 
     Parameters
     ----------
@@ -226,6 +225,7 @@ class DropTokensByList(ApplyByCols):
        age         text
     1    4     [a, cat]
     2    5  [not, good]
+
     """  # noqa: W605
 
     class _ListTokenFilter(object):

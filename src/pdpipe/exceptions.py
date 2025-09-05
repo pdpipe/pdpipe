@@ -2,44 +2,34 @@
 
 
 class FailedPreconditionError(Exception):
-    """
-    Raised when a stage is applied to a dataframe violating its precondition.
-    """
+    """Raised when a stage is applied to a dataframe violating its
+    precondition."""
 
 
 class FailedPostconditionError(Exception):
-    """
-    Raised when an expected post-condition is violated after stage application.
-    """
+    """Raised when an expected post-condition is violated after stage
+    application."""
 
 
 class FailedConditionError(Exception):
-    """
-    Raised when an expected condition does not hold for an input dataframe.
-    """
+    """Raised when an expected condition does not hold for an input
+    dataframe."""
 
 
 class PipelineInitializationError(Exception):
-    """
-    An exception raised when a pipeline is not initialized properly.
-    """
+    """An exception raised when a pipeline is not initialized properly."""
 
 
 class PipelineApplicationError(Exception):
-    """
-    Raised when pipeline application raises an error.
-    """
+    """Raised when pipeline application raises an error."""
 
 
 class UnfittedPipelineStageError(Exception):
-    """
-    Raised when a transform is attempted with an unfitted pipeline stage.
-    """
+    """Raised when a transform is attempted with an unfitted pipeline stage."""
 
 
 class UnexpectedPipelineMethodCallError(Exception):
-    """
-    Raised a placeholder method implementation is called unexpectedly.
+    """Raised a placeholder method implementation is called unexpectedly.
 
     An exception raised when a placeholder method implementation of an
     extension of the PdPipeline class is called when it was not expected.
@@ -56,4 +46,5 @@ class UnexpectedPipelineMethodCallError(Exception):
 
     Thus, if `_transform` is called instead of `_transform_Xy` for this stage,
     it is unexpected, and this exception is raised.
+
     """
