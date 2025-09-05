@@ -118,6 +118,7 @@ markdown_extensions:
         # use icon paths the match the folder structure in the fontawesome repo:
         # https://github.com/FortAwesome/Font-Awesome/tree/master/svgs
 
+
 extra:
   social:
     - icon: fontawesome/brands/github
