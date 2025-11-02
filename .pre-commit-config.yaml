@@ -9,7 +9,7 @@ ci:
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: end-of-file-fixer
       - id: trailing-whitespace
@@ -30,7 +30,7 @@ repos:
         args: []
 
   - repo: https://github.com/PyCQA/docformatter
-    rev: v1.7.6
+    rev: v1.7.7
     hooks:
       - id: docformatter
         additional_dependencies: [tomli]
@@ -47,7 +47,7 @@ repos:
         args: ["--number"]
 
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.1.0
+    rev: v4.0.0-alpha.8
     hooks:
       - id: prettier
         files: \.(json|yml|yaml|toml)
@@ -55,7 +55,7 @@ repos:
         args: ["--print-width=79"]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.4
+    rev: v0.13.3
     hooks:
       # use black formatting
       - id: ruff-format
@@ -67,13 +67,13 @@ repos:
 
   # it needs to be after formatting hooks because the lines might be changed
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.15.0
+    rev: v1.18.2
     hooks:
       - id: mypy
         files: "src/*"
 
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.5.1
+    rev: v2.7.0
     hooks:
       - id: pyproject-fmt
         additional_dependencies: [tox]
