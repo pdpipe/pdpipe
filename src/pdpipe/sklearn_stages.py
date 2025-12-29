@@ -229,11 +229,11 @@ class Imputer(ColumnsBasedPipelineStage):
         ]
         col_order = list(X.columns)
         inter_X = X[self._columns_to_impute].copy()
-        
+
         imputer_kwargs = self._kwargs.copy()
         if self.fill_value is not None:
             imputer_kwargs['fill_value'] = self.fill_value
-        
+
         self.imputer_ = SimpleImputer(strategy=self.strategy, **imputer_kwargs)
         try:
             inter_X = pd.DataFrame(
@@ -246,12 +246,12 @@ class Imputer(ColumnsBasedPipelineStage):
                 "Exception raised when Imputer applied to columns"
                 f" {self._columns_to_impute} by class {self.__class__}"
             ) from e
-        
+
         if len(unimputed_cols) > 0:
             unimputed = X[unimputed_cols]
             inter_X = pd.concat([inter_X, unimputed], axis=1)
             inter_X = inter_X[col_order]
-        
+
         self.is_fitted = True
         return inter_X
 
@@ -272,12 +272,12 @@ class Imputer(ColumnsBasedPipelineStage):
                 "Exception raised when Imputer applied to columns"
                 f" {self._columns_to_impute} by class {self.__class__}"
             ) from e
-        
+
         if len(unimputed_cols) > 0:
             unimputed = X[unimputed_cols]
             inter_X = pd.concat([inter_X, unimputed], axis=1)
             inter_X = inter_X[col_order]
-        
+
         return inter_X
 
 

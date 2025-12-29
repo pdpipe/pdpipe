@@ -45,14 +45,14 @@ def test_imputer_mean():
     df = _some_df_with_nans()
     imputer_stage = Imputer("mean", columns=["x", "y"])
     res_df = imputer_stage(df)
-    
+
     # Check that NaNs are imputed
     assert res_df["x"].isna().sum() == 0
     assert res_df["y"].isna().sum() == 0
-    
+
     # Check column names preserved
     assert list(res_df.columns) == ["x", "y", "lbl"]
-    
+
     # Check that mean imputation occurred correctly
     # mean of [1.0, 2.0, nan] = 1.5
     assert res_df["x"][3] == 1.5
@@ -65,15 +65,15 @@ def test_imputer_mean_transform():
     df = _some_df_with_nans()
     imputer_stage = Imputer("mean", columns=["x", "y"])
     res_df = imputer_stage(df)
-    
+
     # Apply to new data using fitted imxxxxr
     df2 = _some_df_with_nans_b()
     res_df2 = imputer_stage(df2)
-    
+
     # Check that NaNs are imputed in new data
     assert res_df2["x"].isna().sum() == 0
     assert res_df2["y"].isna().sum() == 0
-    
+
     # The imputation should use the mean from the first fit
     # mean of x from df = 1.5, so NaN at index 3 in df2 should become 1.5
     assert res_df2["x"][3] == 1.5
@@ -84,14 +84,14 @@ def test_imputer_median():
     df = _some_df_with_nans()
     imputer_stage = Imputer("median", columns=["x", "y"])
     res_df = imputer_stage(df)
-    
+
     # Check that NaNs are imputed
     assert res_df["x"].isna().sum() == 0
     assert res_df["y"].isna().sum() == 0
-    
+
     # Check column names preserved
     assert list(res_df.columns) == ["x", "y", "lbl"]
-    
+
     # Check that median imputation occurred correctly
     # median of [1.0, 2.0, nan] = 1.5
     assert res_df["x"][3] == 1.5
@@ -104,11 +104,11 @@ def test_imputer_with_exclude_cols():
     df = _some_df_with_nans()
     imputer_stage = Imputer("mean", columns=["x", "y"], exclude_columns=["y"])
     res_df = imputer_stage(df)
-    
+
     # Check that only x is imputed (y is excluded)
     assert res_df["x"].isna().sum() == 0
     assert res_df["y"].isna().sum() == 1  # y should still have NaN
-    
+
     # Check column order preserved
     assert list(res_df.columns) == ["x", "y", "lbl"]
 
@@ -118,7 +118,7 @@ def test_imputer_all_columns():
     df = _some_df_with_nans_all_cols()
     imputer_stage = Imputer("mean", columns=["x", "y"])
     res_df = imputer_stage(df)
-    
+
     # Check that NaNs are imputed in all columns
     assert res_df["x"].isna().sum() == 0
     assert res_df["y"].isna().sum() == 0
@@ -129,11 +129,11 @@ def test_imputer_constant_strategy():
     df = _some_df_with_nans()
     imputer_stage = Imputer("constant", columns=["x", "y"], fill_value=0)
     res_df = imputer_stage(df)
-    
+
     # Check that NaNs are imputed with constant value
     assert res_df["x"].isna().sum() == 0
     assert res_df["y"].isna().sum() == 0
-    
+
     # Check that NaN values were replaced with fill_value
     assert res_df["x"][3] == 0
     assert res_df["y"][1] == 0
@@ -148,7 +148,7 @@ def test_imputer_most_frequent():
     )
     imputer_stage = Imputer("most_frequent", columns=["x", "y"])
     res_df = imputer_stage(df)
-    
+
     # Check that NaNs are imputed
     assert res_df["x"].isna().sum() == 0
     assert res_df["y"].isna().sum() == 0
@@ -159,7 +159,7 @@ def test_imputer_no_nans():
     df = _some_df_no_nans()
     imputer_stage = Imputer("mean", columns=["x", "y"])
     res_df = imputer_stage(df)
-    
+
     # Check that data is unchanged
     pd.testing.assert_frame_equal(res_df, df)
 
@@ -168,16 +168,16 @@ def test_imputer_fit_transform():
     """Test fit_transform on same data."""
     df = _some_df_with_nans()
     imputer_stage = Imputer("mean", columns=["x", "y"])
-    
+
     # First fit_transform
     res_df1 = imputer_stage.fit_transform(df)
     assert res_df1["x"].isna().sum() == 0
-    
+
     # Second fit_transform with new data
     df2 = _some_df_with_nans_b()
     res_df2 = imputer_stage.fit_transform(df2)
     assert res_df2["x"].isna().sum() == 0
-    
+
     # Values should be different because it refitted on df2
     assert res_df2["x"][3] != res_df1["x"][3]
 
@@ -187,7 +187,7 @@ def test_imputer_with_single_column():
     df = _some_df_with_nans()
     imputer_stage = Imputer("mean", columns="x")
     res_df = imputer_stage(df)
-    
+
     # Check that only specified column is imputed
     assert res_df["x"].isna().sum() == 0
     assert res_df["y"].isna().sum() == 1  # y should still have NaN
