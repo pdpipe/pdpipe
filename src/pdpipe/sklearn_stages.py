@@ -17,6 +17,7 @@ from sklearn.base import clone
 from sklearn.feature_extraction.text import (
     TfidfVectorizer,
 )
+from sklearn.impute import SimpleImputer
 from skutil.preprocessing import scaler_by_params
 from tqdm.autonotebook import tqdm
 
@@ -147,6 +148,140 @@ class Encode(ColumnsBasedPipelineStage):
                 loc=loc,
                 column_name=new_name,
             )
+        return inter_X
+
+
+class Imputer(ColumnsBasedPipelineStage):
+    """A pipeline stage that imputes missing values in columns.
+
+    This stage uses scikit-learn's SimpleImputer to handle missing values
+    (NaN, None) in the specified columns with a chosen strategy.
+
+    Parameters
+    ----------
+    strategy : str, default 'mean'
+        The imputation strategy. One of 'mean', 'median', 'most_frequent', or
+        'constant'. Refer to scikit-learn's SimpleImputer documentation for
+        usage details.
+    columns : single label, list-like or callable, default None
+        Column labels in the DataFrame to be imputed. If columns is None then
+        all columns will be imputed, except those given in the
+        exclude_columns parameter. Alternatively, this parameter can be
+        assigned a callable returning an iterable of labels from an input
+        pandas.DataFrame. See `pdpipe.cq`.
+    exclude_columns : single label, list-like or callable, default None
+        Label or labels of columns to be excluded from imputation. Alternatively,
+        this parameter can be assigned a callable returning an iterable of
+        labels from an input pandas.DataFrame. See `pdpipe.cq`.
+    fill_value : str or number, default None
+        The value to use for the 'constant' strategy. Must be provided if
+        strategy is 'constant'.
+    **kwargs : extra keyword arguments
+        All valid extra keyword arguments are forwarded to the SimpleImputer
+        constructor on imputer creation. PdPipelineStage valid keyword arguments
+        are used to override Imputer class defaults.
+
+    Attributes
+    ----------
+    imputer_ : sklearn.impute.SimpleImputer
+        A scikit-learn SimpleImputer object.
+
+    Examples
+    --------
+    >>> import pandas as pd; import numpy as np; import pdpipe as pdp;
+    >>> data = [[1.0, np.nan], [2.0, 4.0], [np.nan, 6.0]]
+    >>> df = pd.DataFrame(data, [1,2,3], ["x","y"])
+    >>> impute_stage = pdp.Imputer("mean")
+    >>> impute_stage(df)
+         x    y
+    1  1.0  5.0
+    2  2.0  4.0
+    3  1.5  6.0
+
+    """
+
+    def __init__(
+        self,
+        strategy="mean",
+        columns=None,
+        exclude_columns=None,
+        fill_value=None,
+        **kwargs,
+    ):
+        self.strategy = strategy
+        self.fill_value = fill_value
+        self._kwargs = kwargs.copy()
+        super_kwargs = {
+            "columns": columns,
+            "exclude_columns": exclude_columns,
+            "desc_temp": "Impute columns {}",
+        }
+        valid_super_kwargs = super()._init_kwargs()
+        for key in kwargs:
+            if key in valid_super_kwargs:
+                super_kwargs[key] = kwargs[key]
+                self._kwargs.pop(key)
+        super().__init__(**super_kwargs)
+
+    def _transformation(self, X, verbose, fit):
+        raise NotImplementedError
+
+    def _fit_transform(self, X, verbose):
+        self._columns_to_impute = self._get_columns(X, fit=True)
+        unimputed_cols = [
+            x for x in X.columns if x not in self._columns_to_impute
+        ]
+        col_order = list(X.columns)
+        inter_X = X[self._columns_to_impute].copy()
+
+        imputer_kwargs = self._kwargs.copy()
+        if self.fill_value is not None:
+            imputer_kwargs["fill_value"] = self.fill_value
+
+        self.imputer_ = SimpleImputer(strategy=self.strategy, **imputer_kwargs)
+        try:
+            inter_X = pd.DataFrame(
+                data=self.imputer_.fit_transform(inter_X.values),
+                index=inter_X.index,
+                columns=inter_X.columns,
+            )
+        except Exception as e:
+            raise PipelineApplicationError(
+                "Exception raised when Imputer applied to columns"
+                f" {self._columns_to_impute} by class {self.__class__}"
+            ) from e
+
+        if len(unimputed_cols) > 0:
+            unimputed = X[unimputed_cols]
+            inter_X = pd.concat([inter_X, unimputed], axis=1)
+            inter_X = inter_X[col_order]
+
+        self.is_fitted = True
+        return inter_X
+
+    def _transform(self, X, verbose):
+        unimputed_cols = [
+            x for x in X.columns if x not in self._columns_to_impute
+        ]
+        col_order = list(X.columns)
+        inter_X = X[self._columns_to_impute].copy()
+        try:
+            inter_X = pd.DataFrame(
+                data=self.imputer_.transform(inter_X.values),
+                index=inter_X.index,
+                columns=inter_X.columns,
+            )
+        except Exception as e:
+            raise PipelineApplicationError(
+                "Exception raised when Imputer applied to columns"
+                f" {self._columns_to_impute} by class {self.__class__}"
+            ) from e
+
+        if len(unimputed_cols) > 0:
+            unimputed = X[unimputed_cols]
+            inter_X = pd.concat([inter_X, unimputed], axis=1)
+            inter_X = inter_X[col_order]
+
         return inter_X
 
 
