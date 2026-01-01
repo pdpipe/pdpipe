@@ -40,7 +40,7 @@ jobs:
 
       # 1️⃣  Cache anything we download
       - name: Cache NLTK corpora
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ./nltk_data
           key: nltk-data-${{ hashFiles('**/requirements.txt') }}
