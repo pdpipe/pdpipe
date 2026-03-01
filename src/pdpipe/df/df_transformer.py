@@ -6,7 +6,6 @@ from pandas import DataFrame
 
 from ..core import PdPipelineStage
 
-
 # === DataFrame methods  ===
 
 

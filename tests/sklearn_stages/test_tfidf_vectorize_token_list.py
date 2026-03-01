@@ -4,7 +4,6 @@ import pytest
 import pandas as pd
 import pdpipe as pdp
 
-
 DF = pd.DataFrame(
     data=[
         [23, ["live", "full", "cats", "mango"]],

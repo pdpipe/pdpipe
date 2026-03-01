@@ -10,7 +10,6 @@ from pdpipe import (
 from pdpipe.basic_stages import ApplicationContextEnricher
 from pdpipe.exceptions import PipelineApplicationError
 
-
 DF1 = pd.DataFrame({"a": ["a", "b", "c", "d"], "b": [5, 6, 7, 1]})
 
 

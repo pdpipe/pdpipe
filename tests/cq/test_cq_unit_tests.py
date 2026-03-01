@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 import pdpipe as pdp
 
-
 NA_DF = pd.DataFrame(
     [[None, 1, 2], [None, None, 5]], [1, 2], ["ph", "grade", "age"]
 )

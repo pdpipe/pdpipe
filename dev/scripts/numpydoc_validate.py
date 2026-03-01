@@ -7,7 +7,6 @@ import subprocess
 
 import pdpipe  # noqa: F401
 
-
 # REGEXES
 
 HIDE_ERROR_CODES_LIST = [

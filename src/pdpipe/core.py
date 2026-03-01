@@ -36,7 +36,6 @@ from .exceptions import (
     PipelineApplicationError,
 )
 
-
 # === loading stage attributes ===
 
 

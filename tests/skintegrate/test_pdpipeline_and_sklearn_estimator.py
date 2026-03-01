@@ -18,7 +18,6 @@ from pdpipe.skintegrate import (
     pdpipe_scorer_from_sklearn_scorer,
 )
 
-
 DF1 = pd.DataFrame(
     data=[
         [23, "Jo", "M", True, 0.07, "USA", "Living life to its fullest"],

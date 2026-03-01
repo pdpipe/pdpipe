@@ -5,7 +5,6 @@ import pandas as pd
 from pdpipe import ColumnDtypeEnforcer
 import pdpipe.cq as cq
 
-
 DF = pd.DataFrame([[8, "a"], [5, "b"]], [1, 2], ["num", "initial"])
 
 

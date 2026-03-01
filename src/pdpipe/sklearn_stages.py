@@ -323,8 +323,8 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
     >>> tfvectorizer = pdp.TfidfVectorizeTokenLists('tokens')
     >>> tfvectorizer(df)
        Age      eels  hovercraft   urethra
-    1    2  0.579739    0.814802       NaN
-    2    5  0.579739         NaN  0.814802
+    1    2  0.579739    0.814802  0.000000
+    2    5  0.579739    0.000000  0.814802
 
     """
 
@@ -380,8 +380,10 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
             self._res_col_names = (
                 self._tfidf_vectorizer.get_feature_names_out()
             )
-        vec_X = pd.DataFrame.sparse.from_spmatrix(
-            data=vectorized, index=X.index, columns=self._res_col_names
+        vec_X = pd.DataFrame(
+            data=vectorized.toarray(),
+            index=X.index,
+            columns=self._res_col_names,
         )
         inter_X = pd.concat([X, vec_X], axis=1)
         self.is_fitted = True
@@ -391,8 +393,10 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
 
     def _transform(self, X, verbose):
         vectorized = self._tfidf_vectorizer.transform(X[self._column])
-        vec_X = pd.DataFrame.sparse.from_spmatrix(
-            data=vectorized, index=X.index, columns=self._res_col_names
+        vec_X = pd.DataFrame(
+            data=vectorized.toarray(),
+            index=X.index,
+            columns=self._res_col_names,
         )
         inter_X = pd.concat([X, vec_X], axis=1)
         if self._drop:

@@ -10,7 +10,6 @@ import numpy as np
 import pandas as pd
 import pdpipe as pdp
 
-
 COLUMNS = [
     "SKC",
     "date",

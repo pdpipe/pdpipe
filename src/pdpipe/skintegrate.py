@@ -28,7 +28,6 @@ from sklearn.utils.validation import check_is_fitted
 from .core import PdPipeline
 from .util import LabelPlaceholderForPredict
 
-
 warnings.filterwarnings(
     "ignore",
     message=(

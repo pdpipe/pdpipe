@@ -5,7 +5,6 @@ from typing import Union, List, Callable
 import numpy
 import pandas
 
-
 ColumnsParamType = Union[object, List[object], Callable]
 ColumnLabelsType = Union[object, List[object]]
 

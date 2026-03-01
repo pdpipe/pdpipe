@@ -5,7 +5,6 @@ import re
 import pandas as pd
 import pdpipe as pdp
 
-
 DF = pd.DataFrame(
     data=[[4, "more than 12"], [5, "with 5 more"]],
     index=[1, 2],

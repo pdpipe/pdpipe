@@ -3,7 +3,6 @@
 import pandas as pd
 import pdpipe as pdp
 
-
 DF = pd.DataFrame(
     data=[[4, ["a", "bad", "nice"]], [5, ["good", "university"]]],
     index=[1, 2],

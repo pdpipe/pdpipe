@@ -10,7 +10,6 @@ from pdpipe.lbl import DropLabelsByValues
 from pdpipe.skintegrate import PdPipelineAndSklearnEstimator
 from sklearn.linear_model import LogisticRegression
 
-
 X1 = pd.DataFrame(
     data=[
         [23, "Jo"],

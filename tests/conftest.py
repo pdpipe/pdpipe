@@ -8,7 +8,6 @@ import xdg
 import pytest
 import warnings
 
-
 # make
 sys.path.append(os.path.join(os.path.dirname(__file__), "helpers"))
 

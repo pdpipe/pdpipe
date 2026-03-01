@@ -6,7 +6,6 @@ from typing import Union, Tuple
 import numpy
 from pandas import DataFrame, Series
 
-
 # === Series from DataFrame objects ======
 
 
