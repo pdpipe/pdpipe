@@ -80,7 +80,7 @@ def get_numeric_column_names(X: pd.DataFrame) -> List[str]:
     """
     num_cols = []
     for colbl, dtype in X.dtypes.to_dict().items():
-        if np.issubdtype(dtype, np.number):
+        if pd.api.types.is_numeric_dtype(dtype):
             num_cols.append(colbl)
     return num_cols
 

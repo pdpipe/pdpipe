@@ -323,8 +323,8 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
     >>> tfvectorizer = pdp.TfidfVectorizeTokenLists('tokens')
     >>> tfvectorizer(df)
        Age      eels  hovercraft   urethra
-    1    2  0.579739    0.814802         0
-    2    5  0.579739           0  0.814802
+    1    2  0.579739    0.814802       NaN
+    2    5  0.579739         NaN  0.814802
 
     """
 
