@@ -20,15 +20,12 @@ HIDE_ERROR_REGEX = "|".join(_COMPS)
 
 HIDE_ERROR_PATTERN = re.compile(HIDE_ERROR_REGEX)
 
-SOFT_ERROR_CODES_LIST = (
-    HIDE_ERROR_CODES_LIST
-    + [
-        # 'SS06',  # Summary should fit in a single line
-        # 'GL01',  # Docstring text (summary) should start immediately after
-        # the opening quotes (not in the same line, or leaving a blank line
-        # in between)
-    ]
-)
+SOFT_ERROR_CODES_LIST = HIDE_ERROR_CODES_LIST + [
+    # 'SS06',  # Summary should fit in a single line
+    # 'GL01',  # Docstring text (summary) should start immediately after
+    # the opening quotes (not in the same line, or leaving a blank line
+    # in between)
+]
 
 _COMPS = [":{}:".format(code) for code in SOFT_ERROR_CODES_LIST]
 SOFT_ERROR_REGEX = "|".join(_COMPS)
