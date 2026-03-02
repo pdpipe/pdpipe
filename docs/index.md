@@ -2,7 +2,7 @@
 title: Easy pandas pipelines!
 ---
 
-# 
+# pdpipe
 
 <p align="center">
     <img src="https://pdpipe.readthedocs.io/en/latest/images/pdpipe_row.png" alt="logowithtext" width="400px" style="display: block; margin-left: auto; margin-right: auto"/>

@@ -13,28 +13,28 @@ pipeline stages.
 import numpy as np
 import pandas as pd
 import sklearn.preprocessing
-from tqdm.autonotebook import tqdm
-from skutil.preprocessing import scaler_by_params
+from sklearn.base import clone
 from sklearn.feature_extraction.text import (
     TfidfVectorizer,
 )
-from sklearn.base import clone
+from skutil.preprocessing import scaler_by_params
+from tqdm.autonotebook import tqdm
 
-from pdpipe.core import PdPipelineStage, ColumnsBasedPipelineStage
-from pdpipe.util import (
-    out_of_place_col_insert,
-    per_column_values_sklearn_transform,
-)
+from pdpipe.core import ColumnsBasedPipelineStage, PdPipelineStage
 from pdpipe.cq import OfDtypes
 from pdpipe.shared import (
     _get_args_list,
     _identity_function,
 )
+from pdpipe.util import (
+    out_of_place_col_insert,
+    per_column_values_sklearn_transform,
+)
 
 from .exceptions import (
     PipelineApplicationError,
-    UnfittedPipelineStageError,
     UnexpectedPipelineMethodCallError,
+    UnfittedPipelineStageError,
 )
 from .lbl import _SkipOnLabelPlaceholderPredict
 
@@ -323,8 +323,8 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
     >>> tfvectorizer = pdp.TfidfVectorizeTokenLists('tokens')
     >>> tfvectorizer(df)
        Age      eels  hovercraft   urethra
-    1    2  0.579739    0.814802         0
-    2    5  0.579739           0  0.814802
+    1    2  0.579739    0.814802  0.000000
+    2    5  0.579739    0.000000  0.814802
 
     """
 
@@ -380,8 +380,10 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
             self._res_col_names = (
                 self._tfidf_vectorizer.get_feature_names_out()
             )
-        vec_X = pd.DataFrame.sparse.from_spmatrix(
-            data=vectorized, index=X.index, columns=self._res_col_names
+        vec_X = pd.DataFrame(
+            data=vectorized.toarray(),
+            index=X.index,
+            columns=self._res_col_names,
         )
         inter_X = pd.concat([X, vec_X], axis=1)
         self.is_fitted = True
@@ -391,8 +393,10 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
 
     def _transform(self, X, verbose):
         vectorized = self._tfidf_vectorizer.transform(X[self._column])
-        vec_X = pd.DataFrame.sparse.from_spmatrix(
-            data=vectorized, index=X.index, columns=self._res_col_names
+        vec_X = pd.DataFrame(
+            data=vectorized.toarray(),
+            index=X.index,
+            columns=self._res_col_names,
         )
         inter_X = pd.concat([X, vec_X], axis=1)
         if self._drop:

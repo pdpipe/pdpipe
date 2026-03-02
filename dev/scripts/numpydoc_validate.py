@@ -1,12 +1,11 @@
 """Validate numpy docstrings throughout pdpipe."""
 
-import re
-import sys
 import inspect
+import re
 import subprocess
+import sys
 
 import pdpipe  # noqa: F401
-
 
 # REGEXES
 
@@ -23,8 +22,8 @@ HIDE_ERROR_PATTERN = re.compile(HIDE_ERROR_REGEX)
 
 SOFT_ERROR_CODES_LIST = HIDE_ERROR_CODES_LIST + [
     # 'SS06',  # Summary should fit in a single line
-    # 'GL01',  # Docstring text (summary) should start in the line immediately
-    # after the opening quotes (not in the same line, or leaving a blank line
+    # 'GL01',  # Docstring text (summary) should start immediately after
+    # the opening quotes (not in the same line, or leaving a blank line
     # in between)
 ]
 
@@ -76,7 +75,7 @@ def get_npdoc_val_report(object_name) -> bool:
         print(f"\nnumpydoc validation results for {object_name}:")
         print(f"A total of {nerrors} errors were found")
         print(
-            f"Out of which {nsoft-nhide} are soft errors"
+            f"Out of which {nsoft - nhide} are soft errors"
             f", (an additional {nhide} errors were hidden)."
         )
         for line in report_lines:

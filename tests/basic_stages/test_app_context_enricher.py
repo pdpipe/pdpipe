@@ -1,15 +1,14 @@
 """Testing the ApplicationContextEnricher stage."""
 
-import pytest
 import pandas as pd
+import pytest
 
 from pdpipe import (
-    PdPipelineStage,
     PdPipeline,
+    PdPipelineStage,
 )
 from pdpipe.basic_stages import ApplicationContextEnricher
 from pdpipe.exceptions import PipelineApplicationError
-
 
 DF1 = pd.DataFrame({"a": ["a", "b", "c", "d"], "b": [5, 6, 7, 1]})
 

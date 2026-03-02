@@ -16,8 +16,8 @@ the pdpipe repository for complete examples.
 
 # standard library imports
 import warnings
-from typing import Callable
 from functools import update_wrapper
+from typing import Callable
 
 # third-party imports
 import pandas as pd
@@ -27,7 +27,6 @@ from sklearn.utils.validation import check_is_fitted
 # local imports
 from .core import PdPipeline
 from .util import LabelPlaceholderForPredict
-
 
 warnings.filterwarnings(
     "ignore",

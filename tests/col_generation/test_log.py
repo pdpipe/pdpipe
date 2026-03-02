@@ -1,8 +1,8 @@
 """Testing basic pipeline stages."""
 
-import pytest
 import numpy as np
 import pandas as pd
+import pytest
 from numpy.testing import assert_approx_equal
 
 from pdpipe import Log
@@ -90,16 +90,15 @@ def _non_neg_df2():
 
 @pytest.mark.log
 def test_log_non_neg():
-
     # see runtime warning is correctly raised by default
     df = _non_neg_df()
     log_stage = Log(non_neg=True)
     with pytest.raises(RuntimeWarning):
         res_df = log_stage(df)
 
-    # see that the warning is suppressed when supress_warnings=True
+    # see that the warning is suppressed when suppress_warnings=True
     df = _non_neg_df()
-    log_stage = Log(non_neg=True, supress_warnings=True)
+    log_stage = Log(non_neg=True, suppress_warnings=True)
     res_df = log_stage(df)
     assert "rank" in res_df.columns
     assert "ph" in res_df.columns
@@ -168,9 +167,9 @@ def test_log_non_neg_n_const_shift():
     with pytest.raises(RuntimeWarning):
         res_df2 = log_stage(df2, verbose=True)
 
-    # check that supressing warnings works
+    # check that suppressing warnings works
     df = _non_neg_df()
-    log_stage = Log(non_neg=True, const_shift=0.1, supress_warnings=True)
+    log_stage = Log(non_neg=True, const_shift=0.1, suppress_warnings=True)
     res_df = log_stage(df)
     df2 = _non_neg_df2()
     res_df2 = log_stage(df2, verbose=True)

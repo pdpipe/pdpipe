@@ -1,4 +1,4 @@
-"""Easy pandas piplines.
+"""Easy pandas pipelines.
 
 The `pdpipe` Python package provides a concise interface for building `pandas`
 pipelines that have pre-conditions, are verbose, support the fit-transform

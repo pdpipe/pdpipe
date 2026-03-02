@@ -1,8 +1,8 @@
 """Custom tests of pdpipe conditions meant to run manually."""
 
 import pandas as pd
-import pdpipe as pdp
 
+import pdpipe as pdp
 
 if __name__ == "__main__":
     df = pd.DataFrame([[1, 4], [4, 5], [1, 11]], [1, 2, 3], ["a", "b"])

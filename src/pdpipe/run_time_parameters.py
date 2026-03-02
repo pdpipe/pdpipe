@@ -1,13 +1,14 @@
 """Defines run-time parameterization capabilities."""
 
 from typing import Any, Callable, Optional
+
 import pandas as pd
 
 from .shared import POS_ARG_MISMTCH_PAT
 
 
 class DynamicParameter:
-    """A dynamicly determined parameter, determined at runtime.
+    """A dynamically determined parameter, determined at runtime.
 
     This class represents a dynamic parameter that is decided at fit time when
     there is access to the given dataframe. This allows the parameter to be

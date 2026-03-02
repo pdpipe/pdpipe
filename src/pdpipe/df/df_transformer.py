@@ -1,11 +1,10 @@
-"""Handles for all pandas.DataFrame dataframe-outputing transformations."""
+"""Handles for all pandas.DataFrame dataframe-outputting transformations."""
 
-from typing import List, Dict
+from typing import Dict, List
 
 from pandas import DataFrame
 
 from ..core import PdPipelineStage
-
 
 # === DataFrame methods  ===
 

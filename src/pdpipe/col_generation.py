@@ -16,7 +16,7 @@ Available stages include:
 import abc
 import inspect
 import warnings
-from typing import Union, Tuple, Optional, Dict, Callable
+from typing import Callable, Dict, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -26,19 +26,18 @@ import sortedcontainers as sc
 from tqdm.autonotebook import tqdm
 
 from pdpipe.core import (
+    ColumnsBasedPipelineStage,
     PdpApplicationContext,
     PdPipelineStage,
-    ColumnsBasedPipelineStage,
 )
-from pdpipe.util import out_of_place_col_insert
 from pdpipe.cq import OfDtypes
-from pdpipe.pdp_types import ColumnsParamType, ColumnLabelsType
-
+from pdpipe.pdp_types import ColumnLabelsType, ColumnsParamType
 from pdpipe.shared import (
+    _always_true,
     _interpret_columns_param,
     _list_str,
-    _always_true,
 )
+from pdpipe.util import out_of_place_col_insert
 
 from .exceptions import PipelineApplicationError
 
@@ -93,7 +92,7 @@ class Bin(PdPipelineStage):
         string = ""
         columns = list(self._bin_map.keys())
         col1 = columns[0]
-        string += f"Bin {col1} by { self._bin_map[col1]},\n"
+        string += f"Bin {col1} by {self._bin_map[col1]},\n"
         for col in columns[1:]:
             string += f"bin {col} by {self._bin_map[col]},\n"
         string = string[0:-2] + "."
@@ -163,7 +162,7 @@ class Bin(PdPipelineStage):
 class OneHotEncode(ColumnsBasedPipelineStage):
     """A pipeline stage that one-hot-encodes categorical columns.
 
-    By default only k-1 dummies are created fo k categorical levels, as to
+    By default only k-1 dummies are created for k categorical levels, as to
     avoid perfect multicollinearity between the dummy features (also called
     the dummy variable trap). This is done since features are usually one-hot
     encoded for use with linear models, which require this behaviour.
@@ -714,7 +713,7 @@ class ApplyByCols(ColumnTransformer):
     **kwargs : dict, optional
         Additional keyword arguments to pass as keywords arguments to func.
         Valid constructor parameters of superclasses are extracted and used
-        on intialization.
+        on initialization.
 
     Examples
     --------
@@ -779,14 +778,18 @@ class ApplyByCols(ColumnTransformer):
         self,
         series: pd.Series,
         label: str,
+        fit_context: Optional[PdpApplicationContext] = None,
+        application_context: Optional[PdpApplicationContext] = None,
     ) -> pd.Series:
         kwargs = self._apply_kwargs
         if self._inject_label:
             kwargs["label"] = label
         if self._inject_fit_context:
-            kwargs["fit_context"] = self.fit_context
+            kwargs["fit_context"] = fit_context or self.fit_context
         if self._inject_application_context:
-            kwargs["application_context"] = self.application_context
+            kwargs["application_context"] = (
+                application_context or self.application_context
+            )
         return series.apply(self._func, args=self._args, **kwargs)
 
 
@@ -896,7 +899,7 @@ class ColByFrameFunc(PdPipelineStage):
         end of the processed DataFrame.
     before_column : str, default None
         Resulting columns will be inserted before this column. If both this
-        parameter and `follow_colum` are None, new columns are inserted at the
+        parameter and `follow_column` are None, new columns are inserted at the
         end of the processed DataFrame. If both are provided, `before_column`
         takes precedence.
     func_desc : str, default None
@@ -1091,7 +1094,7 @@ class Log(ColumnsBasedPipelineStage):
         If given, each transformed column is first shifted by this constant. If
         non_neg is True then that transformation is applied first, and only
         then is the column shifted by this constant.
-    supress_warnings : bool, default False
+    suppress_warnings : bool, default False
         If True, warnings about log(0) or log(negative) are suppressed.
         Otherwise, they are raised as exceptions.
     **kwargs : object
@@ -1120,13 +1123,13 @@ class Log(ColumnsBasedPipelineStage):
         drop=False,
         non_neg=False,
         const_shift=None,
-        supress_warnings=False,
+        suppress_warnings=False,
         **kwargs,
     ):
         self._drop = drop
         self._non_neg = non_neg
         self._const_shift = const_shift
-        self._supress_warnings = supress_warnings
+        self._suppress_warnings = suppress_warnings
         self._col_to_minval = {}
         super_kwargs = {
             "columns": columns,
@@ -1164,7 +1167,7 @@ class Log(ColumnsBasedPipelineStage):
             # must check not None as neg numbers eval to False
             if self._const_shift is not None:
                 new_col = new_col + self._const_shift
-            if self._supress_warnings:
+            if self._suppress_warnings:
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore")
                     new_col = np.log(new_col)
@@ -1213,7 +1216,7 @@ class Log(ColumnsBasedPipelineStage):
             if self._const_shift is not None:
                 new_col = new_col + self._const_shift
 
-            if self._supress_warnings:
+            if self._suppress_warnings:
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore")
                     new_col = np.log(new_col)

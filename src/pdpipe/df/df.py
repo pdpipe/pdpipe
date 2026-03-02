@@ -6,13 +6,13 @@ from ..fly import (
     drop_rows_where,
     keep_rows_where,
 )
+from .bound_column_potential import (
+    _BoundColumnPotential,
+    get_bound_column_potential_by_label,
+)
 from .df_transformer import (
     _DfMethodTransformerHandle,
     _is_dataframe_transform,
-)
-from .bound_column_potential import (
-    get_bound_column_potential_by_label,
-    _BoundColumnPotential,
 )
 
 

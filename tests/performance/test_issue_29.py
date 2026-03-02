@@ -8,8 +8,8 @@ import time
 
 import numpy as np
 import pandas as pd
-import pdpipe as pdp
 
+import pdpipe as pdp
 
 COLUMNS = [
     "SKC",
@@ -53,7 +53,7 @@ def _original_code():
                             0
                             if (row["original_price"] * row["sales"] <= 0)
                             else row["sales_amount"]
-                            / ((row["original_price"] * row["sales"]))
+                            / (row["original_price"] * row["sales"])
                         ),
                         "week": int(row["date"].strftime("%W")),
                         "days_on_counter": (row["date"] - row["shelf_date"])

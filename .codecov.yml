@@ -1,6 +1,6 @@
 codecov:
   notify:
-      require_ci_to_pass: yes
+    require_ci_to_pass: yes
 
 coverage:
   precision: 2
@@ -10,16 +10,16 @@ coverage:
   status:
     patch:
       default:
-        target: '80'
+        target: "80"
     project: false
 
 comment:
   layout: header, changes, diff
-    behavior: default
-    require_changes: false
-    branches: null
-    flags: null
-    paths: null
+  behavior: default
+  require_changes: false
+  branches: null
+  flags: null
+  paths: null
 
 ignore:
   - "versioneer.py"

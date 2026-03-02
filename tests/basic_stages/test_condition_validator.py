@@ -1,12 +1,11 @@
 """Testing basic pipeline stages."""
 
-import pytest
 import pandas as pd
+import pytest
 
 from pdpipe.basic_stages import ConditionValidator
-from pdpipe.cond import HasNoMissingValues, HasNoColumn
+from pdpipe.cond import HasNoColumn, HasNoMissingValues
 from pdpipe.exceptions import FailedConditionError
-
 
 DF1 = pd.DataFrame([[1, 4], [4, None], [1, 11]], [1, 2, 3], ["a", "b"])
 

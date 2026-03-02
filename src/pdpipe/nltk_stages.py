@@ -10,8 +10,8 @@ stages.
 
 """
 
-import os
 import importlib
+import os
 
 try:
     from collections.abc import Iterable
@@ -20,12 +20,13 @@ except ImportError:  # pragma: no cover:
 
 import nltk
 import pandas as pd
+from pandas.api.types import is_object_dtype, is_string_dtype
 from tqdm.autonotebook import tqdm
 
-from pdpipe.core import ColumnsBasedPipelineStage
-from pdpipe.util import out_of_place_col_insert
 from pdpipe.col_generation import MapColVals
+from pdpipe.core import ColumnsBasedPipelineStage
 from pdpipe.shared import _interpret_columns_param, _list_str
+from pdpipe.util import out_of_place_col_insert
 
 
 class TokenizeText(MapColVals):
@@ -95,7 +96,8 @@ class TokenizeText(MapColVals):
 
     def _prec(self, X):
         return super()._prec(X) and all(
-            col_type == object for col_type in X.dtypes[self._columns]
+            is_object_dtype(col_type) or is_string_dtype(col_type)
+            for col_type in X.dtypes[self._columns]
         )
 
 
@@ -158,7 +160,7 @@ class UntokenizeText(MapColVals):
 
     def _prec(self, X):
         return super()._prec(X) and all(
-            col_type == object for col_type in X.dtypes[self._columns]
+            is_object_dtype(col_type) for col_type in X.dtypes[self._columns]
         )
 
 
@@ -260,7 +262,7 @@ class RemoveStopwords(MapColVals):
 
     def _prec(self, X):
         return super()._prec(X) and all(
-            col_type == object for col_type in X.dtypes[self._columns]
+            is_object_dtype(col_type) for col_type in X.dtypes[self._columns]
         )
 
 
@@ -420,7 +422,7 @@ class SnowballStem(MapColVals):
 
     def _prec(self, X):
         return super()._prec(X) and all(
-            col_type == object for col_type in X.dtypes[self._columns]
+            is_object_dtype(col_type) for col_type in X.dtypes[self._columns]
         )
 
 
