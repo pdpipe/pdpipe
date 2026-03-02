@@ -1,7 +1,8 @@
 """Test the TfidfVectorizeTokenLists pipeline stage."""
 
-import pytest
 import pandas as pd
+import pytest
+
 import pdpipe as pdp
 
 DF = pd.DataFrame(

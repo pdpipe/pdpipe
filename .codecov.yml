@@ -1,6 +1,6 @@
 codecov:
   notify:
-      require_ci_to_pass: yes
+    require_ci_to_pass: yes
 
 coverage:
   precision: 2
@@ -10,7 +10,7 @@ coverage:
   status:
     patch:
       default:
-        target: '80'
+        target: "80"
     project: false
 
 comment:

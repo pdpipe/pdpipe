@@ -1,8 +1,9 @@
 """Unit test for column qualifiers."""
 
-import pytest
 import numpy as np
 import pandas as pd
+import pytest
+
 import pdpipe as pdp
 
 NA_DF = pd.DataFrame(

@@ -1,7 +1,7 @@
 """Define callables that generate pandas.Series from pandas.DataFrame."""
 
 import abc
-from typing import Union, Tuple
+from typing import Tuple, Union
 
 import numpy
 from pandas import DataFrame, Series

@@ -2,15 +2,15 @@
 
 from typing import Optional
 
-import pytest
 import numpy as np
 import pandas as pd
-from sklearn.linear_model import LogisticRegression
+import pytest
 from sklearn.cluster import KMeans
+from sklearn.exceptions import NotFittedError
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import fbeta_score, make_scorer
 from sklearn.model_selection import GridSearchCV
 from sklearn.utils.validation import check_is_fitted
-from sklearn.exceptions import NotFittedError
-from sklearn.metrics import fbeta_score, make_scorer
 
 import pdpipe as pdp
 from pdpipe.skintegrate import (
@@ -30,7 +30,7 @@ DF1 = pd.DataFrame(
             0.3,
             "USA",
             "the pen is mightier then the sword",
-        ],  # noqa : E501
+        ],
         [25, "Bo", "M", False, 2.3, "Greece", "all for one and one for all"],
         [80, "Richy", "M", False, 100.2, "Finland", "I gots the dollarz"],
         [60, "Paul", "M", True, 1.87, "Denmark", "blah"],
@@ -43,7 +43,7 @@ DF1 = pd.DataFrame(
             7.1,
             "Greece",
             "all of you get off my porch",
-        ],  # noqa : E501
+        ],
         [50, "Jim", "M", False, 0.2, "Germany", "boy do I love dogs and cats"],
         [80, "Wealthus", "F", False, 123.2, "Finland", "me likey them moniez"],
     ],
@@ -55,7 +55,7 @@ DF1 = pd.DataFrame(
         "Savings",
         "Country",
         "Quote",
-    ],  # noqa : E501
+    ],
 )
 
 
@@ -120,7 +120,7 @@ def test_pdpipeline_and_sklearn_model():
     all_x = df[x_lbls]
     all_y = df["Smoking"]
 
-    # check inheritence of predict, predict_proba, etc.
+    # check inheritance of predict, predict_proba, etc.
     mp.fit(all_x, all_y)
     res = mp.predict(all_x)
     assert isinstance(res, np.ndarray)
@@ -200,7 +200,7 @@ def test_pdpipeline_and_sklearn_model_Kmeans():
     all_x = DF2[["feature1"]]
     all_y = DF2["target"]
 
-    # first check that y is ignored successfuly everywhere
+    # first check that y is ignored successfully everywhere
     mp = PdPipelineAndSklearnEstimator(
         pipeline=pdp.ColumnDtypeEnforcer({"feature1": int}),
         estimator=KMeans(n_clusters=2),

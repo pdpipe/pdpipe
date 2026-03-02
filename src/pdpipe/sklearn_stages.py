@@ -13,28 +13,28 @@ pipeline stages.
 import numpy as np
 import pandas as pd
 import sklearn.preprocessing
-from tqdm.autonotebook import tqdm
-from skutil.preprocessing import scaler_by_params
+from sklearn.base import clone
 from sklearn.feature_extraction.text import (
     TfidfVectorizer,
 )
-from sklearn.base import clone
+from skutil.preprocessing import scaler_by_params
+from tqdm.autonotebook import tqdm
 
-from pdpipe.core import PdPipelineStage, ColumnsBasedPipelineStage
-from pdpipe.util import (
-    out_of_place_col_insert,
-    per_column_values_sklearn_transform,
-)
+from pdpipe.core import ColumnsBasedPipelineStage, PdPipelineStage
 from pdpipe.cq import OfDtypes
 from pdpipe.shared import (
     _get_args_list,
     _identity_function,
 )
+from pdpipe.util import (
+    out_of_place_col_insert,
+    per_column_values_sklearn_transform,
+)
 
 from .exceptions import (
     PipelineApplicationError,
-    UnfittedPipelineStageError,
     UnexpectedPipelineMethodCallError,
+    UnfittedPipelineStageError,
 )
 from .lbl import _SkipOnLabelPlaceholderPredict
 

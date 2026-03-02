@@ -82,7 +82,7 @@ line-length = 79
 # --- ruff ---
 
 [tool.ruff]
-target-version = [ 'py39', 'py310', 'py311', 'py312', 'py313' ]
+target-version = "py39"
 line-length = 79
 # Exclude a variety of commonly ignored directories.
 exclude = [

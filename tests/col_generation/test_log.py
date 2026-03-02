@@ -1,8 +1,8 @@
 """Testing basic pipeline stages."""
 
-import pytest
 import numpy as np
 import pandas as pd
+import pytest
 from numpy.testing import assert_approx_equal
 
 from pdpipe import Log
@@ -90,7 +90,6 @@ def _non_neg_df2():
 
 @pytest.mark.log
 def test_log_non_neg():
-
     # see runtime warning is correctly raised by default
     df = _non_neg_df()
     log_stage = Log(non_neg=True)

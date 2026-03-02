@@ -1,6 +1,7 @@
 """Custom tests of pdpipe conditions meant to run manually."""
 
 import pandas as pd
+
 import pdpipe as pdp
 
 if __name__ == "__main__":

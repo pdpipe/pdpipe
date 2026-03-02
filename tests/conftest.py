@@ -2,11 +2,11 @@
 
 import os
 import sys
+import warnings
 from pathlib import Path
 
-import xdg
 import pytest
-import warnings
+import xdg
 
 # make
 sys.path.append(os.path.join(os.path.dirname(__file__), "helpers"))

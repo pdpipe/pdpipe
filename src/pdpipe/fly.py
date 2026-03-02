@@ -25,7 +25,7 @@ For example:
 
 ```
 
-The resulting stages can be naturaly combined by logical binary operators:
+The resulting stages can be naturally combined by logical binary operators:
 & for AND, | for OR and ^ for XOR, and can also be inverted with the `~`
 operator.
 
@@ -56,10 +56,10 @@ from typing import List, Set, Union
 
 import pandas
 
-from .core import PdPipelineStage
 from . import rq
+from .core import PdPipelineStage
 
-# === Auxilary pipeline stages ===
+# === Auxiliary pipeline stages ===
 
 
 class KeepRowsByQualifier(PdPipelineStage):
@@ -355,7 +355,7 @@ For example:
 1  1  4
 2  4  5
 
-The resulting stages can be naturaly combined by logical binary operators:
+The resulting stages can be naturally combined by logical binary operators:
 & for AND, | for OR and ^ for XOR, and can also be inverted with the `~`
 operator.
 

@@ -16,8 +16,8 @@ the pdpipe repository for complete examples.
 
 # standard library imports
 import warnings
-from typing import Callable
 from functools import update_wrapper
+from typing import Callable
 
 # third-party imports
 import pandas as pd

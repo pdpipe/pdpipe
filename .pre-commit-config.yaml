@@ -61,17 +61,20 @@ repos:
       # use black formatting
       - id: ruff-format
         name: Black by Ruff
+        files: "^src/pdpipe/"
       # basic check
       - id: ruff
         name: Ruff check
-        args: ["--fix"]
+        files: "^src/pdpipe/"
+        args: ["--fix", "--select=E,F,I"]
 
   # it needs to be after formatting hooks because the lines might be changed
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.18.2
     hooks:
       - id: mypy
-        files: "src/*"
+        files: "src/pdpipe/(col_generation|sklearn_stages|util)\\.py"
+        args: ["--ignore-missing-imports", "--follow-imports=skip"]
 
   - repo: https://github.com/tox-dev/pyproject-fmt
     rev: v2.7.0

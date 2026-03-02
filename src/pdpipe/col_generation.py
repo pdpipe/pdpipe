@@ -16,7 +16,7 @@ Available stages include:
 import abc
 import inspect
 import warnings
-from typing import Union, Tuple, Optional, Dict, Callable
+from typing import Callable, Dict, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -26,19 +26,18 @@ import sortedcontainers as sc
 from tqdm.autonotebook import tqdm
 
 from pdpipe.core import (
+    ColumnsBasedPipelineStage,
     PdpApplicationContext,
     PdPipelineStage,
-    ColumnsBasedPipelineStage,
 )
-from pdpipe.util import out_of_place_col_insert
 from pdpipe.cq import OfDtypes
-from pdpipe.pdp_types import ColumnsParamType, ColumnLabelsType
-
+from pdpipe.pdp_types import ColumnLabelsType, ColumnsParamType
 from pdpipe.shared import (
+    _always_true,
     _interpret_columns_param,
     _list_str,
-    _always_true,
 )
+from pdpipe.util import out_of_place_col_insert
 
 from .exceptions import PipelineApplicationError
 
@@ -93,7 +92,7 @@ class Bin(PdPipelineStage):
         string = ""
         columns = list(self._bin_map.keys())
         col1 = columns[0]
-        string += f"Bin {col1} by { self._bin_map[col1]},\n"
+        string += f"Bin {col1} by {self._bin_map[col1]},\n"
         for col in columns[1:]:
             string += f"bin {col} by {self._bin_map[col]},\n"
         string = string[0:-2] + "."
@@ -779,14 +778,18 @@ class ApplyByCols(ColumnTransformer):
         self,
         series: pd.Series,
         label: str,
+        fit_context: Optional[PdpApplicationContext] = None,
+        application_context: Optional[PdpApplicationContext] = None,
     ) -> pd.Series:
         kwargs = self._apply_kwargs
         if self._inject_label:
             kwargs["label"] = label
         if self._inject_fit_context:
-            kwargs["fit_context"] = self.fit_context
+            kwargs["fit_context"] = fit_context or self.fit_context
         if self._inject_application_context:
-            kwargs["application_context"] = self.application_context
+            kwargs["application_context"] = (
+                application_context or self.application_context
+            )
         return series.apply(self._func, args=self._args, **kwargs)
 
 

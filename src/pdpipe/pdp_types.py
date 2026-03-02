@@ -1,6 +1,6 @@
 """Custom types for pdpipe."""
 
-from typing import Union, List, Callable
+from typing import Callable, List, Union
 
 import numpy
 import pandas

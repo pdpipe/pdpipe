@@ -1,14 +1,15 @@
 """Testing theDropLabelsByValues pipeline stage."""
 
-from typing import Union, List
+from typing import List, Union
 
-import pytest
 import pandas as pd
+import pytest
+from sklearn.linear_model import LogisticRegression
+
 import pdpipe as pdp
 from pdpipe import df
 from pdpipe.lbl import DropLabelsByValues
 from pdpipe.skintegrate import PdPipelineAndSklearnEstimator
-from sklearn.linear_model import LogisticRegression
 
 X1 = pd.DataFrame(
     data=[
@@ -145,7 +146,7 @@ def test_drop_labels_by_values_with_label_placeholder_predict():
 
     pred_y2 = pmodel.predict(X2)
     # this makes sure that the DropLabelsByValues stage is not applied to
-    # input dataframes on prediciton
+    # input dataframes on prediction
     assert pred_y2.shape == (10,)
 
 
@@ -163,5 +164,5 @@ def test_drop_labels_skip_is_ignored():
 
     pred_y2 = pmodel.predict(X2)
     # this makes sure that the DropLabelsByValues stage is not applied to
-    # input dataframes on prediciton
+    # input dataframes on prediction
     assert pred_y2.shape == (10,)

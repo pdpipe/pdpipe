@@ -1,13 +1,13 @@
 """Defines pipelines for processing pandas.DataFrame-based datasets."""
 
+import abc
+import collections
+import inspect
 import re
 import sys
-import abc
-import time
-import inspect
-import collections
 import textwrap
-from typing import Tuple, Union, Iterable, Optional
+import time
+from typing import Iterable, Optional, Tuple, Union
 
 import numpy
 import pandas
@@ -23,17 +23,17 @@ except ImportError:
 from .cfg import (
     LOAD_STAGE_ATTRIBUTES,
 )
-from .cq import is_fittable_column_qualifier, AllColumns
+from .cq import AllColumns, is_fittable_column_qualifier
+from .exceptions import (
+    FailedPostconditionError,
+    FailedPreconditionError,
+    PipelineApplicationError,
+    UnfittedPipelineStageError,
+)
 from .shared import (
     POS_ARG_MISMTCH_PAT,
-    _get_args_list,
     _always_true,
-)
-from .exceptions import (
-    FailedPreconditionError,
-    FailedPostconditionError,
-    UnfittedPipelineStageError,
-    PipelineApplicationError,
+    _get_args_list,
 )
 
 # === loading stage attributes ===
@@ -43,7 +43,7 @@ def __get_append_stage_attr_doc(class_obj: object) -> str:
     doc = class_obj.__doc__
     if doc is None:  # pragma: no cover
         return
-    first_line = doc[0 : doc.find(".") + 1]  # noqa: E203
+    first_line = doc[0 : doc.find(".") + 1]
     if "An" in first_line:
         new_first_line = first_line.replace("An", "Create and adds an", 1)
     else:
@@ -678,7 +678,7 @@ class PdPipelineStage(abc.ABC):
         X: pandas.DataFrame,
         y: Union[pandas.Series, numpy.array, Iterable[object]],
     ) -> pandas.Series:
-        """Cast the y labels input to a correclty-indexed pandas.Series.
+        """Cast the y labels input to a correctly-indexed pandas.Series.
 
         Parameters
         ----------
@@ -712,7 +712,7 @@ class PdPipelineStage(abc.ABC):
         The input dataframe and label series are assumed to have been indexed
         by the same index before a possible transformation to one of them,
         which might have dropped some rows/values in onf of them, and/or
-        reorded the rows/values in one of them.
+        reordered the rows/values in one of them.
 
         Parameters
         ----------
@@ -1127,9 +1127,7 @@ class ColumnsBasedPipelineStage(PdPipelineStage):
                         " to the none_columns constructor parameter!"
                     )
                 )
-        elif hasattr(none_columns, "__iter__"):
-            self._none_cols = none_columns
-        elif callable(none_columns):
+        elif hasattr(none_columns, "__iter__") or callable(none_columns):
             self._none_cols = none_columns
         else:
             raise ValueError(
@@ -2009,7 +2007,7 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         """Return the transformer induced by this fitted pipeline.
 
         This transformer is a `pdpipe` pipeline that transforms input data
-        in a way corresponding to this pipline after it has been fitted. By
+        in a way corresponding to this pipeline after it has been fitted. By
         default this is the pipeline itself, but the `transform_getter`
         constructor parameter can be used to return a sub-pipeline of the
         fitted pipeline instead, for cases where some stages should only be
