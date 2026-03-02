@@ -8,7 +8,7 @@ from pdpipe.pdp_types import ColumnLabelsType, ColumnsParamType
 
 
 class RegexReplace(ApplyByCols):
-    """A pipeline stage replacing regex occurences in a text column.
+    """A pipeline stage replacing regex occurrences in a text column.
 
     Parameters
     ----------
@@ -17,7 +17,7 @@ class RegexReplace(ApplyByCols):
         Alternatively, this parameter can be assigned a callable returning an
         iterable of labels from an input pandas.DataFrame. See `pdpipe.cq`.
     pattern : str
-        The regex whose occurences will be replaced.
+        The regex whose occurrences will be replaced.
     replace : str
         The replacement string to use. This is equivalent to repl in re.sub.
     flags : int, default 0

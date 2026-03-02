@@ -212,7 +212,7 @@ class PerColumnCondition(Condition):
         by the `condition_reduce` parameter), while 'any' requires at least one
         column to satisfy it.
     **kwargs
-        Additionaly accepts all keyword arguments of the constructor of
+        Additionally accepts all keyword arguments of the constructor of
         Condition. See the documentation of Condition for details.
 
     Examples
@@ -337,7 +337,7 @@ class HasAllColumns(Condition):
     labels : single label or list-like
         Column labels to check for.
     **kwargs
-        Additionaly accepts all keyword arguments of the constructor of
+        Additionally accepts all keyword arguments of the constructor of
         Condition. See the documentation of Condition for details.
 
     Examples
@@ -395,7 +395,7 @@ class ColumnsFromList(PerColumnCondition):
         'all' requires all columns of input dataframes to satisfy the given
         condition, while 'any' requires at least one column to satisfy it.
     **kwargs
-        Additionaly accepts all keyword arguments of the constructor of
+        Additionally accepts all keyword arguments of the constructor of
         Condition. See the documentation of Condition for details.
 
     Examples
@@ -446,7 +446,7 @@ class HasNoColumn(Condition):
     labels : single label or list-like
         Column labels to check for.
     **kwargs
-        Additionaly accepts all keyword arguments of the constructor of
+        Additionally accepts all keyword arguments of the constructor of
         Condition. See the documentation of Condition for details.
 
     Examples
@@ -647,7 +647,7 @@ class AlwaysTrue(Condition):
 
 
 class HasAtMostNQualifyingColumns(Condition):
-    """Check whether a dataframe has at most N columns statisfying a qualifier.
+    """Check whether a dataframe has at most N columns satisfying a qualifier.
 
     Parameters
     ----------
@@ -657,7 +657,7 @@ class HasAtMostNQualifyingColumns(Condition):
         A function that takes a pandas.DataFrame and returns the labels of the
         subset of qualifying columns. See the pdp.cq module.
     **kwargs
-        Additionaly accepts all keyword arguments of the constructor of
+        Additionally accepts all keyword arguments of the constructor of
         Condition. See the documentation of Condition for details.
 
     Examples
@@ -712,7 +712,7 @@ class HasAtMostNQualifyingColumns(Condition):
 
 
 class HasAtLeastNQualifyingColumns(Condition):
-    """Check if a dataframe has at least N columns statisfying a qualifier.
+    """Check if a dataframe has at least N columns satisfying a qualifier.
 
     Parameters
     ----------
@@ -722,7 +722,7 @@ class HasAtLeastNQualifyingColumns(Condition):
         A function that takes a pandas.DataFrame and returns the labels of the
         subset of qualifying columns. See the pdp.cq module.
     **kwargs
-        Additionaly accepts all keyword arguments of the constructor of
+        Additionally accepts all keyword arguments of the constructor of
         Condition. See the documentation of Condition for details.
 
     Examples
@@ -777,7 +777,7 @@ class HasAtLeastNQualifyingColumns(Condition):
 
 
 class HasNoQualifyingColumns(HasAtMostNQualifyingColumns):
-    """Check whether a dataframe has no columns statisfying a qualifier.
+    """Check whether a dataframe has no columns satisfying a qualifier.
 
     Parameters
     ----------
@@ -785,7 +785,7 @@ class HasNoQualifyingColumns(HasAtMostNQualifyingColumns):
         A function that takes a pandas.DataFrame and returns the labels of the
         subset of qualifying columns. See the pdp.cq module.
     **kwargs
-        Additionaly accepts all keyword arguments of the constructor of
+        Additionally accepts all keyword arguments of the constructor of
         Condition. See the documentation of Condition for details.
 
     Examples

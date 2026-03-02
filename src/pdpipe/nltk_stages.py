@@ -95,7 +95,7 @@ class TokenizeText(MapColVals):
 
     def _prec(self, X):
         return super()._prec(X) and all(
-            col_type == object for col_type in X.dtypes[self._columns]
+            col_type is object for col_type in X.dtypes[self._columns]
         )
 
 
@@ -158,7 +158,7 @@ class UntokenizeText(MapColVals):
 
     def _prec(self, X):
         return super()._prec(X) and all(
-            col_type == object for col_type in X.dtypes[self._columns]
+            col_type is object for col_type in X.dtypes[self._columns]
         )
 
 
@@ -260,7 +260,7 @@ class RemoveStopwords(MapColVals):
 
     def _prec(self, X):
         return super()._prec(X) and all(
-            col_type == object for col_type in X.dtypes[self._columns]
+            col_type is object for col_type in X.dtypes[self._columns]
         )
 
 
@@ -420,7 +420,7 @@ class SnowballStem(MapColVals):
 
     def _prec(self, X):
         return super()._prec(X) and all(
-            col_type == object for col_type in X.dtypes[self._columns]
+            col_type is object for col_type in X.dtypes[self._columns]
         )
 
 

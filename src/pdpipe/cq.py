@@ -349,7 +349,7 @@ class ByColumnCondition(ColumnQualifier):
         This is useful when generating qualifiers based on conditions that
         assume a specific datatype for the checked column.
     **kwargs
-        Additionaly accepts all keyword arguments of the constructor of
+        Additionally accepts all keyword arguments of the constructor of
         ColumnQualifier. See the documentation of `ColumnQualifier` for
         details.
 
@@ -399,7 +399,7 @@ class ByLabels(ColumnQualifier):
     labels : single label or list-like
         Column labels which qualify.
     **kwargs
-        Additionaly accepts all keyword arguments of the constructor of
+        Additionally accepts all keyword arguments of the constructor of
         ColumnQualifier. See the documentation of `ColumnQualifier` for
         details.
 
@@ -483,7 +483,7 @@ class StartsWith(ColumnQualifier):
     prefix : str
         The prefix which qualifies columns.
     **kwargs
-        Additionaly accepts all keyword arguments of the constructor of
+        Additionally accepts all keyword arguments of the constructor of
         ColumnQualifier. See the documentation of `ColumnQualifier` for
         details.
 
@@ -541,7 +541,7 @@ class OfDtypes(ColumnQualifier):
         The dtype or dtypes which qualify columns. Support all valid arguments
         to the `include` parameter of pandas.DataFrame.select_dtypes().
     **kwargs
-        Additionaly accepts all keyword arguments of the constructor of
+        Additionally accepts all keyword arguments of the constructor of
         ColumnQualifier. See the documentation of `ColumnQualifier` for
         details.
 
@@ -590,7 +590,7 @@ class OfNumericDtypes(OfDtypes):
     Parameters
     ----------
     **kwargs
-        Additionaly accepts all keyword arguments of the constructor of
+        Additionally accepts all keyword arguments of the constructor of
         ColumnQualifier. See the documentation of `ColumnQualifier` for
         details.
 
@@ -621,7 +621,7 @@ class WithAtMostMissingValues(ColumnQualifier):
         The maximum number of missing values with which columns can still
         qualify.
     **kwargs
-        Additionaly accepts all keyword arguments of the constructor of
+        Additionally accepts all keyword arguments of the constructor of
         ColumnQualifier. See the documentation of `ColumnQualifier` for
         details.
 
@@ -700,7 +700,7 @@ class WithAtMostMissingValueRate(ColumnQualifier):
         The maximum rate of missing values with which columns can still
         qualify.
     **kwargs
-        Additionaly accepts all keyword arguments of the constructor of
+        Additionally accepts all keyword arguments of the constructor of
         ColumnQualifier. See the documentation of `ColumnQualifier` for
         details.
 
@@ -749,7 +749,7 @@ class WithAtLeastMissingValueRate(ColumnQualifier):
         The minimum rate of missing values with which columns can still
         qualify.
     **kwargs
-        Additionaly accepts all keyword arguments of the constructor of
+        Additionally accepts all keyword arguments of the constructor of
         ColumnQualifier. See the documentation of `ColumnQualifier` for
         details.
 

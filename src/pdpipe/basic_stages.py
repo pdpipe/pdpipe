@@ -393,7 +393,7 @@ class FreqDrop(PdPipelineStage):
     threshold : int
         The minimum frequency required for a value to be kept.
     column : str
-        The name of the colum to check for the given value frequency.
+        The name of the column to check for the given value frequency.
     **kwargs : object
         All PdPipelineStage constructor parameters are supported.
 
@@ -448,7 +448,7 @@ class ColReorder(PdPipelineStage):
     positions : dict
         A mapping of column names to their desired positions after reordering.
         Columns not included in the mapping will maintain their relative
-        positions over the non-mapped colums.
+        positions over the non-mapped columns.
     **kwargs : object
         All PdPipelineStage constructor parameters are supported.
 
