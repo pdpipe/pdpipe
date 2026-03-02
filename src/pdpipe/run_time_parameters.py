@@ -1,6 +1,7 @@
 """Defines run-time parameterization capabilities."""
 
 from typing import Any, Callable, Optional
+
 import pandas as pd
 
 from .shared import POS_ARG_MISMTCH_PAT

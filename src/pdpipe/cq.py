@@ -2,8 +2,8 @@
 
 from typing import List
 
-import pandas
 import numpy as np
+import pandas
 
 from .shared import _list_str
 
@@ -657,8 +657,7 @@ class WithAtMostMissingValues(ColumnQualifier):
 
     def __repr__(self):
         return (
-            f"<ColumnQualifier: "
-            f"With at most {self._n_missing} missing values>"
+            f"<ColumnQualifier: With at most {self._n_missing} missing values>"
         )
 
 
@@ -737,8 +736,7 @@ class WithAtMostMissingValueRate(ColumnQualifier):
 
     def __repr__(self):
         return (
-            f"<ColumnQualifier: "
-            f"With at most {self._rate} missing value rate>"
+            f"<ColumnQualifier: With at most {self._rate} missing value rate>"
         )
 
 
@@ -787,6 +785,5 @@ class WithAtLeastMissingValueRate(ColumnQualifier):
 
     def __repr__(self):
         return (
-            f"<ColumnQualifier: "
-            f"With at least {self._rate} missing value rate>"
+            f"<ColumnQualifier: With at least {self._rate} missing value rate>"
         )

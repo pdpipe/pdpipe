@@ -1,8 +1,9 @@
 """PdPipeline stages that transform the optional label column."""
 
-from typing import Optional, Iterable
+from typing import Iterable, Optional
 
 import pandas
+
 from pdpipe.core import PdPipelineStage
 
 from .exceptions import (

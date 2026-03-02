@@ -2,7 +2,7 @@
 
 import inspect
 import re
-from typing import List, Iterable
+from typing import Iterable, List
 
 POS_ARG_MISMTCH_PAT = re.compile(
     r"\d positional argument[s]? but \d (were|was) given"

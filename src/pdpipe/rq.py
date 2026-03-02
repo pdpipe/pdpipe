@@ -1,7 +1,7 @@
 """Row qualifiers for pdpipe."""
 
-from typing import List, Set, Union
 from numbers import Number
+from typing import List, Set, Union
 
 import pandas
 

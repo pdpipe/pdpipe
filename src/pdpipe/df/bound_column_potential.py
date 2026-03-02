@@ -1,42 +1,42 @@
 """Defines the _BoundColumnPotential class."""
 
 from types import MethodType
-from typing import Union, Set, Dict, Tuple, Optional
+from typing import Dict, Optional, Set, Tuple, Union
 
 import numpy
 from pandas import DataFrame, Series
 
-from ..shared import _list_str
 from ..core import PdPipelineStage
 from ..pdp_types import SeriesOperandTypesTuple
+from ..shared import _list_str
 from .func_lists import (
     SERIES_TRANSFORMS_BLACKLIST,
     SERIES_TRANSFORMS_WHITELIST,
 )
 from .series_from_df import (
     _SeriesFromDf,
-    _SeriesFromDfOperandType,
+    _SeriesFromDfAbs,
+    _SeriesFromDfAdd,
+    _SeriesFromDfAnd,
     _SeriesFromDfByLabel,
     _SeriesFromDfBySeriesMethod,
-    _SeriesFromDfNeg,
-    _SeriesFromDfAbs,
-    _SeriesFromDfInvert,
-    _SeriesFromDfAnd,
-    _SeriesFromDfOr,
-    _SeriesFromDfXor,
     _SeriesFromDfEq,
-    _SeriesFromDfNe,
-    _SeriesFromDfLt,
-    _SeriesFromDfLe,
-    _SeriesFromDfGt,
-    _SeriesFromDfGe,
-    _SeriesFromDfAdd,
-    _SeriesFromDfSub,
-    _SeriesFromDfMul,
-    _SeriesFromDfTrueDiv,
-    _SeriesFromDfMod,
-    _SeriesFromDfPow,
     _SeriesFromDfFloorDiv,
+    _SeriesFromDfGe,
+    _SeriesFromDfGt,
+    _SeriesFromDfInvert,
+    _SeriesFromDfLe,
+    _SeriesFromDfLt,
+    _SeriesFromDfMod,
+    _SeriesFromDfMul,
+    _SeriesFromDfNe,
+    _SeriesFromDfNeg,
+    _SeriesFromDfOperandType,
+    _SeriesFromDfOr,
+    _SeriesFromDfPow,
+    _SeriesFromDfSub,
+    _SeriesFromDfTrueDiv,
+    _SeriesFromDfXor,
 )
 
 

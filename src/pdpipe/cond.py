@@ -571,8 +571,7 @@ class HasAtMostMissingValues(Condition):
 
     def __repr__(self):
         return (
-            f"<pdpipe.Condition: "
-            f"Has at most {self._n_missing} missing values>"
+            f"<pdpipe.Condition: Has at most {self._n_missing} missing values>"
         )
 
 
@@ -692,7 +691,7 @@ class HasAtMostNQualifyingColumns(Condition):
             n, qualifier
         )
         _func.__doc__ = (
-            f"Dataframes with at most {n} columns qualifying " f"{qualifier}"
+            f"Dataframes with at most {n} columns qualifying {qualifier}"
         )
         self._rpr = (
             f"<pdpipe.Condition: Has at most {n} columns qualifying "
@@ -757,7 +756,7 @@ class HasAtLeastNQualifyingColumns(Condition):
             n, qualifier
         )
         _func.__doc__ = (
-            f"Dataframes with at least {n} columns qualifying " f"{qualifier}"
+            f"Dataframes with at least {n} columns qualifying {qualifier}"
         )
         self._rpr = (
             f"<pdpipe.Condition: Has at least {n} columns qualifying "

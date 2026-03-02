@@ -1,23 +1,22 @@
 """Basic pdpipe PdPipelineStages."""
 
-from typing import Optional, List, Dict, Union, Callable
 from collections import deque
+from typing import Callable, Dict, List, Optional, Union
 
 import pandas
 from strct.dicts import reverse_dict_partial
 
-from pdpipe.core import PdPipelineStage, ColumnsBasedPipelineStage
+import pdpipe.cond as cond
+from pdpipe.core import ColumnsBasedPipelineStage, PdPipelineStage
+from pdpipe.cq import ColumnQualifier
+from pdpipe.exceptions import FailedConditionError
+from pdpipe.pdp_types import ColumnsParamType
 
 # from pdpipe.util import out_of_place_col_insert
 from pdpipe.shared import (
     _interpret_columns_param,
     _list_str,
 )
-
-import pdpipe.cond as cond
-from pdpipe.pdp_types import ColumnsParamType
-from pdpipe.exceptions import FailedConditionError
-from pdpipe.cq import ColumnQualifier
 
 
 class ColDrop(ColumnsBasedPipelineStage):
