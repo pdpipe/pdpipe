@@ -237,7 +237,7 @@ conditions: anonymous condition>
     >>> cond = pdp.cond.PerColumnCondition(
     ...     conditions=[
     ...         lambda x: x.dtype == np.int64,
-    ...         lambda x: x.dtype == object,
+    ...         lambda x: pd.api.types.is_string_dtype(x.dtype),
     ...     ],
     ... )
     >>> cond(X)
@@ -245,7 +245,7 @@ conditions: anonymous condition>
     >>> cond = pdp.cond.PerColumnCondition(
     ...     conditions=[
     ...         lambda x: x.dtype == np.int64,
-    ...         lambda x: x.dtype == object,
+    ...         lambda x: pd.api.types.is_string_dtype(x.dtype),
     ...     ],
     ...     conditions_reduce='any',
     ... )
