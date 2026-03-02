@@ -170,7 +170,8 @@ class Imputer(ColumnsBasedPipelineStage):
         assigned a callable returning an iterable of labels from an input
         pandas.DataFrame. See `pdpipe.cq`.
     exclude_columns : single label, list-like or callable, default None
-        Label or labels of columns to be excluded from imputation. Alternatively,
+        Label or labels of columns to be excluded from imputation.
+        Alternatively,
         this parameter can be assigned a callable returning an iterable of
         labels from an input pandas.DataFrame. See `pdpipe.cq`.
     fill_value : str or number, default None
@@ -178,7 +179,8 @@ class Imputer(ColumnsBasedPipelineStage):
         strategy is 'constant'.
     **kwargs : extra keyword arguments
         All valid extra keyword arguments are forwarded to the SimpleImputer
-        constructor on imputer creation. PdPipelineStage valid keyword arguments
+        constructor on imputer creation. PdPipelineStage valid keyword
+        arguments
         are used to override Imputer class defaults.
 
     Attributes
