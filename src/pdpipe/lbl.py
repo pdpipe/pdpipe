@@ -56,10 +56,8 @@ class DropLabelsByValues(PdPipelineStage):
     >>> y = pd.Series(["acd", "alk", "alk"])
     >>> drop_labels = pdp.DropLabelsByValues(in_set=["acd"])
     >>> X, y = drop_labels(X, y)
-    >>> y
-    2    alk
-    3    alk
-    dtype: object
+    >>> y.to_dict()
+    {2: 'alk', 3: 'alk'}
     >>> X
          ph  temp
     2   7.2    33
