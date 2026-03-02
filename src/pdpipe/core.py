@@ -635,12 +635,12 @@ class PdPipelineStage(abc.ABC):
         return True
 
     def _raise_precondition_error(self) -> None:
-        try:
+        error_message = getattr(self._prec_arg, "_error_message", None)
+        if error_message:
             raise FailedPreconditionError(
-                f"{self._exmsg} [Reason] {self._prec_arg._error_message}"
+                f"{self._exmsg} [Reason] {error_message}"
             )
-        except AttributeError:
-            raise FailedPreconditionError(self._exmsg)
+        raise FailedPreconditionError(self._exmsg)
 
     def _raise_postcondition_error(self) -> None:
         try:
