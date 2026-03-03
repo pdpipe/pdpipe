@@ -1,0 +1,3 @@
+[bandit]
+# Tests intentionally use bare asserts; skip B101 (`assert_used`) globally.
+skips = B101

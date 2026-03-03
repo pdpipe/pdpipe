@@ -1,11 +1,9 @@
 """Testing Imputer pipeline stage."""
 
-import pytest
 import pandas as pd
 import numpy as np
 
 from pdpipe.sklearn_stages import Imputer
-from pdpipe.exceptions import PipelineApplicationError
 
 
 def _some_df_with_nans():
@@ -64,7 +62,7 @@ def test_imputer_mean_transform():
     """Test imputation transform with mean strategy."""
     df = _some_df_with_nans()
     imputer_stage = Imputer("mean", columns=["x", "y"])
-    res_df = imputer_stage(df)
+    imputer_stage(df)
 
     # Apply to new data using fitted imxxxxr
     df2 = _some_df_with_nans_b()
