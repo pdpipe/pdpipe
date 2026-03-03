@@ -3,11 +3,13 @@
 This file defines contributor and coding-agent rules for this repository.
 
 ## Scope and intent
+
 - Keep changes focused, minimal, and test-backed.
 - Preserve backward compatibility unless the issue or PR explicitly allows breaking changes.
 - Prefer clear, deterministic behavior over implicit magic.
 
 ## Project basics
+
 - Package: `pdpipe`
 - Purpose: easy pipelines for pandas DataFrames.
 - Python: CI-supported versions in this repo.
@@ -35,6 +37,7 @@ pdpipe/
 ```
 
 ## Core quality requirements
+
 - Lint/format before every commit:
   - `python -m black .`
   - `python -m flake8`
@@ -42,6 +45,7 @@ pdpipe/
 - Keep doctest examples valid for touched modules.
 
 ## CI workflows
+
 - `test.yml`: main test matrix.
 - `lint.yml`: flake8 checks.
 - `black.yml`: formatting check.
@@ -49,21 +53,25 @@ pdpipe/
 - `release.yml`: release workflow.
 
 ## Coding expectations
+
 - Favor explicit, readable implementations.
 - Keep behavior deterministic and backward-compatible by default.
 - Add regression tests for bug fixes.
 - Keep optional dependencies optional; degrade gracefully when unavailable.
 
 ## PR expectations
+
 - One logical change per PR.
 - Clear summary of behavior changes and test evidence.
 - Green CI before merge.
 
 ## Local overrides (optional, untracked)
+
 - If `LOCAL_AGENTS.md` exists at repo root, treat it as additive local instructions.
 - `LOCAL_AGENTS.md` should remain untracked.
 - On conflicts, repository/security policy takes precedence.
 
 ## Security and secrets
+
 - Never commit credentials or machine-specific secrets.
 - Avoid weakening protections around sensitive files or env vars.
