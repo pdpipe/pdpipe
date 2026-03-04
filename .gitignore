@@ -112,3 +112,6 @@ notebooks/debug*.py
 
 # Local agent overrides
 LOCAL_AGENTS.md
+
+# pre-commit's cache directory
+.pre-commit-cache/
