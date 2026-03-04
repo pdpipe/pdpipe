@@ -60,7 +60,7 @@ jobs:
           NLTK_DATA: ${{ github.workspace }}/nltk_data
           PYTHONWARNINGS: "ignore::DeprecationWarning"
         run: |
-          python -m pytest -W ignore::DeprecationWarning
+          sh dev/scripts/run_pytest.sh
 
       - name: Upload coverage to Codecov
         continue-on-error: true
