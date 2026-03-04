@@ -122,6 +122,16 @@ def test_imputer_all_columns():
     assert res_df["y"].isna().sum() == 0
 
 
+def test_imputer_defaults_to_all_columns():
+    """Test default columns behavior."""
+    df = _some_df_with_nans_all_cols()
+    imputer_stage = Imputer("mean")
+    res_df = imputer_stage(df)
+
+    assert res_df["x"].isna().sum() == 0
+    assert res_df["y"].isna().sum() == 0
+
+
 def test_imputer_constant_strategy():
     """Test imputation with constant strategy."""
     df = _some_df_with_nans()

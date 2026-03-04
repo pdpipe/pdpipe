@@ -217,6 +217,7 @@ class Imputer(ColumnsBasedPipelineStage):
             "columns": columns,
             "exclude_columns": exclude_columns,
             "desc_temp": "Impute columns {}",
+            "none_columns": "all",
         }
         valid_super_kwargs = super()._init_kwargs()
         for key in kwargs:
