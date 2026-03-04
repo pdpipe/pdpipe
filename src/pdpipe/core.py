@@ -493,7 +493,8 @@ class PdPipelineStage(abc.ABC):
         y: Optional[pandas.Series] = None,
         fit: Optional[bool] = False,
     ) -> bool:
-        """Execute a condition callable with backwards-compatible signatures."""
+        """Execute a condition callable with backwards-compatible
+        signatures."""
         to_call = cond
         if fit:
             try:
@@ -513,7 +514,8 @@ class PdPipelineStage(abc.ABC):
         X: pandas.DataFrame,
         y: Optional[pandas.Series] = None,
     ) -> bool:
-        """Execute a stage condition method with backwards-compatible signatures."""
+        """Execute a stage condition method with backwards-compatible
+        signatures."""
         if y is None:
             try:
                 return cond(X)
@@ -993,9 +995,7 @@ class PdPipelineStage(abc.ABC):
                     ):
                         self._raise_stage_postcondition_error()
                     if y is not None:
-                        res_X, res_y = self._align_Xy(
-                            X=res_X, y=res_y, preX=X
-                        )
+                        res_X, res_y = self._align_Xy(X=res_X, y=res_y, preX=X)
                         return res_X, res_y
                     return res_X
                 raise UnfittedPipelineStageError(
