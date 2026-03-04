@@ -115,3 +115,4 @@ LOCAL_AGENTS.md
 
 # pre-commit's cache directory
 .pre-commit-cache/
+uv.lock
