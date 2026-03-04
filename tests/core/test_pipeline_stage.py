@@ -293,7 +293,7 @@ def test_failing_postcond():
 
 def test_prec_condition_error_message():
     stage = SomeStage(prec=Condition(_no_a_in_cols))
-    generic_err = "Precondition failed .*"
+    generic_err = "User-provided precondition failed."
     with pytest.raises(FailedPreconditionError, match=generic_err):
         stage(_test_df2())
 
@@ -301,14 +301,14 @@ def test_prec_condition_error_message():
     stage = SomeStage(
         prec=Condition(_no_a_in_cols, error_message=error_message)
     )
-    specific_err = "Precondition failed .* " + error_message
+    specific_err = error_message
     with pytest.raises(FailedPreconditionError, match=specific_err):
         stage(_test_df2())
 
 
 def test_post_condition_error_message():
     stage = SomeStage(post=Condition(_no_a_in_cols))
-    generic_err = "Postcondition failed .*"
+    generic_err = "User-provided postcondition failed."
     with pytest.raises(FailedPostconditionError, match=generic_err):
         stage(_test_df2())
 
@@ -316,6 +316,6 @@ def test_post_condition_error_message():
     stage = SomeStage(
         post=Condition(_no_a_in_cols, error_message=error_message)
     )
-    specific_err = "Postcondition failed .* " + error_message
+    specific_err = error_message
     with pytest.raises(FailedPostconditionError, match=specific_err):
         stage(_test_df2())
