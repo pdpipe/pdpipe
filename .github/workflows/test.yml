@@ -20,14 +20,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
         os: ["ubuntu-latest", "macOS-latest", "windows-latest"]
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v5
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -40,7 +40,7 @@ jobs:
 
       # 1️⃣  Cache anything we download
       - name: Cache NLTK corpora
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: ./nltk_data
           key: nltk-data-${{ hashFiles('**/requirements.txt') }}
@@ -60,7 +60,7 @@ jobs:
           NLTK_DATA: ${{ github.workspace }}/nltk_data
           PYTHONWARNINGS: "ignore::DeprecationWarning"
         run: |
-          python -m pytest -W ignore::DeprecationWarning
+          sh dev/scripts/run_pytest.sh
 
       - name: Upload coverage to Codecov
         continue-on-error: true
