@@ -3,6 +3,7 @@
 import pandas as pd
 import numpy as np
 
+from pdpipe.exceptions import PipelineApplicationError
 from pdpipe.sklearn_stages import Imputer
 
 
@@ -130,6 +131,60 @@ def test_imputer_defaults_to_all_columns():
 
     assert res_df["x"].isna().sum() == 0
     assert res_df["y"].isna().sum() == 0
+
+
+def test_imputer_transform_with_only_selected_columns():
+    """Test transform path with no unimputed columns."""
+    df = _some_df_with_nans_all_cols()
+    imputer_stage = Imputer("mean", columns=["x", "y"])
+    imputer_stage(df)
+    res_df = imputer_stage(df)
+
+    assert res_df["x"].isna().sum() == 0
+    assert res_df["y"].isna().sum() == 0
+    assert list(res_df.columns) == ["x", "y"]
+
+
+def test_imputer_kwargs_split_between_stage_and_imputer():
+    """Test that stage kwargs are consumed and imputer kwargs remain."""
+    imputer_stage = Imputer(
+        "mean",
+        columns=["x", "y"],
+        exmsg="custom message",
+        missing_values=np.nan,
+    )
+    assert "exmsg" not in imputer_stage._kwargs
+    assert imputer_stage._kwargs["missing_values"] is np.nan
+
+
+def test_imputer_fit_failure_raises_pipeline_application_error():
+    """Test fit failure handling."""
+    df = _some_df_with_nans()
+    imputer_stage = Imputer("mean", columns=["x", "lbl"])
+
+    try:
+        imputer_stage(df)
+        assert False, "Expected PipelineApplicationError"
+    except PipelineApplicationError:
+        assert True
+
+
+def test_imputer_transform_failure_raises_pipeline_application_error():
+    """Test transform failure handling."""
+    fit_df = _some_df_with_nans_all_cols()
+    transform_df = pd.DataFrame(
+        data=[["A", np.nan], ["B", 4.0], ["C", 6.0]],
+        index=[1, 2, 3],
+        columns=["x", "y"],
+    )
+    imputer_stage = Imputer("mean", columns=["x", "y"])
+    imputer_stage(fit_df)
+
+    try:
+        imputer_stage(transform_df)
+        assert False, "Expected PipelineApplicationError"
+    except PipelineApplicationError:
+        assert True
 
 
 def test_imputer_constant_strategy():
