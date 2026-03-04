@@ -94,6 +94,7 @@ try:
         TfidfVectorizeTokenLists,
         Decompose,
         EncodeLabel,
+        Imputer,
     )
 
     core.__load_stage_attributes_from_module__("pdpipe.sklearn_stages")
@@ -154,6 +155,7 @@ __all__ = [
     "TfidfVectorizeTokenLists",
     "Decompose",
     "EncodeLabel",
+    "Imputer",
 ]
 
 
