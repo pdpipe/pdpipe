@@ -1,0 +1,14 @@
+---
+description: When asked to build virtualenvs, run commands in them, run tests, setup or build the package, handle dependencies, integrate tools into the package or the CI, and anytime handling pyproject.tom
+globs:
+alwaysApply: false
+---
+
+# Build and dependency system in cachier
+
+- We use pyproject.toml with the modern PEP 621 format.
+- I prefer working with uv for virtualenv management, depdency isnallation, etc.
+- Tests should be run inside the uv venv, and using the dev/scripts/run_pytest.sh, so using the command `uv run sh dev/scripts/run_pytest.sh`.
+- In this machine, uv is installed on pyenv's Python 3.12.10, and pyenv is not initialized on every terminal session *on purpose*, so you'll have to run `pyenv init - bash`, then `pyenv shell 3.12.10` and only then the above command for running pytest inside the uv venv.
+- Before every commit, run the pre-commit hooks defined by pre-commit-config.yaml by running `uv run pre-commit run --all-files` in the project's root, and fix every raised error.
+- Black formatting errors raised by the above pre-commit command should be handled by running `uv run black src` and `uv run black tests`
