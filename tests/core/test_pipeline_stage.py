@@ -1,6 +1,7 @@
 """Testing basic pipeline stages."""
 
 import pickle
+import re
 
 import pandas as pd
 import pytest
@@ -326,7 +327,7 @@ def test_failing_postcond():
 
 def test_prec_condition_error_message():
     stage = SomeStage(prec=Condition(_no_a_in_cols))
-    generic_err = "User-provided precondition failed."
+    generic_err = re.escape("User-provided precondition failed.")
     with pytest.raises(FailedPreconditionError, match=generic_err):
         stage(_test_df2())
 
@@ -341,7 +342,7 @@ def test_prec_condition_error_message():
 
 def test_post_condition_error_message():
     stage = SomeStage(post=Condition(_no_a_in_cols))
-    generic_err = "User-provided postcondition failed."
+    generic_err = re.escape("User-provided postcondition failed.")
     with pytest.raises(FailedPostconditionError, match=generic_err):
         stage(_test_df2())
 
