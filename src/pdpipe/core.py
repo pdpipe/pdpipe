@@ -411,6 +411,8 @@ class PdPipelineStage(abc.ABC):
         "application_context",
         "is_fitted",
         "_dynamics",
+        "_failed_precondition",
+        "_failed_postcondition",
     }
 
     def _process_dynamics(self) -> None:
