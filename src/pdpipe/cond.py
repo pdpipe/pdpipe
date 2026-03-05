@@ -359,15 +359,19 @@ class HasAllColumns(Condition):
 
     """
 
+    class _CheckFunction(object):
+        def __init__(self, labels):
+            self.labels = labels
+
+        def __call__(self, X):
+            return all([lbl in X.columns for lbl in self.labels])
+
     def __init__(self, labels, **kwargs):
         if isinstance(labels, str) or not hasattr(labels, "__iter__"):
             labels = [labels]
         self._labels = labels
         self._labels_str = _list_str(self._labels)
-
-        def _func(X):  # noqa: E306
-            return all([lbl in X.columns for lbl in self._labels])
-
+        _func = HasAllColumns._CheckFunction(self._labels)
         _func.__doc__ = f"Dataframes with columns {self._labels_str}"
         super_kwargs = {
             "error_message": (

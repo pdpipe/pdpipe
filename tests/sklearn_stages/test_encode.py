@@ -1,5 +1,7 @@
 """Testing basic pipeline stages."""
 
+import pickle
+
 import pytest
 import pandas as pd
 
@@ -9,6 +11,8 @@ from pdpipe.exceptions import (
     UnfittedPipelineStageError,
     PipelineApplicationError,
 )
+
+from pdptestutil import random_pickle_path
 
 
 def _some_df():
@@ -207,6 +211,24 @@ def test_encode_in_pipelin_fit_n_transform():
     res_df2 = pline.fit_transform(df2, verbose=True)
     assert "lbl" in res_df.columns
     assert "name" not in res_df.columns
+    assert res_df2["lbl"][1] == 1
+    assert res_df2["lbl"][2] == 0
+    assert res_df2["lbl"][3] == 1
+
+
+def test_pickle_encode(pdpipe_tests_dir_path):
+    """Testing Encode pickling."""
+    df = _some_df()
+    stage = Encode()
+    stage(df)
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, "wb+") as f:
+        pickle.dump(stage, f)
+    with open(fpath, "rb") as f:
+        loaded_stage = pickle.load(f)
+    df2 = _some_df2()
+    res_df2 = loaded_stage(df2)
+    assert "lbl" in res_df2.columns
     assert res_df2["lbl"][1] == 1
     assert res_df2["lbl"][2] == 0
     assert res_df2["lbl"][3] == 1

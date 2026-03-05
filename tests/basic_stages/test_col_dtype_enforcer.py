@@ -1,9 +1,13 @@
 """Test the ColumnDtypeEnforcer pipeline stage."""
 
+import pickle
+
 import pandas as pd
 
 import pdpipe.cq as cq
 from pdpipe import ColumnDtypeEnforcer
+
+from pdptestutil import random_pickle_path
 
 DF = pd.DataFrame([[8, "a"], [5, "b"]], [1, 2], ["num", "initial"])
 
@@ -28,4 +32,16 @@ def test_dtype_enf_col_qualifier():
 
     # Only col_qualifier as key, used as documentation example
     res = ColumnDtypeEnforcer({cq.StartsWith("n"): float}).apply(DF)
+    assert res["num"].dtype == float
+
+
+def test_pickle_col_dtype_enforcer(pdpipe_tests_dir_path):
+    """Testing ColumnDtypeEnforcer pickling."""
+    stage = ColumnDtypeEnforcer({"num": float})
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, "wb+") as f:
+        pickle.dump(stage, f)
+    with open(fpath, "rb") as f:
+        loaded_stage = pickle.load(f)
+    res = loaded_stage(DF)
     assert res["num"].dtype == float

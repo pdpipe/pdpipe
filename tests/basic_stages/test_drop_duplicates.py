@@ -1,10 +1,14 @@
 """Testing basic pipeline stages."""
 
+import pickle
+
 import pandas as pd
 import pytest
 
 from pdpipe import DropDuplicates
 from pdpipe.exceptions import FailedPreconditionError
+
+from pdptestutil import random_pickle_path
 
 
 def _test_df():
@@ -40,3 +44,18 @@ def test_drop_duplicates():
     stage = DropDuplicates("c")
     with pytest.raises(FailedPreconditionError):
         stage.apply(df)
+
+
+def test_pickle_drop_duplicates(pdpipe_tests_dir_path):
+    """Testing DropDuplicates pickling."""
+    df = _test_df()
+    stage = DropDuplicates("a")
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, "wb+") as f:
+        pickle.dump(stage, f)
+    with open(fpath, "rb") as f:
+        loaded_stage = pickle.load(f)
+    res = loaded_stage.apply(df)
+    assert 1 in res.index
+    assert 2 not in res.index
+    assert 3 in res.index

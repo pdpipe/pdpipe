@@ -1,5 +1,7 @@
 """Testing the ApplicationContextEnricher stage."""
 
+import pickle
+
 import pandas as pd
 import pytest
 
@@ -9,6 +11,8 @@ from pdpipe import (
 )
 from pdpipe.basic_stages import ApplicationContextEnricher
 from pdpipe.exceptions import PipelineApplicationError
+
+from pdptestutil import random_pickle_path
 
 DF1 = pd.DataFrame({"a": ["a", "b", "c", "d"], "b": [5, 6, 7, 1]})
 
@@ -62,3 +66,22 @@ def test_application_context_error():
     )
     with pytest.raises(PipelineApplicationError):
         pline(df1)
+
+
+def _bsum(df):
+    return df["b"].sum()
+
+
+def _bmean(df):
+    return df["b"].mean()
+
+
+def test_pickle_app_context_enricher(pdpipe_tests_dir_path):
+    """Testing ApplicationContextEnricher pickling."""
+    stage = ApplicationContextEnricher(bsum=_bsum, bmean=_bmean, d=5)
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, "wb+") as f:
+        pickle.dump(stage, f)
+    with open(fpath, "rb") as f:
+        loaded_stage = pickle.load(f)
+    assert loaded_stage is not None

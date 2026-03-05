@@ -1,8 +1,12 @@
 """Testing ApplyToRows pipeline stages."""
 
+import pickle
+
 import pandas as pd
 
 from pdpipe.col_generation import ApplyToRows
+
+from pdptestutil import random_pickle_path
 
 
 def _some_df():
@@ -97,3 +101,19 @@ def test_applytorows_with_df_generation_follow():
     assert res_df["sum"][2] == 6
     assert res_df["diff"][1] == -1
     assert res_df["diff"][2] == -2
+
+
+def test_pickle_applytorows(pdpipe_tests_dir_path):
+    """Testing ApplyToRows pickling."""
+    df = _some_df()
+    stage = ApplyToRows(_total_rev, "total_revenue")
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, "wb+") as f:
+        pickle.dump(stage, f)
+    with open(fpath, "rb") as f:
+        loaded_stage = pickle.load(f)
+    res_df = loaded_stage(df)
+    assert "total_revenue" in res_df.columns
+    assert res_df["total_revenue"][1] == 3 * 2143
+    assert res_df["total_revenue"][2] == 10 * 1321
+    assert res_df["total_revenue"][3] == 7 * 1255

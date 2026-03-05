@@ -1,8 +1,12 @@
 """Test the DropTokensByLength pipeline stage."""
 
+import pickle
+
 import pandas as pd
 
 import pdpipe as pdp
+
+from pdptestutil import random_pickle_path
 
 DF = pd.DataFrame(
     data=[[4, ["a", "bad", "nice"]], [5, ["good", "university"]]],
@@ -33,3 +37,17 @@ def test_drop_tokens_by_len_no_max():
     assert "a" not in res_df.loc[1]["text"]
     assert "good" in res_df.loc[2]["text"]
     assert "university" in res_df.loc[2]["text"]
+
+
+def test_pickle_drop_tokens_by_length(pdpipe_tests_dir_path):
+    """Testing DropTokensByLength pickling."""
+    stage = pdp.DropTokensByLength("text", 3, 5)
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, "wb+") as f:
+        pickle.dump(stage, f)
+    with open(fpath, "rb") as f:
+        loaded_stage = pickle.load(f)
+    res_df = loaded_stage(DF)
+    assert "bad" in res_df.loc[1]["text"]
+    assert "nice" in res_df.loc[1]["text"]
+    assert "a" not in res_df.loc[1]["text"]

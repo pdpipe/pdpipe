@@ -1,9 +1,13 @@
 """Test the TfidfVectorizeTokenLists pipeline stage."""
 
+import pickle
+
 import pandas as pd
 import pytest
 
 import pdpipe as pdp
+
+from pdptestutil import random_pickle_path
 
 DF = pd.DataFrame(
     data=[
@@ -66,3 +70,16 @@ def test_tfidf_vec_hierarchical_labels():
     )
     for i, row in DF.iterrows():
         assert len(row["Quote"]) == non_zeros[i] - 1
+
+
+def test_pickle_tfidf_vec(pdpipe_tests_dir_path):
+    """Testing TfidfVectorizeTokenLists pickling."""
+    tf = pdp.TfidfVectorizeTokenLists("Quote")
+    tf(DF)
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, "wb+") as f:
+        pickle.dump(tf, f)
+    with open(fpath, "rb") as f:
+        loaded_stage = pickle.load(f)
+    res_df2 = loaded_stage(DF2)
+    assert "Age" in res_df2.columns

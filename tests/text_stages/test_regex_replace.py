@@ -1,10 +1,13 @@
 """Test the RegexReplace pipeline stage."""
 
+import pickle
 import re
 
 import pandas as pd
 
 import pdpipe as pdp
+
+from pdptestutil import random_pickle_path
 
 DF = pd.DataFrame(
     data=[[4, "more than 12"], [5, "with 5 more"]],
@@ -71,3 +74,16 @@ def test_regex_replace_with_flags():
     assert "age" in res_df.columns
     assert res_df.loc[1]["name"] == "x"
     assert res_df.loc[2]["name"] == "x"
+
+
+def test_pickle_regex_replace(pdpipe_tests_dir_path):
+    """Testing RegexReplace pickling."""
+    stage = pdp.RegexReplace("text", r"\b[0-9]+\b", "NUM")
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, "wb+") as f:
+        pickle.dump(stage, f)
+    with open(fpath, "rb") as f:
+        loaded_stage = pickle.load(f)
+    res_df = loaded_stage(DF)
+    assert res_df.loc[1]["text"] == "more than NUM"
+    assert res_df.loc[2]["text"] == "with NUM more"

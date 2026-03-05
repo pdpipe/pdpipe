@@ -1,9 +1,13 @@
 """Test DropRareTokens stages."""
 
+import pickle
+
 import pytest
 import pandas as pd
 
 from pdpipe.nltk_stages import DropRareTokens
+
+from pdptestutil import random_pickle_path
 
 
 def _some_df():
@@ -76,3 +80,21 @@ def test_drop_rare_w_drop():
     assert res_df2["chars_norare"][2] == ["d", "d"]
     assert res_df2["chars"][1] == ["a", "c", "c"]
     assert res_df2["chars"][2] == ["b", "d", "d"]
+
+
+@pytest.mark.first
+def test_pickle_drop_rare(pdpipe_tests_dir_path):
+    """Testing DropRareTokens pickling."""
+    df = _some_df()
+    stage = DropRareTokens("chars", 1)
+    stage(df)
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, "wb+") as f:
+        pickle.dump(stage, f)
+    with open(fpath, "rb") as f:
+        loaded_stage = pickle.load(f)
+    df2 = _some_df2()
+    res_df2 = loaded_stage(df2)
+    assert "chars" in res_df2.columns
+    assert res_df2["chars"][1] == ["a"]
+    assert res_df2["chars"][2] == ["b"]

@@ -1,8 +1,12 @@
 """Testing TransformByCols pipeline stages."""
 
+import pickle
+
 import pytest
 import pandas as pd
 from pdpipe.col_generation import TransformByCols
+
+from pdptestutil import random_pickle_path
 
 
 def ph_df():
@@ -79,3 +83,18 @@ def test_transformbycols_no_drop_custom_suffix():
 def test_transformbycols_with_bad_len_result_columns():
     with pytest.raises(ValueError):
         TransformByCols("ph", "cumsum", result_columns=["a", "b"])
+
+
+def test_pickle_transformbycols(pdpipe_tests_dir_path):
+    """Testing TransformByCols pickling."""
+    df = ph_df()
+    stage = TransformByCols("ph", "cumsum")
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, "wb+") as f:
+        pickle.dump(stage, f)
+    with open(fpath, "rb") as f:
+        loaded_stage = pickle.load(f)
+    res_df = loaded_stage(df)
+    assert res_df["ph"][1] == 3.2
+    assert res_df["ph"][2] == 10.4
+    assert res_df["ph"][3] == 22.5

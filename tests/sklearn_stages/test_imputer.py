@@ -1,10 +1,14 @@
 """Testing Imputer pipeline stage."""
 
+import pickle
+
 import pandas as pd
 import numpy as np
 
 from pdpipe.exceptions import PipelineApplicationError
 from pdpipe.sklearn_stages import Imputer
+
+from pdptestutil import random_pickle_path
 
 
 def _some_df_with_nans():
@@ -255,3 +259,19 @@ def test_imputer_with_single_column():
     assert res_df["x"].isna().sum() == 0
     assert res_df["y"].isna().sum() == 1  # y should still have NaN
     assert list(res_df.columns) == ["x", "y", "lbl"]
+
+
+def test_pickle_imputer(pdpipe_tests_dir_path):
+    """Testing Imputer pickling."""
+    df = _some_df_with_nans()
+    stage = Imputer("mean", columns=["x", "y"])
+    stage(df)
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, "wb+") as f:
+        pickle.dump(stage, f)
+    with open(fpath, "rb") as f:
+        loaded_stage = pickle.load(f)
+    df2 = _some_df_with_nans_b()
+    res_df2 = loaded_stage(df2)
+    assert res_df2["x"].isna().sum() == 0
+    assert res_df2["y"].isna().sum() == 0

@@ -1,8 +1,12 @@
 """Testing AggByCols pipeline stages."""
 
+import pickle
+
 import pytest
 import pandas as pd
 from pdpipe import AggByCols
+
+from pdptestutil import random_pickle_path
 
 
 def ph_df():
@@ -90,3 +94,18 @@ def test_aggbycols_with_bad_len_result_columns():
     """Testing ApplyByCols pipeline stages."""
     with pytest.raises(ValueError):
         AggByCols("ph", "min", result_columns=["a", "b"])
+
+
+def test_pickle_aggbycols(pdpipe_tests_dir_path):
+    """Testing AggByCols pickling."""
+    df = ph_df()
+    stage = AggByCols("ph", "min")
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, "wb+") as f:
+        pickle.dump(stage, f)
+    with open(fpath, "rb") as f:
+        loaded_stage = pickle.load(f)
+    res_df = loaded_stage(df)
+    assert res_df["ph"][1] == 3.2
+    assert res_df["ph"][2] == 3.2
+    assert res_df["ph"][3] == 3.2

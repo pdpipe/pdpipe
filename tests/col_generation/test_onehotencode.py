@@ -1,10 +1,14 @@
 """Testing OneHotEncode pipeline stages."""
 
+import pickle
+
 import pytest
 import pandas as pd
 
 from pdpipe.col_generation import OneHotEncode
 from pdpipe import cq
+
+from pdptestutil import random_pickle_path
 
 
 def _one_categ_df(category=False):
@@ -446,4 +450,24 @@ def test_onehotencode_one_with_drop_first_colname(verbose):
     assert "Born_Greece" in res_df2.columns
     assert res_df2["Born_Greece"][1] == 1
     assert "Born_USA" in res_df.columns
+    assert res_df2["Born_USA"][1] == 0
+
+
+@pytest.mark.onehotencode
+def test_pickle_onehotencode(pdpipe_tests_dir_path):
+    """Testing OneHotEncode pickling."""
+    df = _one_categ_df()
+    stage = OneHotEncode("Born")
+    res_df = stage(df)
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, "wb+") as f:
+        pickle.dump(stage, f)
+    with open(fpath, "rb") as f:
+        loaded_stage = pickle.load(f)
+    df2 = _one_categ_single_row_df()
+    res_df2 = loaded_stage(df2)
+    assert "Born" not in res_df2.columns
+    assert "Born_UK" in res_df2.columns
+    assert res_df2["Born_UK"][1] == 0
+    assert "Born_USA" in res_df2.columns
     assert res_df2["Born_USA"][1] == 0

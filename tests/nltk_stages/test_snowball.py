@@ -1,8 +1,12 @@
 """Test the SnowballStem pipeline stage."""
 
+import pickle
+
 import pytest
 import pandas as pd
 import pdpipe as pdp
+
+from pdptestutil import random_pickle_path
 
 
 @pytest.mark.first
@@ -53,3 +57,18 @@ def test_snowball_stem_cond():
     assert "txt" in res_df.columns
     assert "txt_stem" not in res_df.columns
     assert res_df["txt"][1] == ["boats", "kick", "squealing"]
+
+
+@pytest.mark.first
+def test_pickle_snowball_stem(pdpipe_tests_dir_path):
+    """Testing SnowballStem pickling."""
+    df = pd.DataFrame([[3.2, ["kicking", "boats"]]], [1], ["freq", "txt"])
+    stage = pdp.SnowballStem("EnglishStemmer", "txt")
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, "wb+") as f:
+        pickle.dump(stage, f)
+    with open(fpath, "rb") as f:
+        loaded_stage = pickle.load(f)
+    res_df = loaded_stage(df)
+    assert "txt" in res_df.columns
+    assert res_df["txt"][1] == ["kick", "boat"]
