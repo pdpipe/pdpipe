@@ -200,3 +200,16 @@ def test_pickle_encode_label(pdpipe_tests_dir_path):
     assert post_y[1] == 1
     assert post_y[2] == 0
     assert post_y[3] == 1
+
+
+def test_sklearn_missing_dep_encode_label():
+    """Test EncodeLabel raises ImportError when sklearn is not installed."""
+    import pdpipe.sklearn_stages as sk
+
+    original = sk._SKLEARN_INSTALLED
+    try:
+        sk._SKLEARN_INSTALLED = False
+        with pytest.raises(ImportError, match="scikit-learn is required"):
+            EncodeLabel()
+    finally:
+        sk._SKLEARN_INSTALLED = original

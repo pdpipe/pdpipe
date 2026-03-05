@@ -27,7 +27,7 @@ try:
     from sklearn.utils.validation import check_is_fitted
 
     _SKLEARN_INSTALLED = True
-except ImportError:
+except ImportError:  # pragma: no cover
     BaseEstimator = object
     _SKLEARN_INSTALLED = False
 

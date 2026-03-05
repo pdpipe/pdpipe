@@ -22,7 +22,7 @@ try:
     import nltk
 
     _NLTK_INSTALLED = True
-except ImportError:
+except ImportError:  # pragma: no cover
     _NLTK_INSTALLED = False
 
 import pandas as pd

@@ -139,7 +139,7 @@ def test_nltk_missing_dep_tokenize():
 
 
 def test_nltk_missing_dep_untokenize():
-    """Test that UntokenizeText raises ImportError when nltk is not installed."""
+    """Test UntokenizeText raises ImportError when nltk is not installed."""
     import pdpipe.nltk_stages as nltk_s
 
     original = nltk_s._NLTK_INSTALLED
@@ -152,7 +152,7 @@ def test_nltk_missing_dep_untokenize():
 
 
 def test_nltk_missing_dep_remove_stopwords():
-    """Test that RemoveStopwords raises ImportError when nltk is not installed."""
+    """Test RemoveStopwords raises ImportError when nltk is missing."""
     import pdpipe.nltk_stages as nltk_s
 
     original = nltk_s._NLTK_INSTALLED
@@ -178,7 +178,7 @@ def test_nltk_missing_dep_snowball_stem():
 
 
 def test_nltk_missing_dep_drop_rare_tokens():
-    """Test that DropRareTokens raises ImportError when nltk is not installed."""
+    """Test DropRareTokens raises ImportError when nltk is not installed."""
     import pdpipe.nltk_stages as nltk_s
 
     original = nltk_s._NLTK_INSTALLED

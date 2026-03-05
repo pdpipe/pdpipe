@@ -223,3 +223,33 @@ def test_pdpipeline_and_sklearn_model_Kmeans():
     assert len(res) == len(DF2)
     res = mp.score(all_x)
     assert isinstance(res, float)
+
+
+def test_sklearn_missing_dep_pdpipeline_and_sklearn_estimator():
+    """Test PdPipelineAndSklearnEstimator raises ImportError, no sklearn."""
+    import pdpipe.skintegrate as si
+
+    original = si._SKLEARN_INSTALLED
+    try:
+        si._SKLEARN_INSTALLED = False
+        with pytest.raises(ImportError, match="scikit-learn is required"):
+            PdPipelineAndSklearnEstimator(
+                pipeline=pdp.ColDrop("a"),
+                estimator=LogisticRegression(),
+            )
+    finally:
+        si._SKLEARN_INSTALLED = original
+
+
+def test_sklearn_missing_dep_pdpipe_scorer():
+    """Test pdpipe_scorer_from_sklearn_scorer raises ImportError."""
+    import pdpipe.skintegrate as si
+
+    original = si._SKLEARN_INSTALLED
+    try:
+        si._SKLEARN_INSTALLED = False
+        scorer = make_scorer(fbeta_score, beta=0.5, average="micro")
+        with pytest.raises(ImportError, match="scikit-learn is required"):
+            pdpipe_scorer_from_sklearn_scorer(scorer)
+    finally:
+        si._SKLEARN_INSTALLED = original

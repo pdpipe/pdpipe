@@ -275,3 +275,17 @@ def test_pickle_imputer(pdpipe_tests_dir_path):
     res_df2 = loaded_stage(df2)
     assert res_df2["x"].isna().sum() == 0
     assert res_df2["y"].isna().sum() == 0
+
+
+def test_sklearn_missing_dep_imputer():
+    """Test Imputer raises ImportError when sklearn is not installed."""
+    import pytest
+    import pdpipe.sklearn_stages as sk
+
+    original = sk._SKLEARN_INSTALLED
+    try:
+        sk._SKLEARN_INSTALLED = False
+        with pytest.raises(ImportError, match="scikit-learn is required"):
+            Imputer("mean")
+    finally:
+        sk._SKLEARN_INSTALLED = original

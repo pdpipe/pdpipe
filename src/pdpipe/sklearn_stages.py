@@ -20,12 +20,11 @@ try:
         TfidfVectorizer,
     )
     from sklearn.impute import SimpleImputer
+    from skutil.preprocessing import scaler_by_params
 
     _SKLEARN_INSTALLED = True
-except ImportError:
+except ImportError:  # pragma: no cover
     _SKLEARN_INSTALLED = False
-
-from skutil.preprocessing import scaler_by_params
 from tqdm.autonotebook import tqdm
 
 from pdpipe.core import ColumnsBasedPipelineStage, PdPipelineStage
