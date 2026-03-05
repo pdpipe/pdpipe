@@ -14,7 +14,6 @@ mixed-type data.
 # pylint: disable=C0413
 # flake8: noqa
 
-
 from . import core
 from .core import PdPipelineStage, AdHocStage, PdPipeline, make_pdpipeline
 
