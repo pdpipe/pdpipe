@@ -286,9 +286,10 @@ class PdPipelineStage(abc.ABC):
         does not hold for an output dataframe (after pipeline application).
         Otherwise pipeline application continues uninterrupted.
     exmsg : str, default None
-        The message of the exception that is raised on a failed
-        precondition if exraise is set to True. A default message is used
-        if None is given.
+        The message of the exception raised when this stage application fails
+        and exraise is set to True. User-provided condition objects are
+        expected to provide their own messages. A default message is used if
+        None is given.
     desc : str, default None
         A short description of this stage, used as its string representation.
         A default description is used if None is given.
@@ -327,7 +328,7 @@ class PdPipelineStage(abc.ABC):
 
     """
 
-    _DEF_EXC_MSG = "Precondition failed in stage {}!"
+    _DEF_EXC_MSG = "Pipeline stage failed in stage {}!"
     _DEF_DESCRIPTION = "A pipeline stage."
     _INIT_KWARGS = ["exraise", "exmsg", "desc", "prec", "skip", "name"]
 
@@ -362,6 +363,8 @@ class PdPipelineStage(abc.ABC):
         self._skip = skip
         self._appmsg = f"{name + ': ' if name else ''}{desc}"
         self._name = name
+        self._failed_precondition = None
+        self._failed_postcondition = None
 
         # inner stuff initializations
         self._is_an_Xy_transformer = False
@@ -512,6 +515,8 @@ class PdPipelineStage(abc.ABC):
             otherwise.
 
         """
+        self._failed_precondition = None
+
         if self._prec_arg:
             to_call = self._prec_arg
             if fit:
@@ -520,31 +525,41 @@ class PdPipelineStage(abc.ABC):
                 except AttributeError:
                     pass
             try:
-                return to_call(X, y)
+                user_holds = to_call(X, y)
             except TypeError as e:
                 if len(POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
-                    return to_call(X)
-                raise e  # pragma: no cover
+                    user_holds = to_call(X)
+                else:
+                    raise e  # pragma: no cover
+            if not user_holds:
+                self._failed_precondition = "user"
+                return False
 
         # now, do the same for the _prec abstractmethod, so as to support
         # implementations only including X in their signature
         if y is None:
             try:
-                return self._prec(X)
+                stage_holds = self._prec(X)
             except TypeError as e:
                 if (
                     len(PdPipelineStage._MISSING_POS_ARG_PAT.findall(str(e)))
                     > 0
                 ):
                     # self._prec is hopefully expecting y
-                    return self._prec(X, y)
-                raise e
-        try:
-            return self._prec(X, y)
-        except TypeError as e:
-            if len(POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
-                return self._prec(X)
-            raise e  # pragma: no cover
+                    stage_holds = self._prec(X, y)
+                else:
+                    raise e  # pragma: no cover
+        else:
+            try:
+                stage_holds = self._prec(X, y)
+            except TypeError as e:
+                if len(POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
+                    stage_holds = self._prec(X)
+                else:
+                    raise e  # pragma: no cover
+        if not stage_holds:
+            self._failed_precondition = "stage"
+        return stage_holds
 
     def _post(
         self,
@@ -582,6 +597,8 @@ class PdPipelineStage(abc.ABC):
         Otherwise, uses the build-it function.
 
         """
+        self._failed_postcondition = None
+
         if self._post_arg:
             to_call = self._post_arg
             if fit:
@@ -590,22 +607,31 @@ class PdPipelineStage(abc.ABC):
                 except AttributeError:
                     pass
             try:
-                return to_call(X, y)
+                user_holds = to_call(X, y)
             except TypeError as e:
                 if len(POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
-                    return to_call(X)
-                raise e  # pragma: no cover
+                    user_holds = to_call(X)
+                else:
+                    raise e  # pragma: no cover
+            if not user_holds:
+                self._failed_postcondition = "user"
+                return False
 
         # now, do the same for the _post abstractmethod, so as to support
         # implementations only including X in their signature
         if y is None:
-            return self._post(X)
-        try:
-            return self._post(X, y)
-        except TypeError as e:
-            if len(POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
-                return self._post(X)
-            raise e  # pragma: no cover
+            stage_holds = self._post(X)
+        else:
+            try:
+                stage_holds = self._post(X, y)
+            except TypeError as e:
+                if len(POS_ARG_MISMTCH_PAT.findall(str(e))) > 0:
+                    stage_holds = self._post(X)
+                else:
+                    raise e  # pragma: no cover
+        if not stage_holds:
+            self._failed_postcondition = "stage"
+        return stage_holds
 
     def _fit_transform(
         self,
@@ -635,20 +661,22 @@ class PdPipelineStage(abc.ABC):
         return True
 
     def _raise_precondition_error(self) -> None:
-        error_message = getattr(self._prec_arg, "_error_message", None)
-        if error_message:
-            raise FailedPreconditionError(
-                f"{self._exmsg} [Reason] {error_message}"
-            )
+        if self._failed_precondition == "user":
+            error_message = getattr(self._prec_arg, "_error_message", None)
+            if error_message:
+                raise FailedPreconditionError(error_message)
+            raise FailedPreconditionError("User-provided precondition failed.")
         raise FailedPreconditionError(self._exmsg)
 
     def _raise_postcondition_error(self) -> None:
-        try:
+        if self._failed_postcondition == "user":
+            error_message = getattr(self._post_arg, "_error_message", None)
+            if error_message:
+                raise FailedPostconditionError(error_message)
             raise FailedPostconditionError(
-                f"{self._exmsg_post} [Reason] {self._post_arg._error_message}"
+                "User-provided postcondition failed."
             )
-        except AttributeError:
-            raise FailedPostconditionError(self._exmsg_post)
+        raise FailedPostconditionError(self._exmsg_post)
 
     @abc.abstractmethod
     def _transform(
