@@ -108,13 +108,13 @@ def test_row_drop_xor_reducer():
     assert 3 in res_df.index
 
 
-def _row_less_than_2(x):
+def _value_less_than_2(x):
     return x < 2
 
 
 def test_pickle_rowdrop(pdpipe_tests_dir_path):
     """Testing RowDrop pickling."""
-    stage = RowDrop([_row_less_than_2])
+    stage = RowDrop([_value_less_than_2])
     fpath = random_pickle_path(pdpipe_tests_dir_path)
     with open(fpath, "wb+") as f:
         pickle.dump(stage, f)

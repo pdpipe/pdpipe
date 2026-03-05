@@ -84,4 +84,14 @@ def test_pickle_app_context_enricher(pdpipe_tests_dir_path):
         pickle.dump(stage, f)
     with open(fpath, "rb") as f:
         loaded_stage = pickle.load(f)
-    assert loaded_stage is not None
+    pline = PdPipeline(
+        [
+            loaded_stage,
+            ApplicationContextAsserter(
+                bsum=DF1["b"].sum(),
+                bmean=DF1["b"].mean(),
+                d=5,
+            ),
+        ]
+    )
+    pline(DF1)

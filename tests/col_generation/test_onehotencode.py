@@ -458,7 +458,7 @@ def test_pickle_onehotencode(pdpipe_tests_dir_path):
     """Testing OneHotEncode pickling."""
     df = _one_categ_df()
     stage = OneHotEncode("Born")
-    res_df = stage(df)
+    stage(df)
     fpath = random_pickle_path(pdpipe_tests_dir_path)
     with open(fpath, "wb+") as f:
         pickle.dump(stage, f)

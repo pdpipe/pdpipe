@@ -301,7 +301,7 @@ def test_pickle_log(pdpipe_tests_dir_path):
     """Testing Log pickling."""
     df = _some_df()
     stage = Log()
-    res_df = stage(df)
+    stage(df)
     fpath = random_pickle_path(pdpipe_tests_dir_path)
     with open(fpath, "wb+") as f:
         pickle.dump(stage, f)
