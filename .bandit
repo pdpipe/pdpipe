@@ -1,3 +1,4 @@
 [bandit]
 # Tests intentionally use bare asserts; skip B101 (`assert_used`) globally.
-skips = B101
+# Pickling compatibility tests intentionally import `pickle`; skip B403.
+skips = B101,B403
