@@ -12,12 +12,19 @@ pipeline stages.
 
 import numpy as np
 import pandas as pd
-import sklearn.preprocessing
-from sklearn.base import clone
-from sklearn.feature_extraction.text import (
-    TfidfVectorizer,
-)
-from sklearn.impute import SimpleImputer
+
+try:
+    import sklearn.preprocessing
+    from sklearn.base import clone
+    from sklearn.feature_extraction.text import (
+        TfidfVectorizer,
+    )
+    from sklearn.impute import SimpleImputer
+
+    _SKLEARN_INSTALLED = True
+except ImportError:
+    _SKLEARN_INSTALLED = False
+
 from skutil.preprocessing import scaler_by_params
 from tqdm.autonotebook import tqdm
 
@@ -38,6 +45,11 @@ from .exceptions import (
     UnfittedPipelineStageError,
 )
 from .lbl import _SkipOnLabelPlaceholderPredict
+
+_SKLEARN_ERR_MSG = (
+    "scikit-learn is required for this pipeline stage. "
+    "Install it with: pip install scikit-learn"
+)
 
 
 class Encode(ColumnsBasedPipelineStage):
@@ -92,6 +104,8 @@ class Encode(ColumnsBasedPipelineStage):
     def __init__(
         self, columns=None, exclude_columns=None, drop=True, **kwargs
     ):
+        if not _SKLEARN_INSTALLED:
+            raise ImportError(_SKLEARN_ERR_MSG)
         self._drop = drop
         self.encoders = {}
         super_kwargs = {
@@ -210,6 +224,8 @@ class Imputer(ColumnsBasedPipelineStage):
         fill_value=None,
         **kwargs,
     ):
+        if not _SKLEARN_INSTALLED:
+            raise ImportError(_SKLEARN_ERR_MSG)
         self.strategy = strategy
         self.fill_value = fill_value
         self._kwargs = kwargs.copy()
@@ -341,6 +357,8 @@ class Scale(ColumnsBasedPipelineStage):
     def __init__(
         self, scaler, columns=None, exclude_columns=None, joint=False, **kwargs
     ):
+        if not _SKLEARN_INSTALLED:
+            raise ImportError(_SKLEARN_ERR_MSG)
         self.scaler = scaler
         self._joint = joint
         self._kwargs = kwargs.copy()
@@ -469,6 +487,8 @@ class TfidfVectorizeTokenLists(PdPipelineStage):
     _DEF_CNTVEC_MSG = "Count-vectorizing column {}."
 
     def __init__(self, column, drop=True, hierarchical_labels=False, **kwargs):
+        if not _SKLEARN_INSTALLED:
+            raise ImportError(_SKLEARN_ERR_MSG)
         self._column = column
         self._drop = drop
         self._hierarchical_labels = hierarchical_labels
@@ -603,6 +623,8 @@ class Decompose(ColumnsBasedPipelineStage):
         lbl_format=None,
         **kwargs,
     ):
+        if not _SKLEARN_INSTALLED:
+            raise ImportError(_SKLEARN_ERR_MSG)
         self.transformer = transformer
         self._drop = drop
         self._lbl_format = lbl_format
@@ -727,6 +749,8 @@ class EncodeLabel(PdPipelineStage):
     """
 
     def __init__(self, **kwargs: object) -> None:
+        if not _SKLEARN_INSTALLED:
+            raise ImportError(_SKLEARN_ERR_MSG)
         skipi = _SkipOnLabelPlaceholderPredict()
         if "skip" in kwargs:
             skipi.skip_cond = kwargs.pop("skip")

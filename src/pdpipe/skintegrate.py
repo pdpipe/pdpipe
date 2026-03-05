@@ -21,8 +21,15 @@ from typing import Callable
 
 # third-party imports
 import pandas as pd
-from sklearn.base import BaseEstimator
-from sklearn.utils.validation import check_is_fitted
+
+try:
+    from sklearn.base import BaseEstimator
+    from sklearn.utils.validation import check_is_fitted
+
+    _SKLEARN_INSTALLED = True
+except ImportError:
+    BaseEstimator = object
+    _SKLEARN_INSTALLED = False
 
 # local imports
 from .core import PdPipeline
@@ -178,6 +185,11 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
         pipeline: PdPipeline,
         estimator: BaseEstimator,
     ):
+        if not _SKLEARN_INSTALLED:
+            raise ImportError(
+                "scikit-learn is required for PdPipelineAndSklearnEstimator. "
+                "Install it with: pip install scikit-learn"
+            )
         self.pipeline = pipeline
         self.estimator = estimator
         # if hasattr(estimator, "score"):
@@ -426,4 +438,9 @@ def pdpipe_scorer_from_sklearn_scorer(scorer: Callable) -> Callable:
         X (which is a dataframe when using pdpipe, and not a numpy.ndarray).
 
     """
+    if not _SKLEARN_INSTALLED:
+        raise ImportError(
+            "scikit-learn is required for pdpipe_scorer_from_sklearn_scorer. "
+            "Install it with: pip install scikit-learn"
+        )
     return _PdPipeScorer(scorer)
