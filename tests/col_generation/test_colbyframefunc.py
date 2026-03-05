@@ -2,11 +2,15 @@
 
 # flake8: noqa: E712
 
+import pickle
+
 import pytest
 import pandas as pd
 
 from pdpipe import ColByFrameFunc
 from pdpipe.exceptions import PipelineApplicationError
+
+from pdptestutil import random_pickle_path
 
 
 def _some_df():
@@ -74,3 +78,18 @@ def test_colbyframefunc_replace():
     assert res_df["B"][1]
     assert not res_df["B"][2]
     assert not res_df["B"][3]
+
+
+def test_pickle_colbyframefunc(pdpipe_tests_dir_path):
+    """Testing ColByFrameFunc pickling."""
+    df = _some_df()
+    stage = ColByFrameFunc("A==B", _are_a_b_equal)
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, "wb+") as f:
+        pickle.dump(stage, f)
+    with open(fpath, "rb") as f:
+        loaded_stage = pickle.load(f)
+    res_df = loaded_stage(df)
+    assert res_df["A==B"][1]
+    assert not res_df["A==B"][2]
+    assert not res_df["A==B"][3]

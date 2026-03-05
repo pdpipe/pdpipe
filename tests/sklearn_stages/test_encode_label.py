@@ -1,6 +1,7 @@
 """Testing sklearn_stages.LabelEncoder."""
 
 import math
+import pickle
 
 import pytest
 import numpy as np
@@ -9,6 +10,8 @@ import pandas as pd
 import pdpipe as pdp
 from pdpipe.sklearn_stages import EncodeLabel
 from pdpipe.exceptions import UnfittedPipelineStageError
+
+from pdptestutil import random_pickle_path
 
 
 def _some_X_y():
@@ -175,6 +178,24 @@ def test_encode_label_np_arr():
     # check fit_transform when already fitted
     X2, y2 = _np_X_y2()
     post_X, post_y = encode_stage.fit_transform(X2, y2)
+    assert ["ph", "temp"] == list(post_X.columns)
+    assert post_y[1] == 1
+    assert post_y[2] == 0
+    assert post_y[3] == 1
+
+
+def test_pickle_encode_label(pdpipe_tests_dir_path):
+    """Testing EncodeLabel pickling."""
+    X, y = _some_X_y()
+    stage = EncodeLabel()
+    stage(X, y)
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, "wb+") as f:
+        pickle.dump(stage, f)
+    with open(fpath, "rb") as f:
+        loaded_stage = pickle.load(f)
+    X2, y2 = _some_X_y2()
+    post_X, post_y = loaded_stage(X2, y2)
     assert ["ph", "temp"] == list(post_X.columns)
     assert post_y[1] == 1
     assert post_y[2] == 0

@@ -1,5 +1,7 @@
 """Testing basic pipeline stages."""
 
+import pickle
+
 import pytest
 import pandas as pd
 
@@ -9,6 +11,8 @@ from pdpipe.sklearn_stages import Decompose
 from pdpipe.exceptions import PipelineApplicationError
 
 from sklearn.decomposition import PCA
+
+from pdptestutil import random_pickle_path
 
 
 def _some_df1():
@@ -142,3 +146,21 @@ def test_decompose_with_lbl_format():
     assert "gt" not in res_df2.columns
     assert "pca0" in res_df2.columns
     assert "pca1" in res_df2.columns
+
+
+def test_pickle_decompose(pdpipe_tests_dir_path):
+    """Testing Decompose pickling."""
+    df = _some_df2()
+    stage = Decompose(PCA(), n_components=2)
+    stage(df)
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, "wb+") as f:
+        pickle.dump(stage, f)
+    with open(fpath, "rb") as f:
+        loaded_stage = pickle.load(f)
+    df2 = _some_df2b()
+    res_df2 = loaded_stage(df2)
+    assert "ph" not in res_df2.columns
+    assert "gt" not in res_df2.columns
+    assert "mdc0" in res_df2.columns
+    assert "mdc1" in res_df2.columns

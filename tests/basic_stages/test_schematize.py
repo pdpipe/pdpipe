@@ -1,10 +1,14 @@
 """Testing the ColReorder stage."""
 
+import pickle
+
 import pytest
 import pandas as pd
 
 from pdpipe import Schematize
 from pdpipe.exceptions import FailedPreconditionError
+
+from pdptestutil import random_pickle_path
 
 
 def _df():
@@ -69,3 +73,17 @@ def test_schematize_adaptive():
     # check that a df with [a, c] columns fails a stage fitted with [a, b]
     with pytest.raises(FailedPreconditionError):
         stage(_df3())
+
+
+@pytest.mark.schematize
+def test_pickle_schematize(pdpipe_tests_dir_path):
+    """Testing Schematize pickling."""
+    df = _df()
+    stage = Schematize(["a", "c"])
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, "wb+") as f:
+        pickle.dump(stage, f)
+    with open(fpath, "rb") as f:
+        loaded_stage = pickle.load(f)
+    res = loaded_stage(df)
+    assert list(res.columns) == ["a", "c"]

@@ -1,5 +1,7 @@
 """Testing basic pipeline stages."""
 
+import pickle
+
 import pytest
 import pandas as pd
 
@@ -7,6 +9,8 @@ import pandas as pd
 
 from pdpipe.sklearn_stages import Scale
 from pdpipe.exceptions import PipelineApplicationError
+
+from pdptestutil import random_pickle_path
 
 
 def _some_df1():
@@ -166,3 +170,19 @@ def test_scale_with_joint():
     assert "a" in res_df.columns
     assert "b" in res_df.columns
     assert (res_df >= 1).sum().sum() == 0
+
+
+def test_pickle_scale(pdpipe_tests_dir_path):
+    """Testing Scale pickling."""
+    df = _some_df2()
+    stage = Scale("StandardScaler")
+    stage(df)
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, "wb+") as f:
+        pickle.dump(stage, f)
+    with open(fpath, "rb") as f:
+        loaded_stage = pickle.load(f)
+    df2 = _some_df2b()
+    res_df2 = loaded_stage(df2)
+    assert "ph" in res_df2.columns
+    assert "gt" in res_df2.columns

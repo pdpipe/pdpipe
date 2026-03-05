@@ -1,11 +1,15 @@
 """Testing basic pipeline stages."""
 
+import pickle
+
 import numpy as np
 import pandas as pd
 import pytest
 from numpy.testing import assert_approx_equal
 
 from pdpipe import Log
+
+from pdptestutil import random_pickle_path
 
 
 def _some_df():
@@ -290,3 +294,20 @@ def test_log_drop():
     assert_approx_equal(res_df2["ph"][1], 1.481604, significant=5)
     assert_approx_equal(res_df2["ph"][2], 1.808288, significant=5)
     assert_approx_equal(res_df2["ph"][3], 0.262364, significant=5)
+
+
+@pytest.mark.log
+def test_pickle_log(pdpipe_tests_dir_path):
+    """Testing Log pickling."""
+    df = _some_df()
+    stage = Log()
+    stage(df)
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, "wb+") as f:
+        pickle.dump(stage, f)
+    with open(fpath, "rb") as f:
+        loaded_stage = pickle.load(f)
+    df2 = _some_df2()
+    res_df2 = loaded_stage(df2)
+    assert "rank_log" in res_df2.columns
+    assert "ph_log" in res_df2.columns

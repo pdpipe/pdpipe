@@ -1,7 +1,11 @@
 """Test the DropTokensByList pipeline stage."""
 
+import pickle
+
 import pandas as pd
 import pdpipe as pdp
+
+from pdptestutil import random_pickle_path
 
 
 def test_drop_tokens_by_list_short():
@@ -49,3 +53,19 @@ def test_drop_tokens_by_long_short():
     assert "bad" not in res_df.loc[2]["text"]
     assert "not" in res_df.loc[2]["text"]
     assert "good" in res_df.loc[2]["text"]
+
+
+def test_pickle_drop_tokens_by_list(pdpipe_tests_dir_path):
+    """Testing DropTokensByList pickling."""
+    data = [[4, ["a", "bad", "cat"]], [5, ["bad", "not", "good"]]]
+    df = pd.DataFrame(data, [1, 2], ["age", "text"])
+    stage = pdp.DropTokensByList("text", ["bad"])
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, "wb+") as f:
+        pickle.dump(stage, f)
+    with open(fpath, "rb") as f:
+        loaded_stage = pickle.load(f)
+    res_df = loaded_stage(df)
+    assert "bad" not in res_df.loc[1]["text"]
+    assert "a" in res_df.loc[1]["text"]
+    assert "cat" in res_df.loc[1]["text"]

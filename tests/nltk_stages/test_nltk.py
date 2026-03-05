@@ -2,10 +2,13 @@
 
 import os
 import sys
+import pickle
 
 import pytest
 import pandas as pd
 import pdpipe as pdp
+
+from pdptestutil import random_pickle_path
 
 
 @pytest.mark.first
@@ -71,3 +74,52 @@ def test_remove_stopwords():
 
     with pytest.raises(TypeError):
         pdp.RemoveStopwords(34, "txt")
+
+
+@pytest.mark.first
+def test_pickle_tokenize(pdpipe_tests_dir_path):
+    """Testing TokenizeText pickling."""
+    df = pd.DataFrame([[3.2, "Kick the baby!"]], [1], ["freq", "content"])
+    stage = pdp.TokenizeText("content")
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, "wb+") as f:
+        pickle.dump(stage, f)
+    with open(fpath, "rb") as f:
+        loaded_stage = pickle.load(f)
+    res_df = loaded_stage(df)
+    assert "content" in res_df.columns
+    assert res_df["content"][1] == ["Kick", "the", "baby", "!"]
+
+
+@pytest.mark.first
+def test_pickle_untokenize(pdpipe_tests_dir_path):
+    """Testing UntokenizeText pickling."""
+    df = pd.DataFrame([[3.2, ["Shake", "and", "bake!"]]], [1], ["freq", "txt"])
+    stage = pdp.UntokenizeText("txt")
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, "wb+") as f:
+        pickle.dump(stage, f)
+    with open(fpath, "rb") as f:
+        loaded_stage = pickle.load(f)
+    res_df = loaded_stage(df)
+    assert "txt" in res_df.columns
+    assert res_df["txt"][1] == "Shake and bake!"
+
+
+@pytest.mark.first
+@pytest.mark.skipif(
+    (os.name == "nt") or (sys.platform.startswith("win")),
+    reason="nltk has a problem locating resources on windows",
+)
+def test_pickle_remove_stopwords(pdpipe_tests_dir_path):
+    """Testing RemoveStopwords pickling."""
+    df = pd.DataFrame([[3.2, ["kick", "the", "baby"]]], [1], ["freq", "txt"])
+    stage = pdp.RemoveStopwords("english", "txt")
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, "wb+") as f:
+        pickle.dump(stage, f)
+    with open(fpath, "rb") as f:
+        loaded_stage = pickle.load(f)
+    res_df = loaded_stage(df)
+    assert "txt" in res_df.columns
+    assert res_df["txt"][1] == ["kick", "baby"]

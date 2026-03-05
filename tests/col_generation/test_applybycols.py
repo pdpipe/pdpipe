@@ -1,6 +1,7 @@
 """Testing ApplyByCols pipeline stages."""
 
 import math
+import pickle
 
 import pytest
 import numpy as np
@@ -8,6 +9,8 @@ import pandas as pd
 import pdpipe as pdp
 
 from pdpipe.col_generation import ApplyByCols
+
+from pdptestutil import random_pickle_path
 
 
 def ph_df():
@@ -174,3 +177,18 @@ def test_applybycols_use_fit_context():
     assert res.index.tolist() == [0, 1, 2, 3]
     assert "BLAH" not in res["a"].values
     assert "BLAH" not in res["b"].values
+
+
+def test_pickle_applybycols(pdpipe_tests_dir_path):
+    """Testing ApplyByCols pickling."""
+    df = ph_df()
+    stage = ApplyByCols("ph", math.ceil)
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, "wb+") as f:
+        pickle.dump(stage, f)
+    with open(fpath, "rb") as f:
+        loaded_stage = pickle.load(f)
+    res_df = loaded_stage(df)
+    assert res_df["ph"][1] == 4
+    assert res_df["ph"][2] == 8
+    assert res_df["ph"][3] == 13
