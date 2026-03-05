@@ -219,6 +219,39 @@ class FittableDropByCharStage(PdPipelineStage):
         return df[keep_cols]
 
 
+class PrecNeedsYStage(PdPipelineStage):
+    """A stage whose precondition requires the y argument."""
+
+    def _prec(self, df, y):  # noqa: W0613
+        return True
+
+    def _transform(self, df, verbose):
+        return df
+
+
+class PrecXOnlyStage(PdPipelineStage):
+    """A stage whose precondition accepts only X."""
+
+    def _prec(self, df):
+        return True
+
+    def _transform(self, df, verbose):
+        return df
+
+
+class PostXOnlyStage(PdPipelineStage):
+    """A stage whose postcondition accepts only X."""
+
+    def _prec(self, df):
+        return True
+
+    def _post(self, df):
+        return True
+
+    def _transform(self, df, verbose):
+        return df
+
+
 def _test_df2():
     return pd.DataFrame(
         data=[[1, "a"], [2, "b"]], index=[1, 2], columns=["abo", "coo"]
@@ -319,3 +352,38 @@ def test_post_condition_error_message():
     specific_err = error_message
     with pytest.raises(FailedPostconditionError, match=specific_err):
         stage(_test_df2())
+
+
+def test_compound_prec_fallback_when_stage_prec_requires_y():
+    stage = PrecNeedsYStage()
+    assert stage._compound_prec(_test_df2(), y=None)
+
+
+def test_compound_prec_fallback_when_stage_prec_accepts_only_x():
+    stage = PrecXOnlyStage()
+    y = pd.Series([0, 1], index=_test_df2().index)
+    assert stage._compound_prec(_test_df2(), y=y)
+
+
+def test_compound_post_fallback_when_stage_post_accepts_only_x():
+    stage = PostXOnlyStage()
+    y = pd.Series([0, 1], index=_test_df2().index)
+    assert stage._compound_post(_test_df2(), y=y)
+
+
+def test_user_prec_typeerror_is_re_raised():
+    def bad_prec(X, y):  # noqa: W0613
+        raise TypeError("bad user precondition")
+
+    stage = SomeStage(prec=bad_prec)
+    with pytest.raises(TypeError, match="bad user precondition"):
+        stage._compound_prec(_test_df2(), y=None)
+
+
+def test_user_post_typeerror_is_re_raised():
+    def bad_post(X, y):  # noqa: W0613
+        raise TypeError("bad user postcondition")
+
+    stage = SomeStage(post=bad_post)
+    with pytest.raises(TypeError, match="bad user postcondition"):
+        stage._compound_post(_test_df2(), y=None)
