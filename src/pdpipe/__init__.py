@@ -14,10 +14,6 @@ mixed-type data.
 # pylint: disable=C0413
 # flake8: noqa
 
-import warnings
-import traceback
-
-
 from . import core
 from .core import PdPipelineStage, AdHocStage, PdPipeline, make_pdpipeline
 
@@ -85,26 +81,18 @@ from .fly import (
     keep_rows_where,
 )
 
-try:
-    from . import skintegrate
-    from . import sklearn_stages
-    from .sklearn_stages import (
-        Encode,
-        Scale,
-        TfidfVectorizeTokenLists,
-        Decompose,
-        EncodeLabel,
-        Imputer,
-    )
+from . import skintegrate
+from . import sklearn_stages
+from .sklearn_stages import (
+    Encode,
+    Scale,
+    TfidfVectorizeTokenLists,
+    Decompose,
+    EncodeLabel,
+    Imputer,
+)
 
-    core.__load_stage_attributes_from_module__("pdpipe.sklearn_stages")
-except ImportError:
-    tb = traceback.format_exc()
-    warnings.warn(tb)
-    warnings.warn(
-        "pdpipe: Scikit-learn or skutil import failed. Scikit-learn"
-        "-dependent pipeline stages will not be loaded."
-    )
+core.__load_stage_attributes_from_module__("pdpipe.sklearn_stages")
 
 
 __all__ = [
@@ -156,37 +144,25 @@ __all__ = [
     "Decompose",
     "EncodeLabel",
     "Imputer",
+    "nltk_stages",
+    "TokenizeText",
+    "UntokenizeText",
+    "RemoveStopwords",
+    "SnowballStem",
+    "DropRareTokens",
 ]
 
 
-try:
-    from . import nltk_stages
-    from .nltk_stages import (
-        TokenizeText,
-        UntokenizeText,
-        RemoveStopwords,
-        SnowballStem,
-        DropRareTokens,
-    )
+from . import nltk_stages
+from .nltk_stages import (
+    TokenizeText,
+    UntokenizeText,
+    RemoveStopwords,
+    SnowballStem,
+    DropRareTokens,
+)
 
-    __all__.extend(
-        [
-            "nltk_stages",
-            "TokenizeText",
-            "UntokenizeText",
-            "RemoveStopwords",
-            "SnowballStem",
-            "DropRareTokens",
-        ]
-    )
-    core.__load_stage_attributes_from_module__("pdpipe.nltk_stages")
-except ImportError:
-    tb = traceback.format_exc()
-    warnings.warn(tb)
-    warnings.warn(
-        "pdpipe: nltk import failed. nltk-dependent  pipeline "
-        "stages will not be loaded."
-    )
+core.__load_stage_attributes_from_module__("pdpipe.nltk_stages")
 
 from . import run_time_parameters
 from .run_time_parameters import dynamic

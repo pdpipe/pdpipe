@@ -83,3 +83,16 @@ def test_pickle_tfidf_vec(pdpipe_tests_dir_path):
         loaded_stage = pickle.load(f)
     res_df2 = loaded_stage(DF2)
     assert "Age" in res_df2.columns
+
+
+def test_sklearn_missing_dep_tfidf():
+    """Test TfidfVectorizeTokenLists raises ImportError without sklearn."""
+    import pdpipe.sklearn_stages as sk
+
+    original = sk._SKLEARN_INSTALLED
+    try:
+        sk._SKLEARN_INSTALLED = False
+        with pytest.raises(ImportError, match="scikit-learn is required"):
+            pdp.TfidfVectorizeTokenLists("tokens")
+    finally:
+        sk._SKLEARN_INSTALLED = original

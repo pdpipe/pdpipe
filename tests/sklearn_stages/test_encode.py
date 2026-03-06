@@ -232,3 +232,16 @@ def test_pickle_encode(pdpipe_tests_dir_path):
     assert res_df2["lbl"][1] == 1
     assert res_df2["lbl"][2] == 0
     assert res_df2["lbl"][3] == 1
+
+
+def test_sklearn_missing_dep_encode():
+    """Test that Encode raises ImportError when sklearn is not installed."""
+    import pdpipe.sklearn_stages as sk
+
+    original = sk._SKLEARN_INSTALLED
+    try:
+        sk._SKLEARN_INSTALLED = False
+        with pytest.raises(ImportError, match="scikit-learn is required"):
+            pdp.Encode()
+    finally:
+        sk._SKLEARN_INSTALLED = original

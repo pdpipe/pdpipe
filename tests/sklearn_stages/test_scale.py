@@ -186,3 +186,18 @@ def test_pickle_scale(pdpipe_tests_dir_path):
     res_df2 = loaded_stage(df2)
     assert "ph" in res_df2.columns
     assert "gt" in res_df2.columns
+
+
+def test_sklearn_missing_dep_scale():
+    """Test that Scale raises ImportError when sklearn is not installed."""
+    import pytest
+    import pdpipe as pdp
+    import pdpipe.sklearn_stages as sk
+
+    original = sk._SKLEARN_INSTALLED
+    try:
+        sk._SKLEARN_INSTALLED = False
+        with pytest.raises(ImportError, match="scikit-learn is required"):
+            pdp.Scale("StandardScaler")
+    finally:
+        sk._SKLEARN_INSTALLED = original

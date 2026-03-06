@@ -18,7 +18,13 @@ try:
 except ImportError:  # pragma: no cover:
     from collections import Iterable
 
-import nltk
+try:
+    import nltk
+
+    _NLTK_INSTALLED = True
+except ImportError:  # pragma: no cover
+    _NLTK_INSTALLED = False
+
 import pandas as pd
 from pandas.api.types import is_object_dtype, is_string_dtype
 from tqdm.autonotebook import tqdm
@@ -27,6 +33,11 @@ from pdpipe.col_generation import MapColVals
 from pdpipe.core import ColumnsBasedPipelineStage
 from pdpipe.shared import _interpret_columns_param, _list_str
 from pdpipe.util import out_of_place_col_insert
+
+_NLTK_ERR_MSG = (
+    "nltk is required for this pipeline stage. "
+    "Install it with: pip install nltk"
+)
 
 
 class TokenizeText(MapColVals):
@@ -79,6 +90,8 @@ class TokenizeText(MapColVals):
             nltk.download("punkt")
 
     def __init__(self, columns, drop=True, **kwargs):
+        if not _NLTK_INSTALLED:
+            raise ImportError(_NLTK_ERR_MSG)
         self.__check_punkt()
         self._columns = _interpret_columns_param(columns)
         col_str = _list_str(self._columns)
@@ -144,6 +157,8 @@ class UntokenizeText(MapColVals):
         return " ".join(token_list)
 
     def __init__(self, columns, drop=True, **kwargs):
+        if not _NLTK_INSTALLED:
+            raise ImportError(_NLTK_ERR_MSG)
         self._columns = _interpret_columns_param(columns)
         col_str = _list_str(self._columns)
         super_kwargs = {
@@ -234,6 +249,8 @@ class RemoveStopwords(MapColVals):
             return stopwords.words(language)
 
     def __init__(self, language, columns, drop=True, **kwargs):
+        if not _NLTK_INSTALLED:
+            raise ImportError(_NLTK_ERR_MSG)
         self._language = language
         if isinstance(language, str):
             self._stopwords_list = RemoveStopwords.__stopwords_by_language(
@@ -393,6 +410,8 @@ class SnowballStem(MapColVals):
         max_len=None,
         **kwargs,
     ):
+        if not _NLTK_INSTALLED:
+            raise ImportError(_NLTK_ERR_MSG)
         self._stemmer_name = stemmer_name
         self.stemmer = SnowballStem.__safe_stemmer_by_name(stemmer_name)
         self._list_stemmer = SnowballStem._TokenListStemmer(
@@ -464,6 +483,8 @@ class DropRareTokens(ColumnsBasedPipelineStage):
     """
 
     def __init__(self, columns, threshold, drop=True, **kwargs):
+        if not _NLTK_INSTALLED:
+            raise ImportError(_NLTK_ERR_MSG)
         self._threshold = threshold
         self._drop = drop
         self._rare_removers = {}

@@ -123,3 +123,68 @@ def test_pickle_remove_stopwords(pdpipe_tests_dir_path):
     res_df = loaded_stage(df)
     assert "txt" in res_df.columns
     assert res_df["txt"][1] == ["kick", "baby"]
+
+
+def test_nltk_missing_dep_tokenize():
+    """Test that TokenizeText raises ImportError when nltk is not installed."""
+    import pdpipe.nltk_stages as nltk_s
+
+    original = nltk_s._NLTK_INSTALLED
+    try:
+        nltk_s._NLTK_INSTALLED = False
+        with pytest.raises(ImportError, match="nltk is required"):
+            pdp.TokenizeText("content")
+    finally:
+        nltk_s._NLTK_INSTALLED = original
+
+
+def test_nltk_missing_dep_untokenize():
+    """Test UntokenizeText raises ImportError when nltk is not installed."""
+    import pdpipe.nltk_stages as nltk_s
+
+    original = nltk_s._NLTK_INSTALLED
+    try:
+        nltk_s._NLTK_INSTALLED = False
+        with pytest.raises(ImportError, match="nltk is required"):
+            pdp.UntokenizeText("content")
+    finally:
+        nltk_s._NLTK_INSTALLED = original
+
+
+def test_nltk_missing_dep_remove_stopwords():
+    """Test RemoveStopwords raises ImportError when nltk is missing."""
+    import pdpipe.nltk_stages as nltk_s
+
+    original = nltk_s._NLTK_INSTALLED
+    try:
+        nltk_s._NLTK_INSTALLED = False
+        with pytest.raises(ImportError, match="nltk is required"):
+            pdp.RemoveStopwords("english", "content")
+    finally:
+        nltk_s._NLTK_INSTALLED = original
+
+
+def test_nltk_missing_dep_snowball_stem():
+    """Test that SnowballStem raises ImportError when nltk is not installed."""
+    import pdpipe.nltk_stages as nltk_s
+
+    original = nltk_s._NLTK_INSTALLED
+    try:
+        nltk_s._NLTK_INSTALLED = False
+        with pytest.raises(ImportError, match="nltk is required"):
+            pdp.SnowballStem("EnglishStemmer", "content")
+    finally:
+        nltk_s._NLTK_INSTALLED = original
+
+
+def test_nltk_missing_dep_drop_rare_tokens():
+    """Test DropRareTokens raises ImportError when nltk is not installed."""
+    import pdpipe.nltk_stages as nltk_s
+
+    original = nltk_s._NLTK_INSTALLED
+    try:
+        nltk_s._NLTK_INSTALLED = False
+        with pytest.raises(ImportError, match="nltk is required"):
+            pdp.DropRareTokens("content", 1)
+    finally:
+        nltk_s._NLTK_INSTALLED = original

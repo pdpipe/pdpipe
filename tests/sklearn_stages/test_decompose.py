@@ -164,3 +164,16 @@ def test_pickle_decompose(pdpipe_tests_dir_path):
     assert "gt" not in res_df2.columns
     assert "mdc0" in res_df2.columns
     assert "mdc1" in res_df2.columns
+
+
+def test_sklearn_missing_dep_decompose():
+    """Test Decompose raises ImportError when sklearn is not installed."""
+    import pdpipe.sklearn_stages as sk
+
+    original = sk._SKLEARN_INSTALLED
+    try:
+        sk._SKLEARN_INSTALLED = False
+        with pytest.raises(ImportError, match="scikit-learn is required"):
+            Decompose(PCA())
+    finally:
+        sk._SKLEARN_INSTALLED = original
