@@ -10,6 +10,7 @@ Available stages include:
 - ColByFrameFunc
 - AggByCols (aggregation)
 - Log
+- Diff
 
 """
 
@@ -1222,6 +1223,151 @@ class Log(ColumnsBasedPipelineStage):
                     new_col = np.log(new_col)
             else:
                 new_col = np.log(new_col)
+            inter_X = out_of_place_col_insert(
+                X=inter_X, series=new_col, loc=loc, column_name=new_name
+            )
+        return inter_X
+
+
+class Diff(ColumnsBasedPipelineStage):
+    """A pipeline stage that computes the discrete difference of columns.
+
+    Wraps `pandas.DataFrame.diff(periods)` per column. This is the standard
+    de-trending primitive for time-series-like numerical data, as requested
+    in pdpipe issue #9.
+
+    Note: `pandas.DataFrame.diff` introduces ``periods`` NaN rows at the
+    head (or tail, for negative ``periods``). Downstream stages that
+    cannot tolerate NaNs (e.g. ``DropNa`` or ``Imputer``) should be added
+    after this stage as needed. ``Diff`` does not drop those rows itself
+    so that callers can decide.
+
+    There is intentionally no ``inverse_transform`` on this stage: per
+    discussion on the original issue and pdpipe issue #64, no pdpipe
+    stage currently exposes inverse transforms, and adding one in
+    isolation would break the project's invariants.
+
+    Parameters
+    ----------
+    columns : single label, list-like or callable, default None
+        Column names in the DataFrame to be differenced. If `columns` is
+        None then all the columns with a numeric dtype will be
+        differenced, except those given in the `exclude_columns`
+        parameter. Alternatively, this parameter can be assigned a
+        callable returning an iterable of labels from an input
+        pandas.DataFrame. See `pdpipe.cq`.
+    exclude_columns : single label, list-like or callable, default None
+        Label or labels of columns to be excluded from differencing. If
+        None then no column is excluded. Alternatively, this parameter
+        can be assigned a callable returning an iterable of labels from
+        an input pandas.DataFrame. See `pdpipe.cq`. Optional.
+    periods : int, default 1
+        Periods to shift for calculating the difference, accepts negative
+        values. Forwarded as-is to `pandas.Series.diff`.
+    drop : bool, default False
+        If set to True, the source columns are dropped after being
+        differenced, and the resulting columns retain the names of the
+        source columns. Otherwise, the resulting columns gain a suffix
+        (see ``suffix``) and are inserted next to the source columns.
+    suffix : str, default '_diff'
+        The suffix to append to the source column name when ``drop`` is
+        False. Ignored when ``drop`` is True.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
+
+    Examples
+    --------
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> data = [[3, 100], [5, 110], [10, 95], [12, 130]]
+    >>> df = pd.DataFrame(data, [1, 2, 3, 4], ['t', 'val'])
+    >>> diff_stage = pdp.Diff('val')
+    >>> diff_stage(df)
+        t  val  val_diff
+    1   3  100       NaN
+    2   5  110      10.0
+    3  10   95     -15.0
+    4  12  130      35.0
+
+    >>> diff_stage = pdp.Diff('val', drop=True)
+    >>> diff_stage(df)
+        t   val
+    1   3   NaN
+    2   5  10.0
+    3  10 -15.0
+    4  12  35.0
+
+    """
+
+    _DEF_DIFF_APP_MSG = "Differencing {}..."
+
+    def __init__(
+        self,
+        columns=None,
+        exclude_columns=None,
+        periods=1,
+        drop=False,
+        suffix="_diff",
+        **kwargs,
+    ):
+        # Periods must be an int — pandas.Series.diff accepts only int. We
+        # validate here so the failure surfaces at stage construction
+        # rather than inside fit_transform on the first dataframe.
+        if not isinstance(periods, int) or isinstance(periods, bool):
+            raise TypeError(
+                "Diff: `periods` must be an int, got "
+                f"{type(periods).__name__}={periods!r}"
+            )
+        self._periods = periods
+        self._drop = drop
+        self._suffix = suffix
+        super_kwargs = {
+            "columns": columns,
+            "exclude_columns": exclude_columns,
+            "desc_temp": "Compute discrete difference of {}",
+        }
+        super_kwargs.update(**kwargs)
+        # Default to all numeric columns when `columns` is left None — the
+        # same convention `Log` and `AggByCols` use, so users don't have
+        # to repeat themselves on the common "diff every numeric column"
+        # case.
+        super_kwargs["none_columns"] = OfDtypes([np.number])
+        super().__init__(**super_kwargs)
+
+    def _transformation(self, X, verbose, fit):
+        raise NotImplementedError
+
+    def _fit_transform(self, X, verbose):
+        # `Diff` is stateless across fit/transform: pandas.Series.diff
+        # only needs `periods`, no learned parameters. We share the
+        # implementation with _transform so the two paths can never drift.
+        self.is_fitted = True
+        return self._apply(X, verbose)
+
+    def _transform(self, X, verbose):
+        return self._apply(X, verbose)
+
+    def _apply(self, X, verbose):
+        columns_to_transform = self._get_columns(X, fit=False)
+        if verbose:
+            columns_to_transform = tqdm(columns_to_transform)
+        inter_X = X
+        for colname in columns_to_transform:
+            try:
+                source_col = X[colname]
+            except KeyError:  # pragma: no cover
+                raise PipelineApplicationError(
+                    (
+                        "Missing column {} when applying a fitted "
+                        "Diff pipeline stage by class {} !"
+                    ).format(colname, self.__class__)
+                )
+            new_col = source_col.diff(periods=self._periods)
+            loc = X.columns.get_loc(colname) + 1
+            new_name = colname + self._suffix
+            if self._drop:
+                inter_X = inter_X.drop(colname, axis=1)
+                new_name = colname
+                loc -= 1
             inter_X = out_of_place_col_insert(
                 X=inter_X, series=new_col, loc=loc, column_name=new_name
             )

@@ -50,6 +50,7 @@ from .col_generation import (
     ColByFrameFunc,
     AggByCols,
     Log,
+    Diff,
 )
 
 core.__load_stage_attributes_from_module__("pdpipe.col_generation")
@@ -125,6 +126,7 @@ __all__ = [
     "ColByFrameFunc",
     "AggByCols",
     "Log",
+    "Diff",
     "text_stages",
     "RegexReplace",
     "DropTokensByLength",
