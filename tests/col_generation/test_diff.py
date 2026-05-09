@@ -1,7 +1,8 @@
 """Tests for the Diff column-generation pipeline stage.
 
-Covers issue #9 (Diff transformer): wrap pandas.DataFrame.diff(periods)
-as a pdpipe stage so it composes with the rest of a pipeline.
+Covers issue #9 (Diff transformer): wrap pandas.DataFrame.diff(periods) as a
+pdpipe stage so it composes with the rest of a pipeline.
+
 """
 
 import pickle
