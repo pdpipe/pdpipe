@@ -220,7 +220,6 @@ def test_pipeline_slice_by_name():
 @pytest.mark.parametrize("time", [True, False])
 def test_pipeline_error(time):
     """Test exceptions at pipeline level."""
-
     # test fit
     df = _test_df()
 

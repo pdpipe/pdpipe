@@ -1,6 +1,5 @@
 """Pytest file built from tests/cond/cond_example.md."""
 
-
 def session_00001_line_2():
     r"""
     >>> import pandas as pd; import pdpipe as pdp;
