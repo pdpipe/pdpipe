@@ -3,12 +3,14 @@
 Copy this file to `LOCAL_AGENTS.md` for machine-specific agent instructions.
 `LOCAL_AGENTS.md` is intentionally untracked.
 
-## Optional local MCP routing
+## Optional local tool routing
 
-- For this repo, prefer a local git MCP namespace like `mcp__git_<your_server>__*` (replace `<your_server>` with your local MCP server name).
-- Use GitHub MCP for remote operations.
+- Use standard `git` and `gh` CLI commands first for git and GitHub operations.
+- Use local repo-bound git/GitHub MCP tools only when the CLI has a gap, the
+  CLI is unavailable, or the user explicitly requests MCP usage.
 
 ## Optional local workflow preferences
 
-- Prefer MCP tools over shell when both are available.
+- Prefer shell commands for git/GitHub work unless one of the MCP exceptions
+  above applies.
 - Use local Python environment and tooling preferences as needed.
