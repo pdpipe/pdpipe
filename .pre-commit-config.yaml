@@ -32,7 +32,10 @@ repos:
         args: []
 
   - repo: https://github.com/PyCQA/docformatter
-    rev: v1.7.7
+    # v1.7.7 transitively depends on `untokenize`, which fails to build on
+    # Python 3.12+ (`'Constant' object has no attribute 's'`) and breaks
+    # pre-commit.ci's environment install. v1.7.8 dropped that dep.
+    rev: v1.7.8
     hooks:
       - id: docformatter
         additional_dependencies: [tomli]
