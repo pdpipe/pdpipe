@@ -2,6 +2,7 @@
 
 import abc
 import collections
+import copy
 import inspect
 import re
 import sys
@@ -1988,6 +1989,201 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             lines.append(f"  stage_{index} -> stage_{index + 1};")
         lines.append("}")
         return "\n".join(lines)
+
+    @staticmethod
+    def _trace_frame_state(frame):
+        return {
+            "shape": frame.shape,
+            "columns": list(frame.columns),
+        }
+
+    @staticmethod
+    def _trace_stage_base(index, stage, input_frame):
+        input_state = PdPipeline._trace_frame_state(input_frame)
+        return {
+            "stage_index": index,
+            "stage_class": stage.__class__.__name__,
+            "stage_name": getattr(stage, "_name", ""),
+            "stage_description": stage.description(),
+            "status": None,
+            "skip_reason": None,
+            "input_shape": input_state["shape"],
+            "input_columns": input_state["columns"],
+            "output_shape": None,
+            "output_columns": None,
+            "error_type": None,
+            "error_message": None,
+        }
+
+    @staticmethod
+    def _trace_set_output(trace_entry, output_frame):
+        output_state = PdPipeline._trace_frame_state(output_frame)
+        trace_entry["output_shape"] = output_state["shape"]
+        trace_entry["output_columns"] = output_state["columns"]
+
+    @staticmethod
+    def _trace_set_error(trace_entry, error):
+        trace_entry["status"] = "failed"
+        trace_entry["error_type"] = error.__class__.__name__
+        trace_entry["error_message"] = str(error)
+
+    @staticmethod
+    def _trace_stage_exraise(stage, exraise):
+        return stage._exraise if exraise is None else exraise
+
+    @staticmethod
+    def _trace_apply_stage(stage, X, y, fit, exraise, verbose):
+        stage_exraise = PdPipeline._trace_stage_exraise(stage, exraise)
+        with AppContextMgr(stage, fit=fit):
+            if stage._should_skip(X, y):
+                return "skipped", "skip", X, y
+            if y is not None:
+                y = stage._cast_y_to_series(X, y)
+            if not stage._compound_prec(X, y, fit=fit):
+                if stage_exraise:
+                    stage._raise_precondition_error()
+                return "skipped", "precondition", X, y
+            if verbose:
+                msg = "- " + "\n  ".join(textwrap.wrap(stage._appmsg))
+                print(msg, flush=True)
+            if fit:
+                if stage._is_an_Xy_fit_transformer:
+                    res_X, res_y = stage._fit_transform_Xy(
+                        X, y, verbose=verbose
+                    )
+                elif stage._is_an_Xy_transformer:
+                    res_X, res_y = stage._transform_Xy(X, y, verbose=verbose)
+                else:
+                    res_X = stage._fit_transform(X, verbose=verbose)
+                    res_y = y
+                stage.is_fitted = True
+                if stage_exraise and not stage._compound_post(
+                    X=res_X, y=res_y, fit=True
+                ):
+                    stage._raise_postcondition_error()
+            else:
+                if stage._is_fittable():
+                    if not stage.is_fitted:
+                        raise UnfittedPipelineStageError(
+                            "transform of an unfitted pipeline stage was "
+                            "called!"
+                        )
+                    if stage._is_an_Xy_transformer:
+                        res_X, res_y = stage._transform_Xy(
+                            X, y, verbose=verbose
+                        )
+                    else:
+                        res_X = stage._transform(X, verbose=verbose)
+                        res_y = y
+                elif stage._is_an_Xy_transformer:
+                    res_X, res_y = stage._transform_Xy(X, y, verbose=verbose)
+                else:
+                    res_X = stage._transform(X, verbose=verbose)
+                    res_y = y
+                if stage_exraise and not stage._compound_post(
+                    X=res_X, y=res_y
+                ):
+                    stage._raise_postcondition_error()
+            if y is not None:
+                res_X, res_y = stage._align_Xy(X=res_X, y=res_y, preX=X)
+                return "applied", None, res_X, res_y
+            return "applied", None, res_X, res_y
+
+    def trace(
+        self,
+        X: pandas.DataFrame,
+        y: Optional[Iterable] = None,
+        exraise: Optional[bool] = False,
+        verbose: Optional[bool] = False,
+        fit_context: Optional[dict] = None,
+        application_context: Optional[dict] = None,
+    ):
+        """Trace applying this pipeline to a dataframe.
+
+        This method is a dependency-free dry-run helper for inspecting how a
+        pipeline applies to a specific dataframe. It returns a list of
+        dictionaries, one per visited stage, with stage metadata, status,
+        input/output dataframe shape, and input/output column labels.
+
+        Tracing runs on a deep copy of the pipeline and on a deep copy of the
+        input dataframe. If this pipeline is already fitted, the copied
+        pipeline is transformed. Otherwise, the copied pipeline is
+        fit-transformed. In both cases, the original pipeline and input
+        dataframe are left unmodified by tracing.
+
+        Parameters
+        ----------
+        X : pandas.DataFrame
+            The dataframe to trace through this pipeline.
+        y : array-like, optional
+            Targets for supervised learning.
+        exraise : bool, default False
+            Determines behaviour if the precondition of a composing stage is
+            not fulfilled by the input dataframe. If True, failed
+            preconditions are reported as failed trace entries. If False, they
+            are reported as skipped trace entries. If None, each stage's
+            configured exraise behaviour is used.
+        verbose : bool, default False
+            If True, stage application messages may be printed while tracing.
+        fit_context : dict, optional
+            Context for the copied pipeline fit operation. Only used when this
+            pipeline is not fitted.
+        application_context : dict, optional
+            Context to add to the copied pipeline application context.
+
+        Returns
+        -------
+        list of dict
+            Structured per-stage trace records.
+
+        """
+        fit_context = {} if fit_context is None else fit_context
+        application_context = (
+            {} if application_context is None else application_context
+        )
+        traced_pipeline = copy.deepcopy(self)
+        trace = []
+        inter_X = copy.deepcopy(X)
+        inter_y = copy.deepcopy(y)
+        fit = not traced_pipeline.is_fitted
+
+        traced_pipeline.application_context = PdpApplicationContext()
+        traced_pipeline.application_context.update(application_context)
+        if fit:
+            traced_pipeline.fit_context = PdpApplicationContext()
+            traced_pipeline.fit_context.update(fit_context)
+
+        for index, stage in enumerate(traced_pipeline._stages):
+            trace_entry = self._trace_stage_base(index, stage, inter_X)
+            trace.append(trace_entry)
+            stage.fit_context = traced_pipeline.fit_context
+            stage.application_context = traced_pipeline.application_context
+
+            try:
+                traced_pipeline._use_dynamics(stage, inter_X, inter_y)
+                (
+                    status,
+                    skip_reason,
+                    inter_X,
+                    inter_y,
+                ) = self._trace_apply_stage(
+                    stage=stage,
+                    X=inter_X,
+                    y=inter_y,
+                    fit=fit,
+                    exraise=exraise,
+                    verbose=verbose,
+                )
+                trace_entry["status"] = status
+                trace_entry["skip_reason"] = skip_reason
+                self._trace_set_output(trace_entry, inter_X)
+            except Exception as error:  # pylint: disable=broad-except
+                self._trace_set_error(trace_entry, error)
+                break
+            finally:
+                stage.application_context = None
+
+        return trace
 
     def __times_str__(self, times):
         res = "A pdpipe pipeline:\n"
