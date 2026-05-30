@@ -1,10 +1,14 @@
 """Testing Diff pipeline stages."""
 
+import pickle
+
 import numpy as np
 import pandas as pd
 import pdpipe as pdp
 
 from pdpipe.col_generation import Diff
+
+from pdptestutil import random_pickle_path
 
 
 def diff_df():
@@ -66,6 +70,23 @@ def test_diff_preserves_passthrough_columns_and_order():
     assert res_df["label"].equals(df["label"])
 
 
+def test_diff_with_custom_suffix():
+    df = diff_df()
+    res_df = Diff("sensor_a", drop=False, suffix="_delta").apply(df)
+    assert list(res_df.columns) == [
+        "time",
+        "sensor_a",
+        "sensor_a_delta",
+        "sensor_b",
+        "label",
+    ]
+    assert res_df["sensor_a"].equals(df["sensor_a"])
+    assert np.isnan(res_df["sensor_a_delta"]["r0"])
+    assert res_df["sensor_a_delta"]["r1"] == 3
+    assert res_df["sensor_a_delta"]["r2"] == 4
+    assert res_df["sensor_a_delta"]["r3"] == 3
+
+
 def test_diff_periods_and_result_column():
     df = diff_df()
     res_df = Diff(
@@ -109,3 +130,25 @@ def test_diff_column_qualifier_selector():
     assert res_df["sensor_a"]["r1"] == 3
     assert np.isnan(res_df["sensor_b"]["r0"])
     assert res_df["sensor_b"]["r1"] == -5
+
+
+def test_pickle_diff(pdpipe_tests_dir_path):
+    df = diff_df()
+    stage = Diff("sensor_a", periods=2, drop=False, suffix="_delta2")
+    fpath = random_pickle_path(pdpipe_tests_dir_path)
+    with open(fpath, "wb+") as f:
+        pickle.dump(stage, f)
+    with open(fpath, "rb") as f:
+        loaded_stage = pickle.load(f)
+    res_df = loaded_stage(df)
+    assert list(res_df.columns) == [
+        "time",
+        "sensor_a",
+        "sensor_a_delta2",
+        "sensor_b",
+        "label",
+    ]
+    assert np.isnan(res_df["sensor_a_delta2"]["r0"])
+    assert np.isnan(res_df["sensor_a_delta2"]["r1"])
+    assert res_df["sensor_a_delta2"]["r2"] == 7
+    assert res_df["sensor_a_delta2"]["r3"] == 7

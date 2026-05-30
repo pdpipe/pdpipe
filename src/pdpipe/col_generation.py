@@ -882,9 +882,10 @@ class TransformByCols(ColumnTransformer):
 class Diff(ColumnTransformer):
     """A pipeline stage applying pandas diff to columns.
 
-    This is a pipeline stage that replaces selected columns with their bounded
-    differences, using pandas.Series.diff. Rows without a counterpart for the
-    requested periods get NaN values, matching pandas behavior.
+    This is a pipeline stage that replaces selected columns with their
+    per-column differences, using pandas.Series.diff. Rows without a
+    counterpart for the requested periods get NaN values, matching pandas
+    behavior. This stage does not add inverse-transform support.
 
     Parameters
     ----------
