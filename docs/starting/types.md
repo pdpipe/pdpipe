@@ -59,6 +59,8 @@ Refer to submodule `pdpipe.col_generation`
 - OneHotEncode - Convert a categorical column to the several binary columns corresponding to it.
 - MapColVals - Replace column values by a map.
 - ApplyToRows - Generate columns by applying a function to each row.
+  Supports opt-in thread-based parallel execution with `n_jobs`; by default,
+  the existing serial row-apply path is used.
 - ApplyByCols - Generate columns by applying an element-wise function to columns.
 - ColByFrameFunc - Add a column by applying a dataframe-wide function.
 - AggByCols - Generate columns by applying an series-wise function to columns.
