@@ -1,14 +1,33 @@
 """Test nltk pipeline stages."""
 
 import os
-import sys
 import pickle
+import sys
 
 import pytest
 import pandas as pd
 import pdpipe as pdp
 
 from pdptestutil import random_pickle_path
+
+
+def test_restore_sys_path_identity(tmp_path):
+    import pdpipe.nltk_stages as nltk_s
+
+    actual_sys_path = sys.path
+    original_sys_path = ["original"]
+    replacement_sys_path = ["replacement"]
+    try:
+        sys.path = replacement_sys_path
+        nltk_s._restore_sys_path_identity(original_sys_path)
+        assert sys.path is original_sys_path
+        assert original_sys_path == replacement_sys_path
+        original_sys_path.append(str(tmp_path))
+        assert str(tmp_path) in sys.path
+        nltk_s._restore_sys_path_identity(original_sys_path)
+        assert sys.path is original_sys_path
+    finally:
+        sys.path = actual_sys_path
 
 
 @pytest.mark.first
