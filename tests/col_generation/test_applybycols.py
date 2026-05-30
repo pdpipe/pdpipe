@@ -21,6 +21,27 @@ def ph_df():
     )
 
 
+def multi_col_df():
+    return pd.DataFrame(
+        data=[
+            ["x", 1, "m1", 10, "z1"],
+            ["y", 2, "m2", 20, "z2"],
+            ["z", 3, "m3", 30, "z3"],
+        ],
+        index=["row-c", "row-a", "row-b"],
+        columns=["id", "a", "middle", "b", "tail"],
+    )
+
+
+def _add_by_label(value, offset=0, label=None):
+    label_offset = {"a": 100, "b": 200}[label]
+    return value + offset + label_offset
+
+
+def _subtract_context_offset(value, label, application_context):
+    return value - application_context["offsets"][label]
+
+
 def test_applybycols():
     """Testing ApplyByCols pipeline stages."""
     df = ph_df()
@@ -73,6 +94,141 @@ def test_applybycols_with_bad_len_result_columns():
     """Testing ApplyByCols pipeline stages."""
     with pytest.raises(ValueError):
         ApplyByCols("ph", math.ceil, result_columns=["a", "b"])
+
+
+def test_applybycols_parallel_matches_serial():
+    """Testing opt-in ApplyByCols parallel execution."""
+    df = multi_col_df()
+    serial_stage = ApplyByCols(
+        ["a", "b"],
+        _add_by_label,
+        drop=False,
+        suffix="_app",
+        args=(5,),
+        n_jobs=1,
+    )
+    parallel_stage = ApplyByCols(
+        ["a", "b"],
+        _add_by_label,
+        drop=False,
+        suffix="_app",
+        args=(5,),
+        n_jobs=2,
+    )
+    serial_df = serial_stage(df)
+    parallel_df = parallel_stage(df)
+    pd.testing.assert_frame_equal(parallel_df, serial_df)
+
+
+def test_applybycols_parallel_with_result_columns_matches_serial():
+    """Testing ApplyByCols parallel custom result column names."""
+    df = multi_col_df()
+    serial_stage = ApplyByCols(
+        ["a", "b"],
+        _add_by_label,
+        result_columns=["a_new", "b_new"],
+        args=(5,),
+        n_jobs=1,
+    )
+    parallel_stage = ApplyByCols(
+        ["a", "b"],
+        _add_by_label,
+        result_columns=["a_new", "b_new"],
+        args=(5,),
+        n_jobs=2,
+    )
+    serial_df = serial_stage(df)
+    parallel_df = parallel_stage(df)
+    pd.testing.assert_frame_equal(parallel_df, serial_df)
+    assert list(parallel_df.columns) == [
+        "id",
+        "a_new",
+        "middle",
+        "b_new",
+        "tail",
+    ]
+
+
+def test_applybycols_parallel_n_jobs_minus_one_matches_serial():
+    """Testing ApplyByCols n_jobs=-1 compatibility."""
+    df = multi_col_df()
+    serial_stage = ApplyByCols(["a", "b"], _add_by_label, n_jobs=1)
+    parallel_stage = ApplyByCols(["a", "b"], _add_by_label, n_jobs=-1)
+    pd.testing.assert_frame_equal(parallel_stage(df), serial_stage(df))
+
+
+def test_applybycols_parallel_rejects_invalid_n_jobs():
+    """Testing ApplyByCols n_jobs validation."""
+    df = multi_col_df()
+    with pytest.raises(TypeError):
+        ApplyByCols(["a", "b"], _add_by_label, n_jobs="2")(df)
+    with pytest.raises(ValueError):
+        ApplyByCols(["a", "b"], _add_by_label, n_jobs=0)(df)
+
+
+def test_applybycols_parallel_preserves_column_order_and_index():
+    """Testing ApplyByCols parallel output shape invariants."""
+    df = multi_col_df()
+    parallel_stage = ApplyByCols(
+        ["a", "b"],
+        _add_by_label,
+        drop=False,
+        suffix="_parallel",
+        args=(5,),
+        n_jobs=2,
+    )
+    res_df = parallel_stage(df)
+    assert list(res_df.index) == ["row-c", "row-a", "row-b"]
+    assert list(res_df.columns) == [
+        "id",
+        "a",
+        "a_parallel",
+        "middle",
+        "b_parallel",
+        "b",
+        "tail",
+    ]
+
+
+def test_applybycols_n_jobs_none_and_one_use_serial_behavior():
+    """Testing ApplyByCols default n_jobs compatibility."""
+    df = multi_col_df()
+    default_stage = ApplyByCols(["a", "b"], _add_by_label)
+    none_stage = ApplyByCols(["a", "b"], _add_by_label, n_jobs=None)
+    one_stage = ApplyByCols(["a", "b"], _add_by_label, n_jobs=1)
+    default_df = default_stage(df)
+    pd.testing.assert_frame_equal(none_stage(df), default_df)
+    pd.testing.assert_frame_equal(one_stage(df), default_df)
+
+
+def test_applybycols_parallel_matches_serial_with_application_context():
+    """Testing ApplyByCols parallel context injection."""
+    df = multi_col_df()
+    serial_pipeline = pdp.PdPipeline(
+        [
+            pdp.ApplicationContextEnricher(
+                offsets=lambda X: {col: X[col].min() for col in ["a", "b"]},
+            ),
+            pdp.ApplyByCols(
+                ["a", "b"],
+                _subtract_context_offset,
+                n_jobs=1,
+            ),
+        ]
+    )
+    parallel_pipeline = pdp.PdPipeline(
+        [
+            pdp.ApplicationContextEnricher(
+                offsets=lambda X: {col: X[col].min() for col in ["a", "b"]},
+            ),
+            pdp.ApplyByCols(
+                ["a", "b"],
+                _subtract_context_offset,
+                n_jobs=2,
+            ),
+        ]
+    )
+    pd.testing.assert_frame_equal(parallel_pipeline(df), serial_pipeline(df))
 
 
 # def _num_df():
