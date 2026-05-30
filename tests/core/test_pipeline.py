@@ -350,6 +350,33 @@ def test_pipeline_trace_reports_skip_callable_stages():
     assert trace[0]["output_columns"] == ["num1", "num2", "char"]
 
 
+def test_pipeline_trace_evaluates_stage_conditions_once():
+    """Test trace does not double-call user conditions."""
+    calls = []
+
+    class CountingConditionStage(PdPipelineStage):
+        """A pipeline stage with observable condition calls."""
+
+        def _prec(self, df):
+            calls.append("precondition")
+            return True
+
+        def _transform(self, df, verbose):
+            return df.drop(["num1"], axis=1)
+
+    def skip(df):
+        calls.append("skip")
+        return False
+
+    pipeline = PdPipeline([CountingConditionStage(skip=skip)])
+
+    trace = pipeline.trace(_test_df())
+
+    assert trace[0]["status"] == "applied"
+    assert trace[0]["output_columns"] == ["num2", "char"]
+    assert calls == ["skip", "precondition"]
+
+
 def test_pipeline_trace_reports_failure_and_stops():
     """Test trace records a failing stage and stops at the failure."""
     pipeline = PdPipeline(

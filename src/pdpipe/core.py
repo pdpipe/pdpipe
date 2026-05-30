@@ -2027,6 +2027,68 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
         trace_entry["error_type"] = error.__class__.__name__
         trace_entry["error_message"] = str(error)
 
+    @staticmethod
+    def _trace_stage_exraise(stage, exraise):
+        return stage._exraise if exraise is None else exraise
+
+    @staticmethod
+    def _trace_apply_stage(stage, X, y, fit, exraise, verbose):
+        stage_exraise = PdPipeline._trace_stage_exraise(stage, exraise)
+        with AppContextMgr(stage, fit=fit):
+            if stage._should_skip(X, y):
+                return "skipped", "skip", X, y
+            if y is not None:
+                y = stage._cast_y_to_series(X, y)
+            if not stage._compound_prec(X, y, fit=fit):
+                if stage_exraise:
+                    stage._raise_precondition_error()
+                return "skipped", "precondition", X, y
+            if verbose:
+                msg = "- " + "\n  ".join(textwrap.wrap(stage._appmsg))
+                print(msg, flush=True)
+            if fit:
+                if stage._is_an_Xy_fit_transformer:
+                    res_X, res_y = stage._fit_transform_Xy(
+                        X, y, verbose=verbose
+                    )
+                elif stage._is_an_Xy_transformer:
+                    res_X, res_y = stage._transform_Xy(X, y, verbose=verbose)
+                else:
+                    res_X = stage._fit_transform(X, verbose=verbose)
+                    res_y = y
+                stage.is_fitted = True
+                if stage_exraise and not stage._compound_post(
+                    X=res_X, y=res_y, fit=True
+                ):
+                    stage._raise_postcondition_error()
+            else:
+                if stage._is_fittable():
+                    if not stage.is_fitted:
+                        raise UnfittedPipelineStageError(
+                            "transform of an unfitted pipeline stage was "
+                            "called!"
+                        )
+                    if stage._is_an_Xy_transformer:
+                        res_X, res_y = stage._transform_Xy(
+                            X, y, verbose=verbose
+                        )
+                    else:
+                        res_X = stage._transform(X, verbose=verbose)
+                        res_y = y
+                elif stage._is_an_Xy_transformer:
+                    res_X, res_y = stage._transform_Xy(X, y, verbose=verbose)
+                else:
+                    res_X = stage._transform(X, verbose=verbose)
+                    res_y = y
+                if stage_exraise and not stage._compound_post(
+                    X=res_X, y=res_y
+                ):
+                    stage._raise_postcondition_error()
+            if y is not None:
+                res_X, res_y = stage._align_Xy(X=res_X, y=res_y, preX=X)
+                return "applied", None, res_X, res_y
+            return "applied", None, res_X, res_y
+
     def trace(
         self,
         X: pandas.DataFrame,
@@ -2099,45 +2161,21 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
 
             try:
                 traced_pipeline._use_dynamics(stage, inter_X, inter_y)
-                if stage._should_skip(inter_X, inter_y):
-                    trace_entry["status"] = "skipped"
-                    trace_entry["skip_reason"] = "skip"
-                    self._trace_set_output(trace_entry, inter_X)
-                    continue
-
-                if inter_y is not None:
-                    inter_y = stage._cast_y_to_series(inter_X, inter_y)
-
-                if not stage._compound_prec(inter_X, inter_y, fit=fit):
-                    stage_exraise = (
-                        stage._exraise if exraise is None else exraise
-                    )
-                    if stage_exraise:
-                        stage._raise_precondition_error()
-                    trace_entry["status"] = "skipped"
-                    trace_entry["skip_reason"] = "precondition"
-                    self._trace_set_output(trace_entry, inter_X)
-                    continue
-
-                if fit:
-                    result = stage.fit_transform(
-                        X=inter_X,
-                        y=inter_y,
-                        exraise=exraise,
-                        verbose=verbose,
-                    )
-                else:
-                    result = stage.transform(
-                        X=inter_X,
-                        y=inter_y,
-                        exraise=exraise,
-                        verbose=verbose,
-                    )
-                if inter_y is None:
-                    inter_X = result
-                else:
-                    inter_X, inter_y = result
-                trace_entry["status"] = "applied"
+                (
+                    status,
+                    skip_reason,
+                    inter_X,
+                    inter_y,
+                ) = self._trace_apply_stage(
+                    stage=stage,
+                    X=inter_X,
+                    y=inter_y,
+                    fit=fit,
+                    exraise=exraise,
+                    verbose=verbose,
+                )
+                trace_entry["status"] = status
+                trace_entry["skip_reason"] = skip_reason
                 self._trace_set_output(trace_entry, inter_X)
             except Exception as error:  # pylint: disable=broad-except
                 self._trace_set_error(trace_entry, error)
