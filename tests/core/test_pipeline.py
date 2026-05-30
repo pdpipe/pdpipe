@@ -165,6 +165,81 @@ def test_pipeline_to_int_addition():
         assert not isinstance(res, PdPipeline)
 
 
+def test_pipeline_to_dot_represents_stage_order_and_names():
+    """Test pipeline DOT export uses stable ordered nodes."""
+    drop_num1 = SilentDropStage(
+        "num1",
+        name="drop_num1",
+        desc="Drop num1 column",
+    )
+    drop_num2 = SilentDropStage("num2", desc="Drop num2 column")
+    pipeline = PdPipeline([drop_num1, drop_num2])
+
+    assert pipeline.to_dot() == "\n".join(
+        [
+            "digraph PdPipeline {",
+            "  graph [rankdir=LR];",
+            "  node [shape=box];",
+            (
+                '  stage_0 [label="[0] SilentDropStage: '
+                'drop_num1\\nDrop num1 column"];'
+            ),
+            '  stage_1 [label="[1] SilentDropStage\\nDrop num2 column"];',
+            "  stage_0 -> stage_1;",
+            "}",
+        ]
+    )
+
+
+def test_pipeline_to_dot_escapes_dot_label_characters():
+    """Test pipeline DOT export escapes label text."""
+    stage = SilentDropStage(
+        "num1",
+        name='drop "quoted"',
+        desc='Drop "quoted" \\ column\nthen continue',
+    )
+    pipeline = PdPipeline([stage])
+
+    assert pipeline.to_dot() == "\n".join(
+        [
+            "digraph PdPipeline {",
+            "  graph [rankdir=LR];",
+            "  node [shape=box];",
+            (
+                '  stage_0 [label="[0] SilentDropStage: drop \\"quoted\\"\\n'
+                'Drop \\"quoted\\" \\\\ column\\nthen continue"];'
+            ),
+            "}",
+        ]
+    )
+
+
+def test_pipeline_to_dot_is_deterministic_across_calls():
+    """Test pipeline DOT export is deterministic."""
+    pipeline = PdPipeline(
+        [
+            SilentDropStage("num1", desc="Drop num1 column"),
+            SilentDropStage("num2", desc="Drop num2 column"),
+        ]
+    )
+
+    assert pipeline.to_dot() == pipeline.to_dot()
+
+
+def test_empty_pipeline_to_dot():
+    """Test DOT export for empty pipelines."""
+    pipeline = PdPipeline([])
+
+    assert pipeline.to_dot() == "\n".join(
+        [
+            "digraph PdPipeline {",
+            "  graph [rankdir=LR];",
+            "  node [shape=box];",
+            "}",
+        ]
+    )
+
+
 def test_pipeline_index():
     """Testing something."""
     df = _test_df()

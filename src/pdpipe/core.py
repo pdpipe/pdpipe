@@ -1942,6 +1942,53 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             return PdPipeline([*self._stages, other])
         return NotImplemented
 
+    @staticmethod
+    def _dot_escape(value):
+        return (
+            str(value)
+            .replace("\\", "\\\\")
+            .replace('"', '\\"')
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
+        )
+
+    @staticmethod
+    def _dot_stage_label(index, stage):
+        desc = stage.description()
+        name = getattr(stage, "_name", "")
+        class_name = stage.__class__.__name__
+        if name:
+            stage_label = f"[{index}] {class_name}: {name}\n{desc}"
+        else:
+            stage_label = f"[{index}] {class_name}\n{desc}"
+        return PdPipeline._dot_escape(stage_label)
+
+    def to_dot(self):
+        """Return a Graphviz DOT representation of this pipeline.
+
+        The returned graph is dependency-free text with deterministic node IDs
+        based on stage order. Node labels include each stage's index, class
+        name, optional stage name and description.
+
+        Returns
+        -------
+        str
+            A Graphviz DOT representation of this pipeline.
+
+        """
+        lines = [
+            "digraph PdPipeline {",
+            "  graph [rankdir=LR];",
+            "  node [shape=box];",
+        ]
+        for index, stage in enumerate(self._stages):
+            label = self._dot_stage_label(index, stage)
+            lines.append(f'  stage_{index} [label="{label}"];')
+        for index in range(len(self._stages) - 1):
+            lines.append(f"  stage_{index} -> stage_{index + 1};")
+        lines.append("}")
+        return "\n".join(lines)
+
     def __times_str__(self, times):
         res = "A pdpipe pipeline:\n"
         stime = sum(times)
