@@ -67,6 +67,19 @@ class FittableMarkingStage(PdPipelineStage):
         return df.drop(["num1"], axis=1)
 
 
+class XyTraceStage(PdPipelineStage):
+    """A dataframe and label transformer for trace tests."""
+
+    def _prec(self, df, y):
+        return True
+
+    def _transform(self, df, verbose):
+        return df
+
+    def _transform_Xy(self, df, y, verbose):
+        return df.drop(["num1"], axis=1), y
+
+
 @pytest.mark.parametrize("time", [True, False])
 def test_two_stage_pipeline_stage(time):
     """Testing something."""
@@ -361,6 +374,19 @@ def test_pipeline_trace_reports_failure_and_stops():
     assert trace[1]["error_message"] == "trace failure"
 
 
+def test_pipeline_trace_can_report_precondition_failure():
+    """Test exraise=True reports unmet preconditions as failures."""
+    pipeline = PdPipeline([SilentDropStage("missing")])
+
+    trace = pipeline.trace(_test_df(), exraise=True)
+
+    assert trace[0]["status"] == "failed"
+    assert trace[0]["skip_reason"] is None
+    assert trace[0]["output_shape"] is None
+    assert trace[0]["output_columns"] is None
+    assert trace[0]["error_type"] == "FailedPreconditionError"
+
+
 def test_pipeline_trace_is_deterministic_across_calls():
     """Test trace output order and content are deterministic."""
     pipeline = PdPipeline(
@@ -403,6 +429,35 @@ def test_pipeline_trace_does_not_mutate_input_dataframe_or_pipeline_state():
     assert trace[1]["status"] == "applied"
     assert trace[1]["input_columns"] == ["num2", "char"]
     assert trace[1]["output_columns"] == ["num2", "char", "mutated"]
+
+
+def test_pipeline_trace_uses_transform_for_fitted_pipelines():
+    """Test trace uses transform semantics for fitted pipelines."""
+    pipeline = PdPipeline([SilentDropStage("num1")])
+    df = _test_df()
+    pipeline.fit(df)
+
+    trace = pipeline.trace(df)
+
+    assert pipeline.is_fitted
+    assert trace[0]["status"] == "applied"
+    assert trace[0]["input_columns"] == ["num1", "num2", "char"]
+    assert trace[0]["output_columns"] == ["num2", "char"]
+
+
+def test_pipeline_trace_supports_label_transforming_stages():
+    """Test trace handles stages that transform both X and y."""
+    pipeline = PdPipeline([XyTraceStage()])
+    df = _test_df()
+    y = pd.Series(["a", "b"], index=df.index)
+
+    trace = pipeline.trace(df, y=y)
+
+    assert trace[0]["status"] == "applied"
+    assert trace[0]["input_shape"] == (2, 3)
+    assert trace[0]["input_columns"] == ["num1", "num2", "char"]
+    assert trace[0]["output_shape"] == (2, 2)
+    assert trace[0]["output_columns"] == ["num2", "char"]
 
 
 def test_pipeline_index():
