@@ -12,18 +12,7 @@ stages.
 
 import importlib
 import os
-
-try:
-    from collections.abc import Iterable
-except ImportError:  # pragma: no cover:
-    from collections import Iterable
-
-try:
-    import nltk
-
-    _NLTK_INSTALLED = True
-except ImportError:  # pragma: no cover
-    _NLTK_INSTALLED = False
+import sys
 
 import pandas as pd
 from pandas.api.types import is_object_dtype, is_string_dtype
@@ -33,6 +22,29 @@ from pdpipe.col_generation import MapColVals
 from pdpipe.core import ColumnsBasedPipelineStage
 from pdpipe.shared import _interpret_columns_param, _list_str
 from pdpipe.util import out_of_place_col_insert
+
+try:
+    from collections.abc import Iterable
+except ImportError:  # pragma: no cover:
+    from collections import Iterable
+
+
+def _restore_sys_path_identity(original_sys_path):
+    if sys.path is not original_sys_path:
+        original_sys_path[:] = sys.path
+        sys.path = original_sys_path
+
+
+# NLTK may replace sys.path during import; keep existing references usable.
+_SYS_PATH = sys.path
+try:
+    import nltk
+
+    _NLTK_INSTALLED = True
+except ImportError:  # pragma: no cover
+    _NLTK_INSTALLED = False
+finally:
+    _restore_sys_path_identity(_SYS_PATH)
 
 _NLTK_ERR_MSG = (
     "nltk is required for this pipeline stage. "
