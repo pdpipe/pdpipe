@@ -733,7 +733,7 @@ class ApplyToRows(PdPipelineStage):
 
     def _transform(self, X, verbose):
         n_jobs = _effective_n_jobs(self._n_jobs)
-        if n_jobs == 1:
+        if n_jobs == 1 or X.empty:
             return self._insert_new_cols(X, X.apply(self._func, axis=1))
         new_cols = self._parallel_apply_to_rows(X, max_workers=n_jobs)
         return self._insert_new_cols(X, new_cols)

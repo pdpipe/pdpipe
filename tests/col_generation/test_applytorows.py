@@ -174,6 +174,15 @@ def test_applytorows_parallel_preserves_index_and_column_order():
     assert list(res_df.columns) == ["num1", "num2", "diff", "sum", "char"]
 
 
+def test_applytorows_parallel_empty_frame_matches_serial():
+    """Testing ApplyToRows parallel empty-frame compatibility."""
+    df = _num_df().iloc[0:0]
+    serial_stage = ApplyToRows(_sum_and_diff, n_jobs=1)
+    parallel_stage = ApplyToRows(_sum_and_diff, n_jobs=2)
+
+    pd.testing.assert_frame_equal(parallel_stage(df), serial_stage(df))
+
+
 def test_applytorows_n_jobs_default_none_and_one_use_serial_behavior():
     """Testing ApplyToRows default n_jobs compatibility."""
     df = _some_df()
