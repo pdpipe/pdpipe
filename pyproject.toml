@@ -1,5 +1,4 @@
 # === Metadata & Build System ===
-
 [build-system]
 requires = [
   "setuptools",
@@ -24,7 +23,7 @@ keywords = [
 ]
 license = { file = "LICENSE" }
 authors = [
-  { name = "Shay Palachy Affek", email = 'shay.palachy@gmail.com' },
+  { name = "Shay Palachy Affek", email = "shay.palachy@gmail.com" },
 ]
 classifiers = [
   "Development Status :: 4 - Beta",
@@ -54,33 +53,26 @@ dependencies = [
   "tqdm",             # for some pipeline application progress bars
 ]
 optional-dependencies.nltk = [ "nltk" ]
-
 # --- setuptools ---
 optional-dependencies.sklearn = [ "scikit-learn" ]
 urls.Source = "https://pdpipe.readthedocs.io/en/latest/"
 
 [tool.setuptools]
 include-package-data = true
-
-[tool.setuptools.dynamic]
-version = { attr = "pdpipe._version.__version__" }
-
-[tool.setuptools.packages.find]
-where = [
+dynamic.version = { attr = "pdpipe._version.__version__" }
+packages.find.where = [
   "src",
-] # list of folders that contain the packages (["."] by default)
-include = [
+]  # list of folders that contain the packages (["."] by default)
+packages.find.include = [
   "pdpipe*",
-] # package names should match these glob patterns (["*"] by default)
-namespaces = false # to disable scanning PEP 420 namespaces (true by default)
+]  # package names should match these glob patterns (["*"] by default)
+packages.find.namespaces = false  # to disable scanning PEP 420 namespaces (true by default)
 
 # === Linting & Formatting ===
-
 [tool.black]
 line-length = 79
 
 # --- ruff ---
-
 [tool.ruff]
 target-version = "py310"
 line-length = 79
@@ -99,12 +91,12 @@ lint.select = [
   "D",      # see: https://pypi.org/project/pydocstyle
   "E",
   "F",      # see: https://pypi.org/project/pyflakes
-  "I",      #see: https://pypi.org/project/isort/
+  "I",      # see: https://pypi.org/project/isort/
   "RUF100", # alternative to yesqa
-  #"N", # see: https://pypi.org/project/pep8-naming
-  "S",   # see: https://pypi.org/project/flake8-bandit
+  # "N", # see: https://pypi.org/project/pep8-naming
+  "S",      # see: https://pypi.org/project/flake8-bandit
   "SIM",
-  "W",   # see: https://pypi.org/project/pycodestyle
+  "W",      # see: https://pypi.org/project/pycodestyle
 ]
 lint.extend-select = [
   "A",  # see: https://pypi.org/project/flake8-builtins
@@ -133,13 +125,12 @@ lint.per-file-ignores."tests/**" = [
 lint.unfixable = [
   "F401",
 ]
-#[tool.ruff.pydocstyle]
+# [tool.ruff.pydocstyle]
 ## Use Google-style docstrings.
-#convention = "google"
-#[tool.ruff.pycodestyle]
-#ignore-overlong-task-comments = true
+# convention = "google"
+# [tool.ruff.pycodestyle]
+# ignore-overlong-task-comments = true
 # Unlike Flake8, default to a complexity level of 10.
-
 # --- pylint ---
 lint.mccabe.max-complexity = 10
 
@@ -165,23 +156,15 @@ exclude = [
 max-complexity = 10
 max-line-length = 100
 
+[tool.pylint]
+"MESSAGES CONTROL".disable = [ "R0911", "R0913", "R0903" ]
+DESIGN.exclude-too-few-public-methods = [ ".+" ]
+FORMAT.good-names = [ "x", "y", "X", "inter_X", "inter_y", "post_X", "post_y" ]
 # --- docformatter ---
-
-[tool.pylint.'MAIN']
-ignore = [ "CVS" ]
-load-plugins = [ "pylint.extensions.docparams" ]
-
-[tool.pylint.'FORMAT']
-good-names = [ "x", "y", "X", "inter_X", "inter_y", "post_X", "post_y" ]
-
-[tool.pylint.'DESIGN']
-exclude-too-few-public-methods = [ ".+" ]
-
-[tool.pylint.'MESSAGES CONTROL']
-disable = [ "R0911", "R0913", "R0903" ]
+MAIN.ignore = [ "CVS" ]
+MAIN.load-plugins = [ "pylint.extensions.docparams" ]
 
 # --- flake8 ---
-
 [tool.docformatter]
 recursive = true
 # some docstring start with r"""
@@ -189,23 +172,29 @@ wrap-summaries = 79
 wrap-descriptions = 79
 blank = true
 
+# === Type Checking ===
+[tool.pyright]
+include = [ "pdpipe" ]
+exclude = [
+  "**/node_modules",
+  "**/__pycache__",
+]
+
+[tool.pytest]
 # === Testing ===
-
 # --- pytest ---
-
-[tool.pytest.ini_options]
-testpaths = [
+ini_options.testpaths = [
   "src/pdpipe",
   "tests",
 ]
-norecursedirs = [
+ini_options.norecursedirs = [
   "dist",
   "build",
 ]
-filterwarnings = [
+ini_options.filterwarnings = [
   "ignore:.*The `disp` and `iprint` options of the L-BFGS-B solver are deprecated.*:DeprecationWarning",
 ]
-markers = [
+ini_options.markers = [
   "log",
   "onehotencode",
   "first",
@@ -215,7 +204,7 @@ markers = [
   "skintegrate",
   "label",
 ]
-addopts = [
+ini_options.addopts = [
   "--cov=pdpipe",
   "--doctest-modules",
   "--color=yes",
@@ -226,32 +215,21 @@ addopts = [
   "-W error",
 ]
 
+[tool.coverage]
 # --- coverage ---
-
-[tool.coverage.run]
-branch = true
+run.branch = true
 # dynamic_context = "test_function"
-omit = [
-  "tests/*",
-  "pdpipe/_version.py",
-  "pdpipe/__init__.py",
-  "pdpipe/polyglot_stages.py",
+run.omit = [
   "dev/*",
+  "pdpipe/__init__.py",
+  "pdpipe/_version.py",
+  "pdpipe/polyglot_stages.py",
+  "tests/*",
 ]
-[tool.coverage.report]
-show_missing = true
 # Regexes for lines to exclude from consideration
-exclude_lines = [
+report.exclude_lines = [
+  "if TYPE_CHECKING:",         # Is only true when running mypy, not tests
   "pragma: no cover",          # Have to re-enable the standard pragma
   "raise NotImplementedError", # Don't complain if tests don't hit defensive assertion code:
-  "if TYPE_CHECKING:",         # Is only true when running mypy, not tests
 ]
-
-# === Type Checking ===
-
-[tool.pyright]
-include = [ "pdpipe" ]
-exclude = [
-  "**/node_modules",
-  "**/__pycache__",
-]
+report.show_missing = true
