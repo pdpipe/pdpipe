@@ -15,10 +15,10 @@ Available stages include:
 """
 
 import abc
-from concurrent.futures import ThreadPoolExecutor
 import inspect
 import os
 import warnings
+from concurrent.futures import ThreadPoolExecutor
 from typing import Callable, Dict, Optional, Tuple, Union
 
 import numpy as np
