@@ -80,6 +80,35 @@ class XyTraceStage(PdPipelineStage):
         return df.drop(["num1"], axis=1), y
 
 
+class XyFitTraceStage(PdPipelineStage):
+    """A dataframe and label fit-transformer for trace tests."""
+
+    def _prec(self, df, y):
+        return True
+
+    def _transform(self, df, verbose):
+        return df
+
+    def _fit_transform_Xy(self, df, y, verbose):
+        return df.drop(["num1"], axis=1), y
+
+
+class FittableXyTraceStage(PdPipelineStage):
+    """A fittable dataframe and label transformer for trace tests."""
+
+    def _prec(self, df, y):
+        return True
+
+    def _fit_transform(self, df, verbose):
+        return df
+
+    def _transform(self, df, verbose):
+        return df
+
+    def _transform_Xy(self, df, y, verbose):
+        return df.drop(["num1"], axis=1), y
+
+
 @pytest.mark.parametrize("time", [True, False])
 def test_two_stage_pipeline_stage(time):
     """Testing something."""
@@ -350,6 +379,15 @@ def test_pipeline_trace_reports_skip_callable_stages():
     assert trace[0]["output_columns"] == ["num1", "num2", "char"]
 
 
+def test_pipeline_trace_verbose_emits_stage_message(capsys):
+    """Test verbose trace emits the same stage application message."""
+    pipeline = PdPipeline([SilentDropStage("num1", desc="Drop num1 column")])
+
+    pipeline.trace(_test_df(), verbose=True)
+
+    assert "- Drop num1 column" in capsys.readouterr().out
+
+
 def test_pipeline_trace_evaluates_stage_conditions_once():
     """Test trace does not double-call user conditions."""
     calls = []
@@ -399,6 +437,27 @@ def test_pipeline_trace_reports_failure_and_stops():
     assert trace[1]["output_columns"] is None
     assert trace[1]["error_type"] == "ValueError"
     assert trace[1]["error_message"] == "trace failure"
+
+
+def test_pipeline_trace_reports_fit_postcondition_failure():
+    """Test trace records fit-time postcondition failures."""
+    pipeline = PdPipeline([SilentDropStage("num1", post=lambda df: False)])
+
+    trace = pipeline.trace(_test_df(), exraise=True)
+
+    assert trace[0]["status"] == "failed"
+    assert trace[0]["error_type"] == "FailedPostconditionError"
+
+
+def test_pipeline_trace_reports_transform_postcondition_failure():
+    """Test trace records transform-time postcondition failures."""
+    pipeline = PdPipeline([SilentDropStage("num1", post=lambda df: False)])
+    pipeline.fit(_test_df())
+
+    trace = pipeline.trace(_test_df(), exraise=True)
+
+    assert trace[0]["status"] == "failed"
+    assert trace[0]["error_type"] == "FailedPostconditionError"
 
 
 def test_pipeline_trace_can_report_precondition_failure():
@@ -472,6 +531,29 @@ def test_pipeline_trace_uses_transform_for_fitted_pipelines():
     assert trace[0]["output_columns"] == ["num2", "char"]
 
 
+def test_pipeline_trace_uses_transform_for_fitted_fittable_stages():
+    """Test fitted fittable stages are traced with transform semantics."""
+    pipeline = PdPipeline([FittableMarkingStage()])
+    df = _test_df()
+    pipeline.fit(df)
+
+    trace = pipeline.trace(df)
+
+    assert trace[0]["status"] == "applied"
+    assert trace[0]["output_columns"] == ["num2", "char"]
+
+
+def test_pipeline_trace_reports_unfitted_stage_in_fitted_pipeline():
+    """Test trace records internally inconsistent fitted pipelines."""
+    pipeline = PdPipeline([FittableMarkingStage()])
+    pipeline.is_fitted = True
+
+    trace = pipeline.trace(_test_df())
+
+    assert trace[0]["status"] == "failed"
+    assert trace[0]["error_type"] == "UnfittedPipelineStageError"
+
+
 def test_pipeline_trace_supports_label_transforming_stages():
     """Test trace handles stages that transform both X and y."""
     pipeline = PdPipeline([XyTraceStage()])
@@ -485,6 +567,38 @@ def test_pipeline_trace_supports_label_transforming_stages():
     assert trace[0]["input_columns"] == ["num1", "num2", "char"]
     assert trace[0]["output_shape"] == (2, 2)
     assert trace[0]["output_columns"] == ["num2", "char"]
+
+
+def test_pipeline_trace_supports_label_fit_transforming_stages():
+    """Test trace handles stages that fit-transform both X and y."""
+    pipeline = PdPipeline([XyFitTraceStage()])
+    df = _test_df()
+    y = pd.Series(["a", "b"], index=df.index)
+
+    trace = pipeline.trace(df, y=y)
+
+    assert trace[0]["status"] == "applied"
+    assert trace[0]["output_shape"] == (2, 2)
+    assert trace[0]["output_columns"] == ["num2", "char"]
+
+
+def test_pipeline_trace_supports_label_transforming_fitted_pipelines():
+    """Test trace handles X-y stages in transform mode."""
+    df = _test_df()
+    y = pd.Series(["a", "b"], index=df.index)
+
+    non_fittable = PdPipeline([XyTraceStage()])
+    non_fittable.fit(df, y=y)
+    non_fittable_trace = non_fittable.trace(df, y=y)
+
+    fittable = PdPipeline([FittableXyTraceStage()])
+    fittable.fit(df, y=y)
+    fittable_trace = fittable.trace(df, y=y)
+
+    assert non_fittable_trace[0]["status"] == "applied"
+    assert non_fittable_trace[0]["output_columns"] == ["num2", "char"]
+    assert fittable_trace[0]["status"] == "applied"
+    assert fittable_trace[0]["output_columns"] == ["num2", "char"]
 
 
 def test_pipeline_index():
