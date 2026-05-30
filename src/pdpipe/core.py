@@ -2,6 +2,7 @@
 
 import abc
 import collections
+import copy
 import inspect
 import re
 import sys
@@ -1988,6 +1989,163 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
             lines.append(f"  stage_{index} -> stage_{index + 1};")
         lines.append("}")
         return "\n".join(lines)
+
+    @staticmethod
+    def _trace_frame_state(frame):
+        return {
+            "shape": frame.shape,
+            "columns": list(frame.columns),
+        }
+
+    @staticmethod
+    def _trace_stage_base(index, stage, input_frame):
+        input_state = PdPipeline._trace_frame_state(input_frame)
+        return {
+            "stage_index": index,
+            "stage_class": stage.__class__.__name__,
+            "stage_name": getattr(stage, "_name", ""),
+            "stage_description": stage.description(),
+            "status": None,
+            "skip_reason": None,
+            "input_shape": input_state["shape"],
+            "input_columns": input_state["columns"],
+            "output_shape": None,
+            "output_columns": None,
+            "error_type": None,
+            "error_message": None,
+        }
+
+    @staticmethod
+    def _trace_set_output(trace_entry, output_frame):
+        output_state = PdPipeline._trace_frame_state(output_frame)
+        trace_entry["output_shape"] = output_state["shape"]
+        trace_entry["output_columns"] = output_state["columns"]
+
+    @staticmethod
+    def _trace_set_error(trace_entry, error):
+        trace_entry["status"] = "failed"
+        trace_entry["error_type"] = error.__class__.__name__
+        trace_entry["error_message"] = str(error)
+
+    def trace(
+        self,
+        X: pandas.DataFrame,
+        y: Optional[Iterable] = None,
+        exraise: Optional[bool] = False,
+        verbose: Optional[bool] = False,
+        fit_context: Optional[dict] = None,
+        application_context: Optional[dict] = None,
+    ):
+        """Trace applying this pipeline to a dataframe.
+
+        This method is a dependency-free dry-run helper for inspecting how a
+        pipeline applies to a specific dataframe. It returns a list of
+        dictionaries, one per visited stage, with stage metadata, status,
+        input/output dataframe shape, and input/output column labels.
+
+        Tracing runs on a deep copy of the pipeline and on a deep copy of the
+        input dataframe. If this pipeline is already fitted, the copied
+        pipeline is transformed. Otherwise, the copied pipeline is
+        fit-transformed. In both cases, the original pipeline and input
+        dataframe are left unmodified by tracing.
+
+        Parameters
+        ----------
+        X : pandas.DataFrame
+            The dataframe to trace through this pipeline.
+        y : array-like, optional
+            Targets for supervised learning.
+        exraise : bool, default False
+            Determines behaviour if the precondition of a composing stage is
+            not fulfilled by the input dataframe. If True, failed
+            preconditions are reported as failed trace entries. If False, they
+            are reported as skipped trace entries. If None, each stage's
+            configured exraise behaviour is used.
+        verbose : bool, default False
+            If True, stage application messages may be printed while tracing.
+        fit_context : dict, optional
+            Context for the copied pipeline fit operation. Only used when this
+            pipeline is not fitted.
+        application_context : dict, optional
+            Context to add to the copied pipeline application context.
+
+        Returns
+        -------
+        list of dict
+            Structured per-stage trace records.
+
+        """
+        fit_context = {} if fit_context is None else fit_context
+        application_context = (
+            {} if application_context is None else application_context
+        )
+        traced_pipeline = copy.deepcopy(self)
+        trace = []
+        inter_X = copy.deepcopy(X)
+        inter_y = copy.deepcopy(y)
+        fit = not traced_pipeline.is_fitted
+
+        traced_pipeline.application_context = PdpApplicationContext()
+        traced_pipeline.application_context.update(application_context)
+        if fit:
+            traced_pipeline.fit_context = PdpApplicationContext()
+            traced_pipeline.fit_context.update(fit_context)
+
+        for index, stage in enumerate(traced_pipeline._stages):
+            trace_entry = self._trace_stage_base(index, stage, inter_X)
+            trace.append(trace_entry)
+            stage.fit_context = traced_pipeline.fit_context
+            stage.application_context = traced_pipeline.application_context
+
+            try:
+                traced_pipeline._use_dynamics(stage, inter_X, inter_y)
+                if stage._should_skip(inter_X, inter_y):
+                    trace_entry["status"] = "skipped"
+                    trace_entry["skip_reason"] = "skip"
+                    self._trace_set_output(trace_entry, inter_X)
+                    continue
+
+                if inter_y is not None:
+                    inter_y = stage._cast_y_to_series(inter_X, inter_y)
+
+                if not stage._compound_prec(inter_X, inter_y, fit=fit):
+                    stage_exraise = (
+                        stage._exraise if exraise is None else exraise
+                    )
+                    if stage_exraise:
+                        stage._raise_precondition_error()
+                    trace_entry["status"] = "skipped"
+                    trace_entry["skip_reason"] = "precondition"
+                    self._trace_set_output(trace_entry, inter_X)
+                    continue
+
+                if fit:
+                    result = stage.fit_transform(
+                        X=inter_X,
+                        y=inter_y,
+                        exraise=exraise,
+                        verbose=verbose,
+                    )
+                else:
+                    result = stage.transform(
+                        X=inter_X,
+                        y=inter_y,
+                        exraise=exraise,
+                        verbose=verbose,
+                    )
+                if inter_y is None:
+                    inter_X = result
+                else:
+                    inter_X, inter_y = result
+                trace_entry["status"] = "applied"
+                self._trace_set_output(trace_entry, inter_X)
+            except Exception as error:  # pylint: disable=broad-except
+                self._trace_set_error(trace_entry, error)
+                break
+            finally:
+                stage.application_context = None
+
+        return trace
 
     def __times_str__(self, times):
         res = "A pdpipe pipeline:\n"

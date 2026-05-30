@@ -32,6 +32,41 @@ class SilentDropStage(PdPipelineStage):
         return df.drop([self.colname], axis=1)
 
 
+class FailingTransformStage(PdPipelineStage):
+    """A pipeline stage that fails during transformation."""
+
+    def _prec(self, df):
+        return True
+
+    def _transform(self, df, verbose):
+        raise ValueError("trace failure")
+
+
+class MutatingStage(PdPipelineStage):
+    """A pipeline stage that mutates its input dataframe."""
+
+    def _prec(self, df):
+        return True
+
+    def _transform(self, df, verbose):
+        df["mutated"] = 1
+        return df
+
+
+class FittableMarkingStage(PdPipelineStage):
+    """A fittable pipeline stage for trace isolation tests."""
+
+    def _prec(self, df):
+        return True
+
+    def _fit_transform(self, df, verbose):
+        self.was_fitted = True
+        return df.drop(["num1"], axis=1)
+
+    def _transform(self, df, verbose):
+        return df.drop(["num1"], axis=1)
+
+
 @pytest.mark.parametrize("time", [True, False])
 def test_two_stage_pipeline_stage(time):
     """Testing something."""
@@ -238,6 +273,136 @@ def test_empty_pipeline_to_dot():
             "}",
         ]
     )
+
+
+def test_pipeline_trace_reports_applied_and_precondition_skipped_stages():
+    """Test structured trace records for applied and precondition skips."""
+    drop_num1 = SilentDropStage(
+        "num1",
+        name="drop_num1",
+        desc="Drop num1 column",
+    )
+    missing = SilentDropStage("missing", desc="Drop missing column")
+    pipeline = PdPipeline([drop_num1, missing])
+    df = _test_df()
+
+    trace = pipeline.trace(df)
+
+    assert trace == [
+        {
+            "stage_index": 0,
+            "stage_class": "SilentDropStage",
+            "stage_name": "drop_num1",
+            "stage_description": "Drop num1 column",
+            "status": "applied",
+            "skip_reason": None,
+            "input_shape": (2, 3),
+            "input_columns": ["num1", "num2", "char"],
+            "output_shape": (2, 2),
+            "output_columns": ["num2", "char"],
+            "error_type": None,
+            "error_message": None,
+        },
+        {
+            "stage_index": 1,
+            "stage_class": "SilentDropStage",
+            "stage_name": "",
+            "stage_description": "Drop missing column",
+            "status": "skipped",
+            "skip_reason": "precondition",
+            "input_shape": (2, 2),
+            "input_columns": ["num2", "char"],
+            "output_shape": (2, 2),
+            "output_columns": ["num2", "char"],
+            "error_type": None,
+            "error_message": None,
+        },
+    ]
+
+
+def test_pipeline_trace_reports_skip_callable_stages():
+    """Test trace distinguishes skip callbacks from precondition skips."""
+    stage = SilentDropStage(
+        "num1",
+        skip=lambda df: True,
+        desc="Conditionally drop num1",
+    )
+    pipeline = PdPipeline([stage])
+
+    trace = pipeline.trace(_test_df())
+
+    assert trace[0]["status"] == "skipped"
+    assert trace[0]["skip_reason"] == "skip"
+    assert trace[0]["input_columns"] == ["num1", "num2", "char"]
+    assert trace[0]["output_columns"] == ["num1", "num2", "char"]
+
+
+def test_pipeline_trace_reports_failure_and_stops():
+    """Test trace records a failing stage and stops at the failure."""
+    pipeline = PdPipeline(
+        [
+            SilentDropStage("num1"),
+            FailingTransformStage(desc="Fail in transform"),
+            SilentDropStage("char"),
+        ]
+    )
+
+    trace = pipeline.trace(_test_df())
+
+    assert [entry["status"] for entry in trace] == ["applied", "failed"]
+    assert trace[1]["stage_index"] == 1
+    assert trace[1]["stage_class"] == "FailingTransformStage"
+    assert trace[1]["stage_description"] == "Fail in transform"
+    assert trace[1]["input_shape"] == (2, 2)
+    assert trace[1]["input_columns"] == ["num2", "char"]
+    assert trace[1]["output_shape"] is None
+    assert trace[1]["output_columns"] is None
+    assert trace[1]["error_type"] == "ValueError"
+    assert trace[1]["error_message"] == "trace failure"
+
+
+def test_pipeline_trace_is_deterministic_across_calls():
+    """Test trace output order and content are deterministic."""
+    pipeline = PdPipeline(
+        [
+            SilentDropStage("num1", name="first"),
+            SilentDropStage("num2", name="second"),
+            SilentDropStage("char", name="third"),
+        ]
+    )
+    df = _test_df()
+
+    first_trace = pipeline.trace(df)
+    second_trace = pipeline.trace(df)
+
+    assert first_trace == second_trace
+    assert [entry["stage_index"] for entry in first_trace] == [0, 1, 2]
+    assert [entry["stage_name"] for entry in first_trace] == [
+        "first",
+        "second",
+        "third",
+    ]
+
+
+def test_pipeline_trace_does_not_mutate_input_dataframe_or_pipeline_state():
+    """Test trace works on copies of both the dataframe and pipeline."""
+    fittable = FittableMarkingStage()
+    pipeline = PdPipeline([fittable, MutatingStage()])
+    df = _test_df()
+    expected_df = df.copy(deep=True)
+
+    trace = pipeline.trace(df)
+
+    pd.testing.assert_frame_equal(df, expected_df)
+    assert "mutated" not in df.columns
+    assert not pipeline.is_fitted
+    assert not fittable.is_fitted
+    assert not hasattr(fittable, "was_fitted")
+    assert trace[0]["status"] == "applied"
+    assert trace[0]["output_columns"] == ["num2", "char"]
+    assert trace[1]["status"] == "applied"
+    assert trace[1]["input_columns"] == ["num2", "char"]
+    assert trace[1]["output_columns"] == ["num2", "char", "mutated"]
 
 
 def test_pipeline_index():
