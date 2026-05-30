@@ -3,6 +3,7 @@
 import numpy as np
 import pandas as pd
 import pytest
+from scipy import sparse
 
 import pdpipe as pdp
 from pdpipe.exceptions import PipelineApplicationError
@@ -154,6 +155,45 @@ def test_sklearn_transform_same_width_custom_columns_keep_positions():
     )
 
 
+def test_sklearn_transform_accepts_stage_kwargs():
+    df = _some_df()
+    stage = SklearnColumnTransform(
+        StandardScaler(),
+        ["x", "y"],
+        exmsg="custom precondition failure",
+    )
+
+    res = stage(df)
+
+    assert list(res.columns) == ["id", "x", "y", "z", "label"]
+    assert stage._exmsg == "custom precondition failure"
+
+
+def test_sklearn_transform_accepts_sparse_output():
+    df = _some_df()
+    stage = SklearnColumnTransform(
+        FunctionTransformer(lambda X: sparse.csr_matrix(X.values + 1)),
+        ["x", "y"],
+    )
+
+    res = stage(df)
+
+    assert list(res.columns) == ["id", "x", "y", "z", "label"]
+    assert np.allclose(res[["x", "y"]].values, df[["x", "y"]].values + 1)
+
+
+def test_sklearn_transform_empty_selector_is_noop():
+    df = _some_df()
+    stage = SklearnColumnTransform(
+        FunctionTransformer(lambda X: X),
+        lambda X: [],
+    )
+
+    res = stage(df)
+
+    assert res.equals(df)
+
+
 def test_sklearn_transform_invalid_result_columns_length():
     df = _some_df()
     stage = SklearnColumnTransform(
@@ -265,6 +305,54 @@ def test_sklearn_transform_rejects_result_column_collision():
     )
 
     with pytest.raises(PipelineApplicationError, match="collide"):
+        stage(df)
+
+
+def test_sklearn_transform_rejects_duplicate_result_columns():
+    df = _some_df()
+    stage = SklearnColumnTransform(
+        FunctionTransformer(lambda X: X),
+        ["x", "y"],
+        result_columns=["dup", "dup"],
+    )
+
+    with pytest.raises(PipelineApplicationError, match="unique"):
+        stage(df)
+
+
+class _FitFailingTransformer(BaseEstimator, TransformerMixin):
+    def fit(self, X, y=None):
+        raise ValueError("fit failed")
+
+    def transform(self, X):
+        return X
+
+
+def test_sklearn_transform_wraps_fit_exception():
+    df = _some_df()
+    stage = SklearnColumnTransform(_FitFailingTransformer(), ["x", "y"])
+
+    with pytest.raises(PipelineApplicationError, match="applied to columns"):
+        stage(df)
+
+
+class _TransformFailingTransformer(BaseEstimator, TransformerMixin):
+    def fit_transform(self, X, y=None):
+        return X
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        raise ValueError("transform failed")
+
+
+def test_sklearn_transform_wraps_transform_exception():
+    df = _some_df()
+    stage = SklearnColumnTransform(_TransformFailingTransformer(), ["x", "y"])
+    stage(df)
+
+    with pytest.raises(PipelineApplicationError, match="applied to columns"):
         stage(df)
 
 

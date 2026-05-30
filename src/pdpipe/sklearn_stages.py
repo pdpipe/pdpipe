@@ -558,7 +558,7 @@ class SklearnColumnTransform(ColumnsBasedPipelineStage):
             return selected_columns
         return [self._lbl_format.format(i) for i in range(n_output_columns)]
 
-    def _make_result_df(self, res, X, selected_columns, result_columns=None):
+    def _make_result_df(self, res, X, result_columns):
         arr = self._as_2d_array(res)
         if arr.shape[0] != len(X.index):
             raise PipelineApplicationError(
@@ -566,11 +566,7 @@ class SklearnColumnTransform(ColumnsBasedPipelineStage):
                 "match the input dataframe row count. Got "
                 f"{arr.shape[0]} rows for {len(X.index)} input rows."
             )
-        if result_columns is None:
-            result_columns = self._resolve_result_columns(
-                selected_columns, arr.shape[1]
-            )
-        elif len(result_columns) != arr.shape[1]:
+        if len(result_columns) != arr.shape[1]:
             raise PipelineApplicationError(
                 "SklearnColumnTransform transformer output width changed "
                 "after fit. "
@@ -650,7 +646,6 @@ class SklearnColumnTransform(ColumnsBasedPipelineStage):
             result_X = self._make_result_df(
                 result_arr,
                 X,
-                self._columns_to_transform,
                 result_columns=self._result_columns_,
             )
         except PipelineApplicationError:
@@ -672,7 +667,6 @@ class SklearnColumnTransform(ColumnsBasedPipelineStage):
             result_X = self._make_result_df(
                 result,
                 X,
-                self._columns_to_transform,
                 result_columns=self._result_columns_,
             )
         except PipelineApplicationError:
