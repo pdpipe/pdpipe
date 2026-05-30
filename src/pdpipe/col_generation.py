@@ -7,6 +7,7 @@ Available stages include:
 - ApplyToRows
 - ApplyByCols (element-wise)
 - TransformByCols (series-wise, using Series.transform)
+- Diff
 - ColByFrameFunc
 - AggByCols (aggregation)
 - Log
@@ -876,6 +877,75 @@ class TransformByCols(ColumnTransformer):
 
     def _col_transform(self, series, label):
         return series.transform(self._func)
+
+
+class Diff(ColumnTransformer):
+    """A pipeline stage applying pandas diff to columns.
+
+    This is a pipeline stage that replaces selected columns with their
+    per-column differences, using pandas.Series.diff. Rows without a
+    counterpart for the requested periods get NaN values, matching pandas
+    behavior. This stage does not add inverse-transform support.
+
+    Parameters
+    ----------
+    columns : single label, list-like or callable
+        Column labels in the DataFrame to be transformed. Alternatively, this
+        parameter can be assigned a callable returning an iterable of labels
+        from an input pandas.DataFrame. See `pdpipe.cq`.
+    periods : int, default 1
+        The number of periods to use for calculating the difference, forwarded
+        to pandas.Series.diff.
+    result_columns : str or list-like, default None
+        The names of the new columns resulting from the diff operation. Must
+        be of the same length as columns. If None, behavior depends on the
+        drop parameter: If drop is True, the name of the source column is used;
+        otherwise, the name of the source column is used with the suffix
+        '_diff'.
+    drop : bool, default True
+        If set to True, source columns are dropped after being transformed.
+    suffix : str, default None
+        If provided, this string is concatenated to resulting column labels
+        instead of '_diff'.
+    **kwargs : object
+        All PdPipelineStage constructor parameters are supported.
+
+    Examples
+    --------
+    >>> import pandas as pd; import pdpipe as pdp;
+    >>> df = pd.DataFrame({'sales': [10, 13, 19], 'store': ['a', 'a', 'a']})
+    >>> pdp.Diff('sales').apply(df)
+       sales store
+    0    NaN     a
+    1    3.0     a
+    2    6.0     a
+
+    """
+
+    def __init__(
+        self,
+        columns,
+        periods=1,
+        result_columns=None,
+        drop=True,
+        suffix=None,
+        **kwargs,
+    ):
+        self._periods = periods
+        if suffix is None:
+            suffix = "_diff"
+        super_kwargs = {
+            "columns": columns,
+            "result_columns": result_columns,
+            "drop": drop,
+            "suffix": suffix,
+            "desc_temp": f"Diff columns {{}} with periods {periods}",
+        }
+        super_kwargs.update(**kwargs)
+        super().__init__(**super_kwargs)
+
+    def _col_transform(self, series, label):
+        return series.diff(periods=self._periods)
 
 
 class ColByFrameFunc(PdPipelineStage):
