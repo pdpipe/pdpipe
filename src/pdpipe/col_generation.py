@@ -16,7 +16,9 @@ Available stages include:
 
 import abc
 import inspect
+import os
 import warnings
+from concurrent.futures import ThreadPoolExecutor
 from typing import Callable, Dict, Optional, Tuple, Union
 
 import numpy as np
@@ -397,27 +399,44 @@ class ColumnTransformer(ColumnsBasedPipelineStage):
     ) -> pd.Series:
         raise NotImplementedError
 
+    def _get_result_columns(self, columns):
+        if self._result_columns is not None:
+            return self._result_columns
+        if self._drop:
+            return columns
+        return [f"{col}{self._suffix}" for col in columns]
+
+    def _insert_transformed_column(
+        self,
+        inter_X,
+        X,
+        source_column,
+        result_column,
+        transformed_column,
+    ):
+        loc = X.columns.get_loc(source_column) + 1
+        if self._drop:
+            inter_X = inter_X.drop(source_column, axis=1)
+            loc -= 1
+        return out_of_place_col_insert(
+            X=inter_X,
+            series=transformed_column,
+            loc=loc,
+            column_name=result_column,
+        )
+
     def _transformation(self, X, verbose, fit):
         columns = self._get_columns(X, fit=fit)
-        result_columns = self._result_columns
-        if self._result_columns is None:
-            if self._drop:
-                result_columns = columns
-            else:
-                result_columns = [f"{col}{self._suffix}" for col in columns]
+        result_columns = self._get_result_columns(columns)
         inter_X = X
         for i, colname in enumerate(columns):
             source_col = X[colname]
-            loc = X.columns.get_loc(colname) + 1
-            new_name = result_columns[i]
-            if self._drop:
-                inter_X = inter_X.drop(colname, axis=1)
-                loc -= 1
-            inter_X = out_of_place_col_insert(
-                X=inter_X,
-                series=self._col_transform(source_col, colname),
-                loc=loc,
-                column_name=new_name,
+            inter_X = self._insert_transformed_column(
+                inter_X=inter_X,
+                X=X,
+                source_column=colname,
+                result_column=result_columns[i],
+                transformed_column=self._col_transform(source_col, colname),
             )
         return inter_X
 
@@ -711,6 +730,14 @@ class ApplyByCols(ColumnTransformer):
         of '_app'.
     args : tuple, optional
         Positional arguments to pass to func in addition to the array/series.
+    n_jobs : int, default None
+        Number of worker threads to use when applying the function. If None
+        or 1, the existing serial implementation is used. If -1, all
+        available CPUs are used. Parallel execution uses Python's standard
+        thread pool, so it works with non-picklable callables but is best
+        suited for functions that release the GIL or spend time on I/O.
+        Functions should not depend on shared mutable state or call ordering
+        when parallel execution is enabled.
     **kwargs : dict, optional
         Additional keyword arguments to pass as keywords arguments to func.
         Valid constructor parameters of superclasses are extracted and used
@@ -739,9 +766,11 @@ class ApplyByCols(ColumnTransformer):
         func_desc=None,
         suffix=None,
         args=(),
+        n_jobs=None,
         **kwargs,
     ):
         self._func = func
+        self._n_jobs = n_jobs
         self._inject_label = False
         self._inject_fit_context = False
         self._inject_application_context = False
@@ -775,6 +804,47 @@ class ApplyByCols(ColumnTransformer):
         super_kwargs.update(**init_kwargs)
         super().__init__(**super_kwargs)
 
+    @staticmethod
+    def _effective_n_jobs(n_jobs):
+        if n_jobs is None:
+            return 1
+        if n_jobs == -1:
+            return os.cpu_count() or 1
+        if not isinstance(n_jobs, int):
+            raise TypeError("n_jobs must be an integer, -1, 1, or None.")
+        if n_jobs < 1:
+            raise ValueError("n_jobs must be a positive integer, -1, or None.")
+        return n_jobs
+
+    def _parallel_col_transform(self, X, columns, max_workers):
+        def transform_col(colname):
+            return self._col_transform(X[colname], colname)
+
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            return list(executor.map(transform_col, columns))
+
+    def _transformation(self, X, verbose, fit):
+        n_jobs = self._effective_n_jobs(self._n_jobs)
+        if n_jobs == 1:
+            return super()._transformation(X=X, verbose=verbose, fit=fit)
+        columns = self._get_columns(X, fit=fit)
+        result_columns = self._get_result_columns(columns)
+        transformed_columns = self._parallel_col_transform(
+            X=X,
+            columns=columns,
+            max_workers=n_jobs,
+        )
+        inter_X = X
+        for i, colname in enumerate(columns):
+            inter_X = self._insert_transformed_column(
+                inter_X=inter_X,
+                X=X,
+                source_column=colname,
+                result_column=result_columns[i],
+                transformed_column=transformed_columns[i],
+            )
+        return inter_X
+
     def _col_transform(
         self,
         series: pd.Series,
@@ -782,7 +852,7 @@ class ApplyByCols(ColumnTransformer):
         fit_context: Optional[PdpApplicationContext] = None,
         application_context: Optional[PdpApplicationContext] = None,
     ) -> pd.Series:
-        kwargs = self._apply_kwargs
+        kwargs = dict(self._apply_kwargs)
         if self._inject_label:
             kwargs["label"] = label
         if self._inject_fit_context:
