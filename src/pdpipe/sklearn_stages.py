@@ -539,8 +539,8 @@ class SklearnColumnTransform(ColumnsBasedPipelineStage):
         res = np.asarray(res)
         if res.ndim != 2:
             raise PipelineApplicationError(
-                "SklearnColumnTransform expected a 2-dimensional transformer output;"
-                f" got {res.ndim} dimensions."
+                "SklearnColumnTransform expected a 2-dimensional "
+                f"transformer output; got {res.ndim} dimensions."
             )
         return res
 
@@ -562,9 +562,9 @@ class SklearnColumnTransform(ColumnsBasedPipelineStage):
         arr = self._as_2d_array(res)
         if arr.shape[0] != len(X.index):
             raise PipelineApplicationError(
-                "SklearnColumnTransform transformer output row count must match "
-                f"the input dataframe row count. Got {arr.shape[0]} rows "
-                f"for {len(X.index)} input rows."
+                "SklearnColumnTransform transformer output row count must "
+                "match the input dataframe row count. Got "
+                f"{arr.shape[0]} rows for {len(X.index)} input rows."
             )
         if result_columns is None:
             result_columns = self._resolve_result_columns(
@@ -572,7 +572,8 @@ class SklearnColumnTransform(ColumnsBasedPipelineStage):
             )
         elif len(result_columns) != arr.shape[1]:
             raise PipelineApplicationError(
-                "SklearnColumnTransform transformer output width changed after fit. "
+                "SklearnColumnTransform transformer output width changed "
+                "after fit. "
                 f"Expected {len(result_columns)} output columns, got "
                 f"{arr.shape[1]}."
             )
@@ -594,7 +595,8 @@ class SklearnColumnTransform(ColumnsBasedPipelineStage):
         ]
         if colliding_cols:
             raise PipelineApplicationError(
-                "SklearnColumnTransform result column labels must not collide with "
+                "SklearnColumnTransform result column labels must not "
+                "collide with "
                 f"passthrough columns. Colliding labels: {colliding_cols}."
             )
         if self._replace_selected:
@@ -626,7 +628,8 @@ class SklearnColumnTransform(ColumnsBasedPipelineStage):
         ]
         if missing_cols:
             raise PipelineApplicationError(
-                "SklearnColumnTransform missing fitted input columns on transform: "
+                "SklearnColumnTransform missing fitted input columns on "
+                "transform: "
                 f"{missing_cols}."
             )
 
@@ -654,7 +657,8 @@ class SklearnColumnTransform(ColumnsBasedPipelineStage):
             raise
         except Exception as e:
             raise PipelineApplicationError(
-                "Exception raised when SklearnColumnTransform applied to columns"
+                "Exception raised when SklearnColumnTransform applied to "
+                "columns"
                 f" {self._columns_to_transform} by class {self.__class__}"
             ) from e
         self.is_fitted = True
@@ -675,7 +679,8 @@ class SklearnColumnTransform(ColumnsBasedPipelineStage):
             raise
         except Exception as e:
             raise PipelineApplicationError(
-                "Exception raised when SklearnColumnTransform applied to columns"
+                "Exception raised when SklearnColumnTransform applied to "
+                "columns"
                 f" {self._columns_to_transform} by class {self.__class__}"
             ) from e
         return self._insert_result(X, self._columns_to_transform, result_X)
