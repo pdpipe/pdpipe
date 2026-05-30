@@ -86,6 +86,7 @@ from . import sklearn_stages
 from .sklearn_stages import (
     Encode,
     Scale,
+    SklearnTransform,
     TfidfVectorizeTokenLists,
     Decompose,
     EncodeLabel,
@@ -140,6 +141,7 @@ __all__ = [
     "sklearn_stages",
     "Encode",
     "Scale",
+    "SklearnTransform",
     "TfidfVectorizeTokenLists",
     "Decompose",
     "EncodeLabel",
