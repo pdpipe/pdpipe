@@ -180,8 +180,11 @@ def test_pipeline_to_dot_represents_stage_order_and_names():
             "digraph PdPipeline {",
             "  graph [rankdir=LR];",
             "  node [shape=box];",
-            '  stage_0 [label="[0] drop_num1: Drop num1 column"];',
-            '  stage_1 [label="[1] Drop num2 column"];',
+            (
+                '  stage_0 [label="[0] SilentDropStage: '
+                'drop_num1\\nDrop num1 column"];'
+            ),
+            '  stage_1 [label="[1] SilentDropStage\\nDrop num2 column"];',
             "  stage_0 -> stage_1;",
             "}",
         ]
@@ -203,7 +206,7 @@ def test_pipeline_to_dot_escapes_dot_label_characters():
             "  graph [rankdir=LR];",
             "  node [shape=box];",
             (
-                '  stage_0 [label="[0] drop \\"quoted\\": '
+                '  stage_0 [label="[0] SilentDropStage: drop \\"quoted\\"\\n'
                 'Drop \\"quoted\\" \\\\ column\\nthen continue"];'
             ),
             "}",

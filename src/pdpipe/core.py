@@ -1956,14 +1956,19 @@ class PdPipeline(PdPipelineStage, collections.abc.Sequence):
     def _dot_stage_label(index, stage):
         desc = stage.description()
         name = getattr(stage, "_name", "")
-        stage_label = f"{name}: {desc}" if name else desc
-        return PdPipeline._dot_escape(f"[{index}] {stage_label}")
+        class_name = stage.__class__.__name__
+        if name:
+            stage_label = f"[{index}] {class_name}: {name}\n{desc}"
+        else:
+            stage_label = f"[{index}] {class_name}\n{desc}"
+        return PdPipeline._dot_escape(stage_label)
 
     def to_dot(self):
         """Return a Graphviz DOT representation of this pipeline.
 
         The returned graph is dependency-free text with deterministic node IDs
-        based on stage order.
+        based on stage order. Node labels include each stage's index, class
+        name, optional stage name and description.
 
         Returns
         -------
