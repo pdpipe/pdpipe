@@ -399,27 +399,44 @@ class ColumnTransformer(ColumnsBasedPipelineStage):
     ) -> pd.Series:
         raise NotImplementedError
 
+    def _get_result_columns(self, columns):
+        if self._result_columns is not None:
+            return self._result_columns
+        if self._drop:
+            return columns
+        return [f"{col}{self._suffix}" for col in columns]
+
+    def _insert_transformed_column(
+        self,
+        inter_X,
+        X,
+        source_column,
+        result_column,
+        transformed_column,
+    ):
+        loc = X.columns.get_loc(source_column) + 1
+        if self._drop:
+            inter_X = inter_X.drop(source_column, axis=1)
+            loc -= 1
+        return out_of_place_col_insert(
+            X=inter_X,
+            series=transformed_column,
+            loc=loc,
+            column_name=result_column,
+        )
+
     def _transformation(self, X, verbose, fit):
         columns = self._get_columns(X, fit=fit)
-        result_columns = self._result_columns
-        if self._result_columns is None:
-            if self._drop:
-                result_columns = columns
-            else:
-                result_columns = [f"{col}{self._suffix}" for col in columns]
+        result_columns = self._get_result_columns(columns)
         inter_X = X
         for i, colname in enumerate(columns):
             source_col = X[colname]
-            loc = X.columns.get_loc(colname) + 1
-            new_name = result_columns[i]
-            if self._drop:
-                inter_X = inter_X.drop(colname, axis=1)
-                loc -= 1
-            inter_X = out_of_place_col_insert(
-                X=inter_X,
-                series=self._col_transform(source_col, colname),
-                loc=loc,
-                column_name=new_name,
+            inter_X = self._insert_transformed_column(
+                inter_X=inter_X,
+                X=X,
+                source_column=colname,
+                result_column=result_columns[i],
+                transformed_column=self._col_transform(source_col, colname),
             )
         return inter_X
 
@@ -799,31 +816,6 @@ class ApplyByCols(ColumnTransformer):
             raise ValueError("n_jobs must be a positive integer, -1, or None.")
         return n_jobs
 
-    @staticmethod
-    def _resolve_result_columns(columns, result_columns, drop, suffix):
-        if result_columns is not None:
-            return result_columns
-        if drop:
-            return columns
-        return [f"{col}{suffix}" for col in columns]
-
-    @staticmethod
-    def _insert_transformed_columns(X, columns, result_columns, drop, series):
-        inter_X = X
-        for i, colname in enumerate(columns):
-            loc = X.columns.get_loc(colname) + 1
-            new_name = result_columns[i]
-            if drop:
-                inter_X = inter_X.drop(colname, axis=1)
-                loc -= 1
-            inter_X = out_of_place_col_insert(
-                X=inter_X,
-                series=series[i],
-                loc=loc,
-                column_name=new_name,
-            )
-        return inter_X
-
     def _parallel_col_transform(self, X, columns, max_workers):
         def transform_col(colname):
             return self._col_transform(X[colname], colname)
@@ -836,24 +828,22 @@ class ApplyByCols(ColumnTransformer):
         if n_jobs == 1:
             return super()._transformation(X=X, verbose=verbose, fit=fit)
         columns = self._get_columns(X, fit=fit)
-        result_columns = self._resolve_result_columns(
-            columns=columns,
-            result_columns=self._result_columns,
-            drop=self._drop,
-            suffix=self._suffix,
-        )
-        series = self._parallel_col_transform(
+        result_columns = self._get_result_columns(columns)
+        transformed_columns = self._parallel_col_transform(
             X=X,
             columns=columns,
             max_workers=n_jobs,
         )
-        return self._insert_transformed_columns(
-            X=X,
-            columns=columns,
-            result_columns=result_columns,
-            drop=self._drop,
-            series=series,
-        )
+        inter_X = X
+        for i, colname in enumerate(columns):
+            inter_X = self._insert_transformed_column(
+                inter_X=inter_X,
+                X=X,
+                source_column=colname,
+                result_column=result_columns[i],
+                transformed_column=transformed_columns[i],
+            )
+        return inter_X
 
     def _col_transform(
         self,
