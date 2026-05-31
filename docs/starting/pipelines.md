@@ -35,6 +35,27 @@ A pdpipe pipeline:
 [ 2]  Map values of column Job with {'Part': True, 'Full': True, 'No': False}
 ```
 
+## Exporting Pipeline Graphs
+
+`PdPipeline.to_dot()` returns a dependency-free Graphviz DOT representation of
+the pipeline. Node labels include each stage's index, class name, optional
+stage name, and description. The returned string can be written to a `.dot`
+file or passed to Graphviz tooling.
+
+<!--phmdoctest-skip-->
+
+```python
+>>> pipeline = pdp.ColDrop("Name").OneHotEncode("Label")
+>>> print(pipeline.to_dot())
+digraph PdPipeline {
+  graph [rankdir=LR];
+  node [shape=box];
+  stage_0 [label="[0] ColDrop\nDrop columns 'Name'"];
+  stage_1 [label="[1] OneHotEncode\nOne-hot encode 'Label'"];
+  stage_0 -> stage_1;
+}
+```
+
 ## Pipeline Arithmetics
 
 Alternatively, you can create pipelines by adding pipeline stages together:
@@ -109,3 +130,28 @@ res_df = pipeline.apply(df, verbose=True)
 ```
 
 Finally, `fit`, `transform` and `fit_transform` all call the corresponding pipeline stage methods of all stages composing the pipeline.
+
+## Tracing Pipeline Application
+
+`PdPipeline.trace()` applies a deep-copied pipeline to a deep-copied dataframe
+and returns structured records describing each visited stage. It is useful for
+debugging pipeline behavior without fitting or mutating the original pipeline
+or input dataframe.
+
+Each trace entry includes the stage index, class, optional name, description,
+status, skip reason, input/output shapes, input/output columns, and error
+details if the stage failed.
+
+<!--phmdoctest-skip-->
+
+```python
+>>> pipeline = pdp.ColDrop("Name").OneHotEncode("Label")
+>>> trace = pipeline.trace(df)
+>>> first_stage = trace[0]
+>>> first_stage.get("status")
+'applied'
+>>> first_stage.get("input_columns")
+['Name', 'Label', 'Children']
+>>> first_stage.get("output_columns")
+['Label', 'Children']
+```

@@ -24,6 +24,15 @@ pipelines have a simple interface, informative prints and errors on pipeline
 application, support pipeline arithmetics and enable easier handling of
 mixed-type data.
 
+Current releases include tools for inspecting pipeline structure and runtime
+behavior: `PdPipeline.to_dot()` exports dependency-free Graphviz DOT diagrams,
+and `PdPipeline.trace()` returns structured per-stage diagnostics for a
+dataframe run. Column-generation stages include `Diff` for
+`pandas.Series.diff`, and `ApplyByCols` / `ApplyToRows` can opt into
+thread-based parallel execution with `n_jobs` while keeping serial execution as
+the default. Scikit-learn users can wrap arbitrary matrix-to-matrix
+transformers with `SklearnColumnTransform`.
+
 ```py
 >>> df = pd.DataFrame(
         data=[[4, 165, 'USA'], [2, 180, 'UK'], [2, 170, 'Greece']],

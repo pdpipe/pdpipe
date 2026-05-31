@@ -23,6 +23,24 @@ Easy pipelines for pandas DataFrames (`learn how! <https://tirthajyoti.github.io
       Jane     180        1         0
       Nick     170        0         0
 
+Highlights
+==========
+
+``pdpipe`` includes ready-made stages for common pandas preprocessing tasks,
+including column dropping, value filtering, one-hot encoding, column mapping,
+row-wise feature generation, dataframe-wide feature generation, and
+scikit-learn-style transformations.
+
+Recent APIs include:
+
+* ``PdPipeline.to_dot()`` for dependency-free Graphviz DOT pipeline diagrams.
+* ``PdPipeline.trace()`` for structured per-stage dry-run diagnostics.
+* ``Diff`` for applying ``pandas.Series.diff`` to selected columns.
+* ``SklearnColumnTransform`` for wrapping arbitrary matrix-to-matrix
+  scikit-learn transformers while preserving DataFrame column context.
+* Optional ``n_jobs`` thread-based parallel execution in ``ApplyByCols`` and
+  ``ApplyToRows``. Serial execution remains the default.
+
 .. .. alternative symbols: ˨ ᛪ ᛢ ᚶ ᚺ ↬ ⑀ ⤃ ⤳ ⥤ 』
 
 .. contents::
