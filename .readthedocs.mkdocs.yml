@@ -2,9 +2,9 @@ site_name: pdpipe
 site_url: https://pdpipe.readthedocs.io/en/latest/
 repo_name: pdpipe
 repo_url: https://github.com/pdpipe/pdpipe
-edit_uri: edit/master/doc
+edit_uri: edit/master/docs
 docs_dir: docs
-copyright: © Copyright 2022 Shay Palachy | All Rights Reserved.
+copyright: © Copyright 2026 Shay Palachy | All Rights Reserved.
 nav:
   - Home:
       - index.md
@@ -81,14 +81,13 @@ theme:
 plugins:
   - search
   - git-revision-date
-  - mkdocs-jupyter
   - awesome-pages
   - mkdocstrings:
       default_handler: python
       handlers:
         python:
           rendering:
-            show_source: true
+            show_source: false
             show_category_heading: true
             members_order: source
             show_if_no_docstring: true

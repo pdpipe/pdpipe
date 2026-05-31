@@ -62,6 +62,9 @@ Refer to submodule `pdpipe.col_generation`
   Supports opt-in thread-based parallel execution with `n_jobs`; by default,
   the existing serial row-apply path is used.
 - ApplyByCols - Generate columns by applying an element-wise function to columns.
+  Supports opt-in thread-based parallel execution with `n_jobs`; by default,
+  the existing serial column-apply path is used.
+- Diff - Replace or add columns containing `pandas.Series.diff` results.
 - ColByFrameFunc - Add a column by applying a dataframe-wide function.
 - AggByCols - Generate columns by applying an series-wise function to columns.
 - Log - Log-transform numeric data, possibly shifting data before.
@@ -80,6 +83,9 @@ Refer to submodule `pdpipe.sklearn_stages`
 
 - Encode - Encode a categorical column to corresponding number values.
 - Scale - Scale data with any of the sklearn scalers.
+- SklearnColumnTransform - Apply an arbitrary matrix-to-matrix scikit-learn
+  transformer to selected DataFrame columns while preserving column labels and
+  passthrough columns.
 - TfidfVectorizeTokenLists - Transform a column of token lists into the correponding set of tfidf vector columns.
 
 ## nltk-dependent Stages

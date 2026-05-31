@@ -4,11 +4,45 @@ repo_name: pdpipe
 repo_url: https://github.com/pdpipe/pdpipe
 edit_uri: edit/master/docs
 docs_dir: docs
+copyright: © Copyright 2026 Shay Palachy | All Rights Reserved.
 nav:
-  - Home: index.md
-  - Tutorial:
-      - Usage:
-          - tutorial/README.md
+  - Home:
+      - index.md
+      - More on pdpipe: more.md
+  - Getting Started:
+      - Installation: starting/install.md
+      - First Use: starting/first_use.md
+      - Pipeline Stages: starting/stages.md
+      - Pipelines: starting/pipelines.md
+      - Types of Stages: starting/types.md
+      - Fly Handles: starting/fly.md
+      - Conditions: starting/cond.md
+      - Column Qualifiers: starting/cq.md
+      - Wrappers: starting/wrappers.md
+  - Develop:
+      - develop/adhoc.md
+      - develop/custom.md
+  - Tutorials:
+      - tutorials/index.md
+      - Halving Columns: tutorials/half.md
+      - Standartizing: tutorials/standard_df.md
+      - Building Pipelines: tutorials/building_pipelines.md
+      - Custom Stages: tutorials/custom_stages.md
+      - pdpipe and sklearn: tutorials/skintegrate.md
+      - Runtime Parameters: tutorials/runtime_parameters.md
+  - API Reference:
+      - Core: reference/core.md
+      - Basic Stages: reference/basic.md
+      - Column Generation: reference/col_generation.md
+      - Scikit-learn Stages: reference/sklearn.md
+      - Scikit-learn Integrations: reference/skintegrate.md
+      - Text Stages: reference/text.md
+      - NLTK Stages: reference/nltk.md
+      - Fly Handles: reference/fly.md
+      - Conditions: reference/cond.md
+      - Column Qualifiers: reference/cq.md
+      - Wrappers: reference/wrappers.md
+      - Run time parameters: reference/runtime_parameters.md
 theme:
   name: material
   features:
@@ -19,6 +53,7 @@ theme:
     # - navigation.instant
     - navigation.tracking
     - header.autohide
+    - content.code.annotate
   icon:
     repo: fontawesome/brands/github
   language: en
@@ -26,6 +61,7 @@ theme:
     text: Roboto
     code: Roboto Mono
   favicon: images/logo.png
+  logo: "images/white_logo.png"
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
@@ -41,3 +77,65 @@ theme:
       toggle:
         icon: material/lightbulb-outline
         name: Switch to light mode
+
+plugins:
+  - search
+  - git-revision-date
+  - awesome-pages
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          rendering:
+            show_source: false
+            show_category_heading: true
+            members_order: source
+            show_if_no_docstring: true
+          selection:
+            docstring_style: numpy
+            filters: ["!^_"]
+
+# for how to adjust the filters selecting which functions get collected, see:
+# https://mkdocstrings.github.io/pytkdocs/#configuration
+
+# for code blocks syntax highlighting
+markdown_extensions:
+  - admonition
+  - footnotes
+  - codehilite
+  - tables
+  - attr_list
+  - md_in_html
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.details
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/pdpipe/pdpipe
+    - icon: fontawesome/solid/comments
+      link: https://github.com/pdpipe/pdpipe/discussions
+    - icon: fontawesome/brands/gitter
+      link: https://gitter.im/pdpipe/community
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/pdpipe/
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/shaypal5
+
+extra_css:
+  - "mkdocs/css/termynal.css"
+  - "mkdocs/css/custom.css"
+  - "mkdocs/css/extra.css"
+  - "mkdocs/css/admonitions.css"
+
+extra_javascript:
+  - "mkdocs/js/termynal.js"
+  - "mkdocs/js/custom.js"
+  - "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML"
