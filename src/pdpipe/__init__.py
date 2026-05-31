@@ -169,7 +169,7 @@ from .nltk_stages import (
 core.__load_stage_attributes_from_module__("pdpipe.nltk_stages")
 
 from . import run_time_parameters
-from .run_time_parameters import dynamic
+from .run_time_parameters import contextual, dynamic
 
 from .df import DF_HANDLE as df
 
@@ -181,6 +181,7 @@ __all__.extend(
     [
         "run_time_parameters",
         "dynamic",
+        "contextual",
         "df",
         "cq",
         "rq",
