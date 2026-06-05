@@ -115,3 +115,57 @@ def dynamic(
 
     """
     return DynamicParameter(parameter_selector, fittable)
+
+
+class ContextualParameter:
+    """A parameter whose value is read from a pipeline context at runtime.
+
+    Parameters
+    ----------
+    key : str
+        The context key whose value should be used.
+    fit : bool, default True
+        If True, read the value from the fit context. If False, read it from
+        the application context on each pipeline application.
+
+    """
+
+    def __init__(self, key: str, fit: bool = True) -> None:
+        if not isinstance(key, str):
+            raise TypeError("'key' must be a str")
+        if not isinstance(fit, bool):
+            raise TypeError("'fit' must be a bool")
+        self.key = key
+        self.fit = fit
+
+    def resolve(self, fit_context, application_context) -> object:
+        """Return this parameter's concrete value from pipeline context."""
+        context = fit_context if self.fit else application_context
+        context_name = "fit_context" if self.fit else "application_context"
+        try:
+            return context[self.key]
+        except (KeyError, TypeError) as e:
+            raise KeyError(
+                f"No value for contextual parameter {self.key!r} was found "
+                f"in {context_name}."
+            ) from e
+
+
+def contextual(key: str, fit: bool = True) -> ContextualParameter:
+    """Return a contextual parameter placeholder.
+
+    Parameters
+    ----------
+    key : str
+        The context key whose value should be used at runtime.
+    fit : bool, default True
+        If True, read the value from the fit context. If False, read it from
+        the application context on every pipeline application.
+
+    Returns
+    -------
+    ContextualParameter
+        A placeholder object resolved by pipeline stages at application time.
+
+    """
+    return ContextualParameter(key, fit)

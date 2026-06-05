@@ -91,6 +91,20 @@ def test_scaler_no_y():
     pd.testing.assert_frame_equal(res, expected_res)
 
 
+def test_scaler_no_y_timed_path():
+    scaler = _get_scaler(_scaling_decider_no_y)
+    pipeline = pdp.PdPipeline(stages=[scaler])
+
+    res = pipeline.apply(_standard_scaler_df(), time=True)
+
+    expected_res = pd.DataFrame(
+        [[-1.264911, -0.632456], [0.632456, 1.264911]],
+        columns=["a", "b"],
+    )
+    assert scaler.scaler == "StandardScaler"
+    pd.testing.assert_frame_equal(res, expected_res)
+
+
 def test_non_callable():
     with pytest.raises(PipelineApplicationError):
         scaler = _get_scaler("non_callable")
