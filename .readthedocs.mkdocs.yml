@@ -113,10 +113,10 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.emoji:
       emoji_index: !!python/name:materialx.emoji.twemoji
-      emoji_generator: !!python/name:materialx.emoji.to_svg
+      emoji_generator:
+        !!python/name:materialx.emoji.to_svg
         # use icon paths the match the folder structure in the fontawesome repo:
         # https://github.com/FortAwesome/Font-Awesome/tree/master/svgs
-
 
 extra:
   social:
