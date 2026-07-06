@@ -58,8 +58,6 @@ optional-dependencies.sklearn = [ "scikit-learn" ]
 urls.Source = "https://pdpipe.readthedocs.io/en/latest/"
 
 [tool.setuptools]
-include-package-data = true
-dynamic.version = { attr = "pdpipe._version.__version__" }
 packages.find.where = [
   "src",
 ]  # list of folders that contain the packages (["."] by default)
@@ -67,6 +65,8 @@ packages.find.include = [
   "pdpipe*",
 ]  # package names should match these glob patterns (["*"] by default)
 packages.find.namespaces = false  # to disable scanning PEP 420 namespaces (true by default)
+include-package-data = true
+dynamic.version = { attr = "pdpipe._version.__version__" }
 
 # === Linting & Formatting ===
 [tool.black]
@@ -157,9 +157,9 @@ max-complexity = 10
 max-line-length = 100
 
 [tool.pylint]
-"MESSAGES CONTROL".disable = [ "R0911", "R0913", "R0903" ]
+"MESSAGES CONTROL".disable = [ "R0903", "R0911", "R0913" ]
 DESIGN.exclude-too-few-public-methods = [ ".+" ]
-FORMAT.good-names = [ "x", "y", "X", "inter_X", "inter_y", "post_X", "post_y" ]
+FORMAT.good-names = [ "inter_X", "inter_y", "post_X", "post_y", "x", "X", "y" ]
 # --- docformatter ---
 MAIN.ignore = [ "CVS" ]
 MAIN.load-plugins = [ "pylint.extensions.docparams" ]
@@ -176,8 +176,8 @@ blank = true
 [tool.pyright]
 include = [ "pdpipe" ]
 exclude = [
-  "**/node_modules",
   "**/__pycache__",
+  "**/node_modules",
 ]
 
 [tool.pytest]
@@ -188,21 +188,8 @@ ini_options.testpaths = [
   "tests",
 ]
 ini_options.norecursedirs = [
-  "dist",
   "build",
-]
-ini_options.filterwarnings = [
-  "ignore:.*The `disp` and `iprint` options of the L-BFGS-B solver are deprecated.*:DeprecationWarning",
-]
-ini_options.markers = [
-  "log",
-  "onehotencode",
-  "first",
-  "schematize",
-  "bound_col",
-  "coldrop",
-  "skintegrate",
-  "label",
+  "dist",
 ]
 ini_options.addopts = [
   "--cov=pdpipe",
@@ -214,11 +201,23 @@ ini_options.addopts = [
   "-s",
   "-W error",
 ]
+ini_options.markers = [
+  "bound_col",
+  "coldrop",
+  "first",
+  "label",
+  "log",
+  "onehotencode",
+  "schematize",
+  "skintegrate",
+]
+ini_options.filterwarnings = [
+  "ignore:.*The `disp` and `iprint` options of the L-BFGS-B solver are deprecated.*:DeprecationWarning",
+]
 
 [tool.coverage]
 # --- coverage ---
 run.branch = true
-# dynamic_context = "test_function"
 run.omit = [
   "dev/*",
   "pdpipe/__init__.py",
@@ -233,3 +232,4 @@ report.exclude_lines = [
   "raise NotImplementedError", # Don't complain if tests don't hit defensive assertion code:
 ]
 report.show_missing = true
+# dynamic_context = "test_function"
