@@ -32,7 +32,7 @@ repos:
         args: []
 
   - repo: https://github.com/PyCQA/docformatter
-    rev: v1.7.7
+    rev: v1.7.8
     hooks:
       - id: docformatter
         additional_dependencies: [tomli]
@@ -57,7 +57,7 @@ repos:
         args: ["--print-width=79"]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.9
+    rev: v0.15.20
     hooks:
       # use black formatting
       - id: ruff-format
@@ -71,14 +71,14 @@ repos:
 
   # it needs to be after formatting hooks because the lines might be changed
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.20.0
+    rev: v2.1.0
     hooks:
       - id: mypy
         files: "src/pdpipe/(col_generation|sklearn_stages|util)\\.py"
         args: ["--ignore-missing-imports", "--follow-imports=skip"]
 
   - repo: https://github.com/tox-dev/pyproject-fmt
-    rev: v2.21.0
+    rev: v2.25.1
     hooks:
       - id: pyproject-fmt
         additional_dependencies: [tox]
