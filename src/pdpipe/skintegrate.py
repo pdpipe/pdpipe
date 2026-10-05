@@ -1,9 +1,9 @@
 """Classes for sklearn integration.
 
 Despite similar names, there is a difference between pdpipe PdPipeline and
-sklearn.pipeline.Pipeline. PdPipeline can only chain transformers while
-scikit-learn Pipeline objects can further include the final estimator to
-provide additional methods such as `predict` and `predict_proba`.
+sklearn.pipeline.Pipeline. PdPipeline can only chain transformers while scikit-
+learn Pipeline objects can further include the final estimator to provide
+additional methods such as `predict` and `predict_proba`.
 
 This means that by itself, pdpipe PdPipeline does not integrate well with some
 of scikit-learn utility classes such as sklearn.model_selection.GridSearchCV
@@ -48,9 +48,9 @@ warnings.filterwarnings(
 def _estimator_has(attr):
     """Check if we can delegate a method to the underlying estimator.
 
-    Calling a prediction method will only be available if `refit=True`. In
-    such case, we check first the fitted best estimator. If it is not
-    fitted, we check the unfitted estimator.
+    Calling a prediction method will only be available if `refit=True`. In such
+    case, we check first the fitted best estimator. If it is not fitted, we
+    check the unfitted estimator.
 
     Checking the unfitted estimator allows to use `hasattr` on the `SearchCV`
     instance even before calling `fit`.
@@ -68,11 +68,13 @@ def _estimator_has(attr):
 class _AvailableIfDescriptor:  # pragma: no cover
     """Implement a conditional property using the descriptor protocol.
 
-    Using this class to create a decorator will raise an ``AttributeError``
-    if check(self) returns a falsey value. Note that if check raises an error
-    this will also result in hasattr returning false.
+    Using this class to create a decorator will raise an ``AttributeError`` if
+    check(self) returns a falsey value. Note that if check raises an error this
+    will also result in hasattr returning false.
 
-    See https://docs.python.org/3/howto/descriptor.html for an explanation of
+    See
+    https://docs.python.org/3/howto/descriptor.html
+    for an explanation of
     descriptors.
 
     """
