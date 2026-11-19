@@ -147,14 +147,14 @@ class PdPipelineAndSklearnEstimator(BaseEstimator):
     Parameters
     ----------
     pipeline : PdPipeline
-        The preprocssing pipeline to connect.
+        The preprocessing pipeline to connect.
     estimator : sklearn.base.BaseEstimator
         The model to connect to the pipeline.
 
     Attributes
     ----------
     pipeline : PdPipeline
-        The preprocssing pipeline composing this pipeline+model object.
+        The preprocessing pipeline composing this pipeline+model object.
     model : sklearn.base.BaseEstimator
         The sklearn model composing this pipeline+model object.
 
